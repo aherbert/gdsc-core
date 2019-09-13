@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * <htintersection://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 
@@ -34,75 +34,78 @@ package uk.ac.sussex.gdsc.core.match;
  * size of the intersect between sets and the size of the unmatched regions to be known.
  *
  * <ul>
- * <li>True Positives (|A| intersect |B|)
- * <li>False Positives (|A| - TP)
- * <li>False Negatives (|B| - TP)
+ * <li>|A &#8745; B|
+ * <li>|A| - |A &#8745; B|
+ * <li>|B| - |A &#8745; B|
  * </ul>
  */
 //@formatter:on
 public class IntersectionResult {
-  /** The true positives. */
-  private final int tp;
-  /** The false positives. */
-  private final int fp;
-  /** The false negatives. */
-  private final int fn;
+
+  /** Size of the intersection. */
+  private final int intersection;
+
+  /** Size A minus intersection. */
+  private final int aMinusIntersection;
+
+  /** Size B minus intersection. */
+  private final int bMinusIntersection;
 
   /**
    * Create a new instance.
    *
-   * @param tp The number of true positives
-   * @param fp The number of false positives
-   * @param fn The number of false negatives
+   * @param intersection The size of the intersection (|A &#8745; B|)
+   * @param aMinusIntersection The size of A excluding the intersection (|A| - |A &#8745; B|)
+   * @param bMinusIntersection The size of B excluding the intersection (|B| - |A &#8745; B|)
    */
-  public IntersectionResult(int tp, int fp, int fn) {
-    this.tp = tp;
-    this.fp = fp;
-    this.fn = fn;
+  public IntersectionResult(int intersection, int aMinusIntersection, int bMinusIntersection) {
+    this.intersection = intersection;
+    this.aMinusIntersection = aMinusIntersection;
+    this.bMinusIntersection = bMinusIntersection;
   }
 
   /**
-   * Gets the number of predicted points.
+   * Gets the size |A|.
    *
-   * @return the number of predicted points
+   * @return the size |A|
    */
-  public int getNumberPredicted() {
-    return tp + fp;
+  public int getSizeA() {
+    return intersection + aMinusIntersection;
   }
 
   /**
-   * Gets the number of actual points.
+   * Gets the size |B|.
    *
-   * @return the number of actual points.
+   * @return the size |B|
    */
-  public int getNumberActual() {
-    return tp + fn;
+  public int getSizeB() {
+    return intersection + bMinusIntersection;
   }
 
   /**
-   * Gets the true positives.
-   *
-   * @return the true positives
+   * Gets the intersection (|A &#8745; B|).
+   * 
+   * @return the intersection
    */
-  public int getTruePositives() {
-    return tp;
+  public int getIntersection() {
+    return intersection;
   }
 
   /**
-   * Gets the false positives.
+   * The size of A excluding the intersection (|A| - |A &#8745; B|).
    *
-   * @return the false positives
+   * @return the size A minus intersection
    */
-  public int getFalsePositives() {
-    return fp;
+  public int getSizeAMinusIntersection() {
+    return aMinusIntersection;
   }
 
   /**
-   * Gets the false negatives.
+   * The size of B excluding the intersection (|B| - |A &#8745; B|).
    *
-   * @return the false negatives
+   * @return the size B minus intersection
    */
-  public int getFalseNegatives() {
-    return fn;
+  public int getSizeBMinusIntersection() {
+    return bMinusIntersection;
   }
 }

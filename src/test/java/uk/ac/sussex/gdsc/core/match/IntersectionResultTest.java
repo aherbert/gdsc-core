@@ -14,10 +14,10 @@ public class IntersectionResultTest {
     final int fp = 1;
     final int fn = 3;
     final IntersectionResult match = new IntersectionResult(tp, fp, fn);
-    Assertions.assertEquals(tp, match.getTruePositives(), "tp");
-    Assertions.assertEquals(fp, match.getFalsePositives(), "fp");
-    Assertions.assertEquals(fn, match.getFalseNegatives(), "fn");
-    Assertions.assertEquals(tp + fp, match.getNumberPredicted(), "predicted");
-    Assertions.assertEquals(tp + fn, match.getNumberActual(), "actual");
+    Assertions.assertEquals(tp, match.getIntersection(), "intersection");
+    Assertions.assertEquals(fp, match.getSizeAMinusIntersection(), "A - intersection");
+    Assertions.assertEquals(fn, match.getSizeBMinusIntersection(), "B - intersection");
+    Assertions.assertEquals(tp + fp, match.getSizeA(), "A");
+    Assertions.assertEquals(tp + fn, match.getSizeB(), "B");
   }
 }
