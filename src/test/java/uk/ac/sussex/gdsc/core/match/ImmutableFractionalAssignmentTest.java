@@ -14,11 +14,17 @@ public class ImmutableFractionalAssignmentTest {
     final int predictedId = 7686;
     final double distance = 2342.78998;
     final double score = 4553.789987;
-    final ImmutableFractionalAssignment data =
+    ImmutableFractionalAssignment data =
         new ImmutableFractionalAssignment(targetId, predictedId, distance, score);
     Assertions.assertEquals(targetId, data.getTargetId(), "Target Id");
     Assertions.assertEquals(predictedId, data.getPredictedId(), "Predicted Id");
     Assertions.assertEquals(distance, data.getDistance(), "Distance");
     Assertions.assertEquals(score, data.getScore(), "Score");
+
+    data = new ImmutableFractionalAssignment(targetId, predictedId, distance);
+    Assertions.assertEquals(targetId, data.getTargetId(), "Target Id");
+    Assertions.assertEquals(predictedId, data.getPredictedId(), "Predicted Id");
+    Assertions.assertEquals(distance, data.getDistance(), "Distance");
+    Assertions.assertEquals(1.0, data.getScore(), "Score");
   }
 }
