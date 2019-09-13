@@ -95,6 +95,51 @@ public class MatchResult extends IntersectionResult {
   }
 
   /**
+   * Gets the number of predicted points.
+   *
+   * @return the number of predicted points
+   */
+  public int getNumberPredicted() {
+    return getSizeA();
+  }
+
+  /**
+   * Gets the number of actual points.
+   *
+   * @return the number of actual points.
+   */
+  public int getNumberActual() {
+    return getSizeB();
+  }
+
+  /**
+   * Gets the true positives.
+   *
+   * @return the true positives (hit).
+   */
+  public int getTruePositives() {
+    return getIntersection();
+  }
+
+  /**
+   * Gets the false positives.
+   *
+   * @return the false positives (false alarm, Type 1 error).
+   */
+  public int getFalsePositives() {
+    return getSizeAMinusIntersection();
+  }
+
+  /**
+   * Gets the false negatives.
+   *
+   * @return the false negatives (miss, Type 2 error).
+   */
+  public int getFalseNegatives() {
+    return getSizeBMinusIntersection();
+  }
+
+  /**
    * Gets the precision.
    *
    * @return the precision.
