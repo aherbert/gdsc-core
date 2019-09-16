@@ -28,27 +28,116 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
 
 /**
  * Calculates the match between a set of predicted points and the actual points.
  */
 public final class MatchCalculator {
+  /**
+   * Compute the sum of the edges distance between matched vertices.
+   *
+   * @param <T> the generic type to be matched
+   */
+  private static class MatchedConsumer<T> implements BiConsumer<T, T> {
+    /** The edge score function. */
+    private final ToDoubleBiFunction<T, T> edges;
+    /** The count. */
+    private int count;
+    /** The sum. */
+    private double sum;
 
-  /** The maximum size to use the single pass algorithm. */
-  private static final int SINGLE_PASS_MAX_SIZE = 100000;
+    /**
+     * Create a new instance.
+     *
+     * @param edges the edges
+     */
+    MatchedConsumer(ToDoubleBiFunction<T, T> edges) {
+      this.edges = edges;
+    }
+
+    @Override
+    public void accept(T first, T second) {
+      count++;
+      sum += edges.applyAsDouble(first, second);
+    }
+
+    /**
+     * Gets the count.
+     *
+     * @return the count
+     */
+    int getCount() {
+      return count;
+    }
+
+    /**
+     * Gets the sum.
+     *
+     * @return the sum
+     */
+    double getSum() {
+      return sum;
+    }
+  }
 
   /** No public construction. */
   private MatchCalculator() {}
+
+  /**
+   * Calculate the match results for the given actual and predicted fluorophore pulses. Points that
+   * are within the distance threshold are identified as a match. The score is calculated using half
+   * the distance threshold and the overlap in time. Assignments are made using the highest scoring
+   * matches.
+   *
+   * <p>The number of true positives, false positives and false negatives are calculated using pulse
+   * counts and not time point counts (i.e. not factoring pulse duration into the totals).
+   *
+   * <p>The total score is stored in the RMSD field of the MatchResult. This score is divided by the
+   * highest number of time points observed across all the pulses from either the predicted or
+   * actual pulses. The score thus incorporates the pulse durations.
+   *
+   * <p>Note: The algorithm can only match pulses 1-to-1. It does not support matching a long pulse
+   * to two short pulses if the short pulses do not overlap, for example if the short pulses are
+   * actually a long pulse with an additional break in the sequence.
+   *
+   * @param actualPoints the actual points
+   * @param predictedPoints the predicted points
+   * @param distanceThreshold The distance threshold
+   * @param truePositives True Positives
+   * @param falsePositives False Positives
+   * @param falseNegatives False Negatives
+   * @param matches The matched true positives (point1 = actual, point2 = predicted)
+   * @return The match results
+   * @see Pulse#score(Pulse, double, double)
+   */
+  public static MatchResult analyseResults2Db(Pulse[] actualPoints, Pulse[] predictedPoints,
+      double distanceThreshold, List<Pulse> truePositives, List<Pulse> falsePositives,
+      List<Pulse> falseNegatives, List<PointPair> matches) {
+    final ToDoubleBiFunction<Pulse, Pulse> edges = createEdgeFunction(distanceThreshold);
+    // Use zero for the distance threshold as the edge function returns 0 and below for valid edges.
+    return analyseResults(actualPoints, predictedPoints, 0.0, truePositives,
+        falsePositives, falseNegatives, matches, edges, matchedConsumer -> {
+          // Every time-point has the chance to contribute to the score.
+          // Normalise score by the maximum of the number of actual/predicted time points.
+          // This penalises too few or too many predictions.
+          // Note inverse the sum of the score so high is better.
+          final int p1 = countTimePoints(actualPoints);
+          final int p2 = countTimePoints(predictedPoints);
+          return MathUtils.div0(-matchedConsumer.getSum(), FastMath.max(p1, p2));
+        });
+  }
 
   /**
    * Calculate the match results for the given actual and predicted points. Points that are within
@@ -100,458 +189,11 @@ public final class MatchCalculator {
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @return The match results
    */
-  @SuppressWarnings("null")
   public static MatchResult analyseResults2D(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
-    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
-
-    // If the number of possible pairs is small then use a one pass algorithm
-    if (predictedPointsLength * actualPointsLength < SINGLE_PASS_MAX_SIZE) {
-      return analyseResults2DSinglePass(actualPoints, predictedPoints, distanceThreshold,
-          truePositives, falsePositives, falseNegatives, matches);
-    }
-
-    int tp = 0; // true positives (actual with matched predicted point)
-    int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
-    int fn = actualPointsLength; // false negatives (predicted point with no actual point)
-    double rmsd = 0;
-
-    clear(truePositives, falsePositives, falseNegatives, matches);
-    if (predictedPointsLength == 0 || actualPointsLength == 0) {
-      if (falsePositives != null) {
-        falsePositives.addAll(asList(predictedPoints));
-      }
-      if (falseNegatives != null) {
-        falseNegatives.addAll(asList(actualPoints));
-      }
-      return new MatchResult(tp, fp, fn, rmsd);
-    }
-
-    // loop over the two arrays assigning the closest unassigned pair
-    final boolean[] resultAssignment = new boolean[predictedPointsLength];
-    final boolean[] roiAssignment = new boolean[fn];
-    final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
-
-    final boolean[] matchedPredicted =
-        (falsePositives == null) ? null : new boolean[predictedPointsLength];
-    final boolean[] matchedActual =
-        (falseNegatives == null) ? null : new boolean[actualPointsLength];
-
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    do {
-      assignments.clear();
-
-      // Process each result
-      for (int predictedId = predictedPointsLength; predictedId-- > 0;) {
-        if (resultAssignment[predictedId]) {
-          continue; // Already assigned
-        }
-
-        final float x = predictedPoints[predictedId].getX();
-        final float y = predictedPoints[predictedId].getY();
-
-        // Find closest ROI point
-        double d2Min = distanceThresholdSquared;
-        int targetId = -1;
-        for (int actualId = actualPointsLength; actualId-- > 0;) {
-          if (roiAssignment[actualId]) {
-            continue; // Already assigned
-          }
-
-          final Coordinate actualPoint = actualPoints[actualId];
-
-          // Calculate in steps for increased speed (allows early exit)
-          final double d2 = actualPoint.distanceSquared(x, y);
-          if (d2 <= d2Min) {
-            d2Min = d2;
-            targetId = actualId;
-          }
-        }
-
-        // Store closest ROI point
-        if (targetId > -1) {
-          assignments.add(new ImmutableAssignment(targetId, predictedId, d2Min));
-        }
-      }
-
-      // If there are assignments
-      if (!assignments.isEmpty()) {
-        // Pick the closest pair to be assigned
-        AssignmentComparator.sort(assignments);
-
-        // Process in order
-        for (final ImmutableAssignment closest : assignments) {
-          // Skip those that have already been assigned since this will be a lower score.
-          // Note at least one assignment should be processed as potential assignments are made
-          // using only unassigned points.
-          if (resultAssignment[closest.getPredictedId()] || roiAssignment[closest.getTargetId()]) {
-            continue;
-          }
-          resultAssignment[closest.getPredictedId()] = true;
-          roiAssignment[closest.getTargetId()] = true;
-
-          // If within accuracy then classify as a match
-          if (closest.getDistance() <= distanceThresholdSquared) {
-            tp++;
-            fn--;
-            fp--;
-            rmsd += closest.getDistance(); // Already a squared distance
-
-            if (truePositives != null) {
-              truePositives.add(predictedPoints[closest.getPredictedId()]);
-            }
-            if (matchedPredicted != null) {
-              matchedPredicted[closest.getPredictedId()] = true;
-            }
-            if (matchedActual != null) {
-              matchedActual[closest.getTargetId()] = true;
-            }
-            if (matches != null) {
-              matches.add(new PointPair(actualPoints[closest.getTargetId()],
-                  predictedPoints[closest.getPredictedId()]));
-            }
-          } else {
-            // No more assignments within the distance threshold
-            break;
-          }
-        }
-      }
-    } while (!assignments.isEmpty());
-
-    // Add to lists
-    if (falsePositives != null) {
-      for (int i = 0; i < predictedPointsLength; i++) {
-        if (!matchedPredicted[i]) {
-          falsePositives.add(predictedPoints[i]);
-        }
-      }
-    }
-    if (falseNegatives != null) {
-      for (int i = 0; i < actualPointsLength; i++) {
-        if (!matchedActual[i]) {
-          falseNegatives.add(actualPoints[i]);
-        }
-      }
-    }
-
-    if (tp > 0) {
-      rmsd = Math.sqrt(rmsd / tp);
-    }
-    return new MatchResult(tp, fp, fn, rmsd);
-  }
-
-  /**
-   * Calculate the match results for the given actual and predicted fluorophore pulses. Points that
-   * are within the distance threshold are identified as a match. The score is calculated using half
-   * the distance threshold and the overlap in time. Assignments are made using the highest scoring
-   * matches.
-   *
-   * <p>The total score is stored in the RMSD field of the MatchResult. The number of true
-   * positives, false positives and false negatives are calculated.
-   *
-   * @param actualPoints the actual points
-   * @param predictedPoints the predicted points
-   * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
-   * @param matches The matched true positives (point1 = actual, point2 = predicted)
-   * @return The match results
-   */
-  @SuppressWarnings("null")
-  public static MatchResult analyseResults2D(Pulse[] actualPoints, Pulse[] predictedPoints,
-      double distanceThreshold, List<Pulse> truePositives, List<Pulse> falsePositives,
-      List<Pulse> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
-    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
-
-    int tp = 0; // true positives (actual with matched predicted point)
-    int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
-    int fn = actualPointsLength; // false negatives (predicted point with no actual point)
-    double score = 0;
-
-    clear(truePositives, falsePositives, falseNegatives, matches);
-    if (predictedPointsLength == 0 || actualPointsLength == 0) {
-      if (falsePositives != null) {
-        falsePositives.addAll(asList(predictedPoints));
-      }
-      if (falseNegatives != null) {
-        falseNegatives.addAll(asList(actualPoints));
-      }
-      return new MatchResult(tp, fp, fn, score);
-    }
-
-    // loop over the two arrays assigning the closest unassigned pair
-    final boolean[] resultAssignment = new boolean[predictedPointsLength];
-    final boolean[] roiAssignment = new boolean[fn];
-    final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
-
-    final boolean[] matchedPredicted =
-        (falsePositives == null) ? null : new boolean[predictedPointsLength];
-    final boolean[] matchedActual =
-        (falseNegatives == null) ? null : new boolean[actualPointsLength];
-
-    // Sort by time to allow efficient looping
-    Arrays.sort(actualPoints, PulseTimeComparator.getInstance());
-    Arrays.sort(predictedPoints, PulseTimeComparator.getInstance());
-
-    // Pre-calculate all-vs-all distance matrix if it can fit in memory
-    final int size = predictedPointsLength * actualPointsLength;
-    float[][] distanceMatrix = null;
-    if (size < 200 * 200) {
-      distanceMatrix = new float[predictedPointsLength][actualPointsLength];
-      for (int predictedId = 0; predictedId < predictedPointsLength; predictedId++) {
-        final float x = predictedPoints[predictedId].getX();
-        final float y = predictedPoints[predictedId].getY();
-        for (int actualId = 0; actualId < actualPointsLength; actualId++) {
-          distanceMatrix[predictedId][actualId] =
-              (float) actualPoints[actualId].distanceSquared(x, y);
-        }
-      }
-    }
-
-    // We will use the squared distance for speed
-    final double halfDistanceThresholdSquared = MathUtils.pow2(distanceThreshold * 0.5);
-    final float floatDistanceThreshold = (float) distanceThreshold;
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    do {
-      assignments.clear();
-
-      // Process each result
-      for (int predictedId = 0; predictedId < predictedPointsLength; predictedId++) {
-        if (resultAssignment[predictedId]) {
-          continue; // Already assigned
-        }
-
-        final float x = predictedPoints[predictedId].getX();
-        final float y = predictedPoints[predictedId].getY();
-        final int start = predictedPoints[predictedId].getStart();
-        final int end = predictedPoints[predictedId].getEnd();
-
-        // Find first overlapping pulse
-        int actualId = 0;
-        while (actualId < actualPointsLength && actualPoints[actualId].getEnd() < start) {
-          actualId++;
-        }
-
-        // Find highest scoring point within the distance limit
-        double scoreMax = 0;
-        int targetId = -1;
-        for (; actualId < actualPointsLength; actualId++) {
-          if (roiAssignment[actualId]) {
-            continue; // Already assigned
-          }
-          if (actualPoints[actualId].getStart() > end) {
-            break; // No more overlap in time
-          }
-
-          double d2;
-          if (distanceMatrix == null) {
-            final Coordinate actualPoint = actualPoints[actualId];
-
-            // Calculate in steps for increased speed (allows early exit)
-            final float dx = abs(actualPoint.getX() - x);
-            if (dx > floatDistanceThreshold) {
-              continue;
-            }
-            final float dy = abs(actualPoint.getY() - y);
-            if (dy > floatDistanceThreshold) {
-              continue;
-            }
-            d2 = dx * dx + dy * dy;
-          } else {
-            d2 = distanceMatrix[predictedId][actualId];
-          }
-
-          // Do we need to exclude using the distance threshold? This is useful for binary
-          // classification
-          // but will truncate the continuous nature of the score.
-          if (d2 > distanceThresholdSquared) {
-            continue;
-          }
-
-          final double s = predictedPoints[predictedId].score(actualPoints[actualId], d2,
-              halfDistanceThresholdSquared);
-          if (scoreMax < s) {
-            scoreMax = s;
-            targetId = actualId;
-          }
-        }
-
-        // Store highest scoring point
-        if (targetId > -1) {
-          assignments.add(new ImmutableAssignment(targetId, predictedId, scoreMax));
-        }
-      }
-
-      // If there are assignments
-      if (!assignments.isEmpty()) {
-        // Process highest scoring first
-        AssignmentComparator.sort(assignments);
-        Collections.reverse(assignments);
-
-        // Process in order of score
-        for (final ImmutableAssignment closest : assignments) {
-          // Skip those that have already been assigned since this will be a lower score.
-          // Note at least one assignment should be processed as potential assignments are made
-          // using only unassigned points.
-          if (resultAssignment[closest.getPredictedId()] || roiAssignment[closest.getTargetId()]) {
-            continue;
-          }
-
-          resultAssignment[closest.getPredictedId()] = true;
-          roiAssignment[closest.getTargetId()] = true;
-
-          tp++;
-          fn--;
-          fp--;
-          score += closest.getDistance(); // This is the scoreMax (not the distance)
-
-          if (truePositives != null) {
-            truePositives.add(predictedPoints[closest.getPredictedId()]);
-          }
-          if (matchedPredicted != null) {
-            matchedPredicted[closest.getPredictedId()] = true;
-          }
-          if (matchedActual != null) {
-            matchedActual[closest.getTargetId()] = true;
-          }
-          if (matches != null) {
-            matches.add(new PointPair(actualPoints[closest.getTargetId()],
-                predictedPoints[closest.getPredictedId()]));
-          }
-        }
-      }
-    } while (!assignments.isEmpty());
-
-    // Add to lists
-    if (falsePositives != null) {
-      for (int i = 0; i < predictedPointsLength; i++) {
-        if (!matchedPredicted[i]) {
-          falsePositives.add(predictedPoints[i]);
-        }
-      }
-    }
-    if (falseNegatives != null) {
-      for (int i = 0; i < actualPointsLength; i++) {
-        if (!matchedActual[i]) {
-          falseNegatives.add(actualPoints[i]);
-        }
-      }
-    }
-
-    // Every time-point has the chance to contribute to the score.
-    // Normalise score by the maximum of the number of actual/predicted time points.
-    // This penalises too few or too many predictions
-    final int p1 = countTimePoints(actualPoints);
-    final int p2 = countTimePoints(predictedPoints);
-    score /= FastMath.max(p1, p2);
-
-    return new MatchResult(tp, fp, fn, score);
-  }
-
-  /**
-   * Calculate the match results for the given actual and predicted points. Points that are within
-   * the distance threshold are identified as a match. The number of true positives, false positives
-   * and false negatives are calculated.
-   *
-   * <p>Use a single pass algorithm suitable if the total number of possible pairs is small
-   * (&lt;100000)
-   *
-   * @param actualPoints the actual points
-   * @param predictedPoints the predicted points
-   * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
-   * @param matches The matched true positives (point1 = actual, point2 = predicted)
-   * @return The match results
-   */
-  @SuppressWarnings("null")
-  public static MatchResult analyseResults2DSinglePass(Coordinate[] actualPoints,
-      Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
-      List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
-    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
-
-    int tp = 0; // true positives (actual with matched predicted point)
-    int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
-    int fn = actualPointsLength; // false negatives (predicted point with no actual point)
-    double rmsd = 0;
-
-    clear(truePositives, falsePositives, falseNegatives, matches);
-    if (predictedPointsLength == 0 || actualPointsLength == 0) {
-      if (falsePositives != null) {
-        falsePositives.addAll(asList(predictedPoints));
-      }
-      if (falseNegatives != null) {
-        falseNegatives.addAll(asList(actualPoints));
-      }
-      return new MatchResult(tp, fp, fn, rmsd);
-    }
-
-    // loop over the two arrays assigning the closest unassigned pair
-    final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    for (int predictedId = predictedPointsLength; predictedId-- > 0;) {
-      final float x = predictedPoints[predictedId].getX();
-      final float y = predictedPoints[predictedId].getY();
-      for (int actualId = actualPointsLength; actualId-- > 0;) {
-        final double d2 = actualPoints[actualId].distanceSquared(x, y);
-        if (d2 <= distanceThresholdSquared) {
-          assignments.add(new ImmutableAssignment(actualId, predictedId, d2));
-        }
-      }
-    }
-
-    AssignmentComparator.sort(assignments);
-
-    final boolean[] predictedAssignment = new boolean[predictedPointsLength];
-    final boolean[] actualAssignment = new boolean[actualPointsLength];
-
-    for (final ImmutableAssignment a : assignments) {
-      if (!actualAssignment[a.getTargetId()] && !predictedAssignment[a.getPredictedId()]) {
-        actualAssignment[a.getTargetId()] = true;
-        predictedAssignment[a.getPredictedId()] = true;
-        tp++;
-        fn--;
-        fp--;
-        rmsd += a.getDistance(); // Already a squared distance
-        if (matches != null) {
-          matches.add(
-              new PointPair(actualPoints[a.getTargetId()], predictedPoints[a.getPredictedId()]));
-        }
-        if (truePositives != null) {
-          truePositives.add(predictedPoints[a.getPredictedId()]);
-        }
-      }
-    }
-
-    // Add to lists
-    if (falsePositives != null) {
-      for (int i = 0; i < predictedPointsLength; i++) {
-        if (!predictedAssignment[i]) {
-          falsePositives.add(predictedPoints[i]);
-        }
-      }
-    }
-    if (falseNegatives != null) {
-      for (int i = 0; i < actualPointsLength; i++) {
-        if (!actualAssignment[i]) {
-          falseNegatives.add(actualPoints[i]);
-        }
-      }
-    }
-
-    if (tp > 0) {
-      rmsd = Math.sqrt(rmsd / tp);
-    }
-    return new MatchResult(tp, fp, fn, rmsd);
+    return analyseResultsCoordinates(actualPoints, predictedPoints, distanceThreshold,
+        truePositives, falsePositives, falseNegatives, matches, Coordinate::distanceXySquared);
   }
 
   /**
@@ -604,170 +246,17 @@ public final class MatchCalculator {
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @return The match results
    */
-  @SuppressWarnings("null")
   public static MatchResult analyseResults3D(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
-    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
-
-    // If the number of possible pairs is small then use a one pass algorithm
-    if (predictedPointsLength * actualPointsLength < SINGLE_PASS_MAX_SIZE) {
-      return analyseResults3DSinglePass(actualPoints, predictedPoints, distanceThreshold,
-          truePositives, falsePositives, falseNegatives, matches);
-    }
-
-    int tp = 0; // true positives (actual with matched predicted point)
-    int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
-    int fn = actualPointsLength; // false negatives (predicted point with no actual point)
-    double rmsd = 0;
-
-    clear(truePositives, falsePositives, falseNegatives, matches);
-    if (predictedPointsLength == 0 || actualPointsLength == 0) {
-      if (falsePositives != null) {
-        falsePositives.addAll(asList(predictedPoints));
-      }
-      if (falseNegatives != null) {
-        falseNegatives.addAll(asList(actualPoints));
-      }
-      return new MatchResult(tp, fp, fn, rmsd);
-    }
-
-    // loop over the two arrays assigning the closest unassigned pair
-    final boolean[] resultAssignment = new boolean[predictedPointsLength];
-    final boolean[] roiAssignment = new boolean[fn];
-    final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
-
-    final boolean[] matchedPredicted =
-        (falsePositives == null) ? null : new boolean[predictedPointsLength];
-    final boolean[] matchedActual =
-        (falseNegatives == null) ? null : new boolean[actualPointsLength];
-
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    do {
-      assignments.clear();
-
-      // Process each result
-      for (int predictedId = predictedPointsLength; predictedId-- > 0;) {
-        if (resultAssignment[predictedId]) {
-          continue; // Already assigned
-        }
-
-        final float x = predictedPoints[predictedId].getX();
-        final float y = predictedPoints[predictedId].getY();
-        final float z = predictedPoints[predictedId].getZ();
-
-        // Find closest ROI point
-        float d2Min = (float) distanceThresholdSquared; // Float.MAX_VALUE
-        int targetId = -1;
-        for (int actualId = actualPointsLength; actualId-- > 0;) {
-          if (roiAssignment[actualId]) {
-            continue; // Already assigned
-          }
-
-          final Coordinate actualPoint = actualPoints[actualId];
-
-          // Calculate in steps for increased speed (allows early exit)
-          float dx = actualPoint.getX() - x;
-          dx *= dx;
-          if (dx <= d2Min) {
-            float dy = actualPoint.getY() - y;
-            dy *= dy;
-            if (dy <= d2Min) {
-              float dz = actualPoint.getZ() - z;
-              dz *= dz;
-              if (dz <= d2Min) {
-                final float d2 = dx + dy + dz;
-                if (d2 <= d2Min) {
-                  d2Min = d2;
-                  targetId = actualId;
-                }
-              }
-            }
-          }
-        }
-
-        // Store closest ROI point
-        if (targetId > -1) {
-          assignments.add(new ImmutableAssignment(targetId, predictedId, d2Min));
-        }
-      }
-
-      // If there are assignments
-      if (!assignments.isEmpty()) {
-        // Pick the closest pair to be assigned
-        AssignmentComparator.sort(assignments);
-
-        // Process in order
-        for (final ImmutableAssignment closest : assignments) {
-          // Skip those that have already been assigned since this will be a lower score.
-          // Note at least one assignment should be processed as potential assignments are made
-          // using only unassigned points.
-          if (resultAssignment[closest.getPredictedId()] || roiAssignment[closest.getTargetId()]) {
-            continue;
-          }
-
-          resultAssignment[closest.getPredictedId()] = true;
-          roiAssignment[closest.getTargetId()] = true;
-
-          // If within accuracy then classify as a match
-          if (closest.getDistance() <= distanceThresholdSquared) {
-            tp++;
-            fn--;
-            fp--;
-            rmsd += closest.getDistance();
-
-            if (truePositives != null) {
-              truePositives.add(predictedPoints[closest.getPredictedId()]);
-            }
-            if (matchedPredicted != null) {
-              matchedPredicted[closest.getPredictedId()] = true;
-            }
-            if (matchedActual != null) {
-              matchedActual[closest.getTargetId()] = true;
-            }
-            if (matches != null) {
-              matches.add(new PointPair(actualPoints[closest.getTargetId()],
-                  predictedPoints[closest.getPredictedId()]));
-            }
-          } else {
-            // No more assignments within the distance threshold
-            break;
-          }
-        }
-      }
-    } while (!assignments.isEmpty());
-
-    // Add to lists
-    if (falsePositives != null) {
-      for (int i = 0; i < predictedPointsLength; i++) {
-        if (!matchedPredicted[i]) {
-          falsePositives.add(predictedPoints[i]);
-        }
-      }
-    }
-    if (falseNegatives != null) {
-      for (int i = 0; i < actualPointsLength; i++) {
-        if (!matchedActual[i]) {
-          falseNegatives.add(actualPoints[i]);
-        }
-      }
-    }
-
-    if (tp > 0) {
-      rmsd = Math.sqrt(rmsd / tp);
-    }
-    return new MatchResult(tp, fp, fn, rmsd);
+    return analyseResultsCoordinates(actualPoints, predictedPoints, distanceThreshold,
+        truePositives, falsePositives, falseNegatives, matches, Coordinate::distanceXyzSquared);
   }
 
   /**
    * Calculate the match results for the given actual and predicted points. Points that are within
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
-   *
-   * <p>Use a single pass algorithm suitable if the total number of possible pairs is small
-   * (&lt;100000)
    *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
@@ -776,129 +265,136 @@ public final class MatchCalculator {
    * @param falsePositives False Positives
    * @param falseNegatives False Negatives
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
+   * @param edges function used to identify distance between the vertices ({@code A -> B})
    * @return The match results
    */
-  @SuppressWarnings("null")
-  public static MatchResult analyseResults3DSinglePass(Coordinate[] actualPoints,
+  private static MatchResult analyseResultsCoordinates(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
-      List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
-    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
-
-    int tp = 0; // true positives (actual with matched predicted point)
-    int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
-    int fn = actualPointsLength; // false negatives (predicted point with no actual point)
-    double rmsd = 0;
-
-    clear(truePositives, falsePositives, falseNegatives, matches);
-    if (predictedPointsLength == 0 || actualPointsLength == 0) {
-      if (falsePositives != null) {
-        falsePositives.addAll(asList(predictedPoints));
-      }
-      if (falseNegatives != null) {
-        falseNegatives.addAll(asList(actualPoints));
-      }
-      return new MatchResult(tp, fp, fn, rmsd);
-    }
-
-    // loop over the two arrays assigning the closest unassigned pair
-    final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    for (int predictedId = predictedPointsLength; predictedId-- > 0;) {
-      final float x = predictedPoints[predictedId].getX();
-      final float y = predictedPoints[predictedId].getY();
-      final float z = predictedPoints[predictedId].getZ();
-      for (int actualId = actualPointsLength; actualId-- > 0;) {
-        final double d2 = actualPoints[actualId].distanceSquared(x, y, z);
-        if (d2 <= distanceThresholdSquared) {
-          assignments.add(new ImmutableAssignment(actualId, predictedId, d2));
-        }
-      }
-    }
-
-    AssignmentComparator.sort(assignments);
-
-    final boolean[] predictedAssignment = new boolean[predictedPointsLength];
-    final boolean[] actualAssignment = new boolean[actualPointsLength];
-
-    for (final ImmutableAssignment a : assignments) {
-      if (!actualAssignment[a.getTargetId()] && !predictedAssignment[a.getPredictedId()]) {
-        actualAssignment[a.getTargetId()] = true;
-        predictedAssignment[a.getPredictedId()] = true;
-        tp++;
-        fn--;
-        fp--;
-        rmsd += a.getDistance(); // Already a squared distance
-        if (matches != null) {
-          matches.add(
-              new PointPair(actualPoints[a.getTargetId()], predictedPoints[a.getPredictedId()]));
-        }
-        if (truePositives != null) {
-          truePositives.add(predictedPoints[a.getPredictedId()]);
-        }
-      }
-    }
-
-    // Add to lists
-    if (falsePositives != null) {
-      for (int i = 0; i < predictedPointsLength; i++) {
-        if (!predictedAssignment[i]) {
-          falsePositives.add(predictedPoints[i]);
-        }
-      }
-    }
-    if (falseNegatives != null) {
-      for (int i = 0; i < actualPointsLength; i++) {
-        if (!actualAssignment[i]) {
-          falseNegatives.add(actualPoints[i]);
-        }
-      }
-    }
-
-    if (tp > 0) {
-      rmsd = Math.sqrt(rmsd / tp);
-    }
-    return new MatchResult(tp, fp, fn, rmsd);
+      List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches,
+      ToDoubleBiFunction<Coordinate, Coordinate> edges) {
+    return analyseResults(actualPoints, predictedPoints, distanceThreshold, truePositives,
+        falsePositives, falseNegatives, matches, edges, matchedConsumer ->
+        // Compute RMSD
+        matchedConsumer.getCount() == 0 ? 0
+            : Math.sqrt(matchedConsumer.getSum() / matchedConsumer.getCount()));
   }
 
   /**
-   * Creates as Collection view of an array (null-safe).
+   * Calculate the match results for the given actual and predicted points. Points that are within
+   * the distance threshold are identified as a match. The number of true positives, false positives
+   * and false negatives are calculated.
    *
    * @param <T> the generic type
-   * @param array the array (can be null)
-   * @return the collection
+   * @param actualPoints the actual points
+   * @param predictedPoints the predicted points
+   * @param distanceThreshold The distance threshold
+   * @param truePositives True Positives
+   * @param falsePositives False Positives
+   * @param falseNegatives False Negatives
+   * @param matches The matched true positives (point1 = actual, point2 = predicted)
+   * @param edges function used to identify distance between the vertices ({@code A -> B})
+   * @param resultFunction the function to create the result
+   * @return The match results
    */
-  private static <T> Collection<T> asList(T[] array) {
+  private static <T extends Coordinate> MatchResult analyseResults(T[] actualPoints,
+      T[] predictedPoints, double distanceThreshold, List<T> truePositives, List<T> falsePositives,
+      List<T> falseNegatives, List<PointPair> matches, ToDoubleBiFunction<T, T> edges,
+      ToDoubleFunction<MatchedConsumer<T>> resultFunction) {
+
+    // Delegate
+    final List<T> verticesA = toList(predictedPoints);
+    final List<T> verticesB = toList(actualPoints);
+    final MatchedConsumer<T> matchedConsumer = new MatchedConsumer<>(edges);
+    BiConsumer<T, T> matched = matchedConsumer;
+    if (truePositives != null) {
+      truePositives.clear();
+      matched = matched.andThen((u, v) -> truePositives.add(u));
+    }
+    if (matches != null) {
+      matches.clear();
+      matched = matched.andThen((u, v) -> matches.add(new PointPair(u, v)));
+    }
+    final Consumer<T> unmatchedA = toConsumer(falsePositives);
+    final Consumer<T> unmatchedB = toConsumer(falseNegatives);
+
+    final int tp = Matchings.nearestNeighbour(verticesA, verticesB, edges, distanceThreshold,
+        matched, unmatchedA, unmatchedB);
+
+    return new MatchResult(tp, verticesA.size() - tp, verticesB.size() - tp,
+        resultFunction.applyAsDouble(matchedConsumer));
+  }
+
+  /**
+   * Convert to a list (null-safe).
+   *
+   * @param <T> the generic type
+   * @param array the array
+   * @return the list
+   */
+  private static <T> List<T> toList(T[] array) {
     if (array != null) {
       return Arrays.asList(array);
     }
-    return new ArrayList<>(0);
+    return Collections.emptyList();
   }
 
-  private static float abs(final float value) {
-    return (value < 0) ? -value : value;
+  /**
+   * Convert to a consumer (null-safe).
+   *
+   * @param <T> the generic type
+   * @param list the list
+   * @return the consumer (or null)
+   */
+  private static <T> Consumer<T> toConsumer(List<T> list) {
+    if (list != null) {
+      list.clear();
+      return list::add;
+    }
+    return null;
   }
 
-  private static int countTimePoints(Pulse[] actualPoints) {
+  /**
+   * Creates the edge function to score the distance between pulses (lower score is better).
+   *
+   * <p>A value of {@code <= 0} represents a valid score, i.e. zero is valid.
+   *
+   * @param distanceThreshold the distance threshold
+   * @return the edge function
+   */
+  @VisibleForTesting
+  static ToDoubleBiFunction<Pulse, Pulse> createEdgeFunction(double distanceThreshold) {
+    // Custom distance function
+    final double halfDistanceThresholdSquared = MathUtils.pow2(distanceThreshold * 0.5);
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
+    return (u, v) -> {
+      // Determine time overlap
+      if (u.calculateOverlap(v) == 0) {
+        return 1.0;
+      }
+
+      // Determine distance
+      final double distanceSquared = u.distanceXySquared(v);
+      if (distanceSquared > distanceThresholdSquared) {
+        return 1.0;
+      }
+
+      // Compute weighted score but negate so lower is better.
+      // Note: This will compute the overlap again.
+      return -u.score(v, distanceSquared, halfDistanceThresholdSquared);
+    };
+  }
+
+  /**
+   * Count the total time points across all pulses.
+   *
+   * @param points the points
+   * @return the total time points
+   */
+  private static int countTimePoints(Pulse[] points) {
     int p1 = 0;
-    for (final Pulse p : actualPoints) {
+    for (final Pulse p : points) {
       p1 += p.getEnd() - p.getStart() + 1;
     }
     return p1;
-  }
-
-  private static <T, U, V> void clear(List<T> truePositives, List<T> falsePositives,
-      List<U> falseNegatives, List<V> matches) {
-    clear(truePositives);
-    clear(falsePositives);
-    clear(falseNegatives);
-    clear(matches);
-  }
-
-  private static <T> void clear(List<T> list) {
-    if (list != null) {
-      list.clear();
-    }
   }
 }
