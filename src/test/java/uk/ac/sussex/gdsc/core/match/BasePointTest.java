@@ -94,26 +94,27 @@ public class BasePointTest {
     final BasePoint data2 = new BasePoint(x2, y2, z2);
     final double delta = 1e-10;
     // @formatter:off
-    Assertions.assertEquals(pow2(x2 - x1) + pow2(y2 - y1),
+    Assertions.assertEquals(distSq(x2 , x1) + distSq(y2 , y1),
         data1.distanceXySquared(data2), delta, "distanceXySquared");
-    Assertions.assertEquals(pow2(x2 - x1) + pow2(y2 - y1) + pow2(z2 - z1),
+    Assertions.assertEquals(distSq(x2 , x1) + distSq(y2 , y1) + distSq(z2 , z1),
         data1.distanceXyzSquared(data2), delta, "distanceXyzSquared");
-    Assertions.assertEquals(Math.sqrt(pow2(x2 - x1) + pow2(y2 - y1)),
+    Assertions.assertEquals(Math.sqrt(distSq(x2 , x1) + distSq(y2 , y1)),
         data1.distanceXy(data2), delta, "distanceXy");
-    Assertions.assertEquals(Math.sqrt(pow2(x2 - x1) + pow2(y2 - y1) + pow2(z2 - z1)),
+    Assertions.assertEquals(Math.sqrt(distSq(x2 , x1) + distSq(y2 , y1) + distSq(z2 , z1)),
         data1.distanceXyz(data2), delta, "distanceXyz");
-    Assertions.assertEquals(pow2(x2 - x1) + pow2(y2 - y1),
+    Assertions.assertEquals(distSq(x2 , x1) + distSq(y2 , y1),
         data1.distanceSquared(x2, y2), delta, "distanceSquared x,y");
-    Assertions.assertEquals(pow2(x2 - x1) + pow2(y2 - y1) + pow2(z2 - z1),
+    Assertions.assertEquals(distSq(x2 , x1) + distSq(y2 , y1) + distSq(z2 , z1),
         data1.distanceSquared(x2, y2, z2), delta, "distanceSquared x,y,z");
-    Assertions.assertEquals(Math.sqrt(pow2(x2 - x1) + pow2(y2 - y1)),
+    Assertions.assertEquals(Math.sqrt(distSq(x2 , x1) + distSq(y2 , y1)),
         data1.distance(x2, y2), delta, "distance x,y");
-    Assertions.assertEquals(Math.sqrt(pow2(x2 - x1) + pow2(y2 - y1) + pow2(z2 - z1)),
+    Assertions.assertEquals(Math.sqrt(distSq(x2 , x1) + distSq(y2 , y1) + distSq(z2 , z1)),
         data1.distance(x2, y2, z2), delta, "distance x,y,z");
     // @formatter:on
   }
 
-  private static double pow2(double value) {
-    return value * value;
+  private static double distSq(double value1, double value2) {
+    final double dx = value1 - value2;
+    return dx * dx;
   }
 }
