@@ -87,7 +87,8 @@ public class RankedScoreCalculator {
   /**
    * Construct the calculator.
    *
-   * <p>The input assignment data is wrapped and will be sorted for ranking.
+   * <p>The input assignment data is wrapped and will be sorted for ranking (i.e. the input array is
+   * modified).
    *
    * @param assignments The assignments
    * @return the ranked score calculator
@@ -110,7 +111,8 @@ public class RankedScoreCalculator {
   /**
    * Construct the calculator.
    *
-   * <p>The input assignment data is wrapped and will be sorted for ranking.
+   * <p>The input assignment data is wrapped and will be sorted for ranking (i.e. the input array is
+   * modified).
    *
    * <p>If the input maximums are below the value of any of the assignments they will be increased
    * appropriately. They can be specified since the assignments may not contain all the IDs that
@@ -222,7 +224,6 @@ public class RankedScoreCalculator {
    * @return The tp and fp scores, plus integer true positives and false positives [tp, fp, itp,
    *         ifp]
    */
-  @SuppressWarnings("null")
   public double[] score(int numberOfPredictions, boolean multipleMatches, boolean save) {
     final FractionalAssignment[] localAssignments = getAssignmentsInternal(numberOfPredictions);
 
@@ -234,79 +235,15 @@ public class RankedScoreCalculator {
     final TurboList<FractionalAssignment> scored =
         (save) ? new TurboList<>(Math.min(sizeP, actualAssignment.length)) : null;
 
-    // TODO - update the scoring algorithm to not require a sorted list.
-    // This would mean a creating a different method since this current method may be
-    // called repeatedly with different numberOfPredictions values. So store the assignments as a
-    // raw list and then if necessary sort them for this method.
-
-    // All we need to do is find the smallest value in the assignment list.
-    // We could hold an array containing the next index to check from the current index.
-    // As assignments are made we can update the next index to allow assignments
-    // to be skipped over as we scan the array for the next smallest value.
-
-    // Compare the speed of the two versions..
-
     double[] result;
 
     // Assign matches
     if (multipleMatches) {
-      final double[] predictedAssignments = new double[sizeP];
-
-      double tp = 0;
-      int remainingA = totalA;
-
-      for (final FractionalAssignment a : localAssignments) {
-        if (!actualAssignment[a.getTargetId()]) {
-          actualAssignment[a.getTargetId()] = true;
-          tp += a.getScore();
-          predictedAssignments[a.getPredictedId()] += a.getScore();
-          if (save) {
-            scored.add(a);
-          }
-          if (--remainingA == 0) {
-            break;
-          }
-        }
-      }
-
-      // Compute the FP. This starts are the number of predictions and is decremented
-      // by a maximum of 1 (since any predicted point can only score up to 1 false positive).
-      double fp = numberOfPredictions;
-      int itp = 0;
-      for (final double predictedAssignment : predictedAssignments) {
-        if (predictedAssignment == 0) {
-          continue;
-        }
-        // This was matched to something so increment the match counter
-        itp++;
-        // Decrement the amount matched up to a maximum of 1
-        fp -= min(predictedAssignment, COMPLETE_MATCH_SCORE);
-      }
-
-      result = new double[] {tp, fp, itp, numberOfPredictions - itp};
+      result = scoreMultiMatches(numberOfPredictions, save, localAssignments, actualAssignment,
+          sizeP, scored);
     } else {
-      final boolean[] predictedAssignment = new boolean[sizeP];
-
-      double tp = 0;
-      int remainingP = totalP;
-      int remainingA = totalA;
-
-      for (final FractionalAssignment a : localAssignments) {
-        if (!actualAssignment[a.getTargetId()] && !predictedAssignment[a.getPredictedId()]) {
-          actualAssignment[a.getTargetId()] = true;
-          predictedAssignment[a.getPredictedId()] = true;
-          tp += a.getScore();
-          if (save) {
-            scored.add(a);
-          }
-          if (--remainingP == 0 || --remainingA == 0) {
-            break;
-          }
-        }
-      }
-
-      final int itp = totalP - remainingP;
-      result = new double[] {tp, numberOfPredictions - tp, itp, numberOfPredictions - itp};
+      result = scoreSingleMatches(numberOfPredictions, save, localAssignments, actualAssignment,
+          sizeP, scored);
     }
 
     if (save) {
@@ -314,6 +251,103 @@ public class RankedScoreCalculator {
     }
 
     return result;
+  }
+
+  /**
+   * Returns the fractional tp and fp scores using only the first N predicted points. Also returns
+   * the integer count of the number of true positives and false positives.
+   *
+   * <p>When performing multiple matching the predicted points can match more than one actual point.
+   * In this case the match score is the combination of all the individual match scores.
+   *
+   * @param numberOfPredictions the n predicted
+   * @param save Save the assignments that were selected (accessed using
+   *        {@link #getScoredAssignments()})
+   * @param localAssignments the local assignments
+   * @param actualAssignment the actual assignment
+   * @param sizeP the size for the prediction Ids
+   * @param scored the scored assignments
+   * @return The tp and fp scores, plus integer true positives and false positives [tp, fp, itp,
+   *         ifp]
+   */
+  private double[] scoreMultiMatches(int numberOfPredictions, boolean save,
+      final FractionalAssignment[] localAssignments, final boolean[] actualAssignment,
+      final int sizeP, final TurboList<FractionalAssignment> scored) {
+    final double[] predictedAssignments = new double[sizeP];
+
+    double tp = 0;
+    int remainingA = totalA;
+
+    for (final FractionalAssignment a : localAssignments) {
+      if (!actualAssignment[a.getTargetId()]) {
+        actualAssignment[a.getTargetId()] = true;
+        tp += a.getScore();
+        predictedAssignments[a.getPredictedId()] += a.getScore();
+        if (save) {
+          scored.add(a);
+        }
+        if (--remainingA == 0) {
+          break;
+        }
+      }
+    }
+
+    // Compute the FP. This starts are the number of predictions and is decremented
+    // by a maximum of 1 (since any predicted point can only score up to 1 false positive).
+    double fp = numberOfPredictions;
+    int itp = 0;
+    for (final double predictedAssignment : predictedAssignments) {
+      if (predictedAssignment == 0) {
+        continue;
+      }
+      // This was matched to something so increment the match counter
+      itp++;
+      // Decrement the amount matched up to a maximum of 1
+      fp -= min(predictedAssignment, COMPLETE_MATCH_SCORE);
+    }
+
+    return new double[] {tp, fp, itp, numberOfPredictions - itp};
+  }
+
+  /**
+   * Returns the fractional tp and fp scores using only the first N predicted points. Also returns
+   * the integer count of the number of true positives and false positives.
+   *
+   * @param numberOfPredictions the n predicted
+   * @param save Save the assignments that were selected (accessed using
+   *        {@link #getScoredAssignments()})
+   * @param localAssignments the local assignments
+   * @param actualAssignment the actual assignment
+   * @param sizeP the size for the prediction Ids
+   * @param scored the scored assignments
+   * @return The tp and fp scores, plus integer true positives and false positives [tp, fp, itp,
+   *         ifp]
+   */
+  private double[] scoreSingleMatches(int numberOfPredictions, boolean save,
+      final FractionalAssignment[] localAssignments, final boolean[] actualAssignment,
+      final int sizeP, final TurboList<FractionalAssignment> scored) {
+    final boolean[] predictedAssignment = new boolean[sizeP];
+
+    double tp = 0;
+    int itp = 0;
+    final int limit = Math.min(totalA, totalP);
+
+    for (final FractionalAssignment a : localAssignments) {
+      if (!actualAssignment[a.getTargetId()] && !predictedAssignment[a.getPredictedId()]) {
+        actualAssignment[a.getTargetId()] = true;
+        predictedAssignment[a.getPredictedId()] = true;
+        tp += a.getScore();
+        itp++;
+        if (save) {
+          scored.add(a);
+        }
+        if (itp == limit) {
+          break;
+        }
+      }
+    }
+
+    return new double[] {tp, numberOfPredictions - tp, itp, numberOfPredictions - itp};
   }
 
   /**
@@ -378,7 +412,7 @@ public class RankedScoreCalculator {
    *
    * @param assignments the assignments (e.g. following a call to {@link #getScoredAssignments()})
    * @param numberOfPredictions the total number of predicted points. This should be higher that the
-   *        sum of the scores in the assignments.
+   *        maximum predicted Id in the assignments.
    * @return the match score
    * @throws ArrayIndexOutOfBoundsException If the assignments have an id equal or bigger than the
    *         nPrecited
@@ -419,12 +453,16 @@ public class RankedScoreCalculator {
     p[0] = 1;
     for (int i = 0; i < score.length;) {
       if (score[i] == 0) {
+        // No match is a false positive
         fp += 1.0;
-      } else if (score[i] > COMPLETE_MATCH_SCORE) {
-        tp += score[i];
       } else {
+        // Add the score to the true positive
         tp += score[i];
-        fp += (COMPLETE_MATCH_SCORE - score[i]);
+        // If the score was less than 1 then add the remainder as false positive.
+        // This is a partial match as some true, some false.
+        if (score[i] < COMPLETE_MATCH_SCORE) {
+          fp += (COMPLETE_MATCH_SCORE - score[i]);
+        }
       }
       i++; // Increment since the arrays are offset by 1
       r[i] = tp / numberOfActual;
