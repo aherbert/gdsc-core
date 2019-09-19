@@ -340,6 +340,28 @@ public class MatchingsTest {
     assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
   }
 
+  @Test
+  public void testMinimumDistanceThrowsWithInfiniteRange() {
+    //@formatter:off
+    final double[][] connections = new double[][] {
+      {Double.MAX_VALUE, 0},
+      {-Double.MAX_VALUE, 0},
+    };
+    //@formatter:on
+
+    final List<Integer> verticesA =
+        IntStream.range(0, connections.length).boxed().collect(Collectors.toList());
+    final List<Integer> verticesB =
+        IntStream.range(0, connections[0].length).boxed().collect(Collectors.toList());
+    final ToDoubleBiFunction<Integer, Integer> edges = (u, v) -> {
+      return connections[u][v];
+    };
+    final double threshold = Double.MAX_VALUE;
+
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> Matchings.minimumDistance(verticesA, verticesB, edges, threshold, null, null, null));
+  }
+
   private static void
       assertMatchingFunctionWithNoVertices(MatchingFunction<Integer, Integer> function) {
     final List<Integer> empty = new ArrayList<>();
