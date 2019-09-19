@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,6 +26,62 @@ import java.util.stream.IntStream;
  */
 @SuppressWarnings({"javadoc"})
 public class MatchingsTest {
+  interface MatchingFunction<T, U> {
+    int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
+        double threshold, BiConsumer<T, U> matched, Consumer<T> unmatchedA, Consumer<U> unmatchedB);
+
+    int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
+        double threshold);
+  }
+
+  static class NearestNeighbourMatchingFunction<T, U> implements MatchingFunction<T, U> {
+    @SuppressWarnings("rawtypes")
+    static final NearestNeighbourMatchingFunction INSTANCE = new NearestNeighbourMatchingFunction();
+
+    @SuppressWarnings("unchecked")
+    static <T, U> MatchingFunction<T, U> instance() {
+      return INSTANCE;
+    }
+
+    @Override
+    public int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
+        double threshold, BiConsumer<T, U> matched, Consumer<T> unmatchedA,
+        Consumer<U> unmatchedB) {
+      return Matchings.nearestNeighbour(verticesA, verticesB, edges, threshold, matched, unmatchedA,
+          unmatchedB);
+    }
+
+    @Override
+    public int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
+        double threshold) {
+      return Matchings.nearestNeighbour(verticesA, verticesB, edges, threshold, null, null, null);
+    }
+  }
+
+  static class MinimumDistanceMatchingFunction<T, U> implements MatchingFunction<T, U> {
+    @SuppressWarnings("rawtypes")
+    static final MinimumDistanceMatchingFunction INSTANCE = new MinimumDistanceMatchingFunction();
+
+    @SuppressWarnings("unchecked")
+    static <T, U> MatchingFunction<T, U> instance() {
+      return INSTANCE;
+    }
+
+    @Override
+    public int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
+        double threshold, BiConsumer<T, U> matched, Consumer<T> unmatchedA,
+        Consumer<U> unmatchedB) {
+      return Matchings.minimumDistance(verticesA, verticesB, edges, threshold, matched, unmatchedA,
+          unmatchedB);
+    }
+
+    @Override
+    public int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
+        double threshold) {
+      return Matchings.minimumDistance(verticesA, verticesB, edges, threshold, null, null, null);
+    }
+  }
+
   @Test
   public void testIntersectionMatchConsumer() {
     final int offsetA = 1;
@@ -182,56 +239,22 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testNearestNeigbourWithNoVertices() {
-    final List<Integer> empty = new ArrayList<>();
-    final List<Integer> notEmpty = Arrays.asList(1, 2, 3, 4, 5);
-    final ToDoubleBiFunction<Integer, Integer> edges = (u, v) -> {
-      return 0;
-    };
-    int threshold = 1;
-    final List<Integer> unmatchedA = new ArrayList<>();
-    final List<Integer> unmatchedB = new ArrayList<>();
-    int max = Matchings.nearestNeighbour(empty, notEmpty, edges, threshold, null, unmatchedA::add,
-        unmatchedB::add);
-    Assertions.assertEquals(0, max, "Empty A");
-    Assertions.assertEquals(empty, unmatchedA, "Empty A != Unmatched A");
-    Assertions.assertEquals(notEmpty, unmatchedB, "NotEmpty B != Unmatched B");
-
-    unmatchedA.clear();
-    unmatchedB.clear();
-    max = Matchings.nearestNeighbour(notEmpty, empty, edges, threshold, null, unmatchedA::add,
-        unmatchedB::add);
-    Assertions.assertEquals(0, max, "Empty B");
-    Assertions.assertEquals(notEmpty, unmatchedA, "NotEmpty A != Unmatched A");
-    Assertions.assertEquals(empty, unmatchedB, "Empty B != Unmatched B");
+  public void testNearestNeighbourWithNoVertices() {
+    assertMatchingFunctionWithNoVertices(NearestNeighbourMatchingFunction.instance());
   }
 
   @Test
-  public void testNearestNeigbourWithNoEdges() {
-    final double[][] connections = new double[6][];
-    for (int i = 0; i < connections.length; i++) {
-      connections[i] = SimpleArrayUtils.newDoubleArray(6, Double.MAX_VALUE);
-    }
-
-    final int[][] expected = new int[0][0];
-    testNearestNeigbour(connections, 1, expected);
+  public void testNearestNeighbourWithNoEdges() {
+    assertMatchingFunctionWithNoEdges(NearestNeighbourMatchingFunction.instance());
   }
 
   @Test
-  public void testNearestNeigbourWithMaxCardinality() {
-    final double[][] connections = new double[6][];
-    for (int i = 0; i < connections.length; i++) {
-      connections[i] = SimpleArrayUtils.newDoubleArray(2, Double.MAX_VALUE);
-    }
-    connections[1][0] = 0;
-    connections[4][1] = 0.75;
-
-    final int[][] expected = new int[][] {{1, 0}, {4, 1}};
-    testNearestNeigbour(connections, 1, expected);
+  public void testNearestNeighbourWithMaxCardinality() {
+    assertMatchingFunctionWithMaxCardinality(NearestNeighbourMatchingFunction.instance());
   }
 
   @Test
-  public void testNearestNeigbour() {
+  public void testNearestNeighbour() {
     final double[][] connections = new double[5][];
     for (int i = 0; i < connections.length; i++) {
       connections[i] = SimpleArrayUtils.newDoubleArray(4, Double.MAX_VALUE);
@@ -242,12 +265,132 @@ public class MatchingsTest {
     connections[4][2] = 0.75;
     connections[4][3] = 1;
 
+    // This is greedy so the matches are: 0 + 0.75
     final int[][] expected = new int[][] {{1, 1}, {4, 2}};
-    testNearestNeigbour(connections, 1, expected);
+    assertMatchingFunction(NearestNeighbourMatchingFunction.instance(), connections, 1, expected);
   }
 
-  private static void testNearestNeigbour(double[][] connections, double threshold,
-      int[][] expected) {
+  @Test
+  public void testMinimumDistanceWithNoVertices() {
+    assertMatchingFunctionWithNoVertices(MinimumDistanceMatchingFunction.instance());
+  }
+
+  @Test
+  public void testMinimumDistanceWithNoEdges() {
+    assertMatchingFunctionWithNoEdges(MinimumDistanceMatchingFunction.instance());
+  }
+
+  @Test
+  public void testMinimumDistanceWithMaxCardinality() {
+    assertMatchingFunctionWithMaxCardinality(MinimumDistanceMatchingFunction.instance());
+  }
+
+  @Test
+  public void testMinimumDistance() {
+    final double[][] connections = new double[5][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(4, Double.MAX_VALUE);
+    }
+    connections[1][1] = 0;
+    connections[1][2] = 0.25;
+    connections[4][1] = 0.33;
+    connections[4][2] = 0.75;
+    connections[4][3] = 1;
+
+    // This is minimum distance so the matches are: 0.25 + 0.33
+    final int[][] expected = new int[][] {{1, 2}, {4, 1}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+  }
+
+  @Test
+  public void testMinimumDistanceWithPerfectAssignments() {
+    final double[][] connections = new double[2][2];
+
+    final int[][] expected = new int[][] {{0, 0}, {1, 1}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+  }
+
+  @Test
+  public void testMinimumDistanceWithIncompleteAssignments() {
+    final double[][] connections = new double[3][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(2, 1);
+    }
+    connections[0][1] = 0;
+    connections[1][0] = 0;
+
+    final int[][] expected = new int[][] {{0, 1}, {1, 0}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+  }
+
+  @Test
+  public void testMinimumDistanceWithAssignmentsAboveMatchDistance() {
+    //@formatter:off
+    final double[][] connections = new double[][] {
+      {0, 2, 2, 1},
+      {2, 0, 2, 2},
+      {2, 2, 2, 1},
+      {2, 2, 1, 0},
+    };
+    //@formatter:on
+
+    // Here the Matchings mapping with convert those distances above the threshold to more than
+    // double any other value. Thus {2,3} + {3,2} is favoured over {2,2} + {3,3}.
+    final int[][] expected = new int[][] {{0, 0}, {1, 1}, {2, 3}, {3, 2}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+  }
+
+  private static void
+      assertMatchingFunctionWithNoVertices(MatchingFunction<Integer, Integer> function) {
+    final List<Integer> empty = new ArrayList<>();
+    final List<Integer> notEmpty = Arrays.asList(1, 2, 3, 4, 5);
+    final ToDoubleBiFunction<Integer, Integer> edges = (u, v) -> {
+      return 0;
+    };
+    int threshold = 1;
+    final List<Integer> unmatchedA = new ArrayList<>();
+    final List<Integer> unmatchedB = new ArrayList<>();
+    int max =
+        function.compute(empty, notEmpty, edges, threshold, null, unmatchedA::add, unmatchedB::add);
+    Assertions.assertEquals(0, max, "Empty A");
+    Assertions.assertEquals(empty, unmatchedA, "Empty A != Unmatched A");
+    Assertions.assertEquals(notEmpty, unmatchedB, "NotEmpty B != Unmatched B");
+
+    unmatchedA.clear();
+    unmatchedB.clear();
+    max =
+        function.compute(notEmpty, empty, edges, threshold, null, unmatchedA::add, unmatchedB::add);
+    Assertions.assertEquals(0, max, "Empty B");
+    Assertions.assertEquals(notEmpty, unmatchedA, "NotEmpty A != Unmatched A");
+    Assertions.assertEquals(empty, unmatchedB, "Empty B != Unmatched B");
+  }
+
+  private static void
+      assertMatchingFunctionWithNoEdges(MatchingFunction<Integer, Integer> function) {
+    final double[][] connections = new double[6][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(6, Double.MAX_VALUE);
+    }
+
+    final int[][] expected = new int[0][0];
+    assertMatchingFunction(function, connections, 1, expected);
+  }
+
+  private static void
+      assertMatchingFunctionWithMaxCardinality(MatchingFunction<Integer, Integer> function) {
+    final double[][] connections = new double[6][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(2, Double.MAX_VALUE);
+    }
+    connections[1][0] = 0;
+    connections[4][1] = 0.75;
+
+    final int[][] expected = new int[][] {{1, 0}, {4, 1}};
+    assertMatchingFunction(function, connections, 1, expected);
+  }
+
+  private static void assertMatchingFunction(MatchingFunction<Integer, Integer> function,
+      double[][] connections, double threshold, int[][] expected) {
     final List<Integer> verticesA =
         IntStream.range(0, connections.length).boxed().collect(Collectors.toList());
     final List<Integer> verticesB =
@@ -255,7 +398,7 @@ public class MatchingsTest {
     final ToDoubleBiFunction<Integer, Integer> edges = (u, v) -> {
       return connections[u][v];
     };
-    int max = Matchings.nearestNeighbour(verticesA, verticesB, edges, threshold, null, null, null);
+    int max = function.compute(verticesA, verticesB, edges, threshold, null, null, null);
     Assertions.assertEquals(expected.length, max, "Cardinality with no consumers");
 
     final List<Pair<Integer, Integer>> pairs = new ArrayList<>();
@@ -266,8 +409,8 @@ public class MatchingsTest {
     final List<Integer> unmatchedA = new ArrayList<>();
     final List<Integer> unmatchedB = new ArrayList<>();
 
-    max = Matchings.nearestNeighbour(verticesA, verticesB, edges, threshold, matched,
-        unmatchedA::add, unmatchedB::add);
+    max = function.compute(verticesA, verticesB, edges, threshold, matched, unmatchedA::add,
+        unmatchedB::add);
     Assertions.assertEquals(expected.length, max, "Cardinality with consumers");
     Assertions.assertEquals(expected.length, pairs.size(), "Size of matched");
 
@@ -306,4 +449,7 @@ public class MatchingsTest {
     Collections.sort(unmatchedB);
     Assertions.assertEquals(verticesB, unmatchedB, "Unmatched B");
   }
+
+  // Tests for minimum distance
+
 }

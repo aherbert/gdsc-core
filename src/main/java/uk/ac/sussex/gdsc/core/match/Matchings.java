@@ -30,19 +30,29 @@ package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntBiConsumer;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
+import gnu.trove.list.array.TIntArrayList;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
+import java.util.stream.IntStream;
 
 /**
  * Calculates the matching of two sets.
  */
 public final class Matchings {
+  /** The constant for no assignment. */
+  private static final int NO_ASSIGNMENT = -1;
+  /** The constant for the maximum cost distance. */
+  private static final int MAX_COST = 1 << 16;
 
   // Allow u and v for the vertex names.
   // @CHECKSTYLE.OFF: ParameterName
@@ -293,7 +303,7 @@ public final class Matchings {
   }
 
   /**
-   * Calculates the a matching of a bipartite graph between two sets of vertices using
+   * Calculates a matching of a bipartite graph between two sets of weighted vertices using
    * nearest-neighbours. The distance must be less than or equal to the threshold to be considered a
    * neighbour ({@code distance <= threshold}).
    *
@@ -311,7 +321,7 @@ public final class Matchings {
    * @param matched consumer for matched vertices (can be null)
    * @param unmatchedA consumer for the unmatched items in A (can be null)
    * @param unmatchedB consumer for the unmatched items in B (can be null)
-   * @return the maximum cardinality
+   * @return the cardinality
    * @see <a href="https://en.wikipedia.org/wiki/Maximum_cardinality_matching">Maximum cardinality
    *      matching</a>
    */
@@ -341,6 +351,7 @@ public final class Matchings {
       if (!matchedA[neighbour.getTargetId()] && !matchedB[neighbour.getPredictedId()]) {
         matchedA[neighbour.getTargetId()] = true;
         matchedB[neighbour.getPredictedId()] = true;
+        // Feed consumer
         if (matched != null) {
           matched.accept(verticesA.get(neighbour.getTargetId()),
               verticesB.get(neighbour.getPredictedId()));
@@ -353,7 +364,7 @@ public final class Matchings {
       }
     }
 
-    // Add to lists
+    // Feed consumers
     consumeUnmatched(verticesA, unmatchedA, matchedA);
     consumeUnmatched(verticesB, unmatchedB, matchedB);
 
@@ -418,5 +429,202 @@ public final class Matchings {
         }
       }
     }
+  }
+
+  /**
+   * Calculates a matching of a bipartite graph between two sets of weighted vertices using the
+   * minimum sum of distances. The distance must be less than or equal to the threshold to be
+   * considered a neighbour ({@code distance <= threshold}).
+   *
+   * <p>The cardinality of the match may not be maximal as an alternative matching may have a lower
+   * or equal sum of distances.
+   *
+   * <p>The output matched and those unmatched from each set can be obtained using the consumer
+   * functions. Use the matched consumer to obtain the sum of distances between matched vertices.
+   *
+   * <p>This uses an assignment algorithm based on an all-vs-all distance matrix. Distances below
+   * the threshold are mapped linearly to 16-bit integers. Any vertex not within the distance
+   * threshold to any other vertices is excluded.
+   *
+   * @param <T> type of vertices A
+   * @param <U> type of vertices B
+   * @param verticesA the vertices A
+   * @param verticesB the vertices B
+   * @param edges function used to identify distance between the vertices ({@code A -> B})
+   * @param threshold the distance threshold
+   * @param matched consumer for matched vertices (can be null)
+   * @param unmatchedA consumer for the unmatched items in A (can be null)
+   * @param unmatchedB consumer for the unmatched items in B (can be null)
+   * @return the cardinality
+   * @throws IllegalArgumentException If the distance threshold is not finite
+   * @throws ArithmeticException if there is an overflow in the cost matrix
+   * @see <a href="https://en.wikipedia.org/wiki/Assignment_problem">Assignment problem</a>
+   * @see KuhnMunkresAssignment
+   */
+  public static <T, U> int minimumDistance(List<T> verticesA, List<U> verticesB,
+      ToDoubleBiFunction<T, U> edges, double threshold, BiConsumer<T, U> matched,
+      Consumer<T> unmatchedA, Consumer<U> unmatchedB) {
+    if (verticesA.isEmpty() || verticesB.isEmpty()) {
+      consume(verticesA, unmatchedA);
+      consume(verticesB, unmatchedB);
+      return 0;
+    }
+
+    ValidationUtils.checkArgument(Double.isFinite(threshold),
+        "Distance threshold is not finite: %s", threshold);
+
+    // Find the costs cost matrix. This may not be all-vs-all so
+    // map indices of input lists to those in the cost matrix.
+    final int sizeA = verticesA.size();
+    final int sizeB = verticesB.size();
+    // A pair of the matching and the cost stored as two lists
+    final ArrayList<int[]> pairV = new ArrayList<>(sizeA);
+    final ArrayList<double[]> pairD = new ArrayList<>(sizeA);
+    final TIntArrayList mapA = new TIntArrayList(sizeA);
+    // Mark all those in B that match something
+    final boolean[] matchedB = new boolean[sizeB];
+
+    findCosts(verticesA, verticesB, edges, threshold, pairV, pairD, mapA, matchedB);
+
+    // There may be nothing within the distance threshold
+    if (mapA.isEmpty()) {
+      consume(verticesA, unmatchedA);
+      consume(verticesB, unmatchedB);
+      return 0;
+    }
+
+    // Map any B that were observed
+    final TIntArrayList mapB = new TIntArrayList(sizeB);
+    IntStream.range(0, sizeB).filter(v -> matchedB[v]).forEachOrdered(mapB::add);
+
+    // Create the final cost matrix and compute assignments
+    final int[] cost2 = createCostMatrix(pairV, pairD, sizeB, mapB);
+
+    final int[] assignments = KuhnMunkresAssignment.compute(cost2, mapA.size(), mapB.size());
+
+    // Remove those above the match distance.
+    // The cost matrix is modified so recompute the distance.
+    int max = 0;
+    final boolean[] matchedA = new boolean[sizeA];
+    Arrays.fill(matchedB, false);
+    for (int u = 0; u < assignments.length; u++) {
+      final int v = assignments[u];
+      if (v != NO_ASSIGNMENT) {
+        // Check the distance as a precaution against bad assignments that minimise
+        // the sum of distances by including a pair above the maximum cost.
+        final T itemA = verticesA.get(mapA.getQuick(u));
+        final U itemB = verticesB.get(mapB.getQuick(v));
+        if (edges.applyAsDouble(itemA, itemB) <= threshold) {
+          max++;
+          matchedA[mapA.getQuick(u)] = true;
+          matchedB[mapB.getQuick(v)] = true;
+          // Feed consumer
+          if (matched != null) {
+            matched.accept(itemA, itemB);
+          }
+        }
+      }
+    }
+
+    // Feed consumers
+    consumeUnmatched(verticesA, unmatchedA, matchedA);
+    consumeUnmatched(verticesB, unmatchedB, matchedB);
+
+    return max;
+  }
+
+  /**
+   * Find the costs. Add to the map of A if any vertex in A matches B.
+   *
+   * @param <T> type of vertices A
+   * @param <U> type of vertices B
+   * @param verticesA the vertices A
+   * @param verticesB the vertices B
+   * @param edges function used to identify distance between the vertices ({@code A -> B})
+   * @param threshold the distance threshold
+   * @param pairV the list to hold all the matching vertices from mapped A
+   * @param pairD the list to hold all the matching distances from mapped A
+   * @param mapA the map of those A with a valid cost
+   * @param matchedB the array to set to true for each matched B
+   */
+  private static <T, U> void findCosts(List<T> verticesA, List<U> verticesB,
+      ToDoubleBiFunction<T, U> edges, double threshold, final ArrayList<int[]> pairV,
+      final ArrayList<double[]> pairD, TIntArrayList mapA, boolean[] matchedB) {
+    final int sizeA = verticesA.size();
+    final int sizeB = verticesB.size();
+    // Working space
+    final int[] tmpV = new int[sizeB];
+    final double[] tmpD = new double[sizeB];
+
+    for (int u = 0; u < sizeA; u++) {
+      final T itemA = verticesA.get(u);
+      int count = 0;
+      for (int v = 0; v < sizeB; v++) {
+        final double distance = edges.applyAsDouble(itemA, verticesB.get(v));
+        if (distance <= threshold) {
+          matchedB[v] = true;
+          tmpV[count] = v;
+          tmpD[count] = distance;
+          count++;
+        }
+      }
+      if (count != 0) {
+        mapA.add(u);
+        pairV.add(Arrays.copyOf(tmpV, count));
+        pairD.add(Arrays.copyOf(tmpD, count));
+      }
+    }
+  }
+
+
+  /**
+   * Create the packed cost matrix data from only those matches within the distance.
+   *
+   * @param pairV the matching vertices B for each mapped vertex A
+   * @param pairD the distance to vertices B for each mapped vertex A
+   * @param sizeB the original size of B
+   * @param mapB the map of those B with a valid cost
+   * @return the cost matrix
+   */
+  private static int[] createCostMatrix(ArrayList<int[]> pairV, ArrayList<double[]> pairD,
+      int sizeB, TIntArrayList mapB) {
+    // Create mapping from original B index to reduced index
+    int[] originalToReduced = new int[sizeB];
+    for (int i = 0; i < mapB.size(); i++) {
+      originalToReduced[mapB.getQuick(i)] = i;
+    }
+
+    // Create a cost matrix.
+    // The matrix is re-mapped to integers to avoid float-point cumulative errors in
+    // the Munkres algorithm which uses additions and subtractions.
+    final Iterator<double[]> it = pairD.iterator();
+    double[] limits = MathUtils.limits(it.next());
+    it.forEachRemaining(distances -> MathUtils.limits(limits, distances));
+    final double min = limits[0];
+    // Note: It does not matter if the range is 0.
+    // The Math.round() function will return 0 for a NaN input when converting to integer.
+    final double range = limits[1] - min;
+
+    // The cost of matches above the distance threshold is set to twice the maximum cost + 1.
+    // This ensures the algorithm will favour two matches at max cost instead of 1 perfect match
+    // and 1 disallowed match (since (2 * max) < (0 + 2 * max + 1)).
+    final int[] cost = new int[pairV.size() * mapB.size()];
+    Arrays.fill(cost, MAX_COST * 2 + 1);
+
+    // Write in the known costs to the matrix
+    for (int i = 0; i < pairV.size(); i++) {
+      // Data is packed as i * cols + j.
+      // Compute the start offset for this row.
+      int rowOffset = i * mapB.size();
+      final int[] tmpV = pairV.get(i);
+      final double[] tmpD = pairD.get(i);
+      for (int j = 0; j < tmpV.length; j++) {
+        // Convert to integer
+        cost[rowOffset + originalToReduced[tmpV[j]]] =
+            (int) Math.round(MAX_COST * ((tmpD[j] - min) / range));
+      }
+    }
+
+    return cost;
   }
 }
