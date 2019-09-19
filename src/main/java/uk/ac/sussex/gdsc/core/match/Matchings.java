@@ -446,6 +446,9 @@ public final class Matchings {
    * the threshold are mapped linearly to 16-bit integers. Any vertex not within the distance
    * threshold to any other vertices is excluded.
    *
+   * <p>The distances should be constructed to avoid the range between maximum and minimum distance
+   * being infinite. This will break the linear mapping and an exception is raised.
+   *
    * @param <T> type of vertices A
    * @param <U> type of vertices B
    * @param verticesA the vertices A
@@ -456,7 +459,8 @@ public final class Matchings {
    * @param unmatchedA consumer for the unmatched items in A (can be null)
    * @param unmatchedB consumer for the unmatched items in B (can be null)
    * @return the cardinality
-   * @throws IllegalArgumentException If the distance threshold is not finite
+   * @throws IllegalArgumentException If the distance threshold is not finite, or the range of the
+   *         maximum to minimum distance is infinite.
    * @throws ArithmeticException if there is an overflow in the cost matrix
    * @see <a href="https://en.wikipedia.org/wiki/Assignment_problem">Assignment problem</a>
    * @see KuhnMunkresAssignment
@@ -604,6 +608,8 @@ public final class Matchings {
     // Note: It does not matter if the range is 0.
     // The Math.round() function will return 0 for a NaN input when converting to integer.
     final double range = limits[1] - min;
+    ValidationUtils.checkArgument(Double.isFinite(range),
+        "Max (%f) - min (%f) distance is not finite", limits[1], min);
 
     // The cost of matches above the distance threshold is set to twice the maximum cost + 1.
     // This ensures the algorithm will favour two matches at max cost instead of 1 perfect match
