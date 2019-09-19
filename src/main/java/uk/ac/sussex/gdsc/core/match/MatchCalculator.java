@@ -122,7 +122,7 @@ public final class MatchCalculator {
    * @return The match results
    * @see Pulse#score(Pulse, double, double)
    */
-  public static MatchResult analyseResults2Db(Pulse[] actualPoints, Pulse[] predictedPoints,
+  public static MatchResult analyseResults2D(Pulse[] actualPoints, Pulse[] predictedPoints,
       double distanceThreshold, List<Pulse> truePositives, List<Pulse> falsePositives,
       List<Pulse> falseNegatives, List<PointPair> matches) {
     final ToDoubleBiFunction<Pulse, Pulse> edges = createEdgeFunction(distanceThreshold);
@@ -301,7 +301,11 @@ public final class MatchCalculator {
       List<T> falseNegatives, List<PointPair> matches, ToDoubleBiFunction<T, T> edges,
       ToDoubleFunction<MatchedConsumer<T>> resultFunction) {
 
-    // Delegate
+    // Delegate to the Matchings class.
+    // This currently uses nearestNeighbour but could be changed to use maximumCardinality
+    // or minimumDistance. Note that downstream consumers of this method were created based
+    // on it using the greedy nearest neighbour method.
+
     final List<T> verticesA = toList(predictedPoints);
     final List<T> verticesB = toList(actualPoints);
     final MatchedConsumer<T> matchedConsumer = new MatchedConsumer<>(edges);

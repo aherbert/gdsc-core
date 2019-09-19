@@ -326,7 +326,7 @@ public class MatchCalculatorTest {
     final List<Pulse> falsePositives = new ArrayList<>();
     final List<Pulse> falseNegatives = new ArrayList<>();
     final List<PointPair> matches = new ArrayList<>();
-    final MatchResult match = MatchCalculator.analyseResults2Db(actual, predicted,
+    final MatchResult match = MatchCalculator.analyseResults2D(actual, predicted,
         distanceThreshold, truePositives, falsePositives, falseNegatives, matches);
     final int tp = 2;
     final int fp = 1;
