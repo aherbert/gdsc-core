@@ -16,14 +16,14 @@ import java.util.Arrays;
 @SuppressWarnings({"javadoc"})
 public class DoubleKuhnMunkresAssignmentTest {
   @Test
-  public void testAddExact() {
+  public void testWithoutOverflow() {
     Assertions.assertThrows(ArithmeticException.class,
-        () -> DoubleKuhnMunkresAssignment.addExact(Double.MAX_VALUE, Double.MAX_VALUE));
+        () -> DoubleKuhnMunkresAssignment.addWithoutOverflow(Double.MAX_VALUE, Double.MAX_VALUE));
   }
 
   @Test
-  public void testSubtractExact() {
-    Assertions.assertEquals(0f, DoubleKuhnMunkresAssignment.subtractExact(0.3f, 0.4f));
+  public void testSubtractToZero() {
+    Assertions.assertEquals(0f, DoubleKuhnMunkresAssignment.subtractToZero(0.3f, 0.4f));
   }
 
   @Test
@@ -39,6 +39,29 @@ public class DoubleKuhnMunkresAssignmentTest {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> DoubleKuhnMunkresAssignment.create(new double[][] {{1, 2, 3}, {1, 2}}),
         "Non rectangular input");
+  }
+
+  @Test
+  public void testComputeThrows() {
+    Assertions.assertThrows(ArithmeticException.class,
+        () -> DoubleKuhnMunkresAssignment
+            .compute(new double[][] {{-Double.MAX_VALUE, Double.MAX_VALUE}, {0, 0}}),
+        "Expected overflow when zeroing rows");
+    // Force the columns computation first using rows > columns
+    Assertions.assertThrows(ArithmeticException.class,
+        () -> DoubleKuhnMunkresAssignment
+            .compute(new double[][] {{-Double.MAX_VALUE, 0}, {Double.MAX_VALUE, 0}, {0, 0}}),
+        "Expected overflow when zeroing columns");
+
+    // If the minimum is negative infinity this should be noticed
+    Assertions.assertThrows(ArithmeticException.class,
+        () -> DoubleKuhnMunkresAssignment
+            .compute(new double[][] {{Double.NEGATIVE_INFINITY, -Double.MIN_VALUE}, {0, 0}}),
+        "Expected overflow when zeroing rows containing negative infinity");
+    Assertions.assertThrows(ArithmeticException.class,
+        () -> DoubleKuhnMunkresAssignment
+            .compute(new double[][] {{Double.POSITIVE_INFINITY, Double.MIN_VALUE}, {0, 0}}),
+        "Expected overflow when zeroing rows containing positive infinity");
   }
 
   @Test

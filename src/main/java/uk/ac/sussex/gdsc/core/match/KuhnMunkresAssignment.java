@@ -98,7 +98,7 @@ public class KuhnMunkresAssignment {
    *
    * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
    * @return the instance
-   * @throws IllegalArgumentException If the array is null, empty or not rectangular
+   * @throws IllegalArgumentException if the array is null, empty or not rectangular
    */
   @VisibleForTesting
   static KuhnMunkresAssignment create(int[][] cost) {
@@ -129,7 +129,7 @@ public class KuhnMunkresAssignment {
    *
    * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
    * @return the assignments
-   * @throws IllegalArgumentException If the array is null, empty or not rectangular
+   * @throws IllegalArgumentException if the array is null, empty or not rectangular
    * @throws ArithmeticException if there is an overflow in the cost matrix
    */
   public static int[] compute(int[][] cost) {
@@ -149,7 +149,7 @@ public class KuhnMunkresAssignment {
    * @param rows the rows
    * @param cols the columns
    * @return the assignments
-   * @throws IllegalArgumentException If the array is null, empty or not equal to rows * columns
+   * @throws IllegalArgumentException if the array is null, empty or not equal to rows * columns
    * @throws ArithmeticException if there is an overflow in the cost matrix
    */
   public static int[] compute(int[] cost, int rows, int cols) {
@@ -231,6 +231,8 @@ public class KuhnMunkresAssignment {
 
   /**
    * Subtract smallest from each row. This is preliminary step 0(b).
+   *
+   * @throws ArithmeticException if there is an overflow
    */
   private void subtractSmallestFromEachRow() {
     for (int row = 0; row < rows; row++) {
@@ -243,13 +245,15 @@ public class KuhnMunkresAssignment {
         }
       }
       for (int i = start; i < end; i++) {
-        cost[i] -= min;
+        cost[i] = Math.addExact(cost[i], -min);
       }
     }
   }
 
   /**
    * Subtract smallest from each column. This is preliminary step 0(c).
+   *
+   * @throws ArithmeticException if there is an overflow
    */
   private void subtractSmallestFromEachColumn() {
     for (int col = 0; col < cols; col++) {
@@ -262,7 +266,7 @@ public class KuhnMunkresAssignment {
         }
       }
       for (int i = start; i < end; i += cols) {
-        cost[i] -= min;
+        cost[i] = Math.addExact(cost[i], -min);
       }
     }
   }
@@ -536,7 +540,7 @@ public class KuhnMunkresAssignment {
         final int start = row * cols;
         final int end = start + cols;
         for (int i = start; i < end; i++) {
-          cost[i] = addExact(cost[i], h);
+          cost[i] = addWithoutOverflow(cost[i], h);
         }
       }
     }
@@ -591,7 +595,7 @@ public class KuhnMunkresAssignment {
    * @throws ArithmeticException if there is an overflow
    */
   @VisibleForTesting
-  static int addExact(int value1, int value2) {
+  static int addWithoutOverflow(int value1, int value2) {
     int result = value1 + value2;
     if (result < 0) {
       throw new ArithmeticException("Overflow in cost matrix");

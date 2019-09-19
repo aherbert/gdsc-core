@@ -16,9 +16,9 @@ import java.util.Arrays;
 @SuppressWarnings({"javadoc"})
 public class KuhnMunkresAssignmentTest {
   @Test
-  public void testAddExact() {
+  public void testWithoutOverflow() {
     Assertions.assertThrows(ArithmeticException.class,
-        () -> KuhnMunkresAssignment.addExact(Integer.MAX_VALUE, 1));
+        () -> KuhnMunkresAssignment.addWithoutOverflow(Integer.MAX_VALUE, 1));
   }
 
   @Test
@@ -34,6 +34,19 @@ public class KuhnMunkresAssignmentTest {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> KuhnMunkresAssignment.create(new int[][] {{1, 2, 3}, {1, 2}}),
         "Non rectangular input");
+  }
+
+  @Test
+  public void testComputeThrows() {
+    Assertions.assertThrows(ArithmeticException.class,
+        () -> KuhnMunkresAssignment
+            .compute(new int[][] {{Integer.MIN_VALUE, Integer.MAX_VALUE}, {0, 0}}),
+        "Expected overflow when zeroing rows");
+    // Force the columns computation first using rows > columns
+    Assertions.assertThrows(ArithmeticException.class,
+        () -> KuhnMunkresAssignment
+            .compute(new int[][] {{Integer.MIN_VALUE, 0}, {Integer.MAX_VALUE, 0}, {0, 0}}),
+        "Expected overflow when zeroing columns");
   }
 
   @Test

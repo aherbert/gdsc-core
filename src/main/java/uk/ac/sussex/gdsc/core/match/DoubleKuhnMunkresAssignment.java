@@ -104,7 +104,7 @@ public class DoubleKuhnMunkresAssignment {
    *
    * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
    * @return the instance
-   * @throws IllegalArgumentException If the array is null, empty or not rectangular
+   * @throws IllegalArgumentException if the array is null, empty or not rectangular
    */
   @VisibleForTesting
   static DoubleKuhnMunkresAssignment create(double[][] cost) {
@@ -135,8 +135,8 @@ public class DoubleKuhnMunkresAssignment {
    *
    * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
    * @return the assignments
-   * @throws IllegalArgumentException If the array is null, empty or not rectangular
-   * @throws ArithmeticException if there is an overflow in the cost matrix
+   * @throws IllegalArgumentException if the array is null, empty or not rectangular
+   * @throws ArithmeticException if there is an overflow in the cost matrix to infinity
    */
   public static int[] compute(double[][] cost) {
     return create(cost).compute();
@@ -155,8 +155,8 @@ public class DoubleKuhnMunkresAssignment {
    * @param rows the rows
    * @param cols the columns
    * @return the assignments
-   * @throws IllegalArgumentException If the array is null, empty or not equal to rows * columns
-   * @throws ArithmeticException if there is an overflow in the cost matrix
+   * @throws IllegalArgumentException if the array is null, empty or not equal to rows * columns
+   * @throws ArithmeticException if there is an overflow in the cost matrix to infinity
    */
   public static int[] compute(double[] cost, int rows, int cols) {
     SimpleArrayUtils.hasData2D(rows, cols, cost);
@@ -169,7 +169,7 @@ public class DoubleKuhnMunkresAssignment {
    * <p>A value of -1 is used for no assignment.
    *
    * @return the assignments
-   * @throws ArithmeticException if there is an overflow in the cost matrix
+   * @throws ArithmeticException if there is an overflow in the cost matrix to infinity
    */
   private int[] compute() {
     // Preliminaries:
@@ -237,6 +237,8 @@ public class DoubleKuhnMunkresAssignment {
 
   /**
    * Subtract smallest from each row. This is preliminary step 0(b).
+   *
+   * @throws ArithmeticException if there is an overflow
    */
   private void subtractSmallestFromEachRow() {
     for (int row = 0; row < rows; row++) {
@@ -249,13 +251,15 @@ public class DoubleKuhnMunkresAssignment {
         }
       }
       for (int i = start; i < end; i++) {
-        cost[i] -= min;
+        cost[i] = addWithoutOverflow(cost[i], -min);
       }
     }
   }
 
   /**
    * Subtract smallest from each column. This is preliminary step 0(c).
+   *
+   * @throws ArithmeticException if there is an overflow
    */
   private void subtractSmallestFromEachColumn() {
     for (int col = 0; col < cols; col++) {
@@ -268,7 +272,7 @@ public class DoubleKuhnMunkresAssignment {
         }
       }
       for (int i = start; i < end; i += cols) {
-        cost[i] -= min;
+        cost[i] = addWithoutOverflow(cost[i], -min);
       }
     }
   }
@@ -542,7 +546,7 @@ public class DoubleKuhnMunkresAssignment {
         final int start = row * cols;
         final int end = start + cols;
         for (int i = start; i < end; i++) {
-          cost[i] = addExact(cost[i], h);
+          cost[i] = addWithoutOverflow(cost[i], h);
         }
       }
     }
@@ -553,7 +557,7 @@ public class DoubleKuhnMunkresAssignment {
         final int start = col;
         final int end = cost.length;
         for (int i = start; i < end; i += cols) {
-          cost[i] = subtractExact(cost[i], h);
+          cost[i] = subtractToZero(cost[i], h);
         }
       }
     }
@@ -602,7 +606,7 @@ public class DoubleKuhnMunkresAssignment {
    * @throws ArithmeticException if there is an overflow to infinity
    */
   @VisibleForTesting
-  static double addExact(double value1, double value2) {
+  static double addWithoutOverflow(double value1, double value2) {
     double result = value1 + value2;
     if (result == Double.POSITIVE_INFINITY) {
       throw new ArithmeticException("Overflow in cost matrix");
@@ -621,7 +625,7 @@ public class DoubleKuhnMunkresAssignment {
    * @return the subtraction (or zero)
    */
   @VisibleForTesting
-  static double subtractExact(double value1, double value2) {
+  static double subtractToZero(double value1, double value2) {
     double result = value1 - value2;
     return (result > 0) ? result : 0;
   }
