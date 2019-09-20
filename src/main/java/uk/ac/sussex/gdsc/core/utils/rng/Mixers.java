@@ -295,7 +295,7 @@ public final class Mixers {
    *
    * @param x the input value
    * @return the output value
-   * @see <a href="http://code.google.com/p/smhasher/">SMHasher</a>
+   * @see <a href="https://github.com/aappleby/smhasher">SMHasher</a>
    */
   public static long murmur3(long x) {
     x = (x ^ (x >>> 33)) * 0xff51afd7ed558ccdL;
