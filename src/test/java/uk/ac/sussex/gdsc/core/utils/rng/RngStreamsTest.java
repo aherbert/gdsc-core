@@ -481,10 +481,14 @@ public class RngStreamsTest {
   public void testDoublesSpliteratorTryAdvanceWithSampleAtUpperBound() {
     final SplittableUniformRandomProvider rng = new SplittableUniformRandomProvider() {
       @Override
-      public void nextBytes(byte[] bytes) {}
+      public void nextBytes(byte[] bytes) {
+        // Ignore
+      }
 
       @Override
-      public void nextBytes(byte[] bytes, int start, int len) {}
+      public void nextBytes(byte[] bytes, int start, int len) {
+        // Ignore
+      }
 
       @Override
       public int nextInt() {

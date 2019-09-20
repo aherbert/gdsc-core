@@ -369,7 +369,7 @@ public class MatchingsTest {
     final ToDoubleBiFunction<Integer, Integer> edges = (u, v) -> {
       return 0;
     };
-    int threshold = 1;
+    final int threshold = 1;
     final List<Integer> unmatchedA = new ArrayList<>();
     final List<Integer> unmatchedB = new ArrayList<>();
     int max =

@@ -468,15 +468,15 @@ public final class NumberUtils {
   /**
    * Creates a {@code double} from two {@code int} values.
    *
-   * @param v Number (high order bits).
-   * @param w Number (low order bits).
+   * @param highBits high order bits.
+   * @param lowBit low order bits.
    * @return a {@code double} value in the interval {@code [0, 1]}.
    */
-  public static double makeDouble(int v, int w) {
+  public static double makeDouble(int highBits, int lowBit) {
     // Require the least significant 53-bits from a long.
     // Join the most significant 26 from v with 27 from w.
-    final long high = ((long) (v >>> 6)) << 27;
-    final int low = w >>> 5;
+    final long high = ((long) (highBits >>> 6)) << 27;
+    final int low = lowBit >>> 5;
     return (high | low) * 0x1.0p-53d;
   }
 }

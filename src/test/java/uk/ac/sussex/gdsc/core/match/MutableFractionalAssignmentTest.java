@@ -31,7 +31,7 @@ public class MutableFractionalAssignmentTest {
     final MutableFractionalAssignment data =
         new MutableFractionalAssignment(targetId, predictedId, distance, score);
 
-    for (int add : new int[] {-45, 2, 34}) {
+    for (final int add : new int[] {-45, 2, 34}) {
       targetId = add + data.getTargetId();
       predictedId = add + data.getPredictedId();
       distance = add + data.getDistance();

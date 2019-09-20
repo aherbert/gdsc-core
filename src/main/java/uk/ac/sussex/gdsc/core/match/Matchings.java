@@ -593,7 +593,7 @@ public final class Matchings {
   private static int[] createCostMatrix(ArrayList<int[]> pairV, ArrayList<double[]> pairD,
       int sizeB, TIntArrayList mapB) {
     // Create mapping from original B index to reduced index
-    int[] originalToReduced = new int[sizeB];
+    final int[] originalToReduced = new int[sizeB];
     for (int i = 0; i < mapB.size(); i++) {
       originalToReduced[mapB.getQuick(i)] = i;
     }
@@ -602,7 +602,7 @@ public final class Matchings {
     // The matrix is re-mapped to integers to avoid float-point cumulative errors in
     // the Munkres algorithm which uses additions and subtractions.
     final Iterator<double[]> it = pairD.iterator();
-    double[] limits = MathUtils.limits(it.next());
+    final double[] limits = MathUtils.limits(it.next());
     it.forEachRemaining(distances -> MathUtils.limits(limits, distances));
     final double min = limits[0];
     // Note: It does not matter if the range is 0.
@@ -621,7 +621,7 @@ public final class Matchings {
     for (int i = 0; i < pairV.size(); i++) {
       // Data is packed as i * cols + j.
       // Compute the start offset for this row.
-      int rowOffset = i * mapB.size();
+      final int rowOffset = i * mapB.size();
       final int[] tmpV = pairV.get(i);
       final double[] tmpD = pairD.get(i);
       for (int j = 0; j < tmpV.length; j++) {

@@ -607,7 +607,7 @@ public class DoubleKuhnMunkresAssignment {
    */
   @VisibleForTesting
   static double addWithoutOverflow(double value1, double value2) {
-    double result = value1 + value2;
+    final double result = value1 + value2;
     if (result == Double.POSITIVE_INFINITY) {
       throw new ArithmeticException("Overflow in cost matrix");
     }
@@ -626,7 +626,7 @@ public class DoubleKuhnMunkresAssignment {
    */
   @VisibleForTesting
   static double subtractToZero(double value1, double value2) {
-    double result = value1 - value2;
+    final double result = value1 - value2;
     return (result > 0) ? result : 0;
   }
 }

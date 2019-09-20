@@ -18,10 +18,10 @@ import java.util.stream.IntStream;
 public class AssignmentComparatorTest {
   @SeededTest
   public void canSort(RandomSeed seed) {
-    Assignment[] data = IntStream.rangeClosed(1, 10).mapToObj(d -> new ImmutableAssignment(0, 0, d))
-        .toArray(Assignment[]::new);
+    final Assignment[] data = IntStream.rangeClosed(1, 10)
+        .mapToObj(d -> new ImmutableAssignment(0, 0, d)).toArray(Assignment[]::new);
     RandomUtils.shuffle(data, RngUtils.create(seed.getSeed()));
-    List<Assignment> list = Arrays.asList(data.clone());
+    final List<Assignment> list = Arrays.asList(data.clone());
     AssignmentComparator.sort(data);
     AssignmentComparator.sort(list);
     for (int i = 0; i < data.length; i++) {

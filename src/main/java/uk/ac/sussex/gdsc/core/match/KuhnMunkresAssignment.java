@@ -596,7 +596,7 @@ public class KuhnMunkresAssignment {
    */
   @VisibleForTesting
   static int addWithoutOverflow(int value1, int value2) {
-    int result = value1 + value2;
+    final int result = value1 + value2;
     if (result < 0) {
       throw new ArithmeticException("Overflow in cost matrix");
     }

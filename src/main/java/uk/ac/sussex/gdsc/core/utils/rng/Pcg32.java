@@ -411,8 +411,7 @@ public abstract class Pcg32
     do {
       bits = nextLong() >>> 1;
       val = bits % n;
-    }
-    while (bits - val + nm1 < 0);
+    } while (bits - val + nm1 < 0);
 
     return val;
   }

@@ -26,7 +26,7 @@ public class MutableAssignmentTest {
     double distance = 2342.78998;
     final MutableAssignment data = new MutableAssignment(targetId, predictedId, distance);
 
-    for (int add : new int[] {-45, 2, 34}) {
+    for (final int add : new int[] {-45, 2, 34}) {
       targetId = add + data.getTargetId();
       predictedId = add + data.getPredictedId();
       distance = add + data.getDistance();

@@ -29,8 +29,6 @@
 package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -350,7 +348,7 @@ public final class ClosestPairCalculator {
         findClosestPair(list, indicesX, low, mid, leftIndicesY, leftSet, 2 * setId);
     final Assignment rightResult =
         findClosestPair(list, indicesX, mid, high, rightIndicesY, leftSet, 2 * setId + 1);
-    Assignment result =
+    final Assignment result =
         leftResult.getDistance() < rightResult.getDistance() ? leftResult : rightResult;
 
     // Find points in the left and right sets within the closest distance of the X boundary.
@@ -419,7 +417,7 @@ public final class ClosestPairCalculator {
         findClosestPair(list, getX, getY, indicesX, low, mid, leftIndicesY, leftSet, 2 * setId);
     final Assignment rightResult = findClosestPair(list, getX, getY, indicesX, mid, high,
         rightIndicesY, leftSet, 2 * setId + 1);
-    Assignment result =
+    final Assignment result =
         leftResult.getDistance() < rightResult.getDistance() ? leftResult : rightResult;
 
     // Find points in the left and right sets within the closest distance of the X boundary.

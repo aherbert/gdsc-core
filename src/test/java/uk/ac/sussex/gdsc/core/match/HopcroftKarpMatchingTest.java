@@ -65,7 +65,7 @@ public class HopcroftKarpMatchingTest {
       list.add(i);
       Assertions.assertEquals(i, list.size(), "Size");
     }
-    int[] data = list.getData();
+    final int[] data = list.getData();
     for (int i = 1; i <= 10; i++) {
       Assertions.assertEquals(i, data[i - 1], "list data");
     }

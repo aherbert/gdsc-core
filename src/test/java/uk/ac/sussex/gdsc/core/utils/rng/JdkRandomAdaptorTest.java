@@ -38,10 +38,14 @@ public class JdkRandomAdaptorTest {
     final Random random2 = new Random(seed);
     final UniformRandomProvider source = new UniformRandomProvider() {
       @Override
-      public void nextBytes(byte[] bytes) {}
+      public void nextBytes(byte[] bytes) {
+        // Ignore
+      }
 
       @Override
-      public void nextBytes(byte[] bytes, int start, int len) {}
+      public void nextBytes(byte[] bytes, int start, int len) {
+        // Ignore
+      }
 
       @Override
       public int nextInt() {

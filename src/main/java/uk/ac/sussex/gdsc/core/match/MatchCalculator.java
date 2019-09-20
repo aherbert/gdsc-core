@@ -127,8 +127,8 @@ public final class MatchCalculator {
       List<Pulse> falseNegatives, List<PointPair> matches) {
     final ToDoubleBiFunction<Pulse, Pulse> edges = createEdgeFunction(distanceThreshold);
     // Use zero for the distance threshold as the edge function returns 0 and below for valid edges.
-    return analyseResults(actualPoints, predictedPoints, 0.0, truePositives,
-        falsePositives, falseNegatives, matches, edges, matchedConsumer -> {
+    return analyseResults(actualPoints, predictedPoints, 0.0, truePositives, falsePositives,
+        falseNegatives, matches, edges, matchedConsumer -> {
           // Every time-point has the chance to contribute to the score.
           // Normalise score by the maximum of the number of actual/predicted time points.
           // This penalises too few or too many predictions.
