@@ -298,9 +298,9 @@ public final class Mixers {
    * @see <a href="https://github.com/aappleby/smhasher">SMHasher</a>
    */
   public static int murmur3(int x) {
-    x = (x ^ (x >> 16)) * 0x85ebca6b;
-    x = (x ^ (x >> 13)) * 0xc2b2ae35;
-    return x ^ (x >> 16);
+    x = (x ^ (x >>> 16)) * 0x85ebca6b;
+    x = (x ^ (x >>> 13)) * 0xc2b2ae35;
+    return x ^ (x >>> 16);
   }
 
   /**
