@@ -27,10 +27,17 @@ import java.util.stream.IntStream;
 @SuppressWarnings({"javadoc"})
 public class ClosestPairCalculatorTest {
   @Test
-  public void testToRandomAccess() {
-    Point2D[] raw = new Point2D[] {new Point2D.Double(1, 2), new Point2D.Double(3, 4)};
+  public void testGetSize() {
+    Assertions.assertEquals(0, ClosestPairCalculator.getSize(null));
+    Assertions.assertEquals(1,
+        ClosestPairCalculator.getSize(Arrays.asList(new Point2D.Double(1, 2))));
+  }
 
-    Collection<Point2D> points = new TreeSet<>(ClosestPairCalculatorTest::compare);
+  @Test
+  public void testToRandomAccess() {
+    final Point2D[] raw = new Point2D[] {new Point2D.Double(1, 2), new Point2D.Double(3, 4)};
+
+    final Collection<Point2D> points = new TreeSet<>(ClosestPairCalculatorTest::compare);
     Arrays.stream(raw).forEachOrdered(points::add);
 
     assertRandomAccess(raw, ClosestPairCalculator.toRandomAccess(points));
@@ -50,7 +57,7 @@ public class ClosestPairCalculatorTest {
     // As long as the value does not wrap an unsigned 32-bit integer this is OK as
     // negative values are still unique from the unallocated Id of zero.
     int low = 0;
-    int high = Integer.MAX_VALUE;
+    final int high = Integer.MAX_VALUE;
     int size = high - low;
     long id = 1;
     while (size > 3) {
@@ -65,32 +72,33 @@ public class ClosestPairCalculatorTest {
   @Test
   public void testBadArguments() {
     // Valid arguments
-    Point2D[] raw = new Point2D[] {new Point2D.Double(1, 2), new Point2D.Double(3, 4)};
-    List<Point2D> points = Arrays.asList(raw);
-    ToDoubleFunction<Point2D> getX = Point2D::getX;
-    ToDoubleFunction<Point2D> getY = Point2D::getY;
+    final Point2D[] raw = new Point2D[] {new Point2D.Double(1, 2), new Point2D.Double(3, 4)};
+    final List<Point2D> points = Arrays.asList(raw);
+    final ToDoubleFunction<Point2D> getX = Point2D::getX;
+    final ToDoubleFunction<Point2D> getY = Point2D::getY;
 
     // Point2D[] method
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> ClosestPairCalculator.closestPair(null), "null Point2D[]");
+        () -> ClosestPairCalculator.closestPairPartitioned(null), "null Point2D[]");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> ClosestPairCalculator.closestPair(new Point2D[0]), "empty Point2D[]");
+        () -> ClosestPairCalculator.closestPairPartitioned(new Point2D[0]), "empty Point2D[]");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> ClosestPairCalculator.closestPair(new Point2D[] {raw[0]}), "size 1 Point2D[]");
+        () -> ClosestPairCalculator.closestPairPartitioned(new Point2D[] {raw[0]}),
+        "size 1 Point2D[]");
 
     // Generic method
     Assertions.assertThrows(NullPointerException.class,
-        () -> ClosestPairCalculator.closestPair(null, getX, getY), "null Collection<T>");
+        () -> ClosestPairCalculator.closestPairPartitioned(null, getX, getY), "null Collection<T>");
     Assertions.assertThrows(NullPointerException.class,
-        () -> ClosestPairCalculator.closestPair(points, null, getY), "null getX");
+        () -> ClosestPairCalculator.closestPairPartitioned(points, null, getY), "null getX");
     Assertions.assertThrows(NullPointerException.class,
-        () -> ClosestPairCalculator.closestPair(points, getX, null), "null getY");
+        () -> ClosestPairCalculator.closestPairPartitioned(points, getX, null), "null getY");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> ClosestPairCalculator.closestPair(new ArrayList<>(), getX, getY),
+        () -> ClosestPairCalculator.closestPairPartitioned(new ArrayList<>(), getX, getY),
         "empty Collection<T>");
     Assertions.assertThrows(
         IllegalArgumentException.class, () -> ClosestPairCalculator
-            .closestPair(Arrays.asList(new Point2D.Double(0, 0)), getX, getY),
+            .closestPairPartitioned(Arrays.asList(new Point2D.Double(0, 0)), getX, getY),
         "size 1 Collection<T>");
   }
 
@@ -112,37 +120,38 @@ public class ClosestPairCalculatorTest {
     sort(expected);
 
     // Point2D[] method
-    Pair<Point2D, Point2D> pair = ClosestPairCalculator.closestPair(list.toArray(new Point2D[0]));
+    Pair<Point2D, Point2D> pair =
+        ClosestPairCalculator.closestPairPartitioned(list.toArray(new Point2D[0]));
     Point2D[] actual = new Point2D[] {pair.getLeft(), pair.getRight()};
     Assertions.assertArrayEquals(expected, actual, "Point2D[] method");
 
     // Generic method
-    pair = ClosestPairCalculator.closestPair(list, Point2D::getX, Point2D::getY);
+    pair = ClosestPairCalculator.closestPairPartitioned(list, Point2D::getX, Point2D::getY);
     actual = new Point2D[] {pair.getLeft(), pair.getRight()};
     Assertions.assertArrayEquals(expected, actual, "Collection<T> method");
   }
 
   @SeededTest
-  public void testClosestPair2(RandomSeed seed) {
-    assertClosestPair(2, seed);
+  public void testClosestPairPartitioned2(RandomSeed seed) {
+    assertClosestPairPartitioned(2, seed);
   }
 
   @SeededTest
-  public void testClosestPair3(RandomSeed seed) {
-    assertClosestPair(3, seed);
+  public void testClosestPairPartitioned3(RandomSeed seed) {
+    assertClosestPairPartitioned(3, seed);
   }
 
   @SeededTest
-  public void testClosestPair10(RandomSeed seed) {
-    assertClosestPair(10, seed);
+  public void testClosestPairPartitioned10(RandomSeed seed) {
+    assertClosestPairPartitioned(10, seed);
   }
 
   @SeededTest
-  public void testClosestPair100(RandomSeed seed) {
-    assertClosestPair(100, seed);
+  public void testClosestPairPartitioned100(RandomSeed seed) {
+    assertClosestPairPartitioned(100, seed);
   }
 
-  private static void assertClosestPair(int size, RandomSeed seed) {
+  private static void assertClosestPairPartitioned(int size, RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final List<Point2D> list = IntStream.range(0, size)
         .mapToObj(i -> (Point2D) new Point2D.Double(rng.nextDouble(), rng.nextDouble()))
@@ -151,13 +160,41 @@ public class ClosestPairCalculatorTest {
     final Point2D[] expected = findClosest(list);
 
     // Point2D[] method
-    Pair<Point2D, Point2D> pair = ClosestPairCalculator.closestPair(list.toArray(new Point2D[0]));
+    Pair<Point2D, Point2D> pair =
+        ClosestPairCalculator.closestPairPartitioned(list.toArray(new Point2D[0]));
     Point2D[] actual = new Point2D[] {pair.getLeft(), pair.getRight()};
     sort(actual);
     Assertions.assertArrayEquals(expected, actual);
 
     // Generic method
-    pair = ClosestPairCalculator.closestPair(list, Point2D::getX, Point2D::getY);
+    pair = ClosestPairCalculator.closestPairPartitioned(list, Point2D::getX, Point2D::getY);
+    actual = new Point2D[] {pair.getLeft(), pair.getRight()};
+    sort(actual);
+    Assertions.assertArrayEquals(expected, actual);
+  }
+
+  @SeededTest
+  public void testClosestPairAllVsAll10(RandomSeed seed) {
+    assertClosestPairAllVsAll(10, seed);
+  }
+
+  private static void assertClosestPairAllVsAll(int size, RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final List<Point2D> list = IntStream.range(0, size)
+        .mapToObj(i -> (Point2D) new Point2D.Double(rng.nextDouble(), rng.nextDouble()))
+        .collect(Collectors.toList());
+
+    final Point2D[] expected = findClosest(list);
+
+    // Point2D[] method
+    Pair<Point2D, Point2D> pair =
+        ClosestPairCalculator.closestPairAllVsAll(list.toArray(new Point2D[0]));
+    Point2D[] actual = new Point2D[] {pair.getLeft(), pair.getRight()};
+    sort(actual);
+    Assertions.assertArrayEquals(expected, actual);
+
+    // Generic method
+    pair = ClosestPairCalculator.closestPairAllVsAll(list, Point2D::getX, Point2D::getY);
     actual = new Point2D[] {pair.getLeft(), pair.getRight()};
     sort(actual);
     Assertions.assertArrayEquals(expected, actual);
@@ -178,6 +215,37 @@ public class ClosestPairCalculatorTest {
     }
     sort(pair);
     return pair;
+  }
+
+  @SeededTest
+  public void testClosestPairBelowAlgorithmSwicthPoint(RandomSeed seed) {
+    assertClosestPair(3, seed);
+  }
+
+  @SeededTest
+  public void testClosestPairAboveAlgorithmSwicthPoint(RandomSeed seed) {
+    assertClosestPair(ClosestPairCalculator.ALGORITHM_SWITCH, seed);
+  }
+
+  private static void assertClosestPair(int size, RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final List<Point2D> list = IntStream.range(0, size)
+        .mapToObj(i -> (Point2D) new Point2D.Double(rng.nextDouble(), rng.nextDouble()))
+        .collect(Collectors.toList());
+
+    // Compare to each other
+
+    // Point2D[] method
+    final Pair<Point2D, Point2D> pair1 =
+        ClosestPairCalculator.closestPair(list.toArray(new Point2D[0]));
+    final Point2D[] expected = new Point2D[] {pair1.getLeft(), pair1.getRight()};
+
+    // Generic method
+    final Pair<Point2D, Point2D> pair2 =
+        ClosestPairCalculator.closestPair(list, Point2D::getX, Point2D::getY);
+    final Point2D[] actual = new Point2D[] {pair2.getLeft(), pair2.getRight()};
+
+    Assertions.assertArrayEquals(expected, actual);
   }
 
   private static void sort(Point2D[] points) {

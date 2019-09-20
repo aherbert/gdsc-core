@@ -29,14 +29,13 @@
 package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.geom.Point2D;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.RandomAccess;
@@ -54,12 +53,16 @@ import java.util.stream.IntStream;
  * <p>Complexity is O(n*log(n)).
  */
 public final class ClosestPairCalculator {
+  /** The size point to switch from the all-vs-all to the partitioned algorithm. */
+  public static final int ALGORITHM_SWITCH = 512;
 
   /** No public construction. */
   private ClosestPairCalculator() {}
 
   /**
    * Calculates the closest pair of points.
+   *
+   * <p>The algorithm is chosen based on the number of points to minimise run-time.
    *
    * <pre>
    * {@code
@@ -74,31 +77,14 @@ public final class ClosestPairCalculator {
    * @throws IllegalArgumentException if the number of points is less than 2
    */
   public static Pair<Point2D, Point2D> closestPair(Point2D[] list) {
-    final int size = ArrayUtils.getLength(list);
-    ValidationUtils.checkArgument(size > 1, "Require at least 2 points");
-
-    // Ordered indices of the input list
-    final int[] indicesX = SimpleArrayUtils.natural(size);
-    final int[] indicesY = indicesX.clone();
-
-    // Order by x
-    final double[] values = new double[indicesX.length];
-    IntStream.range(0, values.length).forEachOrdered(i -> values[i] = list[i].getX());
-    SortUtils.sortIndices(indicesX, values, false);
-
-    // Order by y
-    IntStream.range(0, values.length).forEachOrdered(i -> values[i] = list[i].getY());
-    SortUtils.sortIndices(indicesY, values, false);
-
-    // Divide and conquer
-    final int[] leftSet = new int[indicesX.length];
-    final Assignment pair =
-        findClosestPair(list, indicesX, 0, indicesX.length, indicesY, leftSet, 1);
-    return Pair.of(list[pair.getTargetId()], list[pair.getPredictedId()]);
+    return ArrayUtils.getLength(list) < ALGORITHM_SWITCH ? closestPairAllVsAll(list)
+        : closestPairPartitioned(list);
   }
 
   /**
    * Calculates the closest pair of points.
+   *
+   * <p>The algorithm is chosen based on the number of points to minimise run-time.
    *
    * <pre>
    * {@code
@@ -118,35 +104,196 @@ public final class ClosestPairCalculator {
    */
   public static <T> Pair<T, T> closestPair(Collection<T> points, ToDoubleFunction<T> getX,
       ToDoubleFunction<T> getY) {
+    return getSize(points) < ALGORITHM_SWITCH ? closestPairAllVsAll(points, getX, getY)
+        : closestPairPartitioned(points, getX, getY);
+  }
+
+  /**
+   * Calculates the closest pair of points using an all-vs-all distance calculation.
+   *
+   * <p>Complexity is O(n*n)).
+   *
+   * <pre>
+   * {@code
+   * Point2D[] data = ...;
+   *
+   * Pair<Point2D, Point2D> = ClosestPairCalculator.closestPairAllVsAll(data);
+   * }
+   * </pre>
+   *
+   * @param list the list of points
+   * @return the closest pair
+   * @throws IllegalArgumentException if the number of points is less than 2
+   */
+  public static Pair<Point2D, Point2D> closestPairAllVsAll(Point2D[] list) {
+    final int size = ArrayUtils.getLength(list);
+    checkSize(size);
+
+    double min = Double.POSITIVE_INFINITY;
+    int ii = 0;
+    int jj = 1;
+    for (int i = 0; i < list.length; i++) {
+      for (int j = i + 1; j < list.length; j++) {
+        final double distance = list[i].distanceSq(list[j]);
+        if (distance < min) {
+          min = distance;
+          ii = i;
+          jj = j;
+        }
+      }
+    }
+    return Pair.of(list[ii], list[jj]);
+  }
+
+  /**
+   * Calculates the closest pair of points using an all-vs-all distance calculation.
+   *
+   * <p>Complexity is O(n*n)).
+   *
+   * <pre>
+   * {@code
+   * Point2D[] data = ...;
+   *
+   * Pair<Point2D, Point2D> = ClosestPairCalculator.closestPairAllVsAll(Arrays.asList(data),
+   *   Point2D::getX, Point2D::getY);
+   * }
+   * </pre>
+   *
+   * @param <T> the generic type
+   * @param points the points
+   * @param getX the function to get the X coordinate
+   * @param getY the function to get the Y coordinate
+   * @return the closest pair
+   * @throws IllegalArgumentException if the number of points is less than 2
+   */
+  public static <T> Pair<T, T> closestPairAllVsAll(Collection<T> points, ToDoubleFunction<T> getX,
+      ToDoubleFunction<T> getY) {
     ValidationUtils.checkNotNull(points, "Points must not be null");
     ValidationUtils.checkNotNull(getX, "Function to get X coordinate must not be null");
     ValidationUtils.checkNotNull(getY, "Function to get Y coordinate must not be null");
 
     final int size = points.size();
-    ValidationUtils.checkArgument(size > 1, "Require at least 2 points");
-
-    // Ordered indices of the input list
-    final int[] indicesX = SimpleArrayUtils.natural(size);
-    final int[] indicesY = indicesX.clone();
+    checkSize(size);
 
     // Ensure random access to the points
     final IntFunction<T> list = toRandomAccess(points);
 
+    double min = Double.POSITIVE_INFINITY;
+    int ii = 0;
+    int jj = 1;
+    for (int i = 0; i < size; i++) {
+      final T p1 = list.apply(i);
+      final double x1 = getX.applyAsDouble(p1);
+      final double y1 = getY.applyAsDouble(p1);
+      for (int j = i + 1; j < size; j++) {
+        final T p2 = list.apply(j);
+        final double distance = squaredDistance(x1, getX.applyAsDouble(p2))
+            + squaredDistance(y1, getY.applyAsDouble(p2));
+        if (distance < min) {
+          min = distance;
+          ii = i;
+          jj = j;
+        }
+      }
+    }
+    return Pair.of(list.apply(ii), list.apply(jj));
+  }
+
+  /**
+   * Calculates the closest pair of points using a partition algorithm.
+   *
+   * <p>The algorithm recursively divides the points in half based only on the x-coordinate. The
+   * closest pair from the ultimate sets are found. The sub-results are merged by considering only
+   * those points on the boundary between sets.
+   *
+   * <p>Complexity is O(n*log(n)).
+   *
+   * <pre>
+   * {@code
+   * Point2D[] data = ...;
+   *
+   * Pair<Point2D, Point2D> = ClosestPairCalculator.closestPairPartitioned(data);
+   * }
+   * </pre>
+   *
+   * @param list the list of points
+   * @return the closest pair
+   * @throws IllegalArgumentException if the number of points is less than 2
+   */
+  public static Pair<Point2D, Point2D> closestPairPartitioned(Point2D[] list) {
+    final int size = ArrayUtils.getLength(list);
+    checkSize(size);
+
+    // Ordered indices of the input list
+    final Integer[] indices = IntStream.range(0, size).boxed().toArray(Integer[]::new);
+
     // Order by x
-    final double[] values = new double[indicesX.length];
-    IntStream.range(0, values.length)
-        .forEachOrdered(i -> values[i] = getX.applyAsDouble(list.apply(i)));
-    SortUtils.sortIndices(indicesX, values, false);
+    Arrays.sort(indices, (i, j) -> Double.compare(list[i].getX(), list[j].getX()));
+    final int[] indicesX = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
 
     // Order by y
-    IntStream.range(0, values.length)
-        .forEachOrdered(i -> values[i] = getY.applyAsDouble(list.apply(i)));
-    SortUtils.sortIndices(indicesY, values, false);
+    Arrays.sort(indices, (i, j) -> Double.compare(list[i].getY(), list[j].getY()));
+    final int[] indicesY = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
 
-    // Divide and conquer
-    final int[] leftSet = new int[indicesX.length];
+    final int[] leftSet = new int[size];
     final Assignment pair =
-        findClosestPair(list, getX, getY, indicesX, 0, indicesX.length, indicesY, leftSet, 1);
+        findClosestPair(list, indicesX, 0, size, indicesY, leftSet, 1);
+    return Pair.of(list[pair.getTargetId()], list[pair.getPredictedId()]);
+  }
+
+  /**
+   * Calculates the closest pair of points using a partition algorithm.
+   *
+   * <p>The algorithm recursively divides the points in half based only on the x-coordinate. The
+   * closest pair from the ultimate sets are found. The sub-results are merged by considering only
+   * those points on the boundary between sets.
+   *
+   * <p>Complexity is O(n*log(n)).
+   *
+   * <pre>
+   * {@code
+   * Point2D[] data = ...;
+   *
+   * Pair<Point2D, Point2D> = ClosestPairCalculator.closestPairPartitioned(Arrays.asList(data),
+   *   Point2D::getX, Point2D::getY);
+   * }
+   * </pre>
+   *
+   * @param <T> the generic type
+   * @param points the points
+   * @param getX the function to get the X coordinate
+   * @param getY the function to get the Y coordinate
+   * @return the closest pair
+   * @throws IllegalArgumentException if the number of points is less than 2
+   */
+  public static <T> Pair<T, T> closestPairPartitioned(Collection<T> points,
+      ToDoubleFunction<T> getX, ToDoubleFunction<T> getY) {
+    ValidationUtils.checkNotNull(points, "Points must not be null");
+    ValidationUtils.checkNotNull(getX, "Function to get X coordinate must not be null");
+    ValidationUtils.checkNotNull(getY, "Function to get Y coordinate must not be null");
+
+    final int size = points.size();
+    checkSize(size);
+
+    // Ensure random access to the points
+    final IntFunction<T> list = toRandomAccess(points);
+
+    // Ordered indices of the input list
+    final Integer[] indices = IntStream.range(0, size).boxed().toArray(Integer[]::new);
+
+    // Order by x
+    Arrays.sort(indices, (i, j) -> Double.compare(getX.applyAsDouble(list.apply(i)),
+        getX.applyAsDouble(list.apply(j))));
+    final int[] indicesX = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
+
+    // Order by y
+    Arrays.sort(indices, (i, j) -> Double.compare(getY.applyAsDouble(list.apply(i)),
+        getY.applyAsDouble(list.apply(j))));
+    final int[] indicesY = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
+
+    final int[] leftSet = new int[size];
+    final Assignment pair =
+        findClosestPair(list, getX, getY, indicesX, 0, size, indicesY, leftSet, 1);
     return Pair.of(list.apply(pair.getTargetId()), list.apply(pair.getPredictedId()));
   }
 
@@ -515,6 +662,17 @@ public final class ClosestPairCalculator {
   }
 
   /**
+   * Gets the size of the collection.
+   *
+   * @param collection the collection
+   * @return the size
+   */
+  @VisibleForTesting
+  static int getSize(Collection<?> collection) {
+    return collection != null ? collection.size() : 0;
+  }
+
+  /**
    * Convert to a random access list.
    *
    * @param <T> the generic type
@@ -530,5 +688,14 @@ public final class ClosestPairCalculator {
     }
     final Object[] array = collection.toArray();
     return i -> (T) array[i];
+  }
+
+  /**
+   * Check the size for at least 2 points.
+   *
+   * @param size the size
+   */
+  private static void checkSize(int size) {
+    ValidationUtils.checkArgument(size > 1, "Require at least 2 points");
   }
 }
