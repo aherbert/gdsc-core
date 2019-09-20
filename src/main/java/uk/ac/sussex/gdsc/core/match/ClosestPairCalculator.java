@@ -29,6 +29,8 @@
 package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -228,16 +230,18 @@ public final class ClosestPairCalculator {
     final Integer[] indices = IntStream.range(0, size).boxed().toArray(Integer[]::new);
 
     // Order by x
-    Arrays.sort(indices, (i, j) -> Double.compare(list[i].getX(), list[j].getX()));
+    final double[] values = new double[size];
+    Arrays.setAll(values, i -> list[i].getX());
+    Arrays.sort(indices, (i, j) -> Double.compare(values[i], values[j]));
     final int[] indicesX = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
 
     // Order by y
-    Arrays.sort(indices, (i, j) -> Double.compare(list[i].getY(), list[j].getY()));
+    Arrays.setAll(values, i -> list[i].getY());
+    Arrays.sort(indices, (i, j) -> Double.compare(values[i], values[j]));
     final int[] indicesY = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
 
     final int[] leftSet = new int[size];
-    final Assignment pair =
-        findClosestPair(list, indicesX, 0, size, indicesY, leftSet, 1);
+    final Assignment pair = findClosestPair(list, indicesX, 0, size, indicesY, leftSet, 1);
     return Pair.of(list[pair.getTargetId()], list[pair.getPredictedId()]);
   }
 
@@ -282,13 +286,14 @@ public final class ClosestPairCalculator {
     final Integer[] indices = IntStream.range(0, size).boxed().toArray(Integer[]::new);
 
     // Order by x
-    Arrays.sort(indices, (i, j) -> Double.compare(getX.applyAsDouble(list.apply(i)),
-        getX.applyAsDouble(list.apply(j))));
+    final double[] values = new double[size];
+    Arrays.setAll(values, i -> getX.applyAsDouble(list.apply(i)));
+    Arrays.sort(indices, (i, j) -> Double.compare(values[i], values[j]));
     final int[] indicesX = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
 
     // Order by y
-    Arrays.sort(indices, (i, j) -> Double.compare(getY.applyAsDouble(list.apply(i)),
-        getY.applyAsDouble(list.apply(j))));
+    Arrays.setAll(values, i -> getY.applyAsDouble(list.apply(i)));
+    Arrays.sort(indices, (i, j) -> Double.compare(values[i], values[j]));
     final int[] indicesY = Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
 
     final int[] leftSet = new int[size];
