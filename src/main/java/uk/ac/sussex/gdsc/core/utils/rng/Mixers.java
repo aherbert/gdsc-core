@@ -291,16 +291,27 @@ public final class Mixers {
   }
 
   /**
-   * Perform the finalising mix function of Austin Appleby's MurmurHash3.
+   * Perform the finalising 32-bit mix function of Austin Appleby's MurmurHash3.
+   *
+   * @param x the input value
+   * @return the output value
+   * @see <a href="https://github.com/aappleby/smhasher">SMHasher</a>
+   */
+  public static int murmur3(int x) {
+    x = (x ^ (x >> 16)) * 0x85ebca6b;
+    x = (x ^ (x >> 13)) * 0xc2b2ae35;
+    return x ^ (x >> 16);
+  }
+
+  /**
+   * Perform the finalising 64-bit mix function of Austin Appleby's MurmurHash3.
    *
    * @param x the input value
    * @return the output value
    * @see <a href="https://github.com/aappleby/smhasher">SMHasher</a>
    */
   public static long murmur3(long x) {
-    x = (x ^ (x >>> 33)) * 0xff51afd7ed558ccdL;
-    x = (x ^ (x >>> 33)) * 0xc4ceb9fe1a85ec53L;
-    return x ^ (x >>> 33);
+    return mix64(x, 33, 0xff51afd7ed558ccdL, 33, 0xc4ceb9fe1a85ec53L, 33);
   }
 
   /**
@@ -314,9 +325,7 @@ public final class Mixers {
    *      Bit Mixing - Improving on MurmurHash3&#39;s 64-bit Finalizer.</a>
    */
   public static long stafford1(long x) {
-    x = (x ^ (x >>> 31)) * 0x7fb5d329728ea185L;
-    x = (x ^ (x >>> 27)) * 0x81dadef4bc2dd44dL;
-    return x ^ (x >>> 33);
+    return mix64(x, 31, 0x7fb5d329728ea185L, 27, 0x81dadef4bc2dd44dL, 33);
   }
 
   /**
@@ -330,8 +339,26 @@ public final class Mixers {
    *      Bit Mixing - Improving on MurmurHash3&#39;s 64-bit Finalizer.</a>
    */
   public static long stafford13(long x) {
-    x = (x ^ (x >>> 30)) * 0xbf58476d1ce4e5b9L;
-    x = (x ^ (x >>> 27)) * 0x94d049bb133111ebL;
-    return x ^ (x >>> 31);
+    return mix64(x, 30, 0xbf58476d1ce4e5b9L, 27, 0x94d049bb133111ebL, 31);
+  }
+
+  /**
+   * Perform a 64-bit mixing function consisting of alternating xor operations with a right-shifted
+   * state and multiplications. This is based on the original 64-bit mix function of Austin
+   * Appleby's MurmurHash3.
+   *
+   * @param x the state
+   * @param shift1 the first shift
+   * @param multiplier1 the first multiplier
+   * @param shift2 the second shift
+   * @param multiplier2 the second multiplier
+   * @param shift3 the third shift
+   * @return the long
+   */
+  private static long mix64(long x, int shift1, long multiplier1, int shift2, long multiplier2,
+      int shift3) {
+    x = (x ^ (x >>> shift1)) * multiplier1;
+    x = (x ^ (x >>> shift2)) * multiplier2;
+    return x ^ (x >>> shift3);
   }
 }

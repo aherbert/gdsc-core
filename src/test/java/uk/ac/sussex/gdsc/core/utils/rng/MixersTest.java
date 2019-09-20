@@ -8,6 +8,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.IntUnaryOperator;
 import java.util.function.LongUnaryOperator;
 
 @SuppressWarnings("javadoc")
@@ -121,7 +122,20 @@ public class MixersTest {
   }
 
   @Test
-  public void testMurmur3Output() {
+  public void testMurmur3IntOutput() {
+    // Code generated using the original c code:
+    // https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
+    final int[] values = {0x44d89774, 0xe7488b4e, 0x6c1465b4, 0xef03ae52, 0x5b2fd1f4, 0x184498c9,
+        0x9a667364, 0x087ae15c, 0xcf91862a, 0x4bd74e5e, 0x709fbc40, 0x57d623de, 0x32a51e70,
+        0x35a5495b, 0xc2648d76, 0xcca068c5, 0xcf3774e5, 0xedc88ea5, 0x37d08241, 0x7470b7b8,
+        0xab52458a, 0x2d25df71, 0xa3349e19, 0x083a64a6, 0xa23389d2, 0xf4d447c9, 0xc9514d1e,
+        0xe92325c8, 0x8d7a890b, 0x135d4731, 0x1a3b17b6, 0x958f6b3b, 0xc054db4b, 0xbe6ecbca,
+        0x4530fdb7, 0xcaa56899, 0xe1c959d6, 0xe67d6e9a, 0xb7f13547, 0xa5e9f292,};
+    assertMixer(Mixers::murmur3, values, 0x012de1ba, 0xc8161b42);
+  }
+
+  @Test
+  public void testMurmur3LongOutput() {
     // Code generated using the reference c code provided by David Stafford:
     // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
     final long[] values =
@@ -172,6 +186,12 @@ public class MixersTest {
             0x2c7ebbc82cdee193L, 0x5f5bd29b1fb5b4e2L, 0xba69ecf78275b12eL, 0x82aea2bebbd0caa5L,
             0xf5ebd97835f7d5abL, 0x3513e0fc1af2b448L, 0x151b8e21cbf81789L, 0xdb17e9cfacf6b51eL,};
     assertMixer(Mixers::stafford13, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
+  private static void assertMixer(IntUnaryOperator mix, int[] expected, int state, int increment) {
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i], mix.applyAsInt(state += increment));
+    }
   }
 
   private static void assertMixer(LongUnaryOperator mix, long[] expected, long state,
