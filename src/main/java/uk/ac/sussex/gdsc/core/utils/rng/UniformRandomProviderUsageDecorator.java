@@ -144,6 +144,17 @@ public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDe
     }
 
     /**
+     * Adds the value from the other instance.
+     *
+     * @param other the other instance.
+     */
+    void add(SizeCounter other) {
+      addUnsigned(other.low);
+      // Ignore any roll-over
+      high += other.high;
+    }
+
+    /**
      * Gets the value. This is limited to a 128-bit unsigned integer.
      *
      * @return the value
@@ -167,7 +178,6 @@ public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDe
     long longValue() {
       return low;
     }
-
 
     /**
      * Convert the 64-bit unsigned number to a BigInteger.
@@ -282,6 +292,25 @@ public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDe
     nextBooleanCount = 0;
     nextFloatCount = 0;
     nextDoubleCount = 0;
+  }
+
+  /**
+   * Adds the usage values from the other instance to this instance.
+   *
+   * @param other the other instance
+   */
+  public void add(UniformRandomProviderUsageDecorator other) {
+    nextBytesCount += other.nextBytesCount;
+    nextBytesSize.add(other.nextBytesSize);
+    nextBytesRangeCount += other.nextBytesRangeCount;
+    nextBytesRangeSize.add(other.nextBytesRangeSize);
+    nextIntCount += other.nextIntCount;
+    nextIntRangeCount += other.nextIntRangeCount;
+    nextLongCount += other.nextLongCount;
+    nextLongRangeCount += other.nextLongRangeCount;
+    nextBooleanCount += other.nextBooleanCount;
+    nextFloatCount += other.nextFloatCount;
+    nextDoubleCount += other.nextDoubleCount;
   }
 
   /**

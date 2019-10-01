@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.stream.IntStream;
 
 @SuppressWarnings("javadoc")
 public class UniformRandomProviderUsageDecoratorTest {
@@ -43,6 +44,20 @@ public class UniformRandomProviderUsageDecoratorTest {
     count.addUnsigned(-1L);
     Assertions.assertEquals(BigInteger.valueOf(1).shiftLeft(64).subtract(BigInteger.ONE)
         .multiply(BigInteger.valueOf(2)), count.value());
+  }
+
+  @Test
+  public void testSizeCounterAdd() {
+    SizeCounter count1 = new SizeCounter();
+    SizeCounter count2 = new SizeCounter();
+
+    count1.addUnsigned(-2L);
+    count2.addUnsigned(-1L);
+
+    count1.add(count2);
+
+    Assertions.assertEquals(BigInteger.valueOf(1).shiftLeft(64).subtract(BigInteger.ONE)
+        .multiply(BigInteger.valueOf(2)).subtract(BigInteger.ONE), count1.value());
   }
 
   @Test
@@ -156,5 +171,44 @@ public class UniformRandomProviderUsageDecoratorTest {
 
     rng2.reset();
     Assertions.assertEquals(0, countMethod.applyAsLong(rng2));
+  }
+
+  @Test
+  public void testAdd() {
+    final UniformRandomProviderUsageDecorator rng1 =
+        new UniformRandomProviderUsageDecorator(SplitMix.new64(0));
+    final UniformRandomProviderUsageDecorator rng2 =
+        new UniformRandomProviderUsageDecorator(SplitMix.new64(0));
+    final byte[] bytes = new byte[4];
+    IntStream.range(0, 1).forEach(i -> rng1.nextBytes(bytes));
+    IntStream.range(0, 2).forEach(i -> rng1.nextBytes(bytes, 0, bytes.length));
+    IntStream.range(0, 3).forEach(i -> rng1.nextInt());
+    IntStream.range(0, 4).forEach(i -> rng1.nextInt(23));
+    IntStream.range(0, 5).forEach(i -> rng1.nextLong());
+    IntStream.range(0, 6).forEach(i -> rng1.nextLong(23));
+    IntStream.range(0, 7).forEach(i -> rng1.nextBoolean());
+    IntStream.range(0, 8).forEach(i -> rng1.nextFloat());
+    IntStream.range(0, 9).forEach(i -> rng1.nextDouble());
+    IntStream.range(0, 9).forEach(i -> rng2.nextBytes(bytes));
+    IntStream.range(0, 8).forEach(i -> rng2.nextBytes(bytes, 0, bytes.length));
+    IntStream.range(0, 7).forEach(i -> rng2.nextInt());
+    IntStream.range(0, 6).forEach(i -> rng2.nextInt(23));
+    IntStream.range(0, 5).forEach(i -> rng2.nextLong());
+    IntStream.range(0, 4).forEach(i -> rng2.nextLong(23));
+    IntStream.range(0, 3).forEach(i -> rng2.nextBoolean());
+    IntStream.range(0, 2).forEach(i -> rng2.nextFloat());
+    IntStream.range(0, 1).forEach(i -> rng2.nextDouble());
+    rng1.add(rng2);
+    Assertions.assertEquals(10, rng1.getNextBytesCount());
+    Assertions.assertEquals(10, rng1.getNextBytesRangeCount());
+    Assertions.assertEquals(10, rng1.getNextIntCount());
+    Assertions.assertEquals(10, rng1.getNextIntRangeCount());
+    Assertions.assertEquals(10, rng1.getNextLongCount());
+    Assertions.assertEquals(10, rng1.getNextLongRangeCount());
+    Assertions.assertEquals(10, rng1.getNextBooleanCount());
+    Assertions.assertEquals(10, rng1.getNextFloatCount());
+    Assertions.assertEquals(10, rng1.getNextDoubleCount());
+    Assertions.assertEquals(bytes.length * 10, rng1.getNextBytesSizeAsLong());
+    Assertions.assertEquals(bytes.length * 10, rng1.getNextBytesRangeSizeAsLong());
   }
 }
