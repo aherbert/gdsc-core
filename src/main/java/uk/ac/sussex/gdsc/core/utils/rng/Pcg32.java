@@ -367,7 +367,7 @@ public abstract class Pcg32
   @Override
   public int nextInt() {
     final long x = state;
-    state = bump(state);
+    state = bump(x);
     return mix(x);
   }
 
@@ -478,7 +478,7 @@ public abstract class Pcg32
   @Override
   public RandomProviderState saveState() {
     // Transform increment when saving
-    return new PcgState(state, increment >> 1);
+    return new PcgState(state, increment >>> 1);
   }
 
   @Override
