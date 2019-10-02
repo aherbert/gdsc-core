@@ -3,13 +3,18 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviderUsageDecorator.SizeCounter;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
+import org.apache.commons.rng.sampling.distribution.LargeMeanPoissonSampler;
+import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("javadoc")
@@ -24,7 +29,7 @@ public class UniformRandomProviderUsageDecoratorTest {
 
   @Test
   public void testSizeCounterAddUnsigned() {
-    SizeCounter count = new SizeCounter();
+    final SizeCounter count = new SizeCounter();
     Assertions.assertEquals(BigInteger.ZERO, count.value());
 
     // Maximum number of bits less 2
@@ -48,8 +53,8 @@ public class UniformRandomProviderUsageDecoratorTest {
 
   @Test
   public void testSizeCounterAdd() {
-    SizeCounter count1 = new SizeCounter();
-    SizeCounter count2 = new SizeCounter();
+    final SizeCounter count1 = new SizeCounter();
+    final SizeCounter count2 = new SizeCounter();
 
     count1.addUnsigned(-2L);
     count2.addUnsigned(-1L);
@@ -210,5 +215,35 @@ public class UniformRandomProviderUsageDecoratorTest {
     Assertions.assertEquals(10, rng1.getNextDoubleCount());
     Assertions.assertEquals(bytes.length * 10, rng1.getNextBytesSizeAsLong());
     Assertions.assertEquals(bytes.length * 10, rng1.getNextBytesRangeSizeAsLong());
+  }
+
+  @Test
+  @Disabled("This is for testing and contains no assertions")
+  public void testSampling() {
+    final UniformRandomProviderUsageDecorator rng =
+        new UniformRandomProviderUsageDecorator(SplitMix.new64(0));
+    Logger logger = Logger.getLogger(getClass().getName());
+
+    final NormalizedGaussianSampler sampler = SamplerUtils.createNormalizedGaussianSampler(rng);
+    final int size = 1 << 20;
+    for (int l = size; l-- > 0;) {
+      sampler.sample();
+    }
+    logger.info(rng.toString());
+    long total = rng.getNextDoubleCount() + rng.getNextLongCount();
+    logger.info(() -> String.format("%d / %d = %s", rng.getNextDoubleCount(), total,
+        rng.getNextDoubleCount() / (double) total));
+
+    for (final int mean : new int[] {50, 100, 1000}) {
+      rng.reset();
+      final DiscreteSampler sampler2 = new LargeMeanPoissonSampler(rng, mean);
+      for (int l = size; l-- > 0;) {
+        sampler2.sample();
+      }
+      logger.info(rng.toString());
+      long total2 = rng.getNextDoubleCount() + rng.getNextLongCount();
+      logger.info(() -> String.format("%d / %d = %s", rng.getNextDoubleCount(), total2,
+          rng.getNextDoubleCount() / (double) total2));
+    }
   }
 }
