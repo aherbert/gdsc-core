@@ -149,7 +149,7 @@ public final class Entropy {
     private final long[] counts = new long[256];
 
     @Override
-    public void addByte(int value) {
+    void addByte(int value) {
       total++;
       counts[value]++;
     }
@@ -187,7 +187,7 @@ public final class Entropy {
     private long count1;
 
     @Override
-    public void addByte(int value) {
+    void addByte(int value) {
       total += 8;
       count1 += ONES[value];
     }
@@ -212,7 +212,13 @@ public final class Entropy {
    * @return the entropy (bits)
    */
   public static double bits(double... probabilities) {
-    return Arrays.stream(probabilities).reduce(0, (s, p) -> (p > 0) ? s - p * log2(p) : s);
+    double sum = 0;
+    for (final double p : probabilities) {
+      if (p > 0) {
+        sum -= p * Math.log(p);
+      }
+    }
+    return sum * LOG_2_OF_E;
   }
 
   /**
@@ -222,7 +228,7 @@ public final class Entropy {
    * @return the entropy (bits)
    */
   public static double bits(long... counts) {
-    return computeBits(Arrays.stream(counts).filter(l -> l > 0).sum(), counts);
+    return computeBits(Arrays.stream(counts).filter(l -> l >= 0).sum(), counts);
   }
 
   /**
@@ -232,15 +238,15 @@ public final class Entropy {
    * @return the entropy (bits)
    */
   public static double bits(int... counts) {
-    final long total = Arrays.stream(counts).filter(l -> l > 0).sum();
+    final long total = Arrays.stream(counts).filter(l -> l >= 0).sum();
     double sum = 0;
-    for (final long c : counts) {
+    for (final int c : counts) {
       if (c > 0) {
         final double p = (double) c / total;
-        sum -= p * log2(p);
+        sum -= p * Math.log(p);
       }
     }
-    return sum;
+    return sum * LOG_2_OF_E;
   }
 
   /**
@@ -255,10 +261,10 @@ public final class Entropy {
     for (final long c : counts) {
       if (c > 0) {
         final double p = (double) c / total;
-        sum -= p * log2(p);
+        sum -= p * Math.log(p);
       }
     }
-    return sum;
+    return sum * LOG_2_OF_E;
   }
 
   /**
@@ -271,15 +277,5 @@ public final class Entropy {
    */
   public static EntropyDigest createDigest(boolean binary) {
     return binary ? new BinaryEntropyDigest() : new ByteEntropyDigest();
-  }
-
-  /**
-   * Compute the logarithm using base 2.
-   *
-   * @param value the value
-   * @return log2(value)
-   */
-  private static double log2(double value) {
-    return Math.log(value) * LOG_2_OF_E;
   }
 }
