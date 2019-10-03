@@ -5,9 +5,11 @@ import uk.ac.sussex.gdsc.core.utils.rng.Entropy.EntropyDigest;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.core.util.NumberFactory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("javadoc")
 public class EntropyTest {
@@ -104,5 +106,30 @@ public class EntropyTest {
       be.add(NumberFactory.extractLo(value));
     }
     Assertions.assertEquals(entropy, be.bits(), "Should be the same when using stream of ints");
+  }
+
+  @Test
+  @Disabled("This has no assertions")
+  public void testRngEntropy() {
+    final long seed = ThreadLocalRandom.current().nextLong();
+    for (final UniformRandomProvider rng : new UniformRandomProvider[] {SplitMix.new64(seed),
+        SplitMix.new32(seed), Pcg32.xshrr(seed), Pcg32.xshrs(seed),
+        MiddleSquareWeylSequence.newInstance(seed),}) {
+      System.out.println(rng);
+      final EntropyDigest ent1 = Entropy.createDigest(false);
+      final EntropyDigest ent2 = Entropy.createDigest(true);
+      for (int size = 32; size < 1024; size <<= 1) {
+        for (int i = 0; i < 1; i++) {
+          ent1.reset();
+          ent2.reset();
+          for (int j = 0; j < size; j++) {
+            final long value = rng.nextLong();
+            ent1.add(value);
+            ent2.add(value);
+          }
+          System.out.printf("size=%4d [%d]  %-18s  %-18s%n", size, i, ent1.bits(), ent2.bits());
+        }
+      }
+    }
   }
 }
