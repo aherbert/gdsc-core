@@ -65,9 +65,9 @@ public class AlphanumComparator implements Comparator<CharSequence> {
   /** The null is less flag. */
   private final boolean nullIsLess;
   /** Working buffer 1. */
-  private final StringBuilder sb1 = new StringBuilder();
+  private char[] buf1 = new char[0];
   /** Working buffer 2. */
-  private final StringBuilder sb2 = new StringBuilder();
+  private char[] buf2 = new char[0];
 
   /**
    * Create a new instance.
@@ -94,45 +94,51 @@ public class AlphanumComparator implements Comparator<CharSequence> {
     int pos2 = 0;
     final int length1 = s1.length();
     final int length2 = s2.length();
+    buf1 = allocate(buf1, length1);
+    buf2 = allocate(buf2, length1);
 
     while (pos1 < length1 && pos2 < length2) {
-      nextSubSequence(s1, pos1, length1, sb1);
-      nextSubSequence(s2, pos2, length2, sb2);
+      int len1 = nextSubSequence(s1, pos1, length1, buf1);
+      int len2 = nextSubSequence(s2, pos2, length2, buf2);
 
       // If both sub-sequences contain numeric characters, sort them numerically
       int result = 0;
-      if (isDigit(sb1.charAt(0)) && isDigit(sb2.charAt(0))) {
-        result = compareNumerically(sb1, sb2);
+      if (isDigit(buf1[0]) && isDigit(buf2[0])) {
+        result = compareNumerically(buf1, len1, buf2, len2);
       } else {
-        result = compareLexicographically(sb1, sb2);
+        result = compareLexicographically(buf1, len1, buf2, len2);
       }
 
       if (result != 0) {
         return result;
       }
 
-      pos1 += sb1.length();
-      pos2 += sb2.length();
+      pos1 += len1;
+      pos2 += len2;
     }
 
     return length1 - length2;
   }
 
+  private static char[] allocate(char[] buf, int length) {
+    return (buf.length < length) ? new char[length] : buf;
+  }
+
   /**
-   * Get the next subset of either digits or non-digit characters starting from the start position
-   * into the provided buffer. Leading zeros are ignored.
+   * Get the next sub-sequence of either digits or non-digit characters starting from the start
+   * position into the provided buffer. Leading zeros are ignored.
    *
    * @param seq the character sequence
    * @param start the start position
    * @param length the sequence length
-   * @param sb character buffer
+   * @param buf the sub-sequence character buffer
+   * @return the length of the sub-sequence
    */
-  private static final void nextSubSequence(CharSequence seq, int start, int length,
-      StringBuilder sb) {
+  private static final int nextSubSequence(CharSequence seq, int start, int length, char[] buf) {
     int pos = start;
     char ch = seq.charAt(pos++);
-    sb.setLength(0);
-    sb.append(ch);
+    int len = 0;
+    buf[len++] = ch;
 
     if (isDigit(ch)) {
       while (pos < length) {
@@ -140,7 +146,7 @@ public class AlphanumComparator implements Comparator<CharSequence> {
         if (!isDigit(ch)) {
           break;
         }
-        sb.append(ch);
+        buf[len++] = ch;
         pos++;
       }
     } else {
@@ -149,10 +155,11 @@ public class AlphanumComparator implements Comparator<CharSequence> {
         if (isDigit(ch)) {
           break;
         }
-        sb.append(ch);
+        buf[len++] = ch;
         pos++;
       }
     }
+    return len;
   }
 
   /**
@@ -168,25 +175,27 @@ public class AlphanumComparator implements Comparator<CharSequence> {
   /**
    * Compares two sequences numerically. Ignores leading zeros. Assumes all characters are digits.
    *
-   * @param sb1 the first sequence
-   * @param sb2 the second sequence
+   * @param buf1 the first sequence
+   * @param len1 the length of the first sequence
+   * @param buf2 the second sequence
+   * @param len2 the length of the second sequence
    * @return the value {@code 0} if the sequences are equal; a value less than {@code 0} if sequence
    *         1 is numerically less than sequence 2; and a value greater than {@code 0} if sequence 1
    *         is numerically greater than sequence 2.
    */
-  private static int compareNumerically(StringBuilder sb1, StringBuilder sb2) {
+  private static int compareNumerically(char[] buf1, int len1, char[] buf2, int len2) {
     // Ignore leading zeros in numbers
-    final int start1 = advancePastLeadingZeros(sb1);
-    final int start2 = advancePastLeadingZeros(sb2);
+    final int start1 = advancePastLeadingZeros(buf1, len1);
+    final int start2 = advancePastLeadingZeros(buf2, len2);
 
     // Simple comparison by length
-    final int result = (sb1.length() - start1) - (sb2.length() - start2);
+    final int result = (len1 - start1) - (len2 - start2);
     // If equal, the first different number counts.
     if (result == 0) {
       int i2 = start2;
-      for (int i1 = start1; i1 < sb1.length(); i1++) {
-        final char c1 = sb1.charAt(i1);
-        final char c2 = sb2.charAt(i2++);
+      for (int i1 = start1; i1 < len1; i1++) {
+        final char c1 = buf1[i1];
+        final char c2 = buf2[i2++];
         if (c1 != c2) {
           return c1 - c2;
         }
@@ -198,14 +207,15 @@ public class AlphanumComparator implements Comparator<CharSequence> {
   /**
    * Advances past leading zeros. Returns the index of the start character of the number.
    *
-   * @param sb the sequence
+   * @param buf the sequence
+   * @param len the length of the sequence
    * @return the start index
    */
-  private static int advancePastLeadingZeros(StringBuilder sb) {
-    if (sb.charAt(0) == '0') {
+  private static int advancePastLeadingZeros(char[] buf, int len) {
+    if (buf[0] == '0') {
       int start = 0;
       // Ignore zeros only when there are further characters
-      while (start < sb.length() - 1 && sb.charAt(start) == '0') {
+      while (start < len - 1 && buf[start] == '0') {
         start++;
       }
       return start;
@@ -216,20 +226,20 @@ public class AlphanumComparator implements Comparator<CharSequence> {
   /**
    * Compares two sequences lexicographically.
    *
-   * @param sb1 the first sequence
-   * @param sb2 the second sequence
+   * @param buf1 the first sequence
+   * @param len1 the length of the first sequence
+   * @param buf2 the second sequence
+   * @param len2 the length of the second sequence
    * @return the value {@code 0} if the sequences are equal; a value less than {@code 0} if sequence
    *         1 is lexicographically less than sequence 2; and a value greater than {@code 0} if
    *         sequence 1 is lexicographically greater than sequence 2.
    */
-  private static int compareLexicographically(StringBuilder sb1, StringBuilder sb2) {
-    final int len1 = sb1.length();
-    final int len2 = sb2.length();
+  private static int compareLexicographically(char[] buf1, int len1, char[] buf2, int len2) {
     final int lim = Math.min(len1, len2);
 
     for (int k = 0; k < lim; k++) {
-      final char c1 = sb1.charAt(k);
-      final char c2 = sb2.charAt(k);
+      final char c1 = buf1[k];
+      final char c2 = buf2[k];
       if (c1 != c2) {
         return c1 - c2;
       }
