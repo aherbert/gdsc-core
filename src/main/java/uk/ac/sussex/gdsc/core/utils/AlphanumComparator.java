@@ -57,6 +57,8 @@ import java.util.Comparator;
  *
  * </ul>
  *
+ * <p>Warning: The algorithm is not thread-safe so should not be used in a parallel sort.
+ *
  * @see <a href="http://www.DaveKoelle.com">Alphanum Algorithm</a>
  */
 public class AlphanumComparator implements Comparator<CharSequence> {
@@ -64,7 +66,7 @@ public class AlphanumComparator implements Comparator<CharSequence> {
   private final boolean nullIsLess;
   /** Working buffer 1. */
   private final StringBuilder sb1 = new StringBuilder();
-  /** Working buffer 1. */
+  /** Working buffer 2. */
   private final StringBuilder sb2 = new StringBuilder();
 
   /**
@@ -118,7 +120,7 @@ public class AlphanumComparator implements Comparator<CharSequence> {
 
   /**
    * Get the next subset of either digits or non-digit characters starting from the start position
-   * into the provider buffer. Leading zeros are ignored.
+   * into the provided buffer. Leading zeros are ignored.
    *
    * @param seq the character sequence
    * @param start the start position
