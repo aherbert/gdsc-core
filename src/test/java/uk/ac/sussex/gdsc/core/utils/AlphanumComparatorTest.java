@@ -17,7 +17,7 @@ public class AlphanumComparatorTest {
     final String first = "aaa";
     final String second = "bb";
     final String[] data = new String[] {second, first};
-    Arrays.sort(data, AlphanumComparator.NULL_IS_LESS_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(true));
     Assertions.assertEquals(first, data[0]);
   }
 
@@ -26,7 +26,7 @@ public class AlphanumComparatorTest {
     final String first = "a2.txt";
     final String second = "a10.txt";
     final String[] data = new String[] {second, first};
-    Arrays.sort(data, AlphanumComparator.NULL_IS_LESS_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(true));
     Assertions.assertEquals(first, data[0]);
   }
 
@@ -38,23 +38,23 @@ public class AlphanumComparatorTest {
 
     // Repeat sort to hit cases of null cmp not-null and not-null cmp null
 
-    Arrays.sort(data, AlphanumComparator.NULL_IS_LESS_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(true));
     Assertions.assertEquals(null, data[0]);
-    Arrays.sort(data, AlphanumComparator.NULL_IS_LESS_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(true));
     Assertions.assertEquals(null, data[0]);
 
-    Arrays.sort(data, AlphanumComparator.NULL_IS_MORE_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(false));
     Assertions.assertEquals(null, data[1]);
-    Arrays.sort(data, AlphanumComparator.NULL_IS_MORE_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(false));
     Assertions.assertEquals(null, data[1]);
   }
 
   @Test
   public void canSortStringsWithLeadingZeros() {
     final String first = "a002.txt";
-    final String second = "a20.txt";
+    final String second = "a200.txt";
     final String[] data = new String[] {second, first};
-    Arrays.sort(data, AlphanumComparator.NULL_IS_LESS_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(true));
     Assertions.assertEquals(first, data[0]);
   }
 
@@ -76,10 +76,10 @@ public class AlphanumComparatorTest {
       data[j] = tmp;
     }
 
-    Arrays.sort(data, AlphanumComparator.NULL_IS_LESS_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(true));
     Assertions.assertArrayEquals(sorted, data);
 
-    Arrays.sort(data, AlphanumComparator.NULL_IS_MORE_INSTANCE);
+    Arrays.sort(data, new AlphanumComparator(false));
     Assertions.assertEquals(null, data[data.length - 1]);
   }
 }

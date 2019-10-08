@@ -1,33 +1,29 @@
 /*-
- * %%Ignore-License
+ * #%L
+ * Genome Damage and Stability Centre ImageJ Core Package
  *
- * The Alphanum Algorithm is an improved sorting algorithm for strings
- * containing numbers.  Instead of sorting numbers in ASCII order like
- * a standard sort, this algorithm sorts numbers in numeric order.
+ * Contains code used by:
  *
- * The Alphanum Algorithm is discussed at http://www.DaveKoelle.com.
+ * GDSC ImageJ Plugins - Microscopy image analysis
  *
- * Released under the MIT License - https://opensource.org/licenses/MIT
+ * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
+ * %%
+ * Copyright (C) 2011 - 2019 Alex Herbert
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Copyright 2007-2017 David Koelle
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
- * USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
  */
 
 package uk.ac.sussex.gdsc.core.utils;
@@ -45,35 +41,31 @@ import java.util.Comparator;
  * z2.html      z0200.html
  * </pre>
  *
- * <p>This is an updated version with enhancements made by Daniel Migowski, Andre Bogus, and David
- * Koelle. Updated by David Koelle in 2017.
+ * <p>This is is based on ideas in the Alphanum algorithm by David Koelle.
  *
- * <p>Modification have been made by Alex Herbert to:
+ * <p>This implementation supports:
  *
  * <ul>
  *
- * <li>Support {@link CharSequence}
+ * <li>Buffer caches for more efficient memory consumption
  *
- * <li>Handle numbers with leading zeros
+ * <li>{@link CharSequence} comparison
  *
- * <li>Sort {@code null} with a defined order
+ * <li>Numbers with leading zeros
+ *
+ * <li>Sorting {@code null} with a defined order
  *
  * </ul>
  *
  * @see <a href="http://www.DaveKoelle.com">Alphanum Algorithm</a>
  */
 public class AlphanumComparator implements Comparator<CharSequence> {
-  /**
-   * The instance where {@code null} is considered less than a non-{@code null} value.
-   */
-  public static final AlphanumComparator NULL_IS_LESS_INSTANCE = new AlphanumComparator(true);
-  /**
-   * The instance where {@code null} is considered greater than a non-{@code null} value.
-   */
-  public static final AlphanumComparator NULL_IS_MORE_INSTANCE = new AlphanumComparator(false);
-
   /** The null is less flag. */
-  final boolean nullIsLess;
+  private final boolean nullIsLess;
+  /** Working buffer 1. */
+  private final StringBuilder sb1 = new StringBuilder();
+  /** Working buffer 1. */
+  private final StringBuilder sb2 = new StringBuilder();
 
   /**
    * Create a new instance.
@@ -96,90 +88,69 @@ public class AlphanumComparator implements Comparator<CharSequence> {
       return nullIsLess ? 1 : -1;
     }
 
-    int thisMarker = 0;
-    int thatMarker = 0;
-    final int s1Length = s1.length();
-    final int s2Length = s2.length();
+    int pos1 = 0;
+    int pos2 = 0;
+    final int length1 = s1.length();
+    final int length2 = s2.length();
 
-    while (thisMarker < s1Length && thatMarker < s2Length) {
-      final String thisChunk = getChunk(s1, s1Length, thisMarker);
-      final String thatChunk = getChunk(s2, s2Length, thatMarker);
+    while (pos1 < length1 && pos2 < length2) {
+      nextSubSequence(s1, pos1, length1, sb1);
+      nextSubSequence(s2, pos2, length2, sb2);
 
-      // If both chunks contain numeric characters, sort them numerically
+      // If both sub-sequences contain numeric characters, sort them numerically
       int result = 0;
-      if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
-        // Simple chunk comparison by length.
-        final int thisChunkLength = thisChunk.length();
-        result = thisChunkLength - thatChunk.length();
-        // If equal, the first different number counts
-        if (result == 0) {
-          for (int i = 0; i < thisChunkLength; i++) {
-            result = thisChunk.charAt(i) - thatChunk.charAt(i);
-            if (result != 0) {
-              return result;
-            }
-          }
-        }
+      if (isDigit(sb1.charAt(0)) && isDigit(sb2.charAt(0))) {
+        result = compareNumerically(sb1, sb2);
       } else {
-        result = thisChunk.compareTo(thatChunk);
+        result = compareLexicographically(sb1, sb2);
       }
 
       if (result != 0) {
         return result;
       }
 
-      thisMarker += thisChunk.length();
-      thatMarker += thatChunk.length();
+      pos1 += sb1.length();
+      pos2 += sb2.length();
     }
 
-    return s1Length - s2Length;
+    return length1 - length2;
   }
 
   /**
-   * Get the next chunk of either digits or non-digit characters starting from the marker. Leading
-   * zeros are ignored. Length of string is passed in for improved efficiency (only need to
-   * calculate it once).
+   * Get the next subset of either digits or non-digit characters starting from the start position
+   * into the provider buffer. Leading zeros are ignored.
    *
-   * @param string the string
-   * @param length the string length
-   * @param marker the marker
-   * @return the chunk
+   * @param seq the character sequence
+   * @param start the start position
+   * @param length the sequence length
+   * @param sb character buffer
    */
-  private static final String getChunk(CharSequence string, int length, int marker) {
-    final char[] chunk = new char[length - marker];
-    int count = 0;
-    char ch = string.charAt(marker++);
-    chunk[count++] = ch;
+  private static final void nextSubSequence(CharSequence seq, int start, int length,
+      StringBuilder sb) {
+    int pos = start;
+    char ch = seq.charAt(pos++);
+    sb.setLength(0);
+    sb.append(ch);
 
     if (isDigit(ch)) {
-      while (marker < length) {
-        ch = string.charAt(marker);
+      while (pos < length) {
+        ch = seq.charAt(pos);
         if (!isDigit(ch)) {
           break;
         }
-        chunk[count++] = ch;
-        marker++;
-      }
-      // Ignore leading zeros in numbers
-      if (chunk[0] == '0') {
-        int offset = 0;
-        // Ignore zeros only when there are further characters
-        while (offset < count - 1 && chunk[offset] == '0') {
-          offset++;
-        }
-        return new String(chunk, offset, count - offset);
+        sb.append(ch);
+        pos++;
       }
     } else {
-      while (marker < length) {
-        ch = string.charAt(marker);
+      while (pos < length) {
+        ch = seq.charAt(pos);
         if (isDigit(ch)) {
           break;
         }
-        chunk[count++] = ch;
-        marker++;
+        sb.append(ch);
+        pos++;
       }
     }
-    return new String(chunk, 0, count);
   }
 
   /**
@@ -190,5 +161,77 @@ public class AlphanumComparator implements Comparator<CharSequence> {
    */
   private static final boolean isDigit(char ch) {
     return ((ch >= 48) && (ch <= 57));
+  }
+
+  /**
+   * Compares two sequences numerically. Ignores leading zeros. Assumes all characters are digits.
+   *
+   * @param sb1 the first sequence
+   * @param sb2 the second sequence
+   * @return the value {@code 0} if the sequences are equal; a value less than {@code 0} if sequence
+   *         1 is numerically less than sequence 2; and a value greater than {@code 0} if sequence 1
+   *         is numerically greater than sequence 2.
+   */
+  private static int compareNumerically(StringBuilder sb1, StringBuilder sb2) {
+    // Ignore leading zeros in numbers
+    final int start1 = advancePastLeadingZeros(sb1);
+    final int start2 = advancePastLeadingZeros(sb2);
+
+    // Simple comparison by length
+    final int result = (sb1.length() - start1) - (sb2.length() - start2);
+    // If equal, the first different number counts.
+    if (result == 0) {
+      int i2 = start2;
+      for (int i1 = start1; i1 < sb1.length(); i1++) {
+        final char c1 = sb1.charAt(i1);
+        final char c2 = sb2.charAt(i2++);
+        if (c1 != c2) {
+          return c1 - c2;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Advances past leading zeros. Returns the index of the start character of the number.
+   *
+   * @param sb the sequence
+   * @return the start index
+   */
+  private static int advancePastLeadingZeros(StringBuilder sb) {
+    if (sb.charAt(0) == '0') {
+      int start = 0;
+      // Ignore zeros only when there are further characters
+      while (start < sb.length() - 1 && sb.charAt(start) == '0') {
+        start++;
+      }
+      return start;
+    }
+    return 0;
+  }
+
+  /**
+   * Compares two sequences lexicographically.
+   *
+   * @param sb1 the first sequence
+   * @param sb2 the second sequence
+   * @return the value {@code 0} if the sequences are equal; a value less than {@code 0} if sequence
+   *         1 is lexicographically less than sequence 2; and a value greater than {@code 0} if
+   *         sequence 1 is lexicographically greater than sequence 2.
+   */
+  private static int compareLexicographically(StringBuilder sb1, StringBuilder sb2) {
+    final int len1 = sb1.length();
+    final int len2 = sb2.length();
+    final int lim = Math.min(len1, len2);
+
+    for (int k = 0; k < lim; k++) {
+      final char c1 = sb1.charAt(k);
+      final char c2 = sb2.charAt(k);
+      if (c1 != c2) {
+        return c1 - c2;
+      }
+    }
+    return len1 - len2;
   }
 }
