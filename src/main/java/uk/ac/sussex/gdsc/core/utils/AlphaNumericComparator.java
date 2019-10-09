@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -64,7 +65,9 @@ import java.util.Comparator;
  *
  * @see <a href="http://www.DaveKoelle.com">Alphanum Algorithm</a>
  */
-public class AlphaNumericComparator implements Comparator<CharSequence> {
+public class AlphaNumericComparator implements Comparator<CharSequence>, Serializable {
+  private static final long serialVersionUID = 1L;
+
   /**
    * The instance where {@code null} is considered less than a non-{@code null} value.
    */
@@ -138,10 +141,9 @@ public class AlphaNumericComparator implements Comparator<CharSequence> {
    * @param seq the character sequence
    * @param start the start position
    * @param length the sequence length
-   * @param buf the sub-sequence character buffer
    * @return the sub-sequence end position (exclusive)
    */
-  private static final int nextSubSequenceEnd(CharSequence seq, int start, int length) {
+  private static int nextSubSequenceEnd(CharSequence seq, int start, int length) {
     int pos = start;
     // Set the sub-sequence type (digits or non-digits)
     final boolean seqType = isDigit(seq.charAt(pos++));
@@ -158,8 +160,8 @@ public class AlphaNumericComparator implements Comparator<CharSequence> {
    * @param ch the character
    * @return true if a digit
    */
-  private static final boolean isDigit(char ch) {
-    return ((ch >= 48) && (ch <= 57));
+  private static boolean isDigit(char ch) {
+    return ch >= 48 && ch <= 57;
   }
 
   /**
