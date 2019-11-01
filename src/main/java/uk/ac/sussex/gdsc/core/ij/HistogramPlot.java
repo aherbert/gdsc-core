@@ -984,7 +984,7 @@ public class HistogramPlot {
    * @param numberOfBins the new number of bins
    */
   public void setNumberOfBins(int numberOfBins) {
-    this.numberOfBins = numberOfBins;
+    this.numberOfBins = Math.max(0, numberOfBins);
   }
 
   /**
