@@ -115,9 +115,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @return The match results
    * @see Pulse#score(Pulse, double, double)
@@ -163,9 +163,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @return The match results
    */
   public static MatchResult analyseResults2D(Coordinate[] actualPoints,
@@ -183,9 +183,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @return The match results
    */
@@ -220,9 +220,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @return The match results
    */
   public static MatchResult analyseResults3D(Coordinate[] actualPoints,
@@ -240,9 +240,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @return The match results
    */
@@ -261,9 +261,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @param edges function used to identify distance between the vertices ({@code A -> B})
    * @return The match results
@@ -288,9 +288,9 @@ public final class MatchCalculator {
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
-   * @param truePositives True Positives
-   * @param falsePositives False Positives
-   * @param falseNegatives False Negatives
+   * @param truePositives True Positives (matched predicted)
+   * @param falsePositives False Positives (unmatched predicted)
+   * @param falseNegatives False Negatives (unmatched actual)
    * @param matches The matched true positives (point1 = actual, point2 = predicted)
    * @param edges function used to identify distance between the vertices ({@code A -> B})
    * @param resultFunction the function to create the result
@@ -316,7 +316,8 @@ public final class MatchCalculator {
     }
     if (matches != null) {
       matches.clear();
-      matched = matched.andThen((u, v) -> matches.add(new PointPair(u, v)));
+      // Note that (u, v) are (predicted, actual) so they are switched for the PointPair
+      matched = matched.andThen((u, v) -> matches.add(new PointPair(v, u)));
     }
     final Consumer<T> unmatchedA = toConsumer(falsePositives);
     final Consumer<T> unmatchedB = toConsumer(falseNegatives);

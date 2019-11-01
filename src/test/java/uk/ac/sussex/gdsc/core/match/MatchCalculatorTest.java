@@ -2,10 +2,12 @@ package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.ToDoubleBiFunction;
 
@@ -132,24 +134,28 @@ public class MatchCalculatorTest {
     final List<PointPair> matches = new ArrayList<>();
     MatchResult match = calc.analyseResults(actual, predicted, distanceThreshold, truePositives,
         falsePositives, falseNegatives, matches);
-    assertMatch(0, 1, 0, 0.0, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(actual, predicted, 0, 1, 0, 0.0, match, truePositives, falsePositives,
+        falseNegatives, matches);
     // Test methods with no lists
     match = calc.analyseResults(actual, predicted, distanceThreshold, truePositives, falsePositives,
         falseNegatives);
-    assertMatch(0, 1, 0, 0.0, match, truePositives, falsePositives, falseNegatives, null);
+    assertMatch(actual, predicted, 0, 1, 0, 0.0, match, truePositives, falsePositives,
+        falseNegatives, null);
     match = calc.analyseResults(actual, predicted, distanceThreshold);
-    assertMatch(0, 1, 0, 0.0, match, null, null, null, null);
+    assertMatch(actual, predicted, 0, 1, 0, 0.0, match, null, null, null, null);
 
     // Reversed
     match = calc.analyseResults(predicted, actual, distanceThreshold, truePositives, falsePositives,
         falseNegatives, matches);
-    assertMatch(0, 0, 1, 0.0, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(predicted, actual, 0, 0, 1, 0.0, match, truePositives, falsePositives,
+        falseNegatives, matches);
     // Test methods with no lists
     match = calc.analyseResults(predicted, actual, distanceThreshold, truePositives, falsePositives,
         falseNegatives);
-    assertMatch(0, 0, 1, 0.0, match, truePositives, falsePositives, falseNegatives, null);
+    assertMatch(predicted, actual, 0, 0, 1, 0.0, match, truePositives, falsePositives,
+        falseNegatives, null);
     match = calc.analyseResults(predicted, actual, distanceThreshold);
-    assertMatch(0, 0, 1, 0.0, match, null, null, null, null);
+    assertMatch(predicted, actual, 0, 0, 1, 0.0, match, null, null, null, null);
   }
 
   private static void assertAnalyseResults2DWithNoPoints(Calculator calc) {
@@ -162,24 +168,28 @@ public class MatchCalculatorTest {
     final List<PointPair> matches = new ArrayList<>();
     MatchResult match = calc.analyseResults(actual, predicted, distanceThreshold, truePositives,
         falsePositives, falseNegatives, matches);
-    assertMatch(0, 1, 0, 0.0, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(actual, predicted, 0, 1, 0, 0.0, match, truePositives, falsePositives,
+        falseNegatives, matches);
 
     // Reversed
     match = calc.analyseResults(predicted, actual, distanceThreshold, truePositives, falsePositives,
         falseNegatives, matches);
-    assertMatch(0, 0, 1, 0.0, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(predicted, actual, 0, 0, 1, 0.0, match, truePositives, falsePositives,
+        falseNegatives, matches);
 
     // Empty
     match = calc.analyseResults(actual, actual, distanceThreshold, truePositives, falsePositives,
         falseNegatives, matches);
-    assertMatch(0, 0, 0, 0.0, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(actual, predicted, 0, 0, 0, 0.0, match, truePositives, falsePositives,
+        falseNegatives, matches);
 
     // Test methods with no lists
     match = calc.analyseResults(actual, predicted, distanceThreshold, truePositives, falsePositives,
         falseNegatives);
-    assertMatch(0, 1, 0, 0.0, match, truePositives, falsePositives, falseNegatives, null);
+    assertMatch(actual, predicted, 0, 1, 0, 0.0, match, truePositives, falsePositives,
+        falseNegatives, null);
     match = calc.analyseResults(actual, predicted, distanceThreshold);
-    assertMatch(0, 1, 0, 0.0, match);
+    assertMatch(actual, predicted, 0, 1, 0, 0.0, match);
   }
 
   private static void assertAnalyseResults2DWithNoMatches(Calculator calc) {
@@ -192,7 +202,8 @@ public class MatchCalculatorTest {
     final List<PointPair> matches = new ArrayList<>();
     final MatchResult match = calc.analyseResults(actual, predicted, distanceThreshold,
         truePositives, falsePositives, falseNegatives, matches);
-    assertMatch(0, 2, 1, 0.0, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(actual, predicted, 0, 2, 1, 0.0, match, truePositives, falsePositives,
+        falseNegatives, matches);
   }
 
   private static void assertAnalyseResults2D(Calculator calc) {
@@ -215,11 +226,12 @@ public class MatchCalculatorTest {
     final List<PointPair> matches = new ArrayList<>();
     MatchResult match = calc.analyseResults(actual, predicted, distanceThreshold, truePositives,
         falsePositives, falseNegatives, matches);
-    assertMatch(2, 1, 2, rmsd, match, truePositives, falsePositives, falseNegatives, matches);
+    assertMatch(actual, predicted, 2, 1, 2, rmsd, match, truePositives, falsePositives,
+        falseNegatives, matches);
 
     // Test methods with no lists
     match = calc.analyseResults(actual, predicted, distanceThreshold);
-    assertMatch(2, 1, 2, rmsd, match);
+    assertMatch(actual, predicted, 2, 1, 2, rmsd, match);
   }
 
   private static Coordinate[] createCoordinates2D(float... data) {
@@ -233,19 +245,24 @@ public class MatchCalculatorTest {
   /**
    * Assert the match.
    *
+   * @param actual the actual coordinates
+   * @param predicted the predicted coordinates
    * @param tp the true positives (number that match)
    * @param fp the false positives (number of predicted that did not match)
    * @param fn the false negatives (number of actual that did not match)
    * @param rmsd the rmsd
    * @param match the match
    */
-  private static void assertMatch(int tp, int fp, int fn, double rmsd, MatchResult match) {
-    assertMatch(tp, fp, fn, rmsd, match, null, null, null, null);
+  private static void assertMatch(Coordinate[] actual, Coordinate[] predicted, int tp, int fp,
+      int fn, double rmsd, MatchResult match) {
+    assertMatch(actual, predicted, tp, fp, fn, rmsd, match, null, null, null, null);
   }
 
   /**
    * Assert the match.
    *
+   * @param actual the actual coordinates
+   * @param predicted the predicted coordinates
    * @param tp the true positives (number that match)
    * @param fp the false positives (number of predicted that did not match)
    * @param fn the false negatives (number of actual that did not match)
@@ -256,24 +273,60 @@ public class MatchCalculatorTest {
    * @param falseNegatives the list of false negatives
    * @param matches the matches
    */
-  private static void assertMatch(int tp, int fp, int fn, double rmsd, MatchResult match,
-      List<Coordinate> truePositives, List<Coordinate> falsePositives,
-      List<Coordinate> falseNegatives, List<PointPair> matches) {
+  private static void assertMatch(Coordinate[] actual, Coordinate[] predicted, int tp, int fp,
+      int fn, double rmsd, MatchResult match, List<Coordinate> truePositives,
+      List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
     Assertions.assertEquals(tp, match.getTruePositives(), "tp");
     Assertions.assertEquals(fp, match.getFalsePositives(), "fp");
     Assertions.assertEquals(fn, match.getFalseNegatives(), "fn");
     Assertions.assertEquals(rmsd, match.getRmsd(), "rmsd");
+    final HashSet<Coordinate> allPredicted = new HashSet<>();
     if (truePositives != null) {
       Assertions.assertEquals(tp, truePositives.size(), "list tp");
+      truePositives.forEach(c -> Assertions.assertTrue(ArrayUtils.indexOf(predicted, c) != -1,
+          "tp list should contain predicted"));
+      allPredicted.addAll(truePositives);
+      Assertions.assertEquals(tp, allPredicted.size(), "duplicates in the true positives");
     }
     if (falsePositives != null) {
       Assertions.assertEquals(fp, falsePositives.size(), "list fp");
+      falsePositives.forEach(c -> Assertions.assertTrue(ArrayUtils.indexOf(predicted, c) != -1,
+          "fp list should contain predicted"));
+      allPredicted.addAll(falsePositives);
+      final int expected = truePositives == null ? fp : fp + tp;
+      Assertions.assertEquals(expected, allPredicted.size(), "duplicates in the false positives");
     }
+    final HashSet<Coordinate> allActual = new HashSet<>();
     if (falseNegatives != null) {
       Assertions.assertEquals(fn, falseNegatives.size(), "list fn");
+      falseNegatives.forEach(c -> Assertions.assertTrue(ArrayUtils.indexOf(actual, c) != -1,
+          "fn list should contain actual"));
+      allActual.addAll(falseNegatives);
+      Assertions.assertEquals(fn, allActual.size(), "duplicates in the false negatives");
     }
     if (matches != null) {
       Assertions.assertEquals(tp, matches.size(), "list matches");
+      final HashSet<Coordinate> matchPredicted = new HashSet<>();
+      // Test the matches contains the predicted as the second of the pair.
+      for (PointPair pair : matches) {
+        Assertions.assertTrue(ArrayUtils.indexOf(actual, pair.getPoint1()) != -1,
+            "actual match should be first of the match pair");
+        Assertions.assertTrue(ArrayUtils.indexOf(predicted, pair.getPoint2()) != -1,
+            "predicted match should be second of the match pair");
+        if (truePositives != null) {
+          Assertions.assertTrue(truePositives.contains(pair.getPoint2()),
+              "predicted match should be in the true positives list");
+        }
+        if (falseNegatives != null) {
+          Assertions.assertFalse(falseNegatives.contains(pair.getPoint1()),
+              "actual match should not be in the false negatives list");
+        }
+        allActual.add(pair.getPoint1());
+        matchPredicted.add(pair.getPoint2());
+      }
+      final int expected = falseNegatives == null ? tp : tp + fn;
+      Assertions.assertEquals(expected, allActual.size(), "duplicates in actual matches");
+      Assertions.assertEquals(tp, matchPredicted.size(), "duplicates in predicted matches");
     }
   }
 
