@@ -69,7 +69,7 @@ public class MarsagliaTsangGammaSampler implements ContinuousSampler {
     this.rng = rng;
     setTheta(theta);
     setAlpha(alpha);
-    gaussian = new ZigguratNormalizedGaussianSampler(rng);
+    gaussian = SamplerUtils.createNormalizedGaussianSampler(rng);
   }
 
   /**
