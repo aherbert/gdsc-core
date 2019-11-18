@@ -630,4 +630,33 @@ public class NumberUtilsTest {
       Assertions.assertEquals(expected, actual, () -> "Failed to advance power: " + power);
     }
   }
+
+  @SeededTest
+  public void testComputeInverseLong(RandomSeed seed) {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.computeInverse(0L));
+
+    // Known constants taken from the Mixers class
+    Assertions.assertEquals(0x2ab9c720d1024adL, NumberUtils.computeInverse(0x9fb21c651e98df25L));
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    for (int i = 0; i < 20; i++) {
+      final long x = rng.nextLong() | 1L;
+      final long y = NumberUtils.computeInverse(x);
+      Assertions.assertEquals(1L, x * y, "x * y");
+      Assertions.assertEquals(1L, y * x, "y * x");
+    }
+  }
+
+  @SeededTest
+  public void testComputeInverseInt(RandomSeed seed) {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.computeInverse(0));
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    for (int i = 0; i < 20; i++) {
+      final int x = rng.nextInt() | 1;
+      final int y = NumberUtils.computeInverse(x);
+      Assertions.assertEquals(1, x * y, "x * y");
+      Assertions.assertEquals(1, y * x, "y * x");
+    }
+  }
 }

@@ -479,4 +479,73 @@ public final class NumberUtils {
     final int low = lowBit >>> 5;
     return (high | low) * 0x1.0p-53d;
   }
+
+  /**
+   * Compute the multiplicative inverse of an integer. Given {@code x} compute {@code y} such that
+   * {@code x * y = y * x = 1}.
+   *
+   * @param value the value (must be odd)
+   * @return the multiplicative inverse
+   * @see <a
+   *      href="https://lemire.me/blog/2017/09/18/computing-the-inverse-of-odd-integers/">Computing
+   *      the inverse of odd integers</a>
+   * @throws IllegalArgumentException If {@code x} is not odd
+   */
+  public static long computeInverse(long value) {
+    if ((value & 0x1L) == 0) {
+      throw new IllegalArgumentException("value must be odd: " + value);
+    }
+    // Initial estimate with 5-bits of accuracy
+    long inverse = (3 * value) ^ 2L;
+    inverse = f64(value, inverse);
+    inverse = f64(value, inverse);
+    inverse = f64(value, inverse);
+    inverse = f64(value, inverse);
+    return inverse;
+  }
+
+  /**
+   * Compute the multiplicative inverse of an integer. Given {@code x} compute {@code y} such that
+   * {@code x * y = y * x = 1}.
+   *
+   * @param value the value (must be odd)
+   * @return the multiplicative inverse
+   * @see <a
+   *      href="https://lemire.me/blog/2017/09/18/computing-the-inverse-of-odd-integers/">Computing
+   *      the inverse of odd integers</a>
+   * @throws IllegalArgumentException If {@code x} is not odd
+   */
+  public static int computeInverse(int value) {
+    if ((value & 0x1) == 0) {
+      throw new IllegalArgumentException("value must be odd: " + value);
+    }
+    // Initial estimate with 5-bits of accuracy
+    int inverse = (3 * value) ^ 2;
+    inverse = f32(value, inverse);
+    inverse = f32(value, inverse);
+    inverse = f32(value, inverse);
+    return inverse;
+  }
+
+  /**
+   * Implementation of Newton's method as one would apply it to finding the zero of g(y) = 1/y - x.
+   *
+   * @param x the x
+   * @param y the y
+   * @return the new estimate for y
+   */
+  private static long f64(long x, long y) {
+    return y * (2 - y * x);
+  }
+
+  /**
+   * Implementation of Newton's method as one would apply it to finding the zero of g(y) = 1/y - x.
+   *
+   * @param x the x
+   * @param y the y
+   * @return the new estimate for y
+   */
+  private static int f32(int x, int y) {
+    return y * (2 - y * x);
+  }
 }
