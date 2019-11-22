@@ -396,8 +396,10 @@ public final class MiddleSquareWeylSequence
    * {@inheritDoc}
    *
    * <p>Creates a new state and increment for the new instance. The probability of increment
-   * collision is 2<sup>-18</sup>; the probability of state collision is 2<sup>-64</sup>. The
-   * probability of sequence overlap between the two generators is below 2<sup>-82</sup>.
+   * collision is 2<sup>-18</sup>; the probability of state collision is 2<sup>-64</sup>.
+   *
+   * <p>For the purposes of overlap computation this generator should be considered to have a period
+   * of 2<sup>64</sup>.
    */
   @Override
   public MiddleSquareWeylSequence split() {
