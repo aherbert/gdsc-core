@@ -34,7 +34,23 @@ import org.apache.commons.rng.UniformRandomProvider;
  * Applies to generators of random number sequences that follow a uniform distribution and can be
  * split to create a new independent instance.
  *
+ * <h2>Overlap Computations</h2>
+ *
+ * <p>The probability of overlap among different streams of generators can be computed using an
+ * approximation. The following is extracted from L&#39;Ecuyer, et al. (2017).
+ *
+ * <p>If the RNG has period {@code p} and we take {@code s} different streams of length {@code l},
+ * with random starting points in the sequence, and assuming that {@code sl/p} is very small, the
+ * probability that there is some overlap is approximately {@code s}<sup>2</sup>{@code l/p}.
+ * 
+ * <p>For example if {@code s=l=}2<sup>20</sup> the overlap probability 
+ * 2<sup>60</sup>{@code /p} is near 2<sup>-68</sup> for
+ * {@code p=}2<sup>128</sup> and near 2<sup>-964</sup> for {@code p=}2<sup>1024</sup>.
+ *
  * @since 2.0
+ * @see <a href="https://doi.org/10.1016/j.matcom.2016.05.005">L&#39;Ecuyer, et al. Random numbers
+ *      for parallel computers: Requirements and methods, with emphasis on GPUs. (2017), Mathematics
+ *      and Computers in Simulation 135, pp. 3-17</a>
  */
 public interface SplittableUniformRandomProvider extends UniformRandomProvider {
   /**
