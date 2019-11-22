@@ -432,22 +432,27 @@ public class Pcg32Test {
   @ArgumentsSource(PcgFactoryParams.class)
   public void testCopy(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
-    assertDuplicate(constructor.create(seed), Pcg32::copy, TestHelper.intsEqual());
+    assertDuplicate(constructor.create(seed), Pcg32::copy, true);
   }
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
   public void testSplit(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
-    assertDuplicate(constructor.create(seed), Pcg32::split, TestHelper.intsEqual().negate());
+    assertDuplicate(constructor.create(seed), Pcg32::split, false);
   }
 
   private static void assertDuplicate(Pcg32 rng1, UnaryOperator<Pcg32> duplicate,
-      IntIntBiPredicate test) {
+      boolean expectedEqual) {
     final Pcg32 rng2 = duplicate.apply(rng1);
     Assertions.assertNotSame(rng1, rng2);
+    boolean equal = true;
     for (int i = 0; i < 10; i++) {
-      test.test(rng1.nextInt(), rng2.nextInt());
+      if (rng1.nextInt() != rng2.nextInt()) {
+        equal = false;
+        break;
+      }
     }
+    Assertions.assertEquals(expectedEqual, equal);
   }
 }
