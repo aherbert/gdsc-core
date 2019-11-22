@@ -37,7 +37,19 @@ import org.apache.commons.rng.RestorableUniformRandomProvider;
  *
  * <p>This generator has 128-bits of state and a period of 2<sup>64</sup>.
  *
+ * <p>Due to the use of an underlying linear congruential generator (LCG) alterations to the 128 bit
+ * seed have the following effect: the first 64-bits alter the generator state; the second 64 bits,
+ * with the exception of the most significant bit, which is discarded, choose between one of two
+ * alternative LCGs where the output of the chosen LCG is the same sequence except for an additive
+ * constant determined by the seed bits. The result is that seeds that differ only in the last
+ * 64-bits will have a 50% chance of producing highly correlated output sequences.
+ *
+ * <p>Consider using the fixed increment variant where the 64-bit seed sets the generator state.
+ *
  * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
+ * @see <a href="https://ieeexplore.ieee.org/document/718715">Using Linear Congruential Generators
+ *      For Parallel Random Number Generation. S 3.1: Different additive constants in a maximum
+ *      potency congruential generator</a>
  * @since 2.0
  */
 public abstract class Pcg32
@@ -461,18 +473,21 @@ public abstract class Pcg32
   /**
    * {@inheritDoc}
    *
-   * <p>Creates a new state and increment for the new instance. The probability of increment
-   * collision is 2<sup>-63</sup>; the probability of sequence overlap between the two generators is
-   * even lower.
+   * <p>Creates a new state and increment for the new instance using a bijection mapping of the
+   * current 127-bit state (1-bit of the increment is not used) to a new state. After a split the
+   * original generator is advanced one cycle of the generator.
+   *
+   * <p>Note that due to the use of an underlying LCG a change to the increment chooses between 2
+   * related families of generators. For the purposes of overlap computation this generator should
+   * be considered to have a period of 2<sup>64</sup>.
    */
   @Override
   public Pcg32 split() {
     // Note: In nextInt() the old state is unused so bump after copying.
     final long s0 = state;
-    final long s1 = bump(state);
+    final long s1 = increment >>> 1;
     state = bump(s1);
-    // Two different mix functions
-    return newInstance(Mixers.stafford1(s0), Mixers.stafford13(s1));
+    return newInstance(Mixers.rrmxmx(s0), Mixers.rrmxmx(s1));
   }
 
   @Override
