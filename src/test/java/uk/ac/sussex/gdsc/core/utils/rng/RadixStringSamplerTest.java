@@ -80,8 +80,8 @@ public class RadixStringSamplerTest {
   }
 
   private void testSamples(int radix) {
-    final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.MWC_256);
-    final RestorableUniformRandomProvider rng2 = RandomSource.create(RandomSource.MWC_256);
+    final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final RestorableUniformRandomProvider rng2 = RandomSource.create(RandomSource.SPLIT_MIX_64);
     rng2.restoreState(rng1.saveState());
     // Test long enough strings that the algorithm edge cases are hit
     final int[] lengths = new int[] {1, 2, 3, 4, 5, 10};
@@ -145,7 +145,7 @@ public class RadixStringSamplerTest {
   private void testSamplesAreUniform(int radix) {
     final long[] h = new long[radix];
 
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);
+    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final int length = 1000;
     final int repeats = 100;
     final RadixStringSampler s = new RadixStringSampler(rng, length, radix);
