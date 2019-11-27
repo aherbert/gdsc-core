@@ -65,4 +65,20 @@ public class SamplerUtilsTest {
         SamplerUtils.createBinomialSampler(rng, trials, probabilityOfSuccess);
     Assertions.assertNotNull(sampler);
   }
+
+  @Test
+  public void testCreateGeometricSampler() {
+    final UniformRandomProvider rng = new SplitMix64(0L);
+    final double probabilityOfSuccess = 0.789;
+    final DiscreteSampler sampler = SamplerUtils.createGeometricSampler(rng, probabilityOfSuccess);
+    Assertions.assertNotNull(sampler);
+  }
+
+  @Test
+  public void testCreateGeometricSamplerFromMean() {
+    final UniformRandomProvider rng = new SplitMix64(0L);
+    final double mean = 456.322;
+    final DiscreteSampler sampler = SamplerUtils.createGeometricSamplerFromMean(rng, mean);
+    Assertions.assertNotNull(sampler);
+  }
 }

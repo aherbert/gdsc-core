@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -35,6 +37,7 @@ import org.apache.commons.rng.sampling.distribution.AhrensDieterMarsagliaTsangGa
 import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.GeometricSampler;
 import org.apache.commons.rng.sampling.distribution.InverseTransformDiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
@@ -77,7 +80,7 @@ public final class SamplerUtils {
   }
 
   /**
-   * Creates a new {@link GaussianSampler}.
+   * Creates a new {@link SharedStateContinuousSampler} for the Gaussian distribution.
    *
    * @param rng Generator of uniformly distributed random numbers.
    * @param mean Mean of the Gaussian distribution.
@@ -102,7 +105,7 @@ public final class SamplerUtils {
   }
 
   /**
-   * Creates a new {@link ContinuousSampler} for the Gamma distribution.
+   * Creates a new {@link SharedStateContinuousSampler} for the gamma distribution.
    *
    * @param rng Generator of uniformly distributed random numbers.
    * @param shape the shape
@@ -115,7 +118,7 @@ public final class SamplerUtils {
   }
 
   /**
-   * Creates a new {@link DiscreteSampler} for the Binomial distribution.
+   * Creates a new {@link SharedStateDiscreteSampler} for the binomial distribution.
    *
    * @param rng Generator of uniformly distributed random numbers.
    * @param trials Number of trials.
@@ -129,5 +132,33 @@ public final class SamplerUtils {
     final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
         new BinomialDiscreteInverseCumulativeProbabilityFunction(trials, probabilityOfSuccess);
     return InverseTransformDiscreteSampler.of(rng, fun);
+  }
+
+  /**
+   * Creates a new {@link SharedStateDiscreteSampler} for the geometric distribution.
+   *
+   * @param rng Generator of uniformly distributed random numbers
+   * @param probabilityOfSuccess the probability of success
+   * @return the geometric sampler
+   * @throws IllegalArgumentException if {@code mean} is not positive
+   */
+  public static SharedStateDiscreteSampler createGeometricSampler(UniformRandomProvider rng,
+      double probabilityOfSuccess) {
+    return GeometricSampler.of(rng, probabilityOfSuccess);
+  }
+
+  /**
+   * Creates a new {@link SharedStateDiscreteSampler} for the geometric distribution.
+   *
+   * @param rng Generator of uniformly distributed random numbers
+   * @param mean the mean
+   * @return the geometric sampler
+   * @throws IllegalArgumentException if {@code mean} is not positive
+   */
+  public static SharedStateDiscreteSampler createGeometricSamplerFromMean(UniformRandomProvider rng,
+      double mean) {
+    ValidationUtils.checkPositive(mean, "Mean");
+    final double probabilityOfSuccess = 1 / (1 + mean);
+    return createGeometricSampler(rng, probabilityOfSuccess);
   }
 }
