@@ -91,7 +91,7 @@ public class CustomTricubicInterpolatingFunctionTest {
 
   @Test
   public void testComputeCoefficients() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);
+    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final double[] beta = new double[64];
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
     for (int i = 0; i < 10; i++) {
@@ -111,7 +111,7 @@ public class CustomTricubicInterpolatingFunctionTest {
 
   @Test
   public void testCreate() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);
+    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     // This is a test that checks the create method works with partial derivatives.
     // It is a reverse of the creation with the beta table directly.
     final double[] beta = new double[64];
