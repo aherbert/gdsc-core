@@ -37,7 +37,12 @@ import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.apache.commons.rng.sampling.distribution.InverseTransformDiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
+
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 /**
  * Sampler utilities.
@@ -57,11 +62,7 @@ public final class SamplerUtils {
    * @return the samples
    */
   public static int[] createSamples(int size, DiscreteSampler sampler) {
-    final int[] samples = new int[size];
-    for (int i = 0; i < size; i++) {
-      samples[i] = sampler.sample();
-    }
-    return samples;
+    return IntStream.generate(sampler::sample).limit(size).toArray();
   }
 
   /**
@@ -72,11 +73,7 @@ public final class SamplerUtils {
    * @return the samples
    */
   public static double[] createSamples(int size, ContinuousSampler sampler) {
-    final double[] samples = new double[size];
-    for (int i = 0; i < size; i++) {
-      samples[i] = sampler.sample();
-    }
-    return samples;
+    return DoubleStream.generate(sampler::sample).limit(size).toArray();
   }
 
   /**
@@ -87,20 +84,21 @@ public final class SamplerUtils {
    * @param standardDeviation Standard deviation of the Gaussian distribution.
    * @return the sampler
    */
-  public static GaussianSampler createGaussianSampler(UniformRandomProvider rng, double mean,
-      double standardDeviation) {
-    return new GaussianSampler(createNormalizedGaussianSampler(rng), mean, standardDeviation);
+  public static SharedStateContinuousSampler createGaussianSampler(UniformRandomProvider rng,
+      double mean, double standardDeviation) {
+    return GaussianSampler.of(createNormalizedGaussianSampler(rng), mean, standardDeviation);
   }
 
   /**
    * Creates a new {@link NormalizedGaussianSampler}.
    *
+   * @param <S> the type of sampler
    * @param rng Generator of uniformly distributed random numbers.
    * @return the sampler
    */
-  public static NormalizedGaussianSampler
+  public static <S extends NormalizedGaussianSampler & SharedStateContinuousSampler> S
       createNormalizedGaussianSampler(UniformRandomProvider rng) {
-    return new ZigguratNormalizedGaussianSampler(rng);
+    return ZigguratNormalizedGaussianSampler.of(rng);
   }
 
   /**
@@ -111,12 +109,9 @@ public final class SamplerUtils {
    * @param scale the scale
    * @return the sampler
    */
-  public static ContinuousSampler createGammaSampler(UniformRandomProvider rng, double shape,
-      double scale) {
-    // TODO: Swap these parameters when updating to v1.3.
-    // Commons RNG v1.2 incorrectly interprets alpha as the scale and beta as the shape.
-    // v1.3 fixes this to have alpha as the shape and beta the scale.
-    return new AhrensDieterMarsagliaTsangGammaSampler(rng, scale, shape);
+  public static SharedStateContinuousSampler createGammaSampler(UniformRandomProvider rng,
+      double shape, double scale) {
+    return AhrensDieterMarsagliaTsangGammaSampler.of(rng, shape, scale);
   }
 
   /**
@@ -129,10 +124,10 @@ public final class SamplerUtils {
    * @throws NotPositiveException if {@code trials < 0}.
    * @throws OutOfRangeException if {@code p < 0} or {@code p > 1}.
    */
-  public static DiscreteSampler createBinomialSampler(UniformRandomProvider rng, int trials,
-      double probabilityOfSuccess) {
+  public static SharedStateDiscreteSampler createBinomialSampler(UniformRandomProvider rng,
+      int trials, double probabilityOfSuccess) {
     final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
         new BinomialDiscreteInverseCumulativeProbabilityFunction(trials, probabilityOfSuccess);
-    return new InverseTransformDiscreteSampler(rng, fun);
+    return InverseTransformDiscreteSampler.of(rng, fun);
   }
 }

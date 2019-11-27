@@ -18,9 +18,8 @@ public class MarsagliaTsangGammaSamplerTest {
     final double shape = 6.11;
     final double scale = 4.23;
     // Test against the source implementation.
-    // In v1.2 the parameters were in the incorrect order. This should be updated for v1.3.
     final ContinuousSampler sampler1 =
-        new AhrensDieterMarsagliaTsangGammaSampler(rng1, scale, shape);
+        AhrensDieterMarsagliaTsangGammaSampler.of(rng1, shape, scale);
     final MarsagliaTsangGammaSampler sampler2 = new MarsagliaTsangGammaSampler(rng2, shape, scale);
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(sampler1.sample(), sampler2.sample());
@@ -34,9 +33,8 @@ public class MarsagliaTsangGammaSamplerTest {
     final double shape = 1.0;
     final double scale = 4.23;
     // Test against the source implementation.
-    // In v1.2 the parameters were in the incorrect order. This should be updated for v1.3.
     final ContinuousSampler sampler1 =
-        new AhrensDieterMarsagliaTsangGammaSampler(rng1, scale, shape);
+        AhrensDieterMarsagliaTsangGammaSampler.of(rng1, shape, scale);
     final MarsagliaTsangGammaSampler sampler2 = new MarsagliaTsangGammaSampler(rng2, shape, scale);
     // Run for a long time it may hit the edge case for (v <= 0) in the sampler method.
     for (int i = 0; i < 100; i++) {

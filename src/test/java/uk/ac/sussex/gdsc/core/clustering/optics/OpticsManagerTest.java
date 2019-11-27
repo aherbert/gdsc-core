@@ -61,7 +61,7 @@ import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParamet
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -2332,8 +2332,8 @@ public class OpticsManagerTest {
       int molecules = clusterMin + rng.nextInt(range);
       final double x = rng.nextDouble() * size;
       final double y = rng.nextDouble() * size;
-      final GaussianSampler gx = SamplerUtils.createGaussianSampler(rng, x, radius);
-      final GaussianSampler gy = SamplerUtils.createGaussianSampler(rng, y, radius);
+      final SharedStateContinuousSampler gx = SamplerUtils.createGaussianSampler(rng, x, radius);
+      final SharedStateContinuousSampler gy = SamplerUtils.createGaussianSampler(rng, y, radius);
 
       while (molecules > 0 && index < totalMolecules) {
         // Ensure within the image

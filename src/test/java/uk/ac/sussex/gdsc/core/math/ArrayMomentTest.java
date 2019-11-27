@@ -15,8 +15,8 @@ import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -83,7 +83,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
+    final SharedStateContinuousSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -185,7 +185,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
+    final SharedStateContinuousSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -209,7 +209,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
+    final SharedStateContinuousSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -545,7 +545,8 @@ public class ArrayMomentTest {
 
     // Test if the standard Statistics object is good enough for
     // computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
-    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 100.345, Math.PI);
+    final SharedStateContinuousSampler g =
+        SamplerUtils.createGaussianSampler(rng, 100.345, Math.PI);
     for (int i = 600000; i-- > 0;) {
       final double d = g.sample();
       m1.add(d);

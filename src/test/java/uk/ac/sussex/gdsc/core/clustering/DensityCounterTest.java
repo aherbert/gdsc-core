@@ -12,8 +12,8 @@ import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.apache.commons.rng.sampling.distribution.PoissonSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -416,8 +416,8 @@ public class DensityCounterTest {
       final float x = rng.nextFloat() * size;
       final float y = rng.nextFloat() * size;
       final int id = rng.nextInt(channels);
-      final GaussianSampler gx = SamplerUtils.createGaussianSampler(rng, x, precision);
-      final GaussianSampler gy = SamplerUtils.createGaussianSampler(rng, y, precision);
+      final SharedStateContinuousSampler gx = SamplerUtils.createGaussianSampler(rng, x, precision);
+      final SharedStateContinuousSampler gy = SamplerUtils.createGaussianSampler(rng, y, precision);
 
       int count = p.sample();
       while (i < numberOfMolecules && count-- > 0) {

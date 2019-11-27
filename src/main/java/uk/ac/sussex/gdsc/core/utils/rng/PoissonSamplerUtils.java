@@ -29,8 +29,8 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.PoissonSamplerCache;
+import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
 
 /**
  * Class for computing Poisson samples handling the edge case where the mean is zero. In that case
@@ -45,7 +45,17 @@ public final class PoissonSamplerUtils {
   private static final PoissonSamplerCache poissonCache = new PoissonSamplerCache(0, 1000);
 
   /** A sampler to return zero for the sample() method. */
-  private static final DiscreteSampler ZERO = () -> 0;
+  private static final SharedStateDiscreteSampler ZERO = new SharedStateDiscreteSampler() {
+    @Override
+    public int sample() {
+      return 0;
+    }
+
+    @Override
+    public SharedStateDiscreteSampler withUniformRandomProvider(UniformRandomProvider rng) {
+      return this;
+    }
+  };
 
   /** No construction. */
   private PoissonSamplerUtils() {}
@@ -60,11 +70,13 @@ public final class PoissonSamplerUtils {
    * @return the Poisson sampler
    * @throws IllegalArgumentException if {@code mean < 0}.
    */
-  public static DiscreteSampler createPoissonSampler(UniformRandomProvider rng, double mean) {
+  public static SharedStateDiscreteSampler createPoissonSampler(UniformRandomProvider rng,
+      double mean) {
     if (mean == 0) {
       return ZERO;
     }
-    return poissonCache.createPoissonSampler(rng, mean);
+    // This works for RNG 1.3
+    return (SharedStateDiscreteSampler) poissonCache.createPoissonSampler(rng, mean);
   }
 
   /**

@@ -6,7 +6,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.core.source64.SplitMix64;
 import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +42,7 @@ public class SamplerUtilsTest {
     final UniformRandomProvider rng = new SplitMix64(0L);
     final double mean = 1.23;
     final double standardDeviation = 4.56;
-    final GaussianSampler sampler =
+    final SharedStateContinuousSampler sampler =
         SamplerUtils.createGaussianSampler(rng, mean, standardDeviation);
     Assertions.assertNotNull(sampler);
   }
