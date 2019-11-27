@@ -175,7 +175,7 @@ public class CustomTricubicInterpolatingFunctionTest {
       final CustomTricubicFunction fun2 = CustomTricubicInterpolatingFunction.create(xscale, yscale,
           zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
       fun2.getCoefficients(obs);
-      Assertions.assertArrayEquals(e, obs);
+      Assertions.assertArrayEquals(e, obs, 1e-12);
     }
   }
 
