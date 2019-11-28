@@ -42,8 +42,8 @@ import org.apache.commons.rng.UniformRandomProvider;
  * <p>If the RNG has period {@code p} and we take {@code s} different streams of length {@code l},
  * with random starting points in the sequence, and assuming that {@code sl/p} is very small, the
  * probability that there is some overlap is approximately {@code s}<sup>2</sup>{@code l/p}.
- * 
- * <p>For example if {@code s=l=}2<sup>20</sup> the overlap probability 
+ *
+ * <p>For example if {@code s=l=}2<sup>20</sup> the overlap probability
  * 2<sup>60</sup>{@code /p} is near 2<sup>-68</sup> for
  * {@code p=}2<sup>128</sup> and near 2<sup>-964</sup> for {@code p=}2<sup>1024</sup>.
  *
