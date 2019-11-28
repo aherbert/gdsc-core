@@ -62,7 +62,8 @@ public class XoRoShiRo128PpTest {
     Assertions.assertNotSame(rng1, rng2a, "Split should be a different object");
 
     // Check the split does a mix of the state
-    final XoRoShiRo128PP rng2b = new XoRoShiRo128PP(Mixers.rrmxmx(seed0), Mixers.rrmxmx(seed1));
+    final XoRoShiRo128PP rng2b =
+        new XoRoShiRo128PP(Mixers.stafford13(seed0), Mixers.stafford13(seed1));
 
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(rng2a.nextLong(), rng2b.nextLong());

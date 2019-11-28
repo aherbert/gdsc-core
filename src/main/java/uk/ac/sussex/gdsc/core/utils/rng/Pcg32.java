@@ -487,7 +487,7 @@ public abstract class Pcg32
     final long s0 = state;
     final long s1 = increment >>> 1;
     state = bump(s1);
-    return newInstance(Mixers.rrmxmx(s0), Mixers.rrmxmx(s1));
+    return newInstance(Mixers.stafford13(s0), Mixers.stafford13(s1));
   }
 
   @Override

@@ -71,7 +71,7 @@ public final class XoRoShiRo128PP extends XoRoShiRo128PlusPlus
    * @param seed the seed for the state
    */
   public XoRoShiRo128PP(long seed) {
-    super(Mixers.rrmxmx(seed), Mixers.rrmxmx(seed + GOLDEN_RATIO));
+    super(Mixers.stafford13(seed), Mixers.stafford13(seed + GOLDEN_RATIO));
   }
 
   /**
@@ -88,7 +88,7 @@ public final class XoRoShiRo128PP extends XoRoShiRo128PlusPlus
     super(seed0, seed1);
     // Combine bits and check for zero seed
     if ((seed0 | seed1) == 0) {
-      this.state1 = Mixers.rrmxmx(GOLDEN_RATIO);
+      this.state1 = Mixers.stafford13(GOLDEN_RATIO);
     }
   }
 
@@ -120,8 +120,8 @@ public final class XoRoShiRo128PP extends XoRoShiRo128PlusPlus
   @Override
   public XoRoShiRo128PP split() {
     // Each function is a bijection making the entire function a bijection
-    final long seed0 = Mixers.rrmxmx(state0);
-    final long seed1 = Mixers.rrmxmx(state1);
+    final long seed0 = Mixers.stafford13(state0);
+    final long seed1 = Mixers.stafford13(state1);
 
     // Advance the generator.
     // Allows multiple calls to split to create different generators.
