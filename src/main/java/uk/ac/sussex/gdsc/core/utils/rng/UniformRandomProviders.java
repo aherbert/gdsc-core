@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import org.apache.commons.rng.JumpableUniformRandomProvider;
 import org.apache.commons.rng.LongJumpableUniformRandomProvider;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.simple.RandomSource;
 
 /**
  * Class to construct a {@link UniformRandomProvider}.
@@ -50,6 +51,20 @@ public final class UniformRandomProviders {
    *
    * <p>The period of the generator is 2<sup>128</sup> - 1.
    *
+   * @return the provider
+   */
+  public static UniformRandomProvider create() {
+    return new XoRoShiRo128PP(RandomSource.createLong(), RandomSource.createLong());
+  }
+
+  /**
+   * Creates a new {@link UniformRandomProvider}.
+   *
+   * <p>The period of the generator is 2<sup>128</sup> - 1.
+   *
+   * <p>The seed can be used to ensure a reproducible generator is created. Otherwise use
+   * {@link #create()}.
+   *
    * @param seed the seed
    * @return the provider
    */
@@ -61,6 +76,20 @@ public final class UniformRandomProviders {
    * Creates a new {@link SplittableUniformRandomProvider}.
    *
    * <p>The period of the generator is 2<sup>128</sup> - 1.
+   *
+   * @return the provider
+   */
+  public static SplittableUniformRandomProvider createSplittable() {
+    return new XoRoShiRo128PP(RandomSource.createLong(), RandomSource.createLong());
+  }
+
+  /**
+   * Creates a new {@link SplittableUniformRandomProvider}.
+   *
+   * <p>The period of the generator is 2<sup>128</sup> - 1.
+   *
+   * <p>The seed can be used to ensure a reproducible generator is created. Otherwise use
+   * {@link #createSplittable()}.
    *
    * @param seed the seed
    * @return the provider
@@ -77,6 +106,24 @@ public final class UniformRandomProviders {
    * <p>The jump size is the equivalent of 2<sup>64</sup> calls to
    * {@link UniformRandomProvider#nextLong() nextLong()}. It can provide up to 2<sup>64</sup>
    * non-overlapping subsequences.</p>
+   *
+   * @return the provider
+   */
+  public static JumpableUniformRandomProvider createJumpable() {
+    return new XoRoShiRo128PP(RandomSource.createLong(), RandomSource.createLong());
+  }
+
+  /**
+   * Creates a new {@link JumpableUniformRandomProvider}.
+   *
+   * <p>The period of the generator is 2<sup>128</sup> - 1.
+   *
+   * <p>The jump size is the equivalent of 2<sup>64</sup> calls to
+   * {@link UniformRandomProvider#nextLong() nextLong()}. It can provide up to 2<sup>64</sup>
+   * non-overlapping subsequences.</p>
+   *
+   * <p>The seed can be used to ensure a reproducible generator is created. Otherwise use
+   * {@link #createJumpable()}.
    *
    * @param seed the seed
    * @return the provider
@@ -95,6 +142,26 @@ public final class UniformRandomProviders {
    * non-overlapping subsequences of length 2<sup>96</sup>; each subsequence can provide up to
    * 2<sup>32</sup> non-overlapping subsequences of length 2<sup>64</sup> using the
    * {@link JumpableUniformRandomProvider#jump()} method.</p>
+   *
+   * @return the provider
+   */
+  public static LongJumpableUniformRandomProvider createLongJumpable() {
+    return new XoRoShiRo128PP(RandomSource.createLong(), RandomSource.createLong());
+  }
+
+  /**
+   * Creates a new {@link JumpableUniformRandomProvider}.
+   *
+   * <p>The period of the generator is 2<sup>128</sup> - 1.
+   *
+   * <p>The jump size is the equivalent of 2<sup>96</sup> calls to
+   * {@link UniformRandomProvider#nextLong() nextLong()}. It can provide up to 2<sup>32</sup>
+   * non-overlapping subsequences of length 2<sup>96</sup>; each subsequence can provide up to
+   * 2<sup>32</sup> non-overlapping subsequences of length 2<sup>64</sup> using the
+   * {@link JumpableUniformRandomProvider#jump()} method.</p>
+   *
+   * <p>The seed can be used to ensure a reproducible generator is created. Otherwise use
+   * {@link #createLongJumpable()}.
    *
    * @param seed the seed
    * @return the provider
