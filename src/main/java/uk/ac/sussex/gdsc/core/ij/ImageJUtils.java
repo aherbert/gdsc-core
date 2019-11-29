@@ -707,6 +707,40 @@ public final class ImageJUtils {
   }
 
   /**
+   * Show the slow part of the dual progress.
+   *
+   * <p>The dual progress bar works if the progress is negative and between 0 exclusive and -1
+   * exclusive. So the progress is set using:
+   *
+   * <pre>
+   * -(currentIndex + 0.5) / finalIndex
+   * </pre>
+   *
+   * <p>The progress will show a dual progress as long as currentIndex is below finalIndex, e.g. in
+   * a loop:
+   *
+   * <pre>
+   * <code>
+   * int size = 10;
+   * for (int i = 0; i < size; i++) {
+   *   showSlowProgress(i, size);
+   *   // .. do something that updates the progress bar from 0 to 1.
+   *   // This will be shown as the fast progress.
+   * }
+   * </code>
+   * </pre>
+   *
+   * <p>The dual progress bar can be cleared using {@link IJ#showProgress(double)} with an argument
+   * of -1.
+   *
+   * @param currentIndex the current index
+   * @param finalIndex the final index
+   */
+  public static void showSlowProgress(long currentIndex, long finalIndex) {
+    IJ.showProgress(-(currentIndex + 0.5) / finalIndex);
+  }
+
+  /**
    * Clear the progress bar including the slow part of the dual progress.
    *
    * <p>The dual progress bar can be cleared using {@link IJ#showProgress(double)} with an argument

@@ -92,7 +92,7 @@ public class ImageJTrackProgress implements TrackProgress {
     }
     if (isProgress()) {
       if (slowModeActive) {
-        ImageJUtils.showSlowProgress((int) position, (int) total);
+        ImageJUtils.showSlowProgress(position, total);
       } else {
         IJ.showProgress((double) position / total);
       }
