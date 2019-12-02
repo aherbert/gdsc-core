@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.Objects;
+
 /**
  * Specify double data.
  */
@@ -45,4 +47,25 @@ public interface DoubleData {
    * @return the values
    */
   double[] values();
+
+  /**
+   * Wrap the values to create an instance.
+   *
+   * @param values the values
+   * @return the double data
+   */
+  static DoubleData wrap(double[] values) {
+    Objects.requireNonNull(values);
+    return new DoubleData() {
+      @Override
+      public double[] values() {
+        return values;
+      }
+
+      @Override
+      public int size() {
+        return values.length;
+      }
+    };
+  }
 }
