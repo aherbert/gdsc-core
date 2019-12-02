@@ -194,6 +194,9 @@ public abstract class FastTiffDecoder {
   /** TIFF ImageJ Metadata types LUTS. "luts" (channel LUTs) */
   static final int LUTS = 0x6c757473;
 
+  /** TIFF ImageJ Metadata types PLOT. "plot " (serialized plot) */
+  static final int PLOT = 0x706c6f74;
+
   /** TIFF ImageJ Metadata types ROI. "roi " (ROI) */
   static final int ROI = 0x726f6920;
 
