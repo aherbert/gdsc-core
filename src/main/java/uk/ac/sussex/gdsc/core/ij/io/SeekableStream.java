@@ -105,7 +105,7 @@ public abstract class SeekableStream extends InputStream {
    * @throws IOException if the stream has been closed and the contained input stream does not
    *         support reading after close, or another I/O error occurs.
    */
-  public final void readFullyInternal(byte[] bytes, int off, int len) throws IOException {
+  private void readFullyInternal(byte[] bytes, int off, int len) throws IOException {
     int bytesRead = 0;
     while (bytesRead < len) {
       final int count = read(bytes, off + bytesRead, len - bytesRead);
@@ -183,7 +183,7 @@ public abstract class SeekableStream extends InputStream {
    * @throws IOException if the stream has been closed and the contained input stream does not
    *         support reading after close, or another I/O error occurs.
    */
-  public final int readBytesInternal(byte[] bytes, int off, int len) throws IOException {
+  private int readBytesInternal(byte[] bytes, int off, int len) throws IOException {
     int bytesRead = 0;
     while (bytesRead < len) {
       final int count = read(bytes, off + bytesRead, len - bytesRead);
@@ -211,68 +211,6 @@ public abstract class SeekableStream extends InputStream {
    */
   public void seek(int loc) throws IOException {
     seek((loc) & 0xffffffffL);
-  }
-
-  /**
-   * Read an int value from the stream.
-   *
-   * @return the int
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public final int readInt() throws IOException {
-    final int i = read();
-    final int j = read();
-    final int k = read();
-    final int l = read();
-    if ((i | j | k | l) < 0) {
-      throw new EOFException();
-    }
-    return (i << 24) + (j << 16) + (k << 8) + l;
-  }
-
-  /**
-   * Read a long value from the stream.
-   *
-   * @return the long
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public final long readLong() throws IOException {
-    return ((long) readInt() << 32) + (readInt() & 0xffffffffL);
-  }
-
-  /**
-   * Read a double value from the stream.
-   *
-   * @return the double
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public final double readDouble() throws IOException {
-    return Double.longBitsToDouble(readLong());
-  }
-
-  /**
-   * Read a short value from the stream.
-   *
-   * @return the short
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public final short readShort() throws IOException {
-    final int i = read();
-    final int j = read();
-    if ((i | j) < 0) {
-      throw new EOFException();
-    }
-    return (short) ((i << 8) + j);
-  }
-
-  /**
-   * Read a float value from the stream.
-   *
-   * @return the float
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public final float readFloat() throws IOException {
-    return Float.intBitsToFloat(readInt());
   }
 
   @Override

@@ -33,6 +33,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * This class uses a memory cache to allow seeking within an InputStream.
@@ -72,16 +73,20 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     final long l = pointer + 1L;
     final long l1 = readUntil(l);
     if (l1 >= l) {
-      final byte[] abyte0 = data.get((int) (pointer >> BLOCK_SHIFT));
+      final byte[] abyte0 = data.get((int) (pointer >>> BLOCK_SHIFT));
       return abyte0[(int) (pointer++ & BLOCK_MASK)] & 0xff;
     }
+    // Set the pointer to the end of the stream
+    pointer = length;
     return -1;
   }
 
   @Override
   public int read(byte[] bytes, int off, int len) throws IOException {
     ValidationUtils.checkNotNull(bytes, "bytes must not be null");
-    if (off < 0 || len < 0 || off + len > bytes.length) {
+    if (off < 0 || len < 0
+    // Overflow safe
+        || off + len - bytes.length > 0) {
       throw new IndexOutOfBoundsException();
     }
     if (len == 0) {
@@ -89,10 +94,13 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     }
     final long l = readUntil(pointer + len);
     if (l <= pointer) {
+      // Set the pointer to the end of the stream
+      pointer = length;
       return -1;
     }
-    final byte[] abyte1 = data.get((int) (pointer >> BLOCK_SHIFT));
-    final int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
+    final byte[] abyte1 = data.get((int) (pointer >>> BLOCK_SHIFT));
+    // The final block may be smaller than the block size
+    final int k = Math.min(len, abyte1.length - (int) (pointer & BLOCK_MASK));
     System.arraycopy(abyte1, (int) (pointer & BLOCK_MASK), bytes, off, k);
     pointer += k;
     return k;
@@ -114,16 +122,17 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     if (endOfStream) {
       return length;
     }
-    final int i = (int) (location >> BLOCK_SHIFT);
-    final int j = (int) (length >> BLOCK_SHIFT);
+    final int i = (int) (location >>> BLOCK_SHIFT);
+    final int j = (int) (length >>> BLOCK_SHIFT);
     for (int k = j; k <= i; k++) {
       final byte[] abyte0 = new byte[BLOCK_SIZE];
-      data.add(abyte0);
       int i1 = BLOCK_SIZE;
       int j1 = 0;
       while (i1 > 0) {
         final int k1 = src.read(abyte0, j1, i1);
         if (k1 == -1) {
+          // Truncate the final block
+          data.add(Arrays.copyOf(abyte0, BLOCK_SIZE - i1));
           endOfStream = true;
           return length;
         }
@@ -131,6 +140,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
         i1 -= k1;
         length += k1;
       }
+      data.add(abyte0);
     }
     return length;
   }

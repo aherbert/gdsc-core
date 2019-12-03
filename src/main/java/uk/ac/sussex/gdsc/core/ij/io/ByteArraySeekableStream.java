@@ -83,7 +83,8 @@ public final class ByteArraySeekableStream extends SeekableStream {
   public int read(byte[] bytes, int off, int len) {
     if (position < length) {
       if (len > 0) {
-        final int size = (position + len <= length) ? len : length - position;
+        // Overflow safe
+        final int size = Math.min(available(), len);
         System.arraycopy(buffer, position, bytes, off, size);
         position += size;
         return size;
@@ -93,6 +94,14 @@ public final class ByteArraySeekableStream extends SeekableStream {
     return -1;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>A seek past the end of the stream will result in the file pointer being set to the end of
+   * the stream.
+   *
+   * @see #getFilePointer()
+   */
   @Override
   public void seek(long loc) throws IOException {
     if (loc < 0) {
@@ -114,7 +123,9 @@ public final class ByteArraySeekableStream extends SeekableStream {
     }
     final int pos = position;
     final long newpos = pos + n;
-    if (newpos > length || newpos < 0) {
+    // Overflow sensitive:
+    // x > y  == x - y  > 0
+    if (newpos - length > 0) {
       position = length;
     } else {
       position = (int) newpos;

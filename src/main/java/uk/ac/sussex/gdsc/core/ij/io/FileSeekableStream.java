@@ -91,9 +91,19 @@ public final class FileSeekableStream extends SeekableStream {
     return ras.read(bytes, off, len);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>A seek past the end of the stream will result in the file pointer being set to the end of
+   * the stream.
+   *
+   * @see #getFilePointer()
+   */
   @Override
   public void seek(long loc) throws IOException {
-    ras.seek(loc);
+    // Do not seek past the end
+    final long len = ras.length();
+    ras.seek(loc < len ? loc : len);
   }
 
   @Override

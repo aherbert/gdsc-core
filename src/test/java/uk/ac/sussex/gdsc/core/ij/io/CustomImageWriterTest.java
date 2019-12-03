@@ -11,7 +11,7 @@ import java.io.IOException;
 @SuppressWarnings({"javadoc"})
 public class CustomImageWriterTest {
   @Test
-  public void testBadPixelsThrows() throws IOException {
+  public void testBadPixelsThrows() {
     final FileInfo fi = new FileInfo();
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final CustomImageWriter writer = new CustomImageWriter(fi);
@@ -25,7 +25,7 @@ public class CustomImageWriterTest {
   }
 
   @Test
-  public void testBadFileTypeThrows() throws IOException {
+  public void testBadFileTypeThrows() {
     final FileInfo fi = new FileInfo();
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final CustomImageWriter writer = new CustomImageWriter(fi);

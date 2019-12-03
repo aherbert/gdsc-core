@@ -601,10 +601,10 @@ public abstract class FastTiffDecoder {
     final long saveLoc = ss.getFilePointer();
 
     ss.seek(offset + 12);
-    final int version = ss.readShort();
+    final int version = readShortBE();
 
     ss.seek(offset + 160);
-    final double scale = ss.readDouble();
+    final double scale = readDoubleBE();
     if (version > 106 && scale != 0.0) {
       fi.pixelWidth = 1.0 / scale;
       fi.pixelHeight = fi.pixelWidth;
@@ -612,7 +612,7 @@ public abstract class FastTiffDecoder {
 
     // spatial calibration
     ss.seek(offset + 172);
-    int units = ss.readShort();
+    int units = readShortBE();
     if (version <= 153) {
       units += 5;
     }
@@ -654,7 +654,7 @@ public abstract class FastTiffDecoder {
     final int fitType = ss.read();
     // int unused =
     ss.read();
-    final int nCoefficients = ss.readShort();
+    final int nCoefficients = readShortBE();
     if (fitType == 11) {
       fi.calibrationFunction = 21; // Calibration.UNCALIBRATED_OD
       fi.valueUnit = "U. OD";
@@ -690,7 +690,7 @@ public abstract class FastTiffDecoder {
       }
       fi.coefficients = new double[nCoefficients];
       for (int i = 0; i < nCoefficients; i++) {
-        fi.coefficients[i] = ss.readDouble();
+        fi.coefficients[i] = readDoubleBE();
       }
       ss.seek(offset + 234);
       final int size = ss.read();
@@ -706,22 +706,87 @@ public abstract class FastTiffDecoder {
     }
 
     ss.seek(offset + 260);
-    final int nImages = ss.readShort();
+    final int nImages = readShortBE();
     if (nImages >= 2 && (fi.fileType == FileInfo.GRAY8 || fi.fileType == FileInfo.COLOR8)) {
       fi.nImages = nImages;
-      fi.pixelDepth = ss.readFloat(); // SliceSpacing
+      fi.pixelDepth = readFloatBE(); // SliceSpacing
       // int skip =
-      ss.readShort(); // CurrentSlice
-      fi.frameInterval = ss.readFloat();
+      readShortBE(); // CurrentSlice
+      fi.frameInterval = readFloatBE();
     }
 
     ss.seek(offset + 272);
-    final float aspectRatio = ss.readFloat();
+    final float aspectRatio = readFloatBE();
     if (version > 140 && aspectRatio != 0.0) {
       fi.pixelHeight = fi.pixelWidth / aspectRatio;
     }
 
     ss.seek(saveLoc);
+  }
+
+  // Big-endian methods for reading the NIH header.
+  // Q. Is this always big endian?
+
+  /**
+   * Read an int value from the stream in big-endian format.
+   *
+   * @return the int
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private int readIntBE() throws IOException {
+    final int i = ss.read();
+    final int j = ss.read();
+    final int k = ss.read();
+    final int l = ss.read();
+    if ((i | j | k | l) < 0) {
+      throw new EOFException();
+    }
+    return (i << 24) + (j << 16) + (k << 8) + l;
+  }
+
+  /**
+   * Read a long value from the stream in big-endian format.
+   *
+   * @return the long
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private long readLongBE() throws IOException {
+    return ((long) readIntBE() << 32) + (readIntBE() & 0xffffffffL);
+  }
+
+  /**
+   * Read a double value from the stream in big-endian format.
+   *
+   * @return the double
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private double readDoubleBE() throws IOException {
+    return Double.longBitsToDouble(readLongBE());
+  }
+
+  /**
+   * Read a short value from the stream in big-endian format.
+   *
+   * @return the short
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private short readShortBE() throws IOException {
+    final int i = ss.read();
+    final int j = ss.read();
+    if ((i | j) < 0) {
+      throw new EOFException();
+    }
+    return (short) ((i << 8) + j);
+  }
+
+  /**
+   * Read a float value from the stream in big-endian format.
+   *
+   * @return the float
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public final float readFloatBE() throws IOException {
+    return Float.intBitsToFloat(readIntBE());
   }
 
   /**
