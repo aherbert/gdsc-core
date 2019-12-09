@@ -1152,32 +1152,27 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public Object readPixels(SeekableStream in) throws IOException {
-    Object pixels;
     switch (fi.fileType) {
       case FileInfo.GRAY8:
       case FileInfo.COLOR8:
         bytesPerPixel = 1;
         skip(in);
-        pixels = read8bitImage(in);
-        break;
+        return read8bitImage(in);
       case FileInfo.GRAY16_SIGNED:
       case FileInfo.GRAY16_UNSIGNED:
         bytesPerPixel = 2;
         skip(in);
-        pixels = read16bitImage(in);
-        break;
+        return read16bitImage(in);
       case FileInfo.GRAY32_INT:
       case FileInfo.GRAY32_UNSIGNED:
       case FileInfo.GRAY32_FLOAT:
         bytesPerPixel = 4;
         skip(in);
-        pixels = read32bitImage(in);
-        break;
+        return read32bitImage(in);
       case FileInfo.GRAY64_FLOAT:
         bytesPerPixel = 8;
         skip(in);
-        pixels = read64bitImage(in);
-        break;
+        return read64bitImage(in);
       case FileInfo.RGB:
       case FileInfo.BGR:
       case FileInfo.ARGB:
@@ -1186,42 +1181,33 @@ public class FastImageReader {
       case FileInfo.CMYK:
         bytesPerPixel = fi.getBytesPerPixel();
         skip(in);
-        pixels = readChunkyRgb(in);
-        break;
+        return readChunkyRgb(in);
       case FileInfo.RGB_PLANAR:
         bytesPerPixel = 3;
         skip(in);
-        pixels = readPlanarRgb(in);
-        break;
+        return readPlanarRgb(in);
       case FileInfo.BITMAP:
         bytesPerPixel = 1;
         skip(in);
-        pixels = read1bitImage(in);
-        break;
+        return read1bitImage(in);
       case FileInfo.RGB48:
         bytesPerPixel = 6;
         skip(in);
-        pixels = readRgb48(in);
-        break;
+        return readRgb48(in);
       case FileInfo.RGB48_PLANAR:
         bytesPerPixel = 2;
         skip(in);
-        pixels = readRgb48Planar(in);
-        break;
+        return readRgb48Planar(in);
       case FileInfo.GRAY12_UNSIGNED:
         skip(in);
         final short[] data = read12bitImage(in);
-        pixels = data;
-        break;
+        return data;
       case FileInfo.GRAY24_UNSIGNED:
         skip(in);
-        pixels = read24bitImage(in);
-        break;
+        return read24bitImage(in);
       default:
-        pixels = null;
-        break;
+        throw new IOException("FastImageReader: unknown file type " + fi.fileType);
     }
-    return pixels;
   }
 
   /**
@@ -1234,101 +1220,6 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public Object readPixels(SeekableStream in, long skipCount) throws IOException {
-    this.skipCount = skipCount;
-    return readPixels(in);
-  }
-
-  /**
-   * Reads the image from the SeekableStream and returns the pixel array (byte, short, int or
-   * float). Does not close the SeekableStream.
-   *
-   * @param in the input seekable stream
-   * @return the object
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public Object readPixels(ByteArraySeekableStream in) throws IOException {
-    Object pixels;
-    switch (fi.fileType) {
-      case FileInfo.GRAY8:
-      case FileInfo.COLOR8:
-        bytesPerPixel = 1;
-        skip(in);
-        pixels = read8bitImage(in);
-        break;
-      case FileInfo.GRAY16_SIGNED:
-      case FileInfo.GRAY16_UNSIGNED:
-        bytesPerPixel = 2;
-        skip(in);
-        pixels = read16bitImage(in);
-        break;
-      case FileInfo.GRAY32_INT:
-      case FileInfo.GRAY32_UNSIGNED:
-      case FileInfo.GRAY32_FLOAT:
-        bytesPerPixel = 4;
-        skip(in);
-        pixels = read32bitImage(in);
-        break;
-      case FileInfo.GRAY64_FLOAT:
-        bytesPerPixel = 8;
-        skip(in);
-        pixels = read64bitImage(in);
-        break;
-      case FileInfo.RGB:
-      case FileInfo.BGR:
-      case FileInfo.ARGB:
-      case FileInfo.ABGR:
-      case FileInfo.BARG:
-      case FileInfo.CMYK:
-        bytesPerPixel = fi.getBytesPerPixel();
-        skip(in);
-        pixels = readChunkyRgb(in);
-        break;
-      case FileInfo.RGB_PLANAR:
-        bytesPerPixel = 3;
-        skip(in);
-        pixels = readPlanarRgb(in);
-        break;
-      case FileInfo.BITMAP:
-        bytesPerPixel = 1;
-        skip(in);
-        pixels = read1bitImage(in);
-        break;
-      case FileInfo.RGB48:
-        bytesPerPixel = 6;
-        skip(in);
-        pixels = readRgb48(in);
-        break;
-      case FileInfo.RGB48_PLANAR:
-        bytesPerPixel = 2;
-        skip(in);
-        pixels = readRgb48Planar(in);
-        break;
-      case FileInfo.GRAY12_UNSIGNED:
-        skip(in);
-        final short[] data = read12bitImage(in);
-        pixels = data;
-        break;
-      case FileInfo.GRAY24_UNSIGNED:
-        skip(in);
-        pixels = read24bitImage(in);
-        break;
-      default:
-        pixels = null;
-        break;
-    }
-    return pixels;
-  }
-
-  /**
-   * Skips the specified number of bytes, then reads an image and returns the pixel array (byte,
-   * short, int or float). Does not close the SeekableStream.
-   *
-   * @param in the input seekable stream
-   * @param skipCount the skip count
-   * @return the object
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public Object readPixels(ByteArraySeekableStream in, long skipCount) throws IOException {
     this.skipCount = skipCount;
     return readPixels(in);
   }
