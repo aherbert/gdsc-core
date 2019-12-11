@@ -23,6 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.BiFunction;
 
+/**
+ * This tests writing pixels and image metadata using the the {@link CustomTiffEncoder}
+ * matches the binary data written by the ImageJ {@link TiffEncoder}.
+ */
 @SuppressWarnings({"javadoc"})
 public class CustomTiffEncoderTest {
 
