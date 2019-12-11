@@ -28,22 +28,21 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
  * A big-endian {@link FastTiffDecoder}.
  */
-public class BigEndianFastTiffDecoder extends FastTiffDecoder {
+class BigEndianFastTiffDecoder extends FastTiffDecoder {
 
   /**
    * Instantiates a new big endian fast tiff decoder.
    *
    * @param in the in
-   * @param file the file
+   * @param name the name
    */
-  protected BigEndianFastTiffDecoder(SeekableStream in, File file) {
-    super(in, file);
+  protected BigEndianFastTiffDecoder(SeekableStream in, String name) {
+    super(in, name);
   }
 
   @Override

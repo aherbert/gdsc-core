@@ -7,7 +7,6 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -42,10 +41,10 @@ public class EndianFastTiffDecoderTest {
     final byte[] bytes = new byte[bb.limit()];
     bb.get(bytes);
 
-    final File file = new File("test");
+    final String name = "test";
     try (ByteArraySeekableStream in = ByteArraySeekableStream.wrap(bytes)) {
-      final FastTiffDecoder decoder = little ? new LittleEndianFastTiffDecoder(in, file)
-          : new BigEndianFastTiffDecoder(in, file);
+      final FastTiffDecoder decoder = little ? new LittleEndianFastTiffDecoder(in, name)
+          : new BigEndianFastTiffDecoder(in, name);
       Assertions.assertEquals(little, decoder.isLittleEndian());
 
       bb.rewind();

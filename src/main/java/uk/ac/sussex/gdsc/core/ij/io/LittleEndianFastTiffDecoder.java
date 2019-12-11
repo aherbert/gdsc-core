@@ -34,16 +34,16 @@ import java.io.IOException;
 /**
  * A little-endian {@link FastTiffDecoder}.
  */
-public class LittleEndianFastTiffDecoder extends FastTiffDecoder {
+class LittleEndianFastTiffDecoder extends FastTiffDecoder {
 
   /**
    * Instantiates a new little endian fast tiff decoder.
    *
    * @param in the in
-   * @param file the file
+   * @param name the name
    */
-  protected LittleEndianFastTiffDecoder(SeekableStream in, File file) {
-    super(in, file);
+  protected LittleEndianFastTiffDecoder(SeekableStream in, String name) {
+    super(in, name);
   }
 
   @Override
