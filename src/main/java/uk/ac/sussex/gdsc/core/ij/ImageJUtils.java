@@ -149,10 +149,13 @@ public final class ImageJUtils {
   private ImageJUtils() {}
 
   /**
-   * Splits a full path into the directory and filename.
+   * Splits a full path into the directory and filename. A null input is treated as an empty string
+   * {@code ""}.
+   *
+   * <p>If there is no directory it is set as null.
    *
    * @param path the path
-   * @return directory and filename
+   * @return directory (may be null) and filename (not null)
    */
   public static String[] decodePath(String path) {
     final String[] result = new String[2];
@@ -165,7 +168,8 @@ public final class ImageJUtils {
       result[0] = safePath.substring(0, index + 1);
       result[1] = safePath.substring(index + 1);
     } else {
-      result[0] = OpenDialog.getDefaultDirectory();
+      // This used to return OpenDialog.getDefaultDirectory()
+      result[0] = null;
       result[1] = safePath;
     }
     return result;
