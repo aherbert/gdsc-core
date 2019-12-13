@@ -28,10 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
+import uk.ac.sussex.gdsc.core.annotation.Nullable;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import ij.io.FileInfo;
@@ -39,10 +42,9 @@ import ij.util.Tools;
 
 import java.awt.Rectangle;
 import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.function.LongSupplier;
 import java.util.logging.Logger;
 
 /**
@@ -58,6 +60,9 @@ import java.util.logging.Logger;
  * TiffDecoder.
  *
  * <p>Added support for MicroManager TIFF format which uses the OME-TIFF specification.
+ *
+ * <p>Dropped reading of {@link #JPEG_TABLES} tag. The {@link FileInfo#JPEG} compression type is not
+ * read and parsing of this tag is redundant.
  */
 public abstract class FastTiffDecoder {
   /** TIFF tag NEW_SUBFILE_TYPE. */
@@ -222,6 +227,7 @@ public abstract class FastTiffDecoder {
   private static final char COLON = ':';
   private static final char SPACE = ' ';
   private static final int DELIMITER_COUNT = 3;
+  private static final int[] EMPTY_INT_ARRAY = new int[0];
 
   /** The name. This is the name of the TIFF image when creating IFDs. */
   private final String name;
@@ -290,24 +296,8 @@ public abstract class FastTiffDecoder {
    * decoding the TIFF. If it does not contain path separators then the directory will be set to
    * null and the filename to the name.
    *
-   * @param in the input stream
-   * @param name the name of the TIFF image
-   * @return the fast tiff decoder
-   * @throws IOException If an I/O exception has occurred, or this is not a TIFF file.
-   * @throws NullPointerException If either argument is null
-   */
-  @SuppressWarnings("resource")
-  public static FastTiffDecoder create(InputStream in, String name) throws IOException {
-    return createTiffDecoder(new MemoryCacheSeekableStream(in), name);
-  }
-
-  /**
-   * Creates the Tiff Decoder with an opened seekable stream set in the position to read the first
-   * IFD offset (i.e. the first 4 bytes of the TIFF file have been read to identify the file type).
-   *
-   * <p>The name is used to set the filename and directory in the FileInfo objects created when
-   * decoding the TIFF. If it does not contain path separators then the directory will be set to
-   * null and the filename to the name.
+   * <p>The stream is never closed by the decoder even upon IO error. Raised exceptions should be
+   * handled and the stream closed, for example using try-with-resources or a finally block.
    *
    * @param ss the seekable stream
    * @param name the name of the TIFF image
@@ -376,9 +366,7 @@ public abstract class FastTiffDecoder {
     final int b3 = ss.read();
     final int b4 = ss.read();
     // All other reads either returned -1 or have already thrown so just check the last read
-    if (b4 == -1) {
-      throw new EOFException();
-    }
+    handleEof(b4);
     return getInt(b1, b2, b3, b4);
   }
 
@@ -425,9 +413,7 @@ public abstract class FastTiffDecoder {
     final int b1 = ss.read();
     final int b2 = ss.read();
     // All other reads either returned -1 or have already thrown so just check the last read
-    if (b2 == -1) {
-      throw new EOFException();
-    }
+    handleEof(b2);
     return getShort(b1, b2);
   }
 
@@ -461,6 +447,31 @@ public abstract class FastTiffDecoder {
 
   private double readDouble() throws IOException {
     return Double.longBitsToDouble(readLong());
+  }
+
+  /**
+   * Handle end-of-file (EOF) by throwing an exception.
+   *
+   * @param count the count of bytes read
+   * @throws EOFException If count was negative
+   */
+  static void handleEof(int count) throws EOFException {
+    if (count < 0) {
+      throw new EOFException();
+    }
+  }
+
+  /**
+   * Handle end-of-file (EOF) by throwing an exception.
+   *
+   * @param count the count of bytes skipped
+   * @param expected the expected bytes to be skipped
+   * @throws EOFException If count was not equal to expected
+   */
+  static void handleEof(long count, long expected) throws EOFException {
+    if (count != expected) {
+      throw new EOFException();
+    }
   }
 
   /**
@@ -500,7 +511,25 @@ public abstract class FastTiffDecoder {
   }
 
   /**
-   * Gets the string.
+   * Gets the bytes.
+   *
+   * @param count the count
+   * @param offset the offset
+   * @return the bytes
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  byte[] getBytes(int count, long offset) throws IOException {
+    final byte[] bytes = new byte[count];
+    final long saveLoc = ss.getFilePointer();
+    ss.seek(offset);
+    ss.readFully(bytes);
+    ss.seek(saveLoc);
+    return bytes;
+  }
+
+  /**
+   * Gets the string. This is variant on {@link #getBytes(int, long)} that ignores the final byte as
+   * ImageJ writes string bytes with an extra null byte at the end.
    *
    * @param count the count
    * @param offset the offset
@@ -508,11 +537,14 @@ public abstract class FastTiffDecoder {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   byte[] getString(int count, long offset) throws IOException {
-    final int size = count - 1; // skip null byte at end of string
-    if (size <= 3) {
+    // Note: skip null byte at end of string
+
+    // ImageJ ignores reading <= 3 actual bytes (i.e. count <= 4).
+    // Change this to just ignore the null byte.
+    if (count <= 1) {
       return null;
     }
-    final byte[] bytes = new byte[size];
+    final byte[] bytes = new byte[count - 1];
     final long saveLoc = ss.getFilePointer();
     ss.seek(offset);
     ss.readFully(bytes);
@@ -528,26 +560,45 @@ public abstract class FastTiffDecoder {
    * @param description the description
    * @param fi the fi
    */
-  public void saveImageDescription(byte[] description, ExtendedFileInfo fi) {
+  @VisibleForTesting
+  void saveImageDescription(byte[] description, ExtendedFileInfo fi) {
+    if (description == null) {
+      return;
+    }
+    // No charset: The TiffEncoder uses the default encoding with String.getBytes()
     final String id = new String(description);
     if (!id.startsWith("ImageJ")) {
       saveMetadata(getName(IMAGE_DESCRIPTION), id);
     }
-    if (id.length() < 7) {
-      return;
-    }
     fi.description = id;
-    final int index1 = id.indexOf("images=");
-    if (index1 > 0) {
-      final int index2 = id.indexOf('\n', index1);
-      if (index2 > 0) {
-        final String images = id.substring(index1 + 7, index2);
-        final int n = (int) Tools.parseDouble(images, 0.0);
-        if (n > 1) {
-          fi.nImages = n;
+    final int n = getImageJnImages(id);
+    if (n != 0) {
+      fi.nImages = n;
+    }
+  }
+
+  /**
+   * ImageJ saves the number of images for stacks in the TIFF description tag to avoid having to
+   * decode an IFD for each image.
+   *
+   * @param id the description tag
+   * @return the number of images (if above 0) else 0
+   */
+  public static int getImageJnImages(String id) {
+    if (id.length() > 7) {
+      final int index1 = id.indexOf("images=");
+      if (index1 >= 0) {
+        final int index2 = id.indexOf('\n', index1);
+        if (index2 > 0) {
+          final String images = id.substring(index1 + 7, index2);
+          final int n = (int) Tools.parseDouble(images, 0.0);
+          if (n > 0) {
+            return n;
+          }
         }
       }
     }
+    return 0;
   }
 
   /**
@@ -677,7 +728,7 @@ public abstract class FastTiffDecoder {
         for (int i = 0; i < size; i++) {
           sb.append((char) (ss.read()));
         }
-        fi.valueUnit = new String(sb);
+        fi.valueUnit = sb.toString();
       } else {
         fi.valueUnit = " ";
       }
@@ -716,9 +767,7 @@ public abstract class FastTiffDecoder {
     final int j = ss.read();
     final int k = ss.read();
     final int l = ss.read();
-    if ((i | j | k | l) < 0) {
-      throw new EOFException();
-    }
+    handleEof(i | j | k | l);
     return (i << 24) + (j << 16) + (k << 8) + l;
   }
 
@@ -751,9 +800,7 @@ public abstract class FastTiffDecoder {
   private short readShortBE() throws IOException {
     final int i = ss.read();
     final int j = ss.read();
-    if ((i | j) < 0) {
-      throw new EOFException();
-    }
+    handleEof(i | j);
     return (short) ((i << 8) + j);
   }
 
@@ -788,7 +835,7 @@ public abstract class FastTiffDecoder {
    * @param tag the tag
    * @return the name
    */
-  String getName(int tag) {
+  static String getName(int tag) {
     switch (tag) {
       //@formatter:off
       case NEW_SUBFILE_TYPE: return "NewSubfileType";
@@ -830,6 +877,18 @@ public abstract class FastTiffDecoder {
     final double numerator = readUnsignedInt();
     final double denominator = readUnsignedInt();
     ss.seek(saveLoc);
+    return safeDivide(numerator, denominator);
+  }
+
+  /**
+   * Safely compute {@code numerator / denominator}. Returns 0.0 if denominator is zero.
+   *
+   * @param numerator the numerator
+   * @param denominator the denominator
+   * @return the quotient
+   */
+  @VisibleForTesting
+  static double safeDivide(double numerator, double denominator) {
     if (denominator != 0.0) {
       return numerator / denominator;
     }
@@ -854,7 +913,7 @@ public abstract class FastTiffDecoder {
       return null;
     }
     ifdCount++;
-    if ((ifdCount % 50) == 0) {
+    if ((ifdCount & 63) == 0) {
       trackProgress.status("Opening IFDs: %d", ifdCount);
     }
     final ExtendedFileInfo fi = new ExtendedFileInfo();
@@ -883,7 +942,7 @@ public abstract class FastTiffDecoder {
       final int tag = getShort(byteBuffer, position);
 
       // Allow skipping non-essential tags
-      if (pixelDataOnly && tag > JPEG_TABLES) {
+      if (pixelDataOnly && tag > SAMPLE_FORMAT) {
         break;
       }
 
@@ -903,9 +962,10 @@ public abstract class FastTiffDecoder {
           fi.height = value;
           break;
         case STRIP_OFFSETS:
+          fi.offset = value;
           if (count == 1) {
             fi.stripOffsets = new int[] {value};
-          } else {
+          } else if (count > 1) {
             final long saveLoc = ss.getFilePointer();
             ss.seek(lvalue);
             fi.stripOffsets = new int[count];
@@ -913,11 +973,11 @@ public abstract class FastTiffDecoder {
               fi.stripOffsets[c] = readInt();
             }
             ss.seek(saveLoc);
-          }
-          fi.offset = count > 0 ? fi.stripOffsets[0] : value;
-          if (count > 1 && ((fi.stripOffsets[count - 1]) & 0xffffffffL) < ((fi.stripOffsets[0])
-              & 0xffffffffL)) {
-            fi.offset = fi.stripOffsets[count - 1];
+            fi.offset = (int) Math.min(fi.stripOffsets[count - 1] & 0xffffffffL,
+                fi.stripOffsets[0] & 0xffffffffL);
+          } else {
+            // ImageJ would creates an empty array if count were zero
+            fi.stripOffsets = EMPTY_INT_ARRAY;
           }
           break;
         case STRIP_BYTE_COUNT:
@@ -954,7 +1014,7 @@ public abstract class FastTiffDecoder {
             } else if (value == 1) {
               fi.fileType = FileInfo.BITMAP;
             } else {
-              raiseIoException("Unsupported BitsPerSample: " + value);
+              throw new IOException("Unsupported BitsPerSample: " + value);
             }
           } else if (count > 1) {
             final long saveLoc = ss.getFilePointer();
@@ -965,7 +1025,7 @@ public abstract class FastTiffDecoder {
             } else if (bitDepth == 16) {
               fi.fileType = FileInfo.GRAY16_UNSIGNED;
             } else {
-              raiseIoException(
+              throw new IOException(
                   "ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
             }
             ss.seek(saveLoc);
@@ -1028,7 +1088,7 @@ public abstract class FastTiffDecoder {
           } else if (value != 2
               && !(fi.samplesPerPixel == 1 || fi.samplesPerPixel == 3 || fi.samplesPerPixel == 4)) {
             final String msg = "Unsupported SamplesPerPixel: " + fi.samplesPerPixel;
-            raiseIoException(msg);
+            throw new IOException(msg);
           }
           break;
         case COMPRESSION:
@@ -1036,7 +1096,7 @@ public abstract class FastTiffDecoder {
             // LZW compression
             fi.compression = FileInfo.LZW;
             if (fi.fileType == FileInfo.GRAY12_UNSIGNED) {
-              raiseIoException("ImageJ cannot open 12-bit LZW-compressed TIFFs");
+              throw new IOException("ImageJ cannot open 12-bit LZW-compressed TIFFs");
             }
           } else if (value == 32773) {
             fi.compression = FileInfo.PACK_BITS;
@@ -1045,9 +1105,8 @@ public abstract class FastTiffDecoder {
           } else if (value != 1 && value != 0 && !(value == 7 && fi.width < 500)) {
             // don't abort with Spot camera compressed (7) thumbnails
             // otherwise, this is an unknown compression type
-            fi.compression = FileInfo.COMPRESSION_UNKNOWN;
-            raiseIoException(
-                "ImageJ cannot open TIFF files " + "compressed in this fashion (" + value + ")");
+            throw new IOException(
+                "ImageJ cannot open TIFF files compressed in this fashion (" + value + ")");
           }
           break;
         case SOFTWARE:
@@ -1071,8 +1130,8 @@ public abstract class FastTiffDecoder {
           }
           break;
         case TILE_WIDTH:
-          raiseIoException("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
-          break;
+          throw new IOException(
+              "ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
         case SAMPLE_FORMAT:
           if (fi.fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT) {
             fi.fileType = FileInfo.GRAY32_FLOAT;
@@ -1082,25 +1141,19 @@ public abstract class FastTiffDecoder {
               fi.fileType = FileInfo.GRAY16_SIGNED;
             }
             if (value == FLOATING_POINT) {
-              raiseIoException("ImageJ cannot open 16-bit float TIFFs");
+              throw new IOException("ImageJ cannot open 16-bit float TIFFs");
             }
           }
           break;
-        case JPEG_TABLES:
-          if (fi.compression == FileInfo.JPEG) {
-            raiseIoException("Cannot open JPEG-compressed TIFFs with separate tables");
-          }
-          break;
+
+        // Drop this as the JPEG compression is not set in the FileInfo object
+        // case JPEG_TABLES
+
         case IMAGE_DESCRIPTION:
-          if (pixelDataOnly) {
-            // Skip this
-            break;
-          }
+          // Only read for first IFD
           if (ifdCount == 1) {
             final byte[] s = getString(count, lvalue);
-            if (s != null) {
-              saveImageDescription(s, fi);
-            }
+            saveImageDescription(s, fi);
           }
           break;
         case ORIENTATION:
@@ -1138,12 +1191,12 @@ public abstract class FastTiffDecoder {
           getMetaData(value, fi);
           break;
         case MICRO_MANAGER_META_DATA:
-          if (ifdCount <= getIfdCountForMicroManagerMetadata()) {
-            // Only read if desired
-            final byte[] bytes = getString(count, lvalue);
-            if (bytes != null) {
-              fi.setExtendedMetaData(new String(bytes, StandardCharsets.UTF_8));
-            }
+          // Only read if desired. It is unclear if the final byte of this
+          // will be the null byte as used for ImageJ strings. For now read the entire
+          // set of bytes.
+          if (ifdCount <= getIfdCountForMicroManagerMetadata() && count > 0) {
+            final byte[] bytes = getBytes(count, lvalue);
+            fi.setExtendedMetaData(new String(bytes, StandardCharsets.UTF_8));
           }
           break;
         default:
@@ -1159,9 +1212,7 @@ public abstract class FastTiffDecoder {
   }
 
   private byte[] allocateBuffer(int size) {
-    if (buffer == null || buffer.length < size) {
-      buffer = new byte[size];
-    }
+    buffer = SimpleArrayUtils.ensureSize(buffer, size);
     return buffer;
   }
 
@@ -1173,7 +1224,7 @@ public abstract class FastTiffDecoder {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   void getMetaData(int loc, ExtendedFileInfo fi) throws IOException {
-    if (metaDataCounts == null || metaDataCounts.length == 0) {
+    if (empty(metaDataCounts)) {
       return;
     }
     final long saveLoc = ss.getFilePointer();
@@ -1262,6 +1313,16 @@ public abstract class FastTiffDecoder {
   }
 
   /**
+   * Returns true for a null or empty array.
+   *
+   * @param array the array
+   * @return true if empty
+   */
+  static boolean empty(int[] array) {
+    return array == null || array.length == 0;
+  }
+
+  /**
    * Gets the info property.
    *
    * @param first the first
@@ -1297,13 +1358,10 @@ public abstract class FastTiffDecoder {
   void getSliceLabels(int first, int last, ExtendedFileInfo fi) throws IOException {
     fi.sliceLabels = new String[last - first + 1];
     int index = 0;
-    byte[] byteBuffer = new byte[metaDataCounts[first]];
-    for (int i = first; i <= last; i++) {
+    for (int i = first; i <= last; i++, index++) {
       int len = metaDataCounts[i];
       if (len > 0) {
-        if (len > byteBuffer.length) {
-          byteBuffer = new byte[len];
-        }
+        final byte[] byteBuffer = allocateBuffer(len);
         ss.readFully(byteBuffer, len);
         len /= 2;
         final char[] chars = new char[len];
@@ -1316,9 +1374,7 @@ public abstract class FastTiffDecoder {
             chars[j] = (char) (((byteBuffer[k++] & 255) << 8) + (byteBuffer[k++] & 255));
           }
         }
-        fi.sliceLabels[index++] = new String(chars);
-      } else {
-        fi.sliceLabels[index++] = null;
+        fi.sliceLabels[index] = new String(chars);
       }
     }
   }
@@ -1403,19 +1459,6 @@ public abstract class FastTiffDecoder {
   }
 
   /**
-   * Close the input seekable stream and raise an {@link IOException} with the given messaeg.
-   *
-   * @param message the message
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  void raiseIoException(String message) throws IOException {
-    if (ss != null) {
-      ss.close();
-    }
-    throw new IOException(message);
-  }
-
-  /**
    * Skip unknown type.
    *
    * @param first the first
@@ -1427,9 +1470,7 @@ public abstract class FastTiffDecoder {
     for (int i = first; i <= last; i++) {
       skip += metaDataCounts[i];
     }
-    if (ss.skip(skip) != skip) {
-      throw new EOFException();
-    }
+    handleEof(ss.skip(skip), skip);
   }
 
   /**
@@ -1447,19 +1488,18 @@ public abstract class FastTiffDecoder {
    *
    * <p>Optionally the IFD entry can be read for only the data needed to read the pixels. This means
    * skipping the X/YResolution, ResolutionUnit, ImageDescription and any meta-data tags for faster
-   * reading. The full infomation is always read for the first IFD.
+   * reading. The full information is always read for the first IFD.
    *
    * @param pixelDataOnly the pixel data only flag
-   * @return the tiff info
+   * @return the tiff info (or null)
    * @throws IOException Signals that an I/O exception has occurred.
    * @see #reset()
    */
+  @Nullable
   public ExtendedFileInfo[] getTiffInfo(boolean pixelDataOnly) throws IOException {
-
     ifdCount = 0;
     long ifdOffset = readUnsignedInt();
     if (ifdOffset < 8L) {
-      ss.close();
       return null;
     }
     final TurboList<ExtendedFileInfo> list = new TurboList<>();
@@ -1496,28 +1536,16 @@ public abstract class FastTiffDecoder {
     }
 
     if (list.isEmpty()) {
-      ss.close();
       return null;
     }
     final ExtendedFileInfo[] info = list.toArray(new ExtendedFileInfo[list.size()]);
+    fi = info[0];
 
     // Attempt to read the Micro-Manager summary metadata
     if (!pixelDataOnly) {
-      readMicroManagerSummaryMetadata(info[0]);
-      if (info[0].info == null) {
-        info[0].info = tiffMetadata;
-      }
+      readMicroManagerSummaryMetadata(fi);
     }
-
-    ss.close();
-
-    if (debugMode) {
-      info[0].debugInfo = debugInfo;
-    }
-    fi = info[0];
-    if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null) {
-      fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
-    }
+    initialiseFirstIfd(fi);
     if (debugMode) {
       final int n = info.length;
       fi.debugInfo += "number of IFDs: " + n + "\n";
@@ -1564,29 +1592,49 @@ public abstract class FastTiffDecoder {
     if (index == 0 && fi != null) {
       if (!pixelDataOnly) {
         readMicroManagerSummaryMetadata(fi);
-        if (fi.info == null) {
-          fi.info = tiffMetadata;
-        }
       }
-      if (debugMode) {
-        fi.debugInfo = debugInfo;
-      }
-      if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null) {
-        fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
-      }
+      initialiseFirstIfd(fi);
     }
 
     return fi;
   }
 
+  /**
+   * Initialise the first IFD with extra information read.
+   *
+   * @param fi the file info
+   */
+  private void initialiseFirstIfd(ExtendedFileInfo fi) {
+    if (debugMode) {
+      fi.debugInfo = debugInfo;
+    }
+    if (fi.info == null) {
+      fi.info = tiffMetadata;
+    }
+    if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null) {
+      fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
+    }
+  }
+
   private void readMicroManagerSummaryMetadata(ExtendedFileInfo fi) throws IOException {
-    ss.seek(32L);
-    if (readInt() == 2355492) {
-      final int count = readInt();
+    final int count = getMicroManagerSummaryMetadataCount();
+    if (count > 0) {
       final byte[] bytes = new byte[count];
       ss.readFully(bytes);
       fi.setSummaryMetaData(new String(bytes, StandardCharsets.UTF_8));
     }
+  }
+
+  private int getMicroManagerSummaryMetadataCount() {
+    try {
+      ss.seek(32L);
+      if (readInt() == 2355492) {
+        return readInt();
+      }
+    } catch (IOException ignored) {
+      // Ignore: the metadata is missing.
+    }
+    return 0;
   }
 
   /**
@@ -1595,7 +1643,8 @@ public abstract class FastTiffDecoder {
    * @param fi the fi
    * @return the gap info
    */
-  String getGapInfo(ExtendedFileInfo[] fi) {
+  @VisibleForTesting
+  static String getGapInfo(ExtendedFileInfo[] fi) {
     if (fi.length < 2) {
       return "0";
     }
@@ -1614,7 +1663,7 @@ public abstract class FastTiffDecoder {
     minGap -= imageSize;
     maxGap -= imageSize;
     if (minGap == maxGap) {
-      return "" + minGap;
+      return Long.toString(minGap);
     }
     return "varies (" + minGap + " to " + maxGap + ")";
   }
@@ -1623,6 +1672,11 @@ public abstract class FastTiffDecoder {
    * A class for holding the number of images in a TIFF file.
    */
   public static class NumberOfImages {
+    /** Instance for no images. */
+    static final NumberOfImages NO_IMAGES = new NumberOfImages(0);
+    /** Instance for 1 image. */
+    static final NumberOfImages ONE_IMAGE = new NumberOfImages(1);
+
     /** The number of images. */
     private final int imageCount;
 
@@ -1687,8 +1741,20 @@ public abstract class FastTiffDecoder {
     }
   }
 
-  private static final NumberOfImages NO_IMAGES = new NumberOfImages(0);
-  private static final NumberOfImages ONE_IMAGE = new NumberOfImages(1);
+  /**
+   * Gets the number of images in the TIFF file. The stream is not opened or closed by calling this
+   * method.
+   *
+   * <p>The stream will need to be reset before calling this method if the decoder has not just been
+   * created.
+   *
+   * @return the number of images
+   * @throws IOException Signals that an I/O exception has occurred.
+   * @see #reset()
+   */
+  public NumberOfImages getNumberOfImages() throws IOException {
+    return getNumberOfImages(null);
+  }
 
   /**
    * Gets the number of images in the TIFF file. The stream is not opened or closed by calling this
@@ -1697,17 +1763,18 @@ public abstract class FastTiffDecoder {
    * <p>The stream will need to be reset before calling this method if the decoder has not just been
    * created.
    *
-   * @param estimate Flag to indicate that an estimate using file sizes is OK. The default is to
-   *        read all the IFDs.
+   * @param totalBytes A supplier to provide the total bytes in the input stream. This is used to
+   *        estimate the number of images using the first IFDs. If null the default is to read all
+   *        the IFDs.
    * @return the number of images
    * @throws IOException Signals that an I/O exception has occurred.
    * @see #reset()
    */
-  public NumberOfImages getNumberOfImages(boolean estimate) throws IOException {
+  public NumberOfImages getNumberOfImages(LongSupplier totalBytes) throws IOException {
     // Find the first IFD
     long ifdOffset = readUnsignedInt();
     if (ifdOffset < 8L) {
-      return NO_IMAGES;
+      return NumberOfImages.NO_IMAGES;
     }
 
     // Try and read the Index map offset header.
@@ -1726,7 +1793,7 @@ public abstract class FastTiffDecoder {
     int imageCount = scanFirstIfd();
 
     if (imageCount < 0) {
-      return NO_IMAGES;
+      return NumberOfImages.NO_IMAGES;
     }
 
     // If an ImageJ image then the nImages is written to the description
@@ -1737,10 +1804,11 @@ public abstract class FastTiffDecoder {
     ifdOffset = readUnsignedInt();
 
     if (ifdOffset <= 0L) {
-      return ONE_IMAGE;
+      return NumberOfImages.ONE_IMAGE;
     }
 
-    if (estimate) {
+    final long fileSize = getAsLong(totalBytes);
+    if (fileSize != 0) {
       // If not an ImageJ image then we get the first and next IFD size and the
       // size of the raw pixels
 
@@ -1753,14 +1821,12 @@ public abstract class FastTiffDecoder {
       ss.seek(ifdOffset);
       final long ifdSize2 = getIfdSize(true);
 
-      final long fileSize = new File(directory, name).length();
-
       // Get an estimate of the number of frames after the first frame which has the biggest IFD.
       // This assumes all the remaining IFDs (and images) are the same size.
       // The 8 bytes is for the standard TIFF image file header data.
       // We assume that the OME-TIFF header is not present since we could not read the index map.
-      final int n = 1 + (int) Math
-          .round((double) (fileSize - imageSize - ifdSize1 - 8) / (imageSize + ifdSize2));
+      final int n = 1 + (int) Math.round(
+          (double) Math.max(0, fileSize - imageSize - ifdSize1 - 8) / (imageSize + ifdSize2));
 
       // Debug check
       final long expected = ifdSize1 + (ifdSize2 * (n - 1)) + (long) imageSize * n + 8;
@@ -1782,6 +1848,16 @@ public abstract class FastTiffDecoder {
     }
 
     return new NumberOfImages(imageCount);
+  }
+
+  /**
+   * Gets the value from the supplier (null safe).
+   *
+   * @param supplier the supplier (can be bull)
+   * @return the value (or zero)
+   */
+  private static long getAsLong(LongSupplier supplier) {
+    return supplier != null ? supplier.getAsLong() : 0L;
   }
 
   /**
@@ -1816,17 +1892,31 @@ public abstract class FastTiffDecoder {
     private final int[] map;
 
     /** The size of the map. */
-    public final int size;
+    private final int size;
 
     private int[][] limits;
 
-    private IndexMap(int[] map) {
+    /**
+     * Create an instance.
+     *
+     * @param map the map
+     */
+    IndexMap(int[] map) {
       this.map = map;
       size = map.length / 5;
     }
 
     /**
-     * Gets the channel index.
+     * Gets the size of the map (number of images).
+     *
+     * @return the size
+     */
+    public int getSize() {
+      return size;
+    }
+
+    /**
+     * Gets the channel index of the image.
      *
      * @param index the index
      * @return the channel index
@@ -1837,7 +1927,7 @@ public abstract class FastTiffDecoder {
     }
 
     /**
-     * Gets the slice index.
+     * Gets the slice index of the image.
      *
      * @param index the index
      * @return the slice index
@@ -1848,7 +1938,7 @@ public abstract class FastTiffDecoder {
     }
 
     /**
-     * Gets the frame index.
+     * Gets the frame index of the image.
      *
      * @param index the index
      * @return the frame index
@@ -1859,7 +1949,7 @@ public abstract class FastTiffDecoder {
     }
 
     /**
-     * Gets the position index.
+     * Gets the position index of the image.
      *
      * @param index the index
      * @return the position index
@@ -1870,10 +1960,10 @@ public abstract class FastTiffDecoder {
     }
 
     /**
-     * Gets the offset.
+     * Gets the offset to the TIFF IFD for the image.
      *
      * @param index the index
-     * @return the offset
+     * @return the IFD offset
      */
     public long getOffset(int index) {
       checkIndex(index);
@@ -1881,7 +1971,7 @@ public abstract class FastTiffDecoder {
     }
 
     private void checkIndex(int index) {
-      if (index < 0 || index >= size) {
+      if (index < 0 || index >= getSize()) {
         throw new ArrayIndexOutOfBoundsException(index);
       }
     }
@@ -2014,7 +2104,7 @@ public abstract class FastTiffDecoder {
         for (int j = 0; j < 4; j++) {
           newLimits[j][0] = newLimits[j][1] = map[j];
         }
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < getSize(); i++) {
           for (int j = 0, k = i * 5; j < 4; j++, k++) {
             // Min
             if (newLimits[j][0] > map[k]) {
@@ -2198,15 +2288,16 @@ public abstract class FastTiffDecoder {
 
       // Just support extracting the nImages from the description
       if (tag == IMAGE_DESCRIPTION) {
-        final int fieldType = getShort(byteBuffer, j + 2);
         final int count = getInt(byteBuffer, j + 4);
-        final int value = getValue(fieldType, count, byteBuffer, j + 8);
-        final long lvalue = (value) & 0xffffffffL;
-        final byte[] s = getString(count, lvalue);
+        // Only proceed if there is something to read
+        if (count > 1) {
+          final int fieldType = getShort(byteBuffer, j + 2);
+          final int value = getValue(fieldType, count, byteBuffer, j + 8);
+          final long lvalue = (value) & 0xffffffffL;
+          final byte[] s = getString(count, lvalue);
 
-        // It is possible that there are multiple IMAGE_DESCRIPTION tags
-        // e.g. MicroManager OME-TIFF format, so we have to read them all
-        if (s != null) {
+          // It is possible that there are multiple IMAGE_DESCRIPTION tags
+          // e.g. MicroManager OME-TIFF format, so we have to read them all
           final int n = getImageJnImages(new String(s));
           if (n != 0) {
             return n;
@@ -2247,46 +2338,6 @@ public abstract class FastTiffDecoder {
     // Skip all the index data: tag, fieldType, count, value
     ss.seek(ss.getFilePointer() + (long) nEntries * INDEX_SIZE);
     return true;
-  }
-
-  /**
-   * ImageJ saves the number of images for stacks in the TIFF description tag to avoid having to
-   * decode an IFD for each image.
-   *
-   * @param description the description
-   * @param fi the fi
-   */
-  public static void saveImageJnImages(byte[] description, ExtendedFileInfo fi) {
-    final String id = new String(description);
-    fi.description = id;
-    final int n = getImageJnImages(id);
-    if (n > 1) {
-      fi.nImages = n;
-    }
-  }
-
-  /**
-   * ImageJ saves the number of images for stacks in the TIFF description tag to avoid having to
-   * decode an IFD for each image.
-   *
-   * @param id the description tage
-   * @return the number of images (if above 1) else 0
-   */
-  public static int getImageJnImages(String id) {
-    if (id.length() > 7) {
-      final int index1 = id.indexOf("images=");
-      if (index1 > 0) {
-        final int index2 = id.indexOf('\n', index1);
-        if (index2 > 0) {
-          final String images = id.substring(index1 + 7, index2);
-          final int n = (int) Tools.parseDouble(images, 0.0);
-          if (n > 1) {
-            return n;
-          }
-        }
-      }
-    }
-    return 0;
   }
 
   /**
@@ -2332,7 +2383,7 @@ public abstract class FastTiffDecoder {
       // is bigger than 4 bytes.
       if (count > 1) {
         total += getFieldTypeSize(fieldType) * count;
-      } else if (fieldType == 5) {
+      } else if (fieldType == RATIONAL) {
         // rational (2 dwords, numerator and denominator)
         total += 8;
       }
@@ -2442,7 +2493,7 @@ public abstract class FastTiffDecoder {
             } else if (value == 1) {
               fileType = FileInfo.BITMAP;
             } else {
-              raiseIoException("Unsupported BitsPerSample: " + value);
+              throw new IOException("Unsupported BitsPerSample: " + value);
             }
           } else if (count > 1) {
             final long saveLoc = ss.getFilePointer();
@@ -2453,7 +2504,7 @@ public abstract class FastTiffDecoder {
             } else if (bitDepth == 16) {
               fileType = FileInfo.GRAY16_UNSIGNED;
             } else {
-              raiseIoException(
+              throw new IOException(
                   "ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
             }
             ss.seek(saveLoc);
@@ -2466,7 +2517,8 @@ public abstract class FastTiffDecoder {
           } else if (value == 3 && fileType == FileInfo.GRAY16_UNSIGNED) {
             fileType = FileInfo.RGB48;
           } else if (value == 4 && fileType == FileInfo.GRAY8) {
-            fileType = photoInterp == 5 ? FileInfo.CMYK : FileInfo.ARGB;
+            // Does not matter if CMYK or ARGB for the pixel size
+            fileType = FileInfo.ARGB;
           } else if (value == 4 && fileType == FileInfo.GRAY16_UNSIGNED) {
             fileType = FileInfo.RGB48;
           }
@@ -2480,7 +2532,7 @@ public abstract class FastTiffDecoder {
           } else if (value != 2
               && !(samplesPerPixel == 1 || samplesPerPixel == 3 || samplesPerPixel == 4)) {
             final String msg = "Unsupported SamplesPerPixel: " + samplesPerPixel;
-            raiseIoException(msg);
+            throw new IOException(msg);
           }
           break;
         case COMPRESSION:
@@ -2488,7 +2540,7 @@ public abstract class FastTiffDecoder {
             // LZW compression
             compression = FileInfo.LZW;
             if (fileType == FileInfo.GRAY12_UNSIGNED) {
-              raiseIoException("ImageJ cannot open 12-bit LZW-compressed TIFFs");
+              throw new IOException("ImageJ cannot open 12-bit LZW-compressed TIFFs");
             }
           } else if (value == 32773) {
             compression = FileInfo.PACK_BITS;
@@ -2497,14 +2549,13 @@ public abstract class FastTiffDecoder {
           } else if (value != 1 && value != 0 && !(value == 7 && width < 500)) {
             // don't abort with Spot camera compressed (7) thumbnails
             // otherwise, this is an unknown compression type
-            compression = FileInfo.COMPRESSION_UNKNOWN;
-            raiseIoException(
+            throw new IOException(
                 "ImageJ cannot open TIFF files compressed in this fashion (" + value + ")");
           }
           break;
         case TILE_WIDTH:
-          raiseIoException("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
-          break;
+          throw new IOException(
+              "ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
         case SAMPLE_FORMAT:
           if (fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT) {
             fileType = FileInfo.GRAY32_FLOAT;
@@ -2514,15 +2565,14 @@ public abstract class FastTiffDecoder {
               fileType = FileInfo.GRAY16_SIGNED;
             }
             if (value == FLOATING_POINT) {
-              raiseIoException("ImageJ cannot open 16-bit float TIFFs");
+              throw new IOException("ImageJ cannot open 16-bit float TIFFs");
             }
           }
           break;
-        case JPEG_TABLES:
-          if (compression == FileInfo.JPEG) {
-            raiseIoException("Cannot open JPEG-compressed TIFFs with separate tables");
-          }
-          break;
+
+        // Drop reading of JPEG_TABLES tag
+        // case JPEG_TABLES
+
         default:
           // Ignore other tags
           break;
@@ -2532,8 +2582,7 @@ public abstract class FastTiffDecoder {
     if (size != 0 && compression <= FileInfo.COMPRESSION_NONE) {
       return size;
     }
-    raiseIoException("Cannot estimate TIFF image size");
-    return 0; //
+    throw new IOException("Cannot estimate TIFF image size");
   }
 
   /**
