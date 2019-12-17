@@ -51,7 +51,7 @@ public final class RngStreams {
   // Spliterators have been adapted from the JDK source code which contains examples
   // for splitting different types of RNG to make a second thread-safe instance:
   //
-  // - SplittableUniformRandomProvider::split
+  // - SplittableRandom::split
   // - ThreadLocalRandom::current
   // - Random (same instance as it is synchronized)
   //
