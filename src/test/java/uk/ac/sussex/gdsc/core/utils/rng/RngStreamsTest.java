@@ -1,5 +1,7 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.DoublesSpliterator;
+import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.IntsSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomDoublesSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomIntsSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomLongsSpliterator;
@@ -8,6 +10,8 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 import com.google.common.util.concurrent.AtomicDouble;
 
+import org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler;
+import org.apache.commons.rng.sampling.distribution.DiscreteUniformSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +23,8 @@ import java.util.function.LongConsumer;
 @SuppressWarnings("javadoc")
 public class RngStreamsTest {
   @Test
-  public void testIntsThrowsWithBadSize() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomIntsThrowsWithBadSize() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.ints(rng, -1);
     }, "Should throw with negative size");
@@ -30,8 +34,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsThrowsWithBadRange() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomIntsThrowsWithBadRange() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     final int lower = 10;
     final int upper = 9;
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -43,7 +47,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testInts(RandomSeed randomSeed) {
+  public void testRandomInts(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng).limit(size).toArray();
@@ -51,7 +55,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testIntsWithSize(RandomSeed randomSeed) {
+  public void testRandomIntsWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng, size).toArray();
@@ -59,7 +63,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testIntsWithSmallRange(RandomSeed randomSeed) {
+  public void testRandomIntsWithSmallRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -72,7 +76,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testIntsWithLargeRange(RandomSeed randomSeed) {
+  public void testRandomIntsWithLargeRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
@@ -86,7 +90,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testIntsWithSmallRangeWithSize(RandomSeed randomSeed) {
+  public void testRandomIntsWithSmallRangeWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -99,8 +103,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsSpliteratorCanSplit() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomIntsSpliteratorCanSplit() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final RandomIntsSpliterator spliterator1 = new RandomIntsSpliterator(rng, 0, 2, 0, -1);
     Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
@@ -121,8 +125,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsSpliteratorTryAdvance() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomIntsSpliteratorTryAdvance() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
     final RandomIntsSpliterator spliterator = new RandomIntsSpliterator(rng, 0, size, 0, -1);
@@ -147,8 +151,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsSpliteratorForEachRemaining() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomIntsSpliteratorForEachRemaining() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
     final RandomIntsSpliterator spliterator = new RandomIntsSpliterator(rng, 0, size, 0, -1);
@@ -171,12 +175,12 @@ public class RngStreamsTest {
     // Try again
     spliterator.forEachRemaining(action);
     Assertions.assertEquals(size, count.get(),
-        "Should not invoke consumer after reminaing have been consumed");
+        "Should not invoke consumer after remaining have been consumed");
   }
 
   @Test
-  public void testLongsThrowsWithBadSize() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomLongsThrowsWithBadSize() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.longs(rng, -1);
     }, "Should throw with negative size");
@@ -186,8 +190,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testLongsThrowsWithBadRange() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomLongsThrowsWithBadRange() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     final long lower = 10;
     final long upper = 9;
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -199,7 +203,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testLongs(RandomSeed randomSeed) {
+  public void testRandomLongs(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng).limit(size).toArray();
@@ -207,7 +211,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testLongsWithSize(RandomSeed randomSeed) {
+  public void testRandomLongsWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng, size).toArray();
@@ -215,7 +219,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testLongsWithSmallRange(RandomSeed randomSeed) {
+  public void testRandomLongsWithSmallRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -228,7 +232,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testLongsWithLargeRange(RandomSeed randomSeed) {
+  public void testRandomLongsWithLargeRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
@@ -242,7 +246,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testLongsWithSmallRangeWithSize(RandomSeed randomSeed) {
+  public void testRandomLongsWithSmallRangeWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -255,8 +259,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testLongsSpliteratorCanSplit() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomLongsSpliteratorCanSplit() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final RandomLongsSpliterator spliterator1 = new RandomLongsSpliterator(rng, 0, 2, 0, -1);
     Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
@@ -277,8 +281,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testLongsSpliteratorTryAdvance() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomLongsSpliteratorTryAdvance() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
     final RandomLongsSpliterator spliterator = new RandomLongsSpliterator(rng, 0, size, 0, -1);
@@ -303,8 +307,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testLongsSpliteratorForEachRemaining() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomLongsSpliteratorForEachRemaining() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
     final RandomLongsSpliterator spliterator = new RandomLongsSpliterator(rng, 0, size, 0, -1);
@@ -327,12 +331,12 @@ public class RngStreamsTest {
     // Try again
     spliterator.forEachRemaining(action);
     Assertions.assertEquals(size, count.get(),
-        "Should not invoke consumer after reminaing have been consumed");
+        "Should not invoke consumer after remaining have been consumed");
   }
 
   @Test
-  public void testDoublesThrowsWithBadSize() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomDoublesThrowsWithBadSize() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.doubles(rng, -1);
     }, "Should throw with negative size");
@@ -342,8 +346,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesThrowsWithBadRange() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomDoublesThrowsWithBadRange() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     final double lower = 10;
     final double upper = Double.NaN;
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -355,7 +359,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testDoubles(RandomSeed randomSeed) {
+  public void testRandomDoubles(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng).limit(size).toArray();
@@ -363,7 +367,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testDoublesWithSize(RandomSeed randomSeed) {
+  public void testRandomDoublesWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng, size).toArray();
@@ -371,7 +375,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testDoublesWithRange(RandomSeed randomSeed) {
+  public void testRandomDoublesWithRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -384,7 +388,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testDoublesWithRangeWithSize(RandomSeed randomSeed) {
+  public void testRandomDoublesWithRangeWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -397,8 +401,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesSpliteratorCanSplit() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomDoublesSpliteratorCanSplit() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final RandomDoublesSpliterator spliterator1 = new RandomDoublesSpliterator(rng, 0, 2, 0, -1);
     Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
@@ -419,8 +423,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesSpliteratorTryAdvance() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomDoublesSpliteratorTryAdvance() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
     final RandomDoublesSpliterator spliterator = new RandomDoublesSpliterator(rng, 0, size, 0, -1);
@@ -445,8 +449,8 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesSpliteratorForEachRemaining() {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
+  public void testRandomDoublesSpliteratorForEachRemaining() {
+    final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
     final RandomDoublesSpliterator spliterator = new RandomDoublesSpliterator(rng, 0, size, 0, -1);
@@ -469,7 +473,7 @@ public class RngStreamsTest {
     // Try again
     spliterator.forEachRemaining(action);
     Assertions.assertEquals(size, count.get(),
-        "Should not invoke consumer after reminaing have been consumed");
+        "Should not invoke consumer after remaining have been consumed");
   }
 
   /**
@@ -478,7 +482,7 @@ public class RngStreamsTest {
    * exclusive.
    */
   @Test
-  public void testDoublesSpliteratorTryAdvanceWithSampleAtUpperBound() {
+  public void testRandomDoublesSpliteratorTryAdvanceWithSampleAtUpperBound() {
     final SplittableUniformRandomProvider rng = new SplittableUniformRandomProvider() {
       @Override
       public void nextBytes(byte[] bytes) {
@@ -541,5 +545,229 @@ public class RngStreamsTest {
     spliterator.tryAdvance((DoubleConsumer) actual::set);
 
     Assertions.assertEquals(Math.nextDown(upper), actual.get());
+  }
+
+  @Test
+  public void testSplittableIntsThrowsWithBadSize() {
+    final SplittableIntSupplier generator =
+        Splittables.ofInt(UniformRandomProviders.createSplittable(123),
+            rng -> DiscreteUniformSampler.of(rng, 0, 2048));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      RngStreams.ints(generator, -1);
+    }, "Should throw with negative size");
+  }
+
+  @Test
+  public void testSplittableInts() {
+    final SplittableIntSupplier generator =
+        Splittables.ofInt(UniformRandomProviders.createSplittable(123),
+            rng -> DiscreteUniformSampler.of(rng, 0, 2048));
+    final int size = 7;
+    final int[] values = RngStreams.ints(generator).limit(size).toArray();
+    Assertions.assertEquals(size, values.length, "Incorrect stream length");
+  }
+
+  @Test
+  public void testSplittableIntsWithSize() {
+    final SplittableIntSupplier generator =
+        Splittables.ofInt(UniformRandomProviders.createSplittable(123),
+            rng -> DiscreteUniformSampler.of(rng, 0, 2048));
+    final int size = 7;
+    final int[] values = RngStreams.ints(generator, size).toArray();
+    Assertions.assertEquals(size, values.length, "Incorrect stream length");
+  }
+
+  @Test
+  public void testIntsSpliteratorCanSplit() {
+    final SplittableIntSupplier generator =
+        Splittables.ofInt(UniformRandomProviders.createSplittable(123),
+            rng -> DiscreteUniformSampler.of(rng, 0, 2048));
+
+    final IntsSpliterator spliterator1 = new IntsSpliterator(generator, 0, 2);
+    Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
+
+    // First split should work
+    final IntsSpliterator spliterator2 = spliterator1.trySplit();
+    Assertions.assertNotNull(spliterator2, "Should be able to split");
+
+    // Split in half
+    Assertions.assertEquals(1, spliterator1.getExactSizeIfKnown(), "Incorrect post-split size");
+    Assertions.assertEquals(1, spliterator2.getExactSizeIfKnown(), "Incorrect post-split size");
+
+    // Second split should not work
+    final IntsSpliterator spliterator1b = spliterator1.trySplit();
+    Assertions.assertNull(spliterator1b, "Should not be able to split");
+    final IntsSpliterator spliterator2b = spliterator2.trySplit();
+    Assertions.assertNull(spliterator2b, "Should not be able to split");
+  }
+
+  @Test
+  public void testIntsSpliteratorTryAdvance() {
+    final SplittableIntSupplier generator =
+        Splittables.ofInt(UniformRandomProviders.createSplittable(123),
+            rng -> DiscreteUniformSampler.of(rng, 0, 2048));
+
+    final int size = 2;
+    final IntsSpliterator spliterator = new IntsSpliterator(generator, 0, size);
+
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      spliterator.tryAdvance((IntConsumer) null);
+    }, "null IntConsumer");
+
+    Assertions.assertEquals(size, spliterator.getExactSizeIfKnown(), "Incorrect pre-advance size");
+
+    // Should be able to advance to end
+    final IntConsumer action = i -> {
+      // Not used
+    };
+    for (int i = 0; i < size; i++) {
+      Assertions.assertTrue(spliterator.tryAdvance(action),
+          "Incorrect advance result when not at the end");
+      Assertions.assertEquals(size - i - 1, spliterator.getExactSizeIfKnown(),
+          "Incorrect size estimate after advance");
+    }
+    Assertions.assertFalse(spliterator.tryAdvance(action), "Should not advance at the end");
+  }
+
+  @Test
+  public void testIntsSpliteratorForEachRemaining() {
+    final SplittableIntSupplier generator =
+        Splittables.ofInt(UniformRandomProviders.createSplittable(123),
+            rng -> DiscreteUniformSampler.of(rng, 0, 2048));
+
+    final int size = 2;
+    final IntsSpliterator spliterator = new IntsSpliterator(generator, 0, size);
+
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      spliterator.forEachRemaining((IntConsumer) null);
+    }, "null IntConsumer");
+
+    // Should be able to advance to end
+    final AtomicInteger count = new AtomicInteger();
+    final IntConsumer action = i -> {
+      count.getAndIncrement();
+    };
+    spliterator.forEachRemaining(action);
+
+    Assertions.assertEquals(size, count.get(), "Incorrect invocations of consumer");
+    Assertions.assertEquals(0, spliterator.getExactSizeIfKnown(),
+        "Incorrect size after remaining have been consumed");
+
+    // Try again
+    spliterator.forEachRemaining(action);
+    Assertions.assertEquals(size, count.get(),
+        "Should not invoke consumer after remaining have been consumed");
+  }
+
+  @Test
+  public void testSplittableDoublesThrowsWithBadSize() {
+    final SplittableDoubleSupplier generator =
+        Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
+            rng -> ContinuousUniformSampler.of(rng, 0, 2048));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      RngStreams.doubles(generator, -1);
+    }, "Should throw with negative size");
+  }
+
+  @Test
+  public void testSplittableDoubles() {
+    final SplittableDoubleSupplier generator =
+        Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
+            rng -> ContinuousUniformSampler.of(rng, 0, 2048));
+    final int size = 7;
+    final double[] values = RngStreams.doubles(generator).limit(size).toArray();
+    Assertions.assertEquals(size, values.length, "Incorrect stream length");
+  }
+
+  @Test
+  public void testSplittableDoublesWithSize() {
+    final SplittableDoubleSupplier generator =
+        Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
+            rng -> ContinuousUniformSampler.of(rng, 0, 2048));
+    final int size = 7;
+    final double[] values = RngStreams.doubles(generator, size).toArray();
+    Assertions.assertEquals(size, values.length, "Incorrect stream length");
+  }
+
+  @Test
+  public void testDoublesSpliteratorCanSplit() {
+    final SplittableDoubleSupplier generator =
+        Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
+            rng -> ContinuousUniformSampler.of(rng, 0, 2048));
+
+    final DoublesSpliterator spliterator1 = new DoublesSpliterator(generator, 0, 2);
+    Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
+
+    // First split should work
+    final DoublesSpliterator spliterator2 = spliterator1.trySplit();
+    Assertions.assertNotNull(spliterator2, "Should be able to split");
+
+    // Split in half
+    Assertions.assertEquals(1, spliterator1.getExactSizeIfKnown(), "Incorrect post-split size");
+    Assertions.assertEquals(1, spliterator2.getExactSizeIfKnown(), "Incorrect post-split size");
+
+    // Second split should not work
+    final DoublesSpliterator spliterator1b = spliterator1.trySplit();
+    Assertions.assertNull(spliterator1b, "Should not be able to split");
+    final DoublesSpliterator spliterator2b = spliterator2.trySplit();
+    Assertions.assertNull(spliterator2b, "Should not be able to split");
+  }
+
+  @Test
+  public void testDoublesSpliteratorTryAdvance() {
+    final SplittableDoubleSupplier generator =
+        Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
+            rng -> ContinuousUniformSampler.of(rng, 0, 2048));
+
+    final int size = 2;
+    final DoublesSpliterator spliterator = new DoublesSpliterator(generator, 0, size);
+
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      spliterator.tryAdvance((DoubleConsumer) null);
+    }, "null DoubleConsumer");
+
+    Assertions.assertEquals(size, spliterator.getExactSizeIfKnown(), "Incorrect pre-advance size");
+
+    // Should be able to advance to end
+    final DoubleConsumer action = i -> {
+      // Not used
+    };
+    for (int i = 0; i < size; i++) {
+      Assertions.assertTrue(spliterator.tryAdvance(action),
+          "Incorrect advance result when not at the end");
+      Assertions.assertEquals(size - i - 1, spliterator.getExactSizeIfKnown(),
+          "Incorrect size estimate after advance");
+    }
+    Assertions.assertFalse(spliterator.tryAdvance(action), "Should not advance at the end");
+  }
+
+  @Test
+  public void testDoublesSpliteratorForEachRemaining() {
+    final SplittableDoubleSupplier generator =
+        Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
+            rng -> ContinuousUniformSampler.of(rng, 0, 2048));
+
+    final int size = 2;
+    final DoublesSpliterator spliterator = new DoublesSpliterator(generator, 0, size);
+
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      spliterator.forEachRemaining((DoubleConsumer) null);
+    }, "null DoubleConsumer");
+
+    // Should be able to advance to end
+    final AtomicInteger count = new AtomicInteger();
+    final DoubleConsumer action = i -> {
+      count.getAndIncrement();
+    };
+    spliterator.forEachRemaining(action);
+
+    Assertions.assertEquals(size, count.get(), "Incorrect invocations of consumer");
+    Assertions.assertEquals(0, spliterator.getExactSizeIfKnown(),
+        "Incorrect size after remaining have been consumed");
+
+    // Try again
+    spliterator.forEachRemaining(action);
+    Assertions.assertEquals(size, count.get(),
+        "Should not invoke consumer after remaining have been consumed");
   }
 }

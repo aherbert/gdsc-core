@@ -411,6 +411,168 @@ public final class RngStreams {
     }
   }
 
+  // @formatter:off
+  /**
+   * Spliterator for int streams. Supports 2 versions:
+   *
+   * <ul>
+   * <li>Fixed stream length; unbounded sample output
+   * <li>Fixed stream length; bounded sample output
+   * </ul>
+   *
+   * <p>An infinite stream is created using a end of Long.MAX_VALUE.
+   * For splits, it uses the standard divide-by-two approach.
+   *
+   * <p>The double version of this class is identical except for types.
+   */
+  // @formatter:on
+  static final class IntsSpliterator implements Spliterator.OfInt {
+    /** The generator. */
+    final SplittableIntSupplier generator;
+    /** The current index in the range. */
+    long index;
+    /** The upper limit of the range. */
+    final long end;
+
+    /**
+     * Create a new instance.
+     *
+     * @param generator the generator
+     * @param start the start index of the stream (inclusive)
+     * @param end the upper limit of the stream (exclusive)
+     */
+    IntsSpliterator(SplittableIntSupplier generator, long start, long end) {
+      this.generator = generator;
+      this.index = start;
+      this.end = end;
+    }
+
+    @Override
+    public IntsSpliterator trySplit() {
+      final long start = index;
+      final long middle = (start + end) >>> 1;
+      return (middle <= start) ? null
+          : new IntsSpliterator(generator.split(), start, index = middle);
+    }
+
+    @Override
+    public long estimateSize() {
+      return end - index;
+    }
+
+    @Override
+    public int characteristics() {
+      return (Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.NONNULL
+          | Spliterator.IMMUTABLE);
+    }
+
+    @Override
+    public boolean tryAdvance(IntConsumer consumer) {
+      if (consumer == null) {
+        throw new NullPointerException();
+      }
+      final long pos = index;
+      final long last = end;
+      if (pos < last) {
+        consumer.accept(generator.getAsInt());
+        index = pos + 1;
+        return true;
+      }
+      return false;
+    }
+
+    @Override
+    public void forEachRemaining(IntConsumer consumer) {
+      if (consumer == null) {
+        throw new NullPointerException();
+      }
+      long pos = index;
+      final long last = end;
+      if (pos < last) {
+        index = last;
+        final SplittableIntSupplier r = generator;
+        do {
+          consumer.accept(r.getAsInt());
+        } while (++pos < last);
+      }
+    }
+  }
+
+  /**
+   * Spliterator for double streams. Supports 2 versions as per {@link IntsSpliterator}.
+   */
+  static final class DoublesSpliterator implements Spliterator.OfDouble {
+    /** The generator. */
+    final SplittableDoubleSupplier generator;
+    /** The current index in the range. */
+    long index;
+    /** The upper limit of the range. */
+    final long end;
+
+    /**
+     * Create a new instance.
+     *
+     * @param generator the generator
+     * @param start the start index of the stream (inclusive)
+     * @param end the upper limit of the stream (exclusive)
+     */
+    DoublesSpliterator(SplittableDoubleSupplier generator, long start, long end) {
+      this.generator = generator;
+      this.index = start;
+      this.end = end;
+    }
+
+    @Override
+    public DoublesSpliterator trySplit() {
+      final long start = index;
+      final long middle = (start + end) >>> 1;
+      return (middle <= start) ? null
+          : new DoublesSpliterator(generator.split(), start, index = middle);
+    }
+
+    @Override
+    public long estimateSize() {
+      return end - index;
+    }
+
+    @Override
+    public int characteristics() {
+      return (Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.NONNULL
+          | Spliterator.IMMUTABLE);
+    }
+
+    @Override
+    public boolean tryAdvance(DoubleConsumer consumer) {
+      if (consumer == null) {
+        throw new NullPointerException();
+      }
+      final long pos = index;
+      final long last = end;
+      if (pos < last) {
+        consumer.accept(generator.getAsDouble());
+        index = pos + 1;
+        return true;
+      }
+      return false;
+    }
+
+    @Override
+    public void forEachRemaining(DoubleConsumer consumer) {
+      if (consumer == null) {
+        throw new NullPointerException();
+      }
+      long pos = index;
+      final long last = end;
+      if (pos < last) {
+        index = last;
+        final SplittableDoubleSupplier r = generator;
+        do {
+          consumer.accept(r.getAsDouble());
+        } while (++pos < last);
+      }
+    }
+  }
+
   /** No construction. */
   private RngStreams() {}
 
@@ -437,8 +599,8 @@ public final class RngStreams {
    *
    * @param rng the random generator
    * @return a stream of pseudorandom {@code int} values
-   * @implNote This method is implemented to be equivalent to {@code
-   * ints(Long.MAX_VALUE)}.
+   * @implNote This method is implemented to be equivalent to
+   * {@link #ints(SplittableUniformRandomProvider, long) ints(rng, Long.MAX_VALUE)}.
    */
   public static IntStream ints(SplittableUniformRandomProvider rng) {
     return StreamSupport
@@ -484,8 +646,9 @@ public final class RngStreams {
    *         bound (exclusive)
    * @throws IllegalArgumentException if {@code randomNumberOrigin} is greater than or equal to
    *         {@code randomNumberBound}
-   * @implNote This method is implemented to be equivalent to {@code
-   * ints(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
+   * @implNote This method is implemented to be equivalent to
+   * {@link #ints(SplittableUniformRandomProvider, long, int, int)
+   * ints(rng, Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
    */
   public static IntStream ints(SplittableUniformRandomProvider rng, int randomNumberOrigin,
       int randomNumberBound) {
@@ -520,8 +683,8 @@ public final class RngStreams {
    *
    * @param rng the random generator
    * @return a stream of pseudorandom {@code long} values
-   * @implNote This method is implemented to be equivalent to {@code
-   * longs(Long.MAX_VALUE)}.
+   * @implNote This method is implemented to be equivalent to
+   * {@link #longs(SplittableUniformRandomProvider, long) longs(rng, Long.MAX_VALUE)}.
    */
   public static LongStream longs(SplittableUniformRandomProvider rng) {
     return StreamSupport
@@ -567,8 +730,9 @@ public final class RngStreams {
    *         and bound (exclusive)
    * @throws IllegalArgumentException if {@code randomNumberOrigin} is greater than or equal to
    *         {@code randomNumberBound}
-   * @implNote This method is implemented to be equivalent to {@code
-   * longs(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
+   * @implNote This method is implemented to be equivalent to
+   * {@link #longs(SplittableUniformRandomProvider, long, long, long)
+   * longs(rng, Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
    */
   public static LongStream longs(SplittableUniformRandomProvider rng, long randomNumberOrigin,
       long randomNumberBound) {
@@ -605,8 +769,8 @@ public final class RngStreams {
    *
    * @param rng the random generator
    * @return a stream of pseudorandom {@code double} values
-   * @implNote This method is implemented to be equivalent to {@code
-   * doubles(Long.MAX_VALUE)}.
+   * @implNote This method is implemented to be equivalent to
+   * {@link #doubles(SplittableUniformRandomProvider, long) doubles(rng, Long.MAX_VALUE)}.
    */
   public static DoubleStream doubles(SplittableUniformRandomProvider rng) {
     return StreamSupport.doubleStream(
@@ -653,8 +817,9 @@ public final class RngStreams {
    *         and bound (exclusive)
    * @throws IllegalArgumentException if {@code randomNumberOrigin} is greater than or equal to
    *         {@code randomNumberBound}
-   * @implNote This method is implemented to be equivalent to {@code
-   * doubles(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
+   * @implNote This method is implemented to be equivalent to
+   * {@link #doubles(SplittableUniformRandomProvider, long, double, double)
+   * doubles(rng, Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
    */
   public static DoubleStream doubles(SplittableUniformRandomProvider rng, double randomNumberOrigin,
       double randomNumberBound) {
@@ -664,5 +829,67 @@ public final class RngStreams {
     }
     return StreamSupport.doubleStream(new RandomDoublesSpliterator(rng, 0L, Long.MAX_VALUE,
         randomNumberOrigin, randomNumberBound), false);
+  }
+
+  /**
+   * Returns a stream producing the given {@code streamSize} number of {@code int}
+   * values from the generator and/or one split from it.
+   *
+   * @param generator the generator
+   * @param streamSize the number of values to generate
+   * @return a stream of {@code int} values
+   * @throws IllegalArgumentException if {@code streamSize} is less than zero
+   */
+  public static IntStream ints(SplittableIntSupplier generator, long streamSize) {
+    if (streamSize < 0L) {
+      throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
+    }
+    return StreamSupport
+        .intStream(new IntsSpliterator(generator, 0L, streamSize), false);
+  }
+
+  /**
+   * Returns an effectively unlimited stream of {@code int} values from the generator
+   * and/or one split from it.
+   *
+   * @param generator the generator
+   * @return a stream of {@code int} values
+   * @implNote This method is implemented to be equivalent to
+   * {@link #ints(SplittableIntSupplier, long) ints(generator, Long.MAX_VALUE)}.
+   */
+  public static IntStream ints(SplittableIntSupplier generator) {
+    return StreamSupport
+        .intStream(new IntsSpliterator(generator, 0L, Long.MAX_VALUE), false);
+  }
+
+  /**
+   * Returns a stream producing the given {@code streamSize} number of {@code double}
+   * values from the generator and/or one split from it.
+   *
+   * @param generator the generator
+   * @param streamSize the number of values to generate
+   * @return a stream of {@code double} values
+   * @throws IllegalArgumentException if {@code streamSize} is less than zero
+   */
+  public static DoubleStream doubles(SplittableDoubleSupplier generator, long streamSize) {
+    if (streamSize < 0L) {
+      throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
+    }
+    return StreamSupport
+        .doubleStream(new DoublesSpliterator(generator, 0L, streamSize), false);
+  }
+
+  /**
+   * Returns an effectively unlimited stream of {@code double} values from the generator
+   * and/or one split from it.
+   *
+   * @param generator the generator
+   * @return a stream of {@code double} values
+   * @implNote This method is implemented to be equivalent to
+   * {@link #doubles(SplittableDoubleSupplier, long) doubles(generator, Long.MAX_VALUE)}.
+   */
+  public static DoubleStream doubles(SplittableDoubleSupplier generator) {
+    return StreamSupport
+        .doubleStream(new DoublesSpliterator(generator, 0L, Long.MAX_VALUE), false);
   }
 }
