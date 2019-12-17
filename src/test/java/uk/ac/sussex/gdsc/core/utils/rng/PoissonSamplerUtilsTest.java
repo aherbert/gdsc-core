@@ -3,6 +3,7 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.PoissonSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +12,11 @@ public class PoissonSamplerUtilsTest {
   @Test
   public void testCreatePoissonSamplerWithMeanZero() {
     final UniformRandomProvider rng = SplitMix.new64(0);
-    final DiscreteSampler sampler = PoissonSamplerUtils.createPoissonSampler(rng, 0);
+    final SharedStateDiscreteSampler sampler = PoissonSamplerUtils.createPoissonSampler(rng, 0);
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(0, sampler.sample());
     }
+    Assertions.assertSame(sampler, sampler.withUniformRandomProvider(SplitMix.new64(99)));
   }
 
   @Test
