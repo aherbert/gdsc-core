@@ -18,7 +18,6 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
-import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 
 /**
  * Sampling from the <a href="http://mathworld.wolfram.com/GammaDistribution.html">Gamma
