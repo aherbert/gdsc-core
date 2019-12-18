@@ -59,7 +59,7 @@ public final class Splittables {
 
     /**
      * Create an instance.
-     * 
+     *
      * @param rng the random generator
      * @param sampler the sampler
      */
@@ -93,7 +93,7 @@ public final class Splittables {
 
     /**
      * Create an instance.
-     * 
+     *
      * @param rng the random generator
      * @param sampler the sampler
      */
