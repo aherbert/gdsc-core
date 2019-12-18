@@ -57,11 +57,11 @@ import java.util.function.IntSupplier;
  * 3-17</a>
  */
 public interface SplittableIntSupplier extends IntSupplier {
-    /**
-     * Create and return a new instance which shares no mutable state with this
-     * instance.
-     *
-     * @return the new supplier
-     */
-    SplittableIntSupplier split();
+  /**
+   * Create and return a new instance which shares no mutable state with this
+   * instance.
+   *
+   * @return the new supplier
+   */
+  SplittableIntSupplier split();
 }

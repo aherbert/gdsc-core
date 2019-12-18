@@ -57,11 +57,11 @@ import java.util.function.DoubleSupplier;
  * 3-17</a>
  */
 public interface SplittableDoubleSupplier extends DoubleSupplier {
-    /**
-     * Create and return a new instance which shares no mutable state with this
-     * instance.
-     *
-     * @return the new supplier
-     */
-    SplittableDoubleSupplier split();
+  /**
+   * Create and return a new instance which shares no mutable state with this
+   * instance.
+   *
+   * @return the new supplier
+   */
+  SplittableDoubleSupplier split();
 }

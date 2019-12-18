@@ -36,10 +36,10 @@ public class EntropyTest {
   @Test
   public void testIgnoresNegativeCounts() {
     final double e = Entropy.bits(9, 5, 3, 2, 13, 5);
-    double o = Entropy.bits(9, 5, -4, 3, 2, 13, 5, -3);
-    Assertions.assertEquals(e, o, "Failed using int...");
-    o = Entropy.bits(9L, 5L, -4L, 3L, 2L, 13L, 5L, -3L);
-    Assertions.assertEquals(e, o, "Failed using long...");
+    final double o1 = Entropy.bits(9, 5, -4, 3, 2, 13, 5, -3);
+    Assertions.assertEquals(e, o1, "Failed using int...");
+    final double o2 = Entropy.bits(9L, 5L, -4L, 3L, 2L, 13L, 5L, -3L);
+    Assertions.assertEquals(e, o2, "Failed using long...");
   }
 
   @Test

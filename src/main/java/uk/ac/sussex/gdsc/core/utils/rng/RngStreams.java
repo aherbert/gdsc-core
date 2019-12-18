@@ -661,6 +661,37 @@ public final class RngStreams {
   }
 
   /**
+   * Returns a stream producing the given {@code streamSize} number of {@code int}
+   * values from the generator and/or one split from it.
+   *
+   * @param generator the generator
+   * @param streamSize the number of values to generate
+   * @return a stream of {@code int} values
+   * @throws IllegalArgumentException if {@code streamSize} is less than zero
+   */
+  public static IntStream ints(SplittableIntSupplier generator, long streamSize) {
+    if (streamSize < 0L) {
+      throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
+    }
+    return StreamSupport
+        .intStream(new IntsSpliterator(generator, 0L, streamSize), false);
+  }
+
+  /**
+   * Returns an effectively unlimited stream of {@code int} values from the generator
+   * and/or one split from it.
+   *
+   * @param generator the generator
+   * @return a stream of {@code int} values
+   * @implNote This method is implemented to be equivalent to
+   * {@link #ints(SplittableIntSupplier, long) ints(generator, Long.MAX_VALUE)}.
+   */
+  public static IntStream ints(SplittableIntSupplier generator) {
+    return StreamSupport
+        .intStream(new IntsSpliterator(generator, 0L, Long.MAX_VALUE), false);
+  }
+
+  /**
    * Returns a stream producing the given {@code streamSize} number of pseudorandom {@code long}
    * values from the generator and/or one split from it.
    *
@@ -829,37 +860,6 @@ public final class RngStreams {
     }
     return StreamSupport.doubleStream(new RandomDoublesSpliterator(rng, 0L, Long.MAX_VALUE,
         randomNumberOrigin, randomNumberBound), false);
-  }
-
-  /**
-   * Returns a stream producing the given {@code streamSize} number of {@code int}
-   * values from the generator and/or one split from it.
-   *
-   * @param generator the generator
-   * @param streamSize the number of values to generate
-   * @return a stream of {@code int} values
-   * @throws IllegalArgumentException if {@code streamSize} is less than zero
-   */
-  public static IntStream ints(SplittableIntSupplier generator, long streamSize) {
-    if (streamSize < 0L) {
-      throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
-    }
-    return StreamSupport
-        .intStream(new IntsSpliterator(generator, 0L, streamSize), false);
-  }
-
-  /**
-   * Returns an effectively unlimited stream of {@code int} values from the generator
-   * and/or one split from it.
-   *
-   * @param generator the generator
-   * @return a stream of {@code int} values
-   * @implNote This method is implemented to be equivalent to
-   * {@link #ints(SplittableIntSupplier, long) ints(generator, Long.MAX_VALUE)}.
-   */
-  public static IntStream ints(SplittableIntSupplier generator) {
-    return StreamSupport
-        .intStream(new IntsSpliterator(generator, 0L, Long.MAX_VALUE), false);
   }
 
   /**
