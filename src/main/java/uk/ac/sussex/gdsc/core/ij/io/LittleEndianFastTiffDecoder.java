@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
