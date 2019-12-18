@@ -49,11 +49,11 @@ public final class ByteArraySeekableStream extends SeekableStream {
    * Instantiates a new byte array seekable stream.
    *
    * @param bytes the bytes
+   * @param length the length
    */
-  ByteArraySeekableStream(byte[] bytes) {
-    ValidationUtils.checkNotNull(bytes, "bytes must not be null");
+  ByteArraySeekableStream(byte[] bytes, int length) {
     this.buffer = bytes;
-    length = bytes.length;
+    this.length = length;
   }
 
   /**
@@ -63,7 +63,19 @@ public final class ByteArraySeekableStream extends SeekableStream {
    * @return the byte array seekable stream
    */
   public static ByteArraySeekableStream wrap(byte[] bytes) {
-    return new ByteArraySeekableStream(bytes);
+    return new ByteArraySeekableStream(bytes, bytes.length);
+  }
+
+  /**
+   * Create a new byte array seekable stream wrapping the provided data.
+   *
+   * @param bytes the bytes
+   * @param length the length
+   * @return the byte array seekable stream
+   */
+  public static ByteArraySeekableStream wrap(byte[] bytes, int length) {
+    ValidationUtils.checkNotNull(bytes, "bytes must not be null");
+    return new ByteArraySeekableStream(bytes, length);
   }
 
   @Override
@@ -152,6 +164,6 @@ public final class ByteArraySeekableStream extends SeekableStream {
    */
   @Override
   public ByteArraySeekableStream copy() {
-    return new ByteArraySeekableStream(buffer);
+    return new ByteArraySeekableStream(buffer, length);
   }
 }
