@@ -210,6 +210,8 @@ public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDe
   public void nextBytes(byte[] bytes, int start, int len) {
     super.nextBytes(bytes, start, len);
     nextBytesRangeCount++;
+    // Check positive to avoid invalid accumulation.
+    // It is expected the nextBytes method ignored this too.
     if (len > 0) {
       nextBytesRangeSize.addUnsigned(len);
     }
