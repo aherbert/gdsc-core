@@ -37,11 +37,11 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
-import org.apache.commons.rng.simple.RandomSource;
 
 import java.awt.Rectangle;
 import java.util.EnumSet;
@@ -1455,7 +1455,7 @@ public class OpticsManager extends CoordinateStore {
     } else {
       // Random sample
       indices =
-          new PermutationSampler(RandomSource.create(RandomSource.SPLIT_MIX_64), size, sampleSize)
+          new PermutationSampler(UniformRandomProviders.create(), size, sampleSize)
               .sample();
     }
 
@@ -1826,9 +1826,9 @@ public class OpticsManager extends CoordinateStore {
    */
   private UniformRandomProvider getRandomGenerator() {
     if (seed == 0) {
-      return RandomSource.create(RandomSource.MWC_256);
+      return UniformRandomProviders.create();
     }
-    return RandomSource.create(RandomSource.MWC_256, seed);
+    return UniformRandomProviders.create(seed);
   }
 
   /**
