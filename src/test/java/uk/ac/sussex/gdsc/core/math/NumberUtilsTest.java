@@ -36,10 +36,15 @@ public class NumberUtilsTest {
     Assertions.assertEquals(3, NumberUtils.ulps(Double.MIN_VALUE, -Double.MIN_VALUE));
     Assertions.assertEquals(Long.MAX_VALUE, NumberUtils.ulps(Double.MAX_VALUE, -Double.MAX_VALUE));
     Assertions.assertEquals(Long.MAX_VALUE, NumberUtils.ulps(Double.NaN, Double.POSITIVE_INFINITY));
+    Assertions.assertEquals(Long.MAX_VALUE, NumberUtils.ulps(Double.NEGATIVE_INFINITY, Double.NaN));
     Assertions.assertEquals(Long.MAX_VALUE,
         NumberUtils.ulps(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
     Assertions.assertEquals(0,
         NumberUtils.ulps(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
     Assertions.assertEquals(0, NumberUtils.ulps(Double.NaN, Double.NaN));
+    // Different NaNs
+    final double a = Double.longBitsToDouble(0x7ff0000000000001L);
+    final double b = Double.longBitsToDouble(0x7ff0000000000002L);
+    Assertions.assertEquals(0, NumberUtils.ulps(a, b));
   }
 }
