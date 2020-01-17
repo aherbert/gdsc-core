@@ -24,4 +24,22 @@ public class NumberUtilsTest {
       Assertions.assertFalse(NumberUtils.isPrime(prime + 2), () -> (prime + 2) + " is not prime");
     }
   }
+
+  @Test
+  public void testUlps() {
+    Assertions.assertEquals(0, NumberUtils.ulps(4.56, 4.56));
+    Assertions.assertEquals(1, NumberUtils.ulps(4.56, Math.nextUp(4.56)));
+    Assertions.assertEquals(0, NumberUtils.ulps(0.0, 0.0));
+    Assertions.assertEquals(1, NumberUtils.ulps(-0.0, 0.0));
+    Assertions.assertEquals(1, NumberUtils.ulps(0.0, -0.0));
+    Assertions.assertEquals(2, NumberUtils.ulps(0.0, -Double.MIN_VALUE));
+    Assertions.assertEquals(3, NumberUtils.ulps(Double.MIN_VALUE, -Double.MIN_VALUE));
+    Assertions.assertEquals(Long.MAX_VALUE, NumberUtils.ulps(Double.MAX_VALUE, -Double.MAX_VALUE));
+    Assertions.assertEquals(Long.MAX_VALUE, NumberUtils.ulps(Double.NaN, Double.POSITIVE_INFINITY));
+    Assertions.assertEquals(Long.MAX_VALUE,
+        NumberUtils.ulps(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+    Assertions.assertEquals(0,
+        NumberUtils.ulps(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
+    Assertions.assertEquals(0, NumberUtils.ulps(Double.NaN, Double.NaN));
+  }
 }

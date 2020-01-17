@@ -286,4 +286,43 @@ public final class NumberUtils {
     }
     return true;
   }
+
+  /**
+   * Compute the units of least precision (ulps) between the two numbers. For convenience the result
+   * is clipped to {@value Long#MAX_VALUE} so that large differences are positive.
+   *
+   * <p>The magnitude of the result is meaningless if one but not both numbers are infinite or nan;
+   * or both are infinite or nan but not the same. In this case the method returns
+   * {@value Long#MAX_VALUE}. If the numbers are the same inf/nan the result is 0.
+   *
+   * @param a first number
+   * @param b second number
+   * @return the ulps
+   */
+  public static long ulps(double a, double b) {
+    // No requirement to collapse all NaNs to a single value so use raw bits
+    final long x = Double.doubleToRawLongBits(a);
+    final long y = Double.doubleToRawLongBits(b);
+    if (x != y) {
+      // inf/nan detection. Exponent will have all bits set.
+      if (((x | y) & 0x7ff0000000000000L) == 0x7ff0000000000000L) {
+        return Long.MAX_VALUE;
+      }
+      if ((x ^ y) < 0L) {
+        // Opposite signs. Measure the combined distance to zero.
+        // If positive the distance to zero is the number: x
+        // If negative the distance to zero is: (x - 0x8000000000000000L)
+        // +1 to measure -0.0 to 0.0.
+        // x - (y - 0x8000000000000000L) + 1 (when x > y)
+        // Due to roll-over we can combine this by measuring the distance
+        // of the negative value above the biggest positive number:
+        // x + (y - Long.MAX_VALUE)
+        final long z = x + y - Long.MAX_VALUE;
+        // For convenience do not return negative for large ulps
+        return z < 0 ? Long.MAX_VALUE : z;
+      }
+      return x < y ? y - x : x - y;
+    }
+    return 0;
+  }
 }
