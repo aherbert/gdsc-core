@@ -481,6 +481,34 @@ public final class NumberUtils {
   }
 
   /**
+   * Creates a signed double in the range {@code [-1, 1)}. The magnitude is sampled
+   * evenly from the 2<sup>54</sup> dyadic rationals in the range.
+   *
+   * <p>Note: This method will not return samples for both -0.0 and 0.0.
+   *
+   * @param bits the bits
+   * @return the double
+   */
+  public static double makeSignedDouble(long bits) {
+    // Upper 53-bits is a positive number in the range [0, 1).
+    // This has 1 optionally subtracted. Do not use the lower bits on the
+    // assumption they are less random.
+    return ((bits >>> 11) * 0x1.0p-53d) - ((bits >>> 10) & 0x1);
+  }
+
+  /**
+   * Creates a normalised double in the range {@code [1, 2)}. The magnitude is sampled
+   * evenly from the 2<sup>52</sup> dyadic rationals in the range.
+   *
+   * @param bits the bits
+   * @return the double
+   */
+  public static double makeNormalDouble(long bits) {
+    // Combine an unbiased exponent of 0 with the 52 bit mantissa
+    return Double.longBitsToDouble((1023L << 52) | (bits >>> 12));
+  }
+
+  /**
    * Compute the multiplicative inverse of an integer. Given {@code x} compute {@code y} such that
    * {@code x * y = y * x = 1}.
    *

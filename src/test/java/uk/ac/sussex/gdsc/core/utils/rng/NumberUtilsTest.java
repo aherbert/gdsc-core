@@ -659,4 +659,26 @@ public class NumberUtilsTest {
       Assertions.assertEquals(1, y * x, "y * x");
     }
   }
+
+  @Test
+  public void testMakeSignedDouble() {
+    // upper 53-bits for the magnitiude; another bit is used to select the sign
+    final long sign = 1L << 10;
+    Assertions.assertEquals(0.0, NumberUtils.makeSignedDouble(0L));
+    Assertions.assertEquals(-1.0, NumberUtils.makeSignedDouble(sign));
+    Assertions.assertEquals(Math.nextDown(1.0), NumberUtils.makeSignedDouble(0xfffffffffffff800L));
+    Assertions.assertEquals(-0x1.0p-53, NumberUtils.makeSignedDouble(0xfffffffffffff800L + sign));
+    Assertions.assertEquals(-0x2.0p-53, NumberUtils.makeSignedDouble(0xfffffffffffff000L + sign));
+    Assertions.assertEquals(-0x3.0p-53, NumberUtils.makeSignedDouble(0xffffffffffffe800L + sign));
+    Assertions.assertEquals(-0x4.0p-53, NumberUtils.makeSignedDouble(0xffffffffffffe000L + sign));
+  }
+
+  @Test
+  public void testMakeNormalDouble() {
+    // Assume bottom 12-bits are discarded
+    Assertions.assertEquals(1.0, NumberUtils.makeNormalDouble(0L));
+    Assertions.assertEquals(Math.nextDown(2.0), NumberUtils.makeNormalDouble(0xfffffffffffff000L));
+    Assertions.assertEquals(Math.nextUp(1.0), NumberUtils.makeNormalDouble(0x0000000000001000L));
+    Assertions.assertEquals(1.5, NumberUtils.makeNormalDouble(0x8000000000000000L));
+  }
 }
