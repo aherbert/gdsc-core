@@ -25,11 +25,14 @@ import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler
  * Sampling uses 64-bits per sample and branch conditions are avoided for efficient sampling.
  * This sampler can be used as an alternative to:
  * <pre>
- * // Samples from 2^54 dyadic rationals with a branch condition 
- * double x = rng.nextDouble() - (rng.nextBoolean() ? 1.0 : 0);
+ * // Samples from 2^54 dyadic rationals with a branch condition
+ * x = rng.nextDouble() - (rng.nextBoolean() ? 1.0 : 0);
+ *
+ * // Samples from 2^54 dyadic rationals with extra random bit required
+ * x = rng.nextDouble() - rng.nextInt(1);
  *
  * // Samples from 2^53 dyadic rationals with no branch condition 
- * double y = 2 * rng.nextDouble() - 1.0;
+ * x = 2 * rng.nextDouble() - 1.0;
  * </pre>
  *
  * @since 2.0
