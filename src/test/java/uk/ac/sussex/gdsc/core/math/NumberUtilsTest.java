@@ -46,5 +46,10 @@ public class NumberUtilsTest {
     final double a = Double.longBitsToDouble(0x7ff0000000000001L);
     final double b = Double.longBitsToDouble(0x7ff0000000000002L);
     Assertions.assertEquals(0, NumberUtils.ulps(a, b));
+    // Test exponents are not merged to the maximum
+    Assertions.assertEquals(
+        Double.doubleToRawLongBits(Double.MAX_VALUE)
+            - Double.doubleToRawLongBits(Double.MIN_NORMAL),
+        NumberUtils.ulps(Double.MAX_VALUE, Double.MIN_NORMAL));
   }
 }

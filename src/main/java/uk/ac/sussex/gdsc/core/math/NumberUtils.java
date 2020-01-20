@@ -305,7 +305,8 @@ public final class NumberUtils {
     final long y = Double.doubleToRawLongBits(b);
     if (x != y) {
       // inf/nan detection. Exponent will have all bits set.
-      if (((x | y) & 0x7ff0000000000000L) == 0x7ff0000000000000L) {
+      if ((x & 0x7ff0000000000000L) == 0x7ff0000000000000L
+          || (y & 0x7ff0000000000000L) == 0x7ff0000000000000L) {
         // Handle nan/nan here
         return Double.isNaN(a) && Double.isNaN(b) ? 0 : Long.MAX_VALUE;
       }
