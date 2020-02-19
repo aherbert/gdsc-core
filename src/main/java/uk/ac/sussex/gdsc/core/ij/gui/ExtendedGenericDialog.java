@@ -466,10 +466,10 @@ public class ExtendedGenericDialog extends GenericDialog {
     labels.add(label);
     if (Double.isFinite(defaultValue)) {
       final double min = Math.min(minValue, defaultValue);
-      final double max = Math.max(minValue, defaultValue);
+      final double max = Math.max(maxValue, defaultValue);
       super.addSlider(label, min, max, defaultValue);
     } else {
-      super.addSlider(label, minValue, minValue, defaultValue);
+      super.addSlider(label, minValue, maxValue, defaultValue);
     }
   }
 
