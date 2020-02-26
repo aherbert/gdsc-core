@@ -294,20 +294,20 @@ public final class NumberUtils {
    * or both are infinite or nan but not the same. In this case the method returns
    * {@value Long#MAX_VALUE}. If the numbers are the same inf/nan the result is 0.
    *
-   * @param v1 first number
-   * @param v2 second number
+   * @param a first number
+   * @param b second number
    * @return the ulps
    */
-  public static long ulps(double v1, double v2) {
+  public static long ulps(double a, double b) {
     // No requirement to collapse all NaNs to a single value so use raw bits
-    final long x = Double.doubleToRawLongBits(v1);
-    final long y = Double.doubleToRawLongBits(v2);
+    final long x = Double.doubleToRawLongBits(a);
+    final long y = Double.doubleToRawLongBits(b);
     if (x != y) {
       // inf/nan detection. Exponent will have all bits set.
       if ((x & 0x7ff0000000000000L) == 0x7ff0000000000000L
           || (y & 0x7ff0000000000000L) == 0x7ff0000000000000L) {
         // Handle nan/nan here
-        return Double.isNaN(v1) && Double.isNaN(v2) ? 0 : Long.MAX_VALUE;
+        return Double.isNaN(a) && Double.isNaN(b) ? 0 : Long.MAX_VALUE;
       }
       if ((x ^ y) < 0L) {
         // Opposite signs. Measure the combined distance to zero.
