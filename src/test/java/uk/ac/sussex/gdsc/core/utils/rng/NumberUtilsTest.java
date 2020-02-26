@@ -351,9 +351,9 @@ public class NumberUtilsTest {
 
       // Search down until extra is close to half of n
       final long lowerN = upperN >>> 1;
-      // @CHECKSTYLE.OFF: LocalVariableName
+      // CHECKSTYLE.OFF: LocalVariableName
       long n = upperN;
-      // @CHECKSTYLE.ON: LocalVariableName
+      // CHECKSTYLE.ON: LocalVariableName
       long gap = Math.abs(upperN - 2 * extra);
       while (upperN > lowerN && gap > 1) {
         final long ex = range % (--upperN);

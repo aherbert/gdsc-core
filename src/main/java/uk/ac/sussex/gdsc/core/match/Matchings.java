@@ -52,9 +52,6 @@ public final class Matchings {
   /** The constant for the maximum cost distance. */
   private static final int MAX_COST = 1 << 16;
 
-  // Allow u and v for the vertex names.
-  // @CHECKSTYLE.OFF: ParameterName
-
   /**
    * Define a consumer of matches between two sets.
    */
@@ -223,7 +220,7 @@ public final class Matchings {
     }
   }
 
-  // @CHECKSTYLE.ON: ParameterName
+  // CHECKSTYLE.ON: ParameterName
 
   /** No public construction. */
   private Matchings() {}

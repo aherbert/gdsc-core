@@ -187,9 +187,6 @@ public class HopcroftKarpMatching {
     }
   }
 
-  // Allow u and v for the vertex names.
-  // @CHECKSTYLE.OFF: ParameterName
-
   /**
    * Represents an operation that accepts two input arguments and returns no result.
    */

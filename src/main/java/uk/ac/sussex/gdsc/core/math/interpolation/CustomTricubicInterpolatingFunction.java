@@ -555,7 +555,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     return scale;
   }
 
-  // @CHECKSTYLE.OFF: ParameterName
+  // CHECKSTYLE.OFF: ParameterName
 
   private void buildInteger(final TrivalueProvider f, final TrivalueProvider dFdX,
       final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
@@ -737,7 +737,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         : new DoubleCustomTricubicFunction(new DoubleCubicSplineData(a));
   }
 
-  // @CHECKSTYLE.ON: ParameterName
+  // CHECKSTYLE.ON: ParameterName
 
   /**
    * Instantiates a new custom tricubic interpolating function.
@@ -2253,7 +2253,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     return optimum;
   }
 
-  // @CHECKSTYLE.OFF: ParameterName
+  // CHECKSTYLE.OFF: ParameterName
 
   /**
    * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have
