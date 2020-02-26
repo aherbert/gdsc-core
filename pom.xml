@@ -233,6 +233,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         <configuration>
           <excludes>
             <exclude>**/main/java/**/ags/utils/**/*.java</exclude>
+            <exclude>**/main/java/**/MarsagliaTsangGammaSampler.java</exclude>
           </excludes>
         </configuration>
       </plugin>
