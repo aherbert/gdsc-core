@@ -1,13 +1,12 @@
 package uk.ac.sussex.gdsc.core.utils.concurrent;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 @SuppressWarnings({"javadoc"})
 public class ConcurrencyUtilsTest {

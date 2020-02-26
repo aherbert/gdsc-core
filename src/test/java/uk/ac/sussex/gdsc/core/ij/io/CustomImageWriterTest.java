@@ -1,12 +1,10 @@
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import ij.io.FileInfo;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class CustomImageWriterTest {

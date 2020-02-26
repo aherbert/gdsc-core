@@ -1,11 +1,9 @@
 package uk.ac.sussex.gdsc.core.data;
 
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
 import ij.process.FloatProcessor;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings({"javadoc"})
 public class FloatStackTrivalueProviderTest {

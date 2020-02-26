@@ -28,11 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-
-import org.apache.commons.math3.util.FastMath;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +35,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
+import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 /**
  * Calculates the match between a set of predicted points and the actual points.

@@ -28,16 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.ij.gui;
 
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
-import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import ij.IJ;
 import ij.gui.GenericDialog;
 import ij.plugin.frame.Recorder;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -62,10 +55,14 @@ import java.awt.TextField;
 import java.awt.event.ActionListener;
 import java.util.Objects;
 import java.util.Vector;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
+import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Extension of the {@link ij.gui.GenericDialog} class to add functionality.

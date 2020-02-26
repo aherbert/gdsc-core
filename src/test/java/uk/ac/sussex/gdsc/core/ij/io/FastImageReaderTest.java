@@ -1,25 +1,22 @@
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.io.FileInfo;
 import ij.io.ImageReader;
 import ij.io.ImageWriter;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 /**
  * This tests read pixels using the {@link FastImageReader} matches the original binary data written

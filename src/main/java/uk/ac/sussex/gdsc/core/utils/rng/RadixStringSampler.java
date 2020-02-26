@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.util.Objects;
 import java.util.function.Supplier;
+import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Class for generating random strings using a given radix, e.g. hex strings.

@@ -29,11 +29,9 @@
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import ij.IJ;
-
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.ScrollPane;
-
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 

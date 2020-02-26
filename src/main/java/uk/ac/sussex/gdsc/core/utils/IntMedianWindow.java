@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.util.FastMath;
-
 import java.util.Arrays;
 import java.util.Objects;
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * Provides a rolling median window on a data array.

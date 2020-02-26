@@ -28,18 +28,15 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.set.hash.TIntHashSet;
+import java.awt.geom.Rectangle2D;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.TIntHashSet;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.rng.UniformRandomProvider;
-
-import java.awt.geom.Rectangle2D;
 
 /**
  * Contains the result of the DBSCAN algorithm.

@@ -28,13 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntBiConsumer;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import gnu.trove.list.array.TIntArrayList;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -44,6 +38,10 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.IntStream;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntBiConsumer;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Calculates the matching of two sets.

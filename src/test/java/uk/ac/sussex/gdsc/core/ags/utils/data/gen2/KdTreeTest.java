@@ -1,5 +1,15 @@
 package uk.ac.sussex.gdsc.core.ags.utils.data.gen2;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import uk.ac.sussex.gdsc.core.ags.utils.data.MaxHeap;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.Entry;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.DistanceFunction;
@@ -17,18 +27,6 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class KdTreeTest {

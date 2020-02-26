@@ -1,17 +1,16 @@
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.PermutationSampler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class RollingStatisticsTest {

@@ -1,11 +1,10 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.LongFunction;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.LongFunction;
 
 @SuppressWarnings("javadoc")
 public class UniformRandomProvidersTest {

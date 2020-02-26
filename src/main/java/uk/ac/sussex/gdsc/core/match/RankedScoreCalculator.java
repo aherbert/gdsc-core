@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.utils.TurboList;
-
 import java.util.Arrays;
 import java.util.BitSet;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Calculates the match scoring statistics for the first N predictions in a set of assignments

@@ -1,9 +1,8 @@
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Locale;
 
 @SuppressWarnings({"javadoc"})
 public class TextUtilsTest {

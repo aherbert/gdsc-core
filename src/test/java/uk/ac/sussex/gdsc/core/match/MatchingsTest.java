@@ -1,15 +1,5 @@
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.match.Matchings.CompositeMatchConsumer;
-import uk.ac.sussex.gdsc.core.match.Matchings.IntersectionMatchConsumer;
-import uk.ac.sussex.gdsc.core.match.Matchings.MatchConsumer;
-import uk.ac.sussex.gdsc.core.match.Matchings.UnmatchedMatchConsumer;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +10,14 @@ import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.match.Matchings.CompositeMatchConsumer;
+import uk.ac.sussex.gdsc.core.match.Matchings.IntersectionMatchConsumer;
+import uk.ac.sussex.gdsc.core.match.Matchings.MatchConsumer;
+import uk.ac.sussex.gdsc.core.match.Matchings.UnmatchedMatchConsumer;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 /**
  * Test for {@link Matchings}.

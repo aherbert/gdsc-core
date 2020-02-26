@@ -20,7 +20,7 @@ import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler
 
 /**
  * Sampling from the interval {@code [-1, 1)}.
- * 
+ *
  * <p>Samples evenly from the 2<sup>54</sup> dyadic rationals in the range.
  * Sampling uses 64-bits per sample and branch conditions are avoided for efficient sampling.
  * This sampler can be used as an alternative to:
@@ -31,7 +31,7 @@ import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler
  * // Samples from 2^54 dyadic rationals with extra random bit required
  * x = rng.nextDouble() - rng.nextInt(1);
  *
- * // Samples from 2^53 dyadic rationals with no branch condition 
+ * // Samples from 2^53 dyadic rationals with no branch condition
  * x = 2 * rng.nextDouble() - 1.0;
  * </pre>
  *

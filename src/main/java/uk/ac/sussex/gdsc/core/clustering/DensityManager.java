@@ -28,11 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
-import org.apache.commons.math3.util.FastMath;
-
 import java.awt.Rectangle;
+import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Calculate the density of localisations around a given position using a square block of specified

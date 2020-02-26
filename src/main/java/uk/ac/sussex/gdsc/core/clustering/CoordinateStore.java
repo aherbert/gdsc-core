@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import java.awt.Rectangle;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
-import java.awt.Rectangle;
 
 /**
  * Store 2D coordinates shifted to the origin for efficient grid processing.

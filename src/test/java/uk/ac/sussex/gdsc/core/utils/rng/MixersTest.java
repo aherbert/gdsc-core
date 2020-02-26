@@ -1,15 +1,13 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongUnaryOperator;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.IntUnaryOperator;
-import java.util.function.LongUnaryOperator;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings("javadoc")
 public class MixersTest {

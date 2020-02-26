@@ -1,11 +1,9 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-
+import java.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 @SuppressWarnings({"javadoc"})
 public class MemoryUtilsTest {

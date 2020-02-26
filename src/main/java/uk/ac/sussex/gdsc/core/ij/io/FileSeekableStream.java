@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * This class uses a random access file to allow seeking within a stream.

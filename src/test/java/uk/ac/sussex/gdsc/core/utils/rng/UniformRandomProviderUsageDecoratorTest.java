@@ -1,7 +1,11 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviderUsageDecorator.SizeCounter;
-
+import java.math.BigInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.LargeMeanPoissonSampler;
@@ -9,13 +13,7 @@ import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigInteger;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.ToLongFunction;
-import java.util.logging.Logger;
-import java.util.stream.IntStream;
+import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviderUsageDecorator.SizeCounter;
 
 @SuppressWarnings("javadoc")
 public class UniformRandomProviderUsageDecoratorTest {

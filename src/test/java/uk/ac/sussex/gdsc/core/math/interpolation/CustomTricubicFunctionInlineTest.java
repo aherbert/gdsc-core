@@ -1,13 +1,12 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import java.util.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.util.Formatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicFunction.
@@ -54,7 +53,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int j = 0; j < N; j++) {
           for (int i = 0; i < N; i++) {
             //@formatter:off
-            formatter.format("result += z.x%d * y.x%d * x.x%d * coeff.x%dy%dz%d;\n", k, j, i, i, j, k);
+            formatter.format("result += z.x%d * y.x%d * x.x%d * coeff.x%dy%dz%d;\n",
+                k, j, i, i, j, k);
             //@formatter:on
           }
         }
@@ -114,7 +114,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int k = 0; k < N; k++) {
           for (int j = 0; j < N; j++) {
             //@formatter:off
-            formatter.format("derivative1[0] += %d * x.x%d * z.x%d * y.x%d * coeff.x%dy%dz%d;\n", i+1, i, k, j, i+1, j, k);
+            formatter.format("derivative1[0] += %d * x.x%d * z.x%d * y.x%d * coeff.x%dy%dz%d;\n",
+                i+1, i, k, j, i+1, j, k);
             //@formatter:on
           }
         }
@@ -123,7 +124,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int k = 0; k < N; k++) {
           for (int i = 0; i < N; i++) {
             //@formatter:off
-            formatter.format("derivative1[1] += %d * y.x%d * z.x%d * x.x%d * coeff.x%dy%dz%d;\n", j+1, j, k, i, i, j+1, k);
+            formatter.format("derivative1[1] += %d * y.x%d * z.x%d * x.x%d * coeff.x%dy%dz%d;\n",
+                j+1, j, k, i, i, j+1, k);
             //@formatter:on
           }
         }
@@ -132,7 +134,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int j = 0; j < N; j++) {
           for (int i = 0; i < N; i++) {
             //@formatter:off
-            formatter.format("derivative1[2] += %d * z.x%d * y.x%d * x.x%d * coeff.x%dy%dz%d;\n", k+1, k, j, i, i, j, k+1);
+            formatter.format("derivative1[2] += %d * z.x%d * y.x%d * x.x%d * coeff.x%dy%dz%d;\n",
+                k+1, k, j, i, i, j, k+1);
             //@formatter:on
           }
         }
@@ -193,7 +196,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int k = 0; k < N; k++) {
           for (int j = 0; j < N; j++) {
             //@formatter:off
-            formatter.format("derivative2[0] += %d * x.x%d * z.x%d * y.x%d * coeff.x%dy%dz%d;\n", (i+1)*(i+2), i, k, j, i+2, j, k);
+            formatter.format("derivative2[0] += %d * x.x%d * z.x%d * y.x%d * coeff.x%dy%dz%d;\n",
+                (i+1)*(i+2), i, k, j, i+2, j, k);
             //@formatter:on
           }
         }
@@ -202,7 +206,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int k = 0; k < N; k++) {
           for (int i = 0; i < N; i++) {
             //@formatter:off
-            formatter.format("derivative2[1] += %d * y.x%d * z.x%d * x.x%d * coeff.x%dy%dz%d;\n", (j+1)*(j+2), j, k, i, i, j+2, k);
+            formatter.format("derivative2[1] += %d * y.x%d * z.x%d * x.x%d * coeff.x%dy%dz%d;\n",
+                (j+1)*(j+2), j, k, i, i, j+2, k);
             //@formatter:on
           }
         }
@@ -211,7 +216,8 @@ public class CustomTricubicFunctionInlineTest {
         for (int j = 0; j < N; j++) {
           for (int i = 0; i < N; i++) {
             //@formatter:off
-            formatter.format("derivative2[2] += %d * z.x%d * y.x%d * x.x%d * coeff.x%dy%dz%d;\n", (k+1)*(k+2), k, j, i, i, j, k+2);
+            formatter.format("derivative2[2] += %d * z.x%d * y.x%d * x.x%d * coeff.x%dy%dz%d;\n",
+                (k+1)*(k+2), k, j, i, i, j, k+2);
             //@formatter:on
           }
         }
@@ -227,7 +233,8 @@ public class CustomTricubicFunctionInlineTest {
 
   /**
    * Build data for:
-   * {@link DoubleCustomTricubicFunction#value0(CubicSplinePosition, CubicSplinePosition, CubicSplinePosition)}.
+   * {@link DoubleCustomTricubicFunction#value0(CubicSplinePosition, CubicSplinePosition,
+   * CubicSplinePosition)}.
    */
   @Test
   public void canConstructInlineValue0() {
@@ -237,7 +244,8 @@ public class CustomTricubicFunctionInlineTest {
 
   /**
    * Build data for:
-   * {@link DoubleCustomTricubicFunction#value1(CubicSplinePosition, CubicSplinePosition, CubicSplinePosition, double[])}.
+   * {@link DoubleCustomTricubicFunction#value1(CubicSplinePosition, CubicSplinePosition,
+   * CubicSplinePosition, double[])}.
    */
   @Test
   public void canConstructInlineValue1() {
@@ -247,7 +255,8 @@ public class CustomTricubicFunctionInlineTest {
 
   /**
    * Build data for:
-   * {@link DoubleCustomTricubicFunction#value2(CubicSplinePosition, CubicSplinePosition, CubicSplinePosition, double[], double[])}.
+   * {@link DoubleCustomTricubicFunction#value2(CubicSplinePosition, CubicSplinePosition,
+   * CubicSplinePosition, double[], double[])}.
    */
   @Test
   public void canConstructInlineValue2() {

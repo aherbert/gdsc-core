@@ -1,13 +1,10 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.core.utils.EnumList;
-import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
 public class EnumListTest {

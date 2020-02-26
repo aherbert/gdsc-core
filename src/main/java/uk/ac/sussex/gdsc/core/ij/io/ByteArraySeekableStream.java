@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import java.io.IOException;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * This class uses a byte array to store an entire seekable stream in memory.

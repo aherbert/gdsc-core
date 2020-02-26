@@ -28,14 +28,12 @@
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import gnu.trove.list.array.TIntArrayList;
-
 import ij.IJ;
 import ij.Macro;
 import ij.WindowManager;
 import ij.gui.GUI;
 import ij.macro.Interpreter;
 import ij.plugin.frame.Recorder;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Component;
@@ -60,7 +58,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 

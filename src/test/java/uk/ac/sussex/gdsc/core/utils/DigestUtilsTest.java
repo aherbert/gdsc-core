@@ -1,17 +1,15 @@
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Locale;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.RadixStringSampler;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Locale;
 
 @SuppressWarnings({"javadoc"})
 public class DigestUtilsTest {

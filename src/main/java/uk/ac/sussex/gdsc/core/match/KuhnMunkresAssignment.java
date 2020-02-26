@@ -28,15 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import gnu.trove.list.array.TIntArrayList;
+import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
-import gnu.trove.list.array.TIntArrayList;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.util.Arrays;
 
 /**
  * Class to compute the assignment problem in polynomial time using the Kuhn-Munkres (Hungarian)

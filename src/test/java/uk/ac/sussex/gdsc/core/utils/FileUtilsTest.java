@@ -1,9 +1,5 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +10,9 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.security.Permission;
 import java.util.EnumSet;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class FileUtilsTest {

@@ -28,6 +28,17 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import java.awt.Rectangle;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
@@ -38,19 +49,6 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.PermutationSampler;
-
-import java.awt.Rectangle;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Compute clustering using OPTICS.

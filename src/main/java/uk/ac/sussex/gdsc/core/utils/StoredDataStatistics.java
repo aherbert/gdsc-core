@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.

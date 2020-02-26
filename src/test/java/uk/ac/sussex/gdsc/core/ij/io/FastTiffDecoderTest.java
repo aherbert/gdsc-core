@@ -1,15 +1,5 @@
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder.IndexMap;
-import uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder.NumberOfImages;
-import uk.ac.sussex.gdsc.core.ij.process.LutHelper;
-import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutColour;
-import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
-import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImageJ;
@@ -27,11 +17,6 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.LUT;
 import ij.process.ShortProcessor;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.awt.Rectangle;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +28,18 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder.IndexMap;
+import uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder.NumberOfImages;
+import uk.ac.sussex.gdsc.core.ij.process.LutHelper;
+import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutColour;
+import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
+import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 /**
  * This tests reading image metadata using the the {@link FastTiffDecoder} matches the metadata read

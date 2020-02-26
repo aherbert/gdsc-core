@@ -20,13 +20,12 @@
 
 package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3;
 
-import uk.ac.sussex.gdsc.core.ags.utils.data.BinaryHeap;
-import uk.ac.sussex.gdsc.core.ags.utils.data.IntervalHeap;
-import uk.ac.sussex.gdsc.core.ags.utils.data.MinHeap;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import uk.ac.sussex.gdsc.core.ags.utils.data.BinaryHeap;
+import uk.ac.sussex.gdsc.core.ags.utils.data.IntervalHeap;
+import uk.ac.sussex.gdsc.core.ags.utils.data.MinHeap;
 
 /**
  * The Class NearestNeighborIterator.

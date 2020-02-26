@@ -1,9 +1,5 @@
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
@@ -12,16 +8,17 @@ import ij.VirtualStack;
 import ij.io.FileInfo;
 import ij.io.TiffEncoder;
 import ij.measure.Calibration;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.Assertions;
-
 import java.awt.image.IndexColorModel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.BiFunction;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.Assertions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 /**
  * This tests writing pixels and image metadata using the the {@link CustomTiffEncoder}

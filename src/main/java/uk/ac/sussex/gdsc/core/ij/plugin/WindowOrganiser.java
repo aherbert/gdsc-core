@@ -29,14 +29,12 @@
 package uk.ac.sussex.gdsc.core.ij.plugin;
 
 import gnu.trove.list.array.TIntArrayList;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
-
 import java.awt.Dimension;
 
 /**

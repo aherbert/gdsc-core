@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.ij.text;
 
 import ij.text.TextPanel;
 import ij.text.TextWindow;
-
 import java.util.ArrayList;
 
 /**

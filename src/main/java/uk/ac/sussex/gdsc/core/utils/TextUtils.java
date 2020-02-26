@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.lang3.text.WordUtils;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Formatter;
 import java.util.Locale;
+import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * Text utilities.

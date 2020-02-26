@@ -1,11 +1,10 @@
 package uk.ac.sussex.gdsc.core.ij.process;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper.DefaultLutMapper;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutMapper;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper.NonZeroLutMapper;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class LutHelperTest {

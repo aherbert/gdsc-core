@@ -368,7 +368,8 @@ public class TurboList<E> extends AbstractList<E>
      *
      * @param  index index of the element to return
      * @return the element at the specified position in this list
-     * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
+     * @throws IndexOutOfBoundsException  if the index is out of range
+     *  (index &lt; 0 || index &gt;= capacity)
      */
     public E getf(int index) {
         return elementData(index);
@@ -398,7 +399,8 @@ public class TurboList<E> extends AbstractList<E>
      *
      * @param index index of the element to replace
      * @param element element to be stored at the specified position
-     * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
+     * @throws IndexOutOfBoundsException  if the index is out of range
+     *  (index &lt; 0 || index &gt;= capacity)
      */
     public void setf(int index, E element) {
         elementData[index] = element;
@@ -534,7 +536,8 @@ public class TurboList<E> extends AbstractList<E>
     }
 
     /**
-     * Removes all of the elements from this list. Does not set the references to null to allow garbage collection.
+     * Removes all of the elements from this list. Does not set the references to null to
+     * allow garbage collection.
      */
     public void clearf() {
         size = 0;

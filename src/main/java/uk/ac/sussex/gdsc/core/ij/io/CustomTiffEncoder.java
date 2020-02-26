@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import ij.io.FileInfo;
-
 import java.io.IOException;
 import java.io.OutputStream;
 

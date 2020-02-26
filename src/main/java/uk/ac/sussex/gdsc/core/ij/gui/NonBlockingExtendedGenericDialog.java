@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.ij.gui;
 
 import ij.IJ;
 import ij.WindowManager;
-
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;

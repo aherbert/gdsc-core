@@ -28,14 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.logging.PlainMessageFormatter;
-
 import ij.IJ;
-
 import java.util.logging.ErrorManager;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
+import uk.ac.sussex.gdsc.core.logging.PlainMessageFormatter;
 
 /**
  * Publish log records to the ImageJ log window.

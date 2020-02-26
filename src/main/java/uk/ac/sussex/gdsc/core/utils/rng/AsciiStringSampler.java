@@ -29,10 +29,8 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
 import gnu.trove.list.array.TCharArrayList;
-
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.util.Objects;
+import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Class for generating random strings from the printable ASCII character set.

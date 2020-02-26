@@ -28,10 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils.concurrent;
 
-import uk.ac.sussex.gdsc.core.annotation.NotNull;
-
-import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
+import uk.ac.sussex.gdsc.core.annotation.NotNull;
 
 /**
  * Contains concurrent utility functions.

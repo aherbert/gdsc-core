@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.threshold;
 
-import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
-
 import java.util.Arrays;
+import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
 
 /**
  * Contains a histogram.

@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import ij.IJ;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-
-import ij.IJ;
 
 /**
  * Report the progress of processing results.

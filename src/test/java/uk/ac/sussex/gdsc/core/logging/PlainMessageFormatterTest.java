@@ -1,11 +1,10 @@
 package uk.ac.sussex.gdsc.core.logging;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class PlainMessageFormatterTest {

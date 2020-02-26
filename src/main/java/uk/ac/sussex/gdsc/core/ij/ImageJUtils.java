@@ -28,14 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.annotation.NotNull;
-import uk.ac.sussex.gdsc.core.annotation.Nullable;
-import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
-import uk.ac.sussex.gdsc.core.logging.Ticker;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.TextUtils;
-import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -59,9 +51,6 @@ import ij.process.ImageStatistics;
 import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -78,6 +67,14 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.ArrayUtils;
+import uk.ac.sussex.gdsc.core.annotation.NotNull;
+import uk.ac.sussex.gdsc.core.annotation.Nullable;
+import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
+import uk.ac.sussex.gdsc.core.logging.Ticker;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.TextUtils;
+import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
  * Contains helper functions.

@@ -1,18 +1,16 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.SplittableRandom;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.core.source64.SplitMix64;
 import org.apache.commons.rng.core.util.NumberFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.SplittableRandom;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings("javadoc")
 public class SplitMixTest {

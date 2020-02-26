@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.Objects;
+import java.util.function.Function;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
-
-import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Supply splittable instances.

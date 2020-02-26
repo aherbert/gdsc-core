@@ -1,5 +1,14 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import com.google.common.util.concurrent.AtomicDouble;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
+import org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler;
+import org.apache.commons.rng.sampling.distribution.DiscreteUniformSampler;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.DoublesSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.IntsSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomDoublesSpliterator;
@@ -7,18 +16,6 @@ import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomIntsSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomLongsSpliterator;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-
-import com.google.common.util.concurrent.AtomicDouble;
-
-import org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler;
-import org.apache.commons.rng.sampling.distribution.DiscreteUniformSampler;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.DoubleConsumer;
-import java.util.function.IntConsumer;
-import java.util.function.LongConsumer;
 
 @SuppressWarnings("javadoc")
 public class RngStreamsTest {

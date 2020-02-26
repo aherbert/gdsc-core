@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.utils.ConvexHull;
-
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 
 /**
  * Provide space for storing cluster coordinates.

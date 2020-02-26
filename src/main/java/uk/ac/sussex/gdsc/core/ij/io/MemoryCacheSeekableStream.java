@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.core.utils.TurboList;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * This class uses a memory cache to allow seeking within an InputStream.
@@ -85,7 +84,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
   public int read(byte[] bytes, int off, int len) throws IOException {
     ValidationUtils.checkNotNull(bytes, "bytes must not be null");
     if (off < 0 || len < 0
-    // Overflow safe
+        // Overflow safe
         || off + len - bytes.length > 0) {
       throw new IndexOutOfBoundsException();
     }

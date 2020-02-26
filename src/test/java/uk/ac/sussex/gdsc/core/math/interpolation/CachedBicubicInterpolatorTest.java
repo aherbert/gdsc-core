@@ -1,13 +1,11 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
-
-import ij.process.FloatProcessor;
-import ij.process.ImageProcessor;
-
-import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link CachedBicubicInterpolator}.

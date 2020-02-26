@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.core.utils.IntFixedList;
-
 import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 
 /**
  * Computes the local maxima. Allows filtering of the maxima using simple height and width checks. .

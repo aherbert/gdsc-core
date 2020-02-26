@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-
 import ij.IJ;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 
 /**
  * Report the progress of processing results. The outputs used are configurable.

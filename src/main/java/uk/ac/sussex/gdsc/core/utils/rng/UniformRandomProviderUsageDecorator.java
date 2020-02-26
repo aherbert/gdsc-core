@@ -28,12 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.math.BigInteger;
 import java.util.Formatter;
+import org.apache.commons.rng.UniformRandomProvider;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 
 /**
  * Decorate a {@link UniformRandomProvider} to accumulate usage statistics.

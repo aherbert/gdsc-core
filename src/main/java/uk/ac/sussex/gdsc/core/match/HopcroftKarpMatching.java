@@ -28,11 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 
 /**
  * Class to compute the maximum cardinality matching of a bipartite graph using the Hopcroft–Karp

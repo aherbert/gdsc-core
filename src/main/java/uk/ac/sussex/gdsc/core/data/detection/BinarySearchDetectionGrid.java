@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.data.detection;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Class to compute collision detections between a point and a set of rectangles.

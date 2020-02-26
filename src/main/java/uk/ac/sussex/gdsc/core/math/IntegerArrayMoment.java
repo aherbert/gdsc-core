@@ -28,13 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
+import java.math.BigInteger;
+import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.math.BigInteger;
 
 /**
  * Simple class to calculate the mean and variance of arrayed integer data using a fast summation

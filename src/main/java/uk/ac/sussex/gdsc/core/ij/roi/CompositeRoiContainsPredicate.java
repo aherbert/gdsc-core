@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.ij.roi;
 
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
-
 import java.awt.Rectangle;
 import java.awt.Shape;
 

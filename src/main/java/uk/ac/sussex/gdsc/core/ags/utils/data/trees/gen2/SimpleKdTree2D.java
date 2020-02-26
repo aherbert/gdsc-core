@@ -20,10 +20,9 @@
 
 package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 
-import uk.ac.sussex.gdsc.core.ags.utils.data.DistanceUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+import uk.ac.sussex.gdsc.core.ags.utils.data.DistanceUtils;
 
 /**
  * An efficient well-optimized kd-tree.

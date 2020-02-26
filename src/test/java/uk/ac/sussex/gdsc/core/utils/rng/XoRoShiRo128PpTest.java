@@ -1,9 +1,8 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("javadoc")
 public class XoRoShiRo128PpTest {

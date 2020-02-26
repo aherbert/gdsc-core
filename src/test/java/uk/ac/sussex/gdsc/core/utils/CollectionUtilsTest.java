@@ -1,10 +1,9 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.EnumSet;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class CollectionUtilsTest {
@@ -91,8 +90,10 @@ public class CollectionUtilsTest {
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B), A, B, C, D, E, F));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C), A, B, C, D, E, F));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C, D), A, B, C, D, E, F));
-    Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C, D, E), A, B, C, D, E, F));
-    Assertions.assertTrue(CollectionUtils.containsAll(EnumSet.of(A, B, C, D, E, F), A, B, C, D, E, F));
+    Assertions.assertFalse(CollectionUtils.containsAll(
+        EnumSet.of(A, B, C, D, E), A, B, C, D, E, F));
+    Assertions.assertTrue(CollectionUtils.containsAll(
+        EnumSet.of(A, B, C, D, E, F), A, B, C, D, E, F));
     // @formatter:on
   }
 

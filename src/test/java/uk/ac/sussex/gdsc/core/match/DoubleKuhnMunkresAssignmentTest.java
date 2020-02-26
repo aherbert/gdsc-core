@@ -1,14 +1,12 @@
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-
+import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 /**
  * Test for {@link DoubleKuhnMunkresAssignment}.

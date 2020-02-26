@@ -1,5 +1,14 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.PoissonSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -10,17 +19,6 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.PoissonSampler;
-import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Test the DensityCounter.
@@ -348,23 +346,25 @@ public class DensityCounterTest {
 
     //@formatter:off
     final TimingService ts = new TimingService();
-    //ts.execute(new MyTimingTask("countAllSimple")
-    //{
-    //  public Object run(Object data) { int i = (Integer) data; return c[i].countAllSimple(molecules[i], nChannels - 1); }
+    //ts.execute(new MyTimingTask("countAllSimple") {
+    //  public Object run(Object data) {
+    //    int i = (Integer) data;
+    //    return c[i].countAllSimple(molecules[i], nChannels - 1);
+    //  }
     //});
-    //ts.execute(new MyTimingTask("countAllSimple static")
-    //{
-    //  public Object run(Object data) { int i = (Integer) data; return DensityCounter.countAll(molecules[i], molecules2[i], radius, nChannels - 1); }
+    //ts.execute(new MyTimingTask("countAllSimple static") {
+    //  public Object run(Object data) {
+    //    int i = (Integer) data;
+    //    return DensityCounter.countAll(molecules[i], molecules2[i], radius, nChannels - 1);
+    //  }
     //});
-    ts.execute(new MyTimingTask("countAllAroundMolecules single thread")
-    {
+    ts.execute(new MyTimingTask("countAllAroundMolecules single thread") {
       @Override
       public Object run(Object data) { final int i = (Integer) data;
         c[i].setNumberOfThreads(1);
         return c[i].countAll(molecules2[i], channels - 1); }
     });
-    ts.execute(new MyTimingTask("countAllAroundMolecules single thread + constructor")
-    {
+    ts.execute(new MyTimingTask("countAllAroundMolecules single thread + constructor") {
       @Override
       public Object run(Object data) { final int i = (Integer) data;
           final DensityCounter c = new DensityCounter(molecules[i], radius, true);
@@ -372,15 +372,13 @@ public class DensityCounterTest {
           return c.countAll(molecules2[i], channels - 1); }
     });
     if (numberOfThreads > 1) {
-      ts.execute(new MyTimingTask("countAllAroundMolecules multi thread")
-      {
+      ts.execute(new MyTimingTask("countAllAroundMolecules multi thread") {
         @Override
         public Object run(Object data) { final int i = (Integer) data;
           c[i].setNumberOfThreads(numberOfThreads);
           return c[i].countAll(molecules2[i], channels - 1); }
       });
-      ts.execute(new MyTimingTask("countAllAroundMolecules multi thread + constructor")
-      {
+      ts.execute(new MyTimingTask("countAllAroundMolecules multi thread + constructor") {
         @Override
         public Object run(Object data) { final int i = (Integer) data;
             final DensityCounter c = new DensityCounter(molecules[i], radius, true);

@@ -28,6 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import ij.gui.PlotWindow;
+import java.util.Arrays;
+import java.util.Objects;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
@@ -35,14 +40,6 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
-
-import ij.gui.PlotWindow;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.util.FastMath;
-
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Class for computing and plotting histograms.

@@ -1,13 +1,12 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import java.util.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.util.Formatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is used to in-line the computation for the {@link DoubleCubicSplineData}.
@@ -69,9 +68,11 @@ public class CubicSplineDataInlineTest {
       sb.append("   * @param y y-coordinate of the interpolation point.").append(NL);
       sb.append("   * @param z z-coordinate of the interpolation point.").append(NL);
       sb.append("   */").append(NL);
-      sb.append("  public DoubleCubicSplineData(CubicSplinePosition x, CubicSplinePosition y,").append(NL);
+      sb.append("  public DoubleCubicSplineData(CubicSplinePosition x, CubicSplinePosition y,")
+        .append(NL);
       sb.append("      CubicSplinePosition z) {").append(NL);
-      sb.append("    // Table computed as if iterating: z^a * y^b * x^c a,b,c in [0, 3]").append(NL);
+      sb.append("    // Table computed as if iterating: z^a * y^b * x^c a,b,c in [0, 3]")
+        .append(NL);
       // @formatter:on
 
       String powerZpowerY;
@@ -93,7 +94,8 @@ public class CubicSplineDataInlineTest {
       sb.append("  /**").append(NL);
       sb.append("   * Create a new instance of the cubic spline coefficients.").append(NL);
       sb.append("   *").append(NL);
-      sb.append("   * <p>Coefficients must be computed as if iterating: z^a * y^b * x^c with a,b,c in [0, 3].").append(NL);
+      sb.append("   * <p>Coefficients must be computed as if iterating: z^a * y^b * x^c with " +
+          "a,b,c in [0, 3].").append(NL);
       sb.append("   *").append(NL);
       sb.append("   * @param coefficients the coefficients.").append(NL);
       sb.append("   */").append(NL);

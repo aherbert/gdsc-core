@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.Arrays;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.util.FastMath;
-
-import java.util.Arrays;
 
 /**
  * Contains methods to find the noise in the provided image data.

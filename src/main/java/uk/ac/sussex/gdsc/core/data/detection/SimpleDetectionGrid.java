@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.data.detection;
 
 import gnu.trove.list.array.TIntArrayList;
-
 import java.awt.geom.Rectangle2D;
 
 /**

@@ -1,9 +1,8 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 /**
  * Test for {@link FloatCubicSplineData}.

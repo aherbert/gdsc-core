@@ -28,11 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-
 import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
 import org.apache.commons.rng.core.util.NumberFactory;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 
 /**
  * Middle Square Weyl Sequence Random Number Generator.

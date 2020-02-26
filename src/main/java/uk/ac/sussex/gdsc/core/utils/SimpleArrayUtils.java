@@ -28,19 +28,16 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.core.annotation.NotNull;
-import uk.ac.sussex.gdsc.core.annotation.Nullable;
-import uk.ac.sussex.gdsc.core.utils.function.FloatUnaryOperator;
-
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.function.LongUnaryOperator;
+import org.apache.commons.lang3.ArrayUtils;
+import uk.ac.sussex.gdsc.core.annotation.NotNull;
+import uk.ac.sussex.gdsc.core.annotation.Nullable;
+import uk.ac.sussex.gdsc.core.utils.function.FloatUnaryOperator;
 
 /**
  * Class for manipulating arrays.

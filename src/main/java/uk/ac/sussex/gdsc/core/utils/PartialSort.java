@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Provides functionality to partially sort an array.

@@ -28,11 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.utils.ConvexHull;
-
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.awt.geom.Rectangle2D;
+import org.apache.commons.rng.UniformRandomProvider;
+import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 
 /**
  * Contains the clustering result of the DBSCAN/OPTICS algorithm.

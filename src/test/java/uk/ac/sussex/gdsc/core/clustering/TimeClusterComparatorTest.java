@@ -1,9 +1,8 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
 
 @SuppressWarnings({"javadoc"})
 public class TimeClusterComparatorTest {

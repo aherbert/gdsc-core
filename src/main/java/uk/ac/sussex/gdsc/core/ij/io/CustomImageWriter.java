@@ -31,7 +31,6 @@ package uk.ac.sussex.gdsc.core.ij.io;
 import ij.VirtualStack;
 import ij.io.FileInfo;
 import ij.process.ImageProcessor;
-
 import java.io.IOException;
 import java.io.OutputStream;
 

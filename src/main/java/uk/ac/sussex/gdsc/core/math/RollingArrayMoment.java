@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import org.apache.commons.lang3.ArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Simple class to calculate the mean and variance of arrayed data using a rolling algorithm.

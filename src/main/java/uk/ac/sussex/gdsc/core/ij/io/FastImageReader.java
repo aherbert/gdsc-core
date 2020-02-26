@@ -28,13 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.utils.FileUtils;
-
 import ij.io.FileInfo;
-
 import java.io.EOFException;
 import java.io.IOException;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.utils.FileUtils;
 
 /**
  * Reads raw 8-bit, 16-bit or 32-bit (float or Rgb) images from a stream.

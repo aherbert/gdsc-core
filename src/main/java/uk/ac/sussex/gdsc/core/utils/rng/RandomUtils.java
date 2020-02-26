@@ -28,11 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.CombinationSampler;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 /**
  * Random utilities.

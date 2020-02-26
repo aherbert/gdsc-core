@@ -1,15 +1,13 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.utils.rng.Entropy.EntropyDigest;
-
+import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.core.util.NumberFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
+import uk.ac.sussex.gdsc.core.utils.rng.Entropy.EntropyDigest;
 
 @SuppressWarnings("javadoc")
 public class EntropyTest {

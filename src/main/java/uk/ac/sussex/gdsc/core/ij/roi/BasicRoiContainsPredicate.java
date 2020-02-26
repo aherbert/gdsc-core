@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 import ij.gui.Roi;
-
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;

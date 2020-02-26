@@ -28,15 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.utils.DigestUtils;
-
 import com.google.common.hash.Funnel;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.PrimitiveSink;
-
 import ij.ImageStack;
 import ij.process.ImageProcessor;
+import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 
 /**
  * Contains helper functions for using the {@link Hasher} functionality of Guava.

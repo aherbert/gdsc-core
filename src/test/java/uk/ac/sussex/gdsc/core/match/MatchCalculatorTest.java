@@ -1,15 +1,13 @@
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.ToDoubleBiFunction;
+import org.apache.commons.lang3.ArrayUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 /**
  * Test for {@link MatchCalculator}.

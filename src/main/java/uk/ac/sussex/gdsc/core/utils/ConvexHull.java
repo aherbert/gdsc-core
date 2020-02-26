@@ -28,15 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.core.math.GeometryUtils;
-
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
-
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
+import uk.ac.sussex.gdsc.core.math.GeometryUtils;
 
 /**
  * Contains a set of paired coordinates representing the convex hull of a set of points.

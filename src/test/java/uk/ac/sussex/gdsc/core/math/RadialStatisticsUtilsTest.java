@@ -1,9 +1,8 @@
 package uk.ac.sussex.gdsc.core.math;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 /**
  * Test for {@link RadialStatisticsUtils}.

@@ -28,12 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.ij.roi;
 
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
 import ij.gui.Roi;
 import ij.process.FloatPolygon;
-
 import java.awt.geom.Rectangle2D;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 /**
  * Class for testing if coordinates are within a polygon/free/traced ROI.

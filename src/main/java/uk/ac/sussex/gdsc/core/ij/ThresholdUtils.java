@@ -28,13 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.threshold.AutoThreshold;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import ij.ImageStack;
 import ij.process.ImageProcessor;
-
 import java.awt.Rectangle;
+import uk.ac.sussex.gdsc.core.threshold.AutoThreshold;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Contains helper functions for ImageJ pixels.

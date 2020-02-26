@@ -28,16 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.analytics.GoogleAnalyticsClient;
-import uk.ac.sussex.gdsc.core.VersionUtils;
-import uk.ac.sussex.gdsc.core.utils.TextUtils;
-
 import ij.IJ;
 import ij.ImageJ;
 import ij.Prefs;
 import ij.gui.GenericDialog;
 import ij.macro.MacroRunner;
-
 import java.awt.Button;
 import java.awt.Dimension;
 import java.io.BufferedReader;
@@ -48,6 +43,9 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.analytics.GoogleAnalyticsClient;
+import uk.ac.sussex.gdsc.core.VersionUtils;
+import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 /**
  * Provide a global reference to a Google Analytics client for tracking GDSC ImageJ plugins.

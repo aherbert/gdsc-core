@@ -1,12 +1,10 @@
 package uk.ac.sussex.gdsc.core.match;
 
 import gnu.trove.map.hash.TIntIntHashMap;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for {@link Resequencer}.

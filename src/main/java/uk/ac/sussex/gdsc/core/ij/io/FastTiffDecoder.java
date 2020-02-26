@@ -28,6 +28,14 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
+import ij.io.FileInfo;
+import ij.util.Tools;
+import java.awt.Rectangle;
+import java.io.EOFException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.function.LongSupplier;
+import java.util.logging.Logger;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
@@ -36,16 +44,6 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
-
-import ij.io.FileInfo;
-import ij.util.Tools;
-
-import java.awt.Rectangle;
-import java.io.EOFException;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.function.LongSupplier;
-import java.util.logging.Logger;
 
 /**
  * Re-implement the {@link ij.io.TiffDecoder} to allow it to use a SeekableStream interface.

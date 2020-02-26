@@ -28,14 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.data.ComputationException;
-import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
-
-import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
-import org.apache.commons.math3.util.FastMath;
-
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +36,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
+import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.data.ComputationException;
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
  * Find clusters of points using a clustering algorithm.

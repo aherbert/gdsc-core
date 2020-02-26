@@ -33,7 +33,6 @@ import ij.ImagePlus;
 import ij.gui.GenericDialog;
 import ij.io.Opener;
 import ij.plugin.FolderOpener;
-
 import java.awt.Label;
 import java.awt.TextField;
 import java.awt.event.ItemEvent;

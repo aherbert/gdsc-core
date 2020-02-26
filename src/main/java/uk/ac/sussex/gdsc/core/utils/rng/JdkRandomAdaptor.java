@@ -28,15 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.data.NotImplementedException;
-
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.Random;
+import org.apache.commons.rng.UniformRandomProvider;
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
 /**
  * Extension of <code>java.util.Random</code> wrapping a {@link UniformRandomProvider}.

@@ -1,15 +1,13 @@
 package uk.ac.sussex.gdsc.core.match;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntBiConsumer;
 import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntList;
 import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntQueue;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test for {@link HopcroftKarpMatching}.

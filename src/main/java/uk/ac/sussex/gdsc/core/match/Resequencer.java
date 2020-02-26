@@ -28,15 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import gnu.trove.map.hash.TIntIntHashMap;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Provide methods to re-number a sequence of identifiers.

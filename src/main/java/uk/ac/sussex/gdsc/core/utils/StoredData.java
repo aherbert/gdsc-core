@@ -28,11 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Expandable store for data backed by a double array.

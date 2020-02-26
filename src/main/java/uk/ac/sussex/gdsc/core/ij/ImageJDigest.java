@@ -28,12 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.utils.DigestUtils;
-
 import ij.ImageStack;
 import ij.process.ImageProcessor;
-
 import java.security.MessageDigest;
+import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 
 /**
  * Provide digest functionality for ImageJ images to digest the pixels array.

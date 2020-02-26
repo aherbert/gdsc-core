@@ -28,10 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.data.NotImplementedException;
-
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
 /**
  * Adapts {@link org.apache.commons.rng.UniformRandomProvider} interface for the

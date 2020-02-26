@@ -28,22 +28,19 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.utils.ConvexHull;
-import uk.ac.sussex.gdsc.core.utils.SortUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
-import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.rng.UniformRandomProvider;
+import uk.ac.sussex.gdsc.core.utils.ConvexHull;
+import uk.ac.sussex.gdsc.core.utils.SortUtils;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 
 /**
  * Contains the result of the OPTICS algorithm.

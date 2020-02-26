@@ -28,11 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Utilities for working with {@link java.util.logging.Logger}.

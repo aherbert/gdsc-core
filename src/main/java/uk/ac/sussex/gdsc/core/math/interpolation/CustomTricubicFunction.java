@@ -29,12 +29,10 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
+import java.io.Serializable;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
-
-import java.io.Serializable;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 /**
  * 3D-spline function.

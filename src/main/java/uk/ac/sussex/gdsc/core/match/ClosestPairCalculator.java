@@ -28,12 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +36,10 @@ import java.util.RandomAccess;
 import java.util.function.IntFunction;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Calculates the closest pair of 2D coordinates.

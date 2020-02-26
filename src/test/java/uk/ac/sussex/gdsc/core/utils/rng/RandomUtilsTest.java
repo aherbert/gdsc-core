@@ -1,14 +1,10 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings("javadoc")
 public class RandomUtilsTest {

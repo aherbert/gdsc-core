@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij.process;
 
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-
 import ij.ImageStack;
 import ij.process.FHT;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 /**
  * Copy implementation of {@link ij.process.FHT} to increase the speed where possible.

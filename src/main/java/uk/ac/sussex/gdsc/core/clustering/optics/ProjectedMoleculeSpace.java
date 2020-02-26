@@ -28,6 +28,18 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import gnu.trove.set.hash.TIntHashSet;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.UnitSphereSampler;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
@@ -40,21 +52,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.Pcg32;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-
-import gnu.trove.set.hash.TIntHashSet;
-
-import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.UnitSphereSampler;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Store molecules and allows generation of random projections.

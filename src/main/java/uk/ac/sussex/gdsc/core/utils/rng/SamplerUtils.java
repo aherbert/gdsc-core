@@ -28,8 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -43,9 +43,7 @@ import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
-
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Sampler utilities.

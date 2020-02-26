@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import org.apache.commons.rng.UniformRandomProvider;
-
 import java.util.Objects;
+import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Decorate a {@link UniformRandomProvider} to accumulate usage statistics.

@@ -28,13 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij.process;
 
+import ij.process.LUT;
+import java.awt.Color;
 import uk.ac.sussex.gdsc.core.data.DataException;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
-
-import ij.process.LUT;
-
-import java.awt.Color;
 
 /**
  * Contains functions for ImageJ LUTs.

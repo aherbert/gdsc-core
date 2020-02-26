@@ -28,14 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.utils.TurboList;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Contains utility functions for using {@code java.util.logging} within ImageJ.

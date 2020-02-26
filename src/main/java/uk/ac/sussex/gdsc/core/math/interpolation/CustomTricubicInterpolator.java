@@ -28,6 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
+import org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
@@ -38,15 +45,6 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
-
-import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
-import org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator;
-import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.NonMonotonicSequenceException;
-import org.apache.commons.math3.exception.NumberIsTooSmallException;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 /**
  * Generates a tricubic interpolating function.

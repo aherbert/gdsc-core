@@ -28,14 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.utils.ImageWindow;
-import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
-import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
-import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
-import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowFunction;
-import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -44,10 +36,15 @@ import ij.process.FHT;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.util.Tools;
-
-import org.apache.commons.math3.util.FastMath;
-
 import java.awt.Rectangle;
+import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowFunction;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 /**
  * Aligns an image stack to a reference image using XY translation to maximise the correlation.

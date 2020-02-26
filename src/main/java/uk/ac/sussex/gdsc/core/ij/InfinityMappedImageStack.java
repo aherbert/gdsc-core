@@ -32,7 +32,6 @@ import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.InfinityMappedFloatProcessor;
-
 import java.awt.image.ColorModel;
 
 /**

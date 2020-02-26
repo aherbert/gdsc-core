@@ -1,11 +1,10 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
 public class RandomGeneratorAdaptorTest {
