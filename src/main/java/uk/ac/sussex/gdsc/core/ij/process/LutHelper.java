@@ -359,12 +359,27 @@ public final class LutHelper {
      * Get the LUT colour for the given number.
      *
      * @param lut the lut number
-     * @return the lut colour
+     * @return the lut colour (or null)
      */
     public static LutColour forNumber(int lut) {
       final LutColour[] values = LutColour.values();
       if (lut >= 0 && lut < values.length) {
         return values[lut];
+      }
+      return null;
+    }
+
+    /**
+     * Get the LUT colour for the given name. The case is ignored when matching the name.
+     *
+     * @param name the name (case insensitive)
+     * @return the lut colour (or null)
+     */
+    public static LutColour forName(String name) {
+      for (final LutColour value :  LutColour.values()) {
+        if (value.nameString.equalsIgnoreCase(name)) {
+          return value;
+        }
       }
       return null;
     }
@@ -397,7 +412,7 @@ public final class LutHelper {
    * @return The LUT
    */
   public static LUT getColorModel() {
-    // For legacy comptability. There are now other choices in the LutColour enum for distinct
+    // For legacy compatibility. There are now other choices in the LutColour enum for distinct
     // colours
     return createLut(LutColour.DISTINCT);
   }
