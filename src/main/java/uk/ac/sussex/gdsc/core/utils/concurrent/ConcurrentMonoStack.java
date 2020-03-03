@@ -34,12 +34,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Allow work to be added to a Last In First Out (LIFO) stack of size 1 in a synchronised manner.
+ * Offers blocking and non-blocking methods to add and take from the stack.
  *
  * <p>Provides a method to replace the current top of the stack to allow a LIFO functionality when
  * the stack is full.
  *
  * <p>The stack is closeable to prevent further additions. Items can still be removed from a closed
  * stack.
+ *
+ * <p>The stack does not implement a {@code java.util.Collection} interface and can only contain 1
+ * element. However the blocking functionality is more similar to the concurrent collections in
+ * {@code java.util.concurrent} than an {@link java.util.concurrent.atomic.AtomicReference
+ * AtomicReference}. The class and methods have been named using similar wording to a
+ * {@link java.util.Deque Deque} which can be used as a stack for adding (push, offer) and
+ * removal (pop, poll, peek).
  *
  * @param <E> the element type
  * @since 1.2.0
@@ -54,14 +62,14 @@ public class ConcurrentMonoStack<E> {
   /** The single item in the mono stack. */
   private E item;
 
-  /** Main lock guarding all access. */
+  /** Lock controlling access. */
   private final ReentrantLock lock;
 
-  /** Condition for waiting takes. */
-  private final Condition notEmpty;
-
-  /** Condition for waiting puts. */
+  /** Condition for waiting additions. */
   private final Condition notFull;
+
+  /** Condition for waiting removals. */
+  private final Condition notEmpty;
 
   /** The closed flag. Should only be modified when holding lock. */
   private boolean closed;
@@ -87,8 +95,8 @@ public class ConcurrentMonoStack<E> {
   /**
    * Creates an {@code ConcurrentMonoStack} with the specified access policy.
    *
-   * @param fair if {@code true} then stack accesses for threads blocked on insertion or removal,
-   *        are processed in FIFO order; if {@code false} the access order is unspecified.
+   * @param fair if {@code true} then stack accesses for threads blocked on addition or removal, are
+   *        processed in FIFO order; if {@code false} the access order is unspecified.
    */
   public ConcurrentMonoStack(boolean fair) {
     lock = new ReentrantLock(fair);
@@ -194,21 +202,17 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Inserts element and signals. Call only when holding lock.
+   * Pushes an element onto the stack and signals not empty.
    */
-  private void enqueue(E x) {
-    // assert lock.getHoldCount() == 1
-    // assert items[putIndex] == null
+  private void doPush(E x) {
     item = x;
     notEmpty.signal();
   }
 
   /**
-   * Extracts element and signals. Call only when holding lock.
+   * Pops the most recently added element from the stack and signals not full.
    */
-  private E dequeue() {
-    // assert lock.getHoldCount() == 1
-    // assert items[takeIndex] != null
+  private E doPop() {
     final E x = item;
     item = null;
     // Set the closedAndEmpty flag to avoid synchronisation in a further dequeue methods
@@ -220,8 +224,7 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Inserts the specified element into the stack waiting if necessary for space to become
-   * available.
+   * Adds the specified element onto the stack waiting if necessary for space to become available.
    *
    * <p>If closed then either ignores the element or throws an exception.
    *
@@ -261,7 +264,7 @@ public class ConcurrentMonoStack<E> {
         return false;
       }
 
-      enqueue(element);
+      doPush(element);
       return true;
     } finally {
       localLock.unlock();
@@ -280,7 +283,7 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Inserts the specified element into the stack if it is possible to do so immediately without
+   * Adds the specified element onto the stack if it is possible to do so immediately without
    * violating capacity restrictions, returning {@code true} upon success and {@code false} if no
    * space is currently available.
    *
@@ -301,7 +304,7 @@ public class ConcurrentMonoStack<E> {
       if (closed || item != null) {
         return false;
       }
-      enqueue(element);
+      doPush(element);
       return true;
     } finally {
       localLock.unlock();
@@ -309,7 +312,8 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Inserts the specified element into the stack replacing the current head position.
+   * Inserts the specified element onto the stack replacing the most recently added element if it
+   * exists.
    *
    * <p>If closed then either ignores the element or throws an exception.
    *
@@ -334,7 +338,7 @@ public class ConcurrentMonoStack<E> {
         checkAdditionToClosedStack();
         return false;
       }
-      enqueue(element);
+      doPush(element);
       return true;
     } finally {
       localLock.unlock();
@@ -342,8 +346,8 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Retrieves and removes the head of the stack, waiting if necessary until an element becomes
-   * available.
+   * Retrieves and removes the most recently added element from the stack, waiting if necessary
+   * until an element becomes available.
    *
    * <p>If the stack is closed while waiting then this method will unblock and either return null or
    * throw an exception.
@@ -352,7 +356,7 @@ public class ConcurrentMonoStack<E> {
    * stack, i.e. do not continue to call this method as it will no longer block but will have
    * locking synchronisation overhead.
    *
-   * @return the head of this stack
+   * @return the top of this stack
    * @throws InterruptedException if interrupted while waiting
    * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
    * @see #isThrowIfClosed()
@@ -376,7 +380,7 @@ public class ConcurrentMonoStack<E> {
         notEmpty.await();
       }
 
-      return dequeue();
+      return doPop();
     } finally {
       localLock.unlock();
     }
@@ -394,9 +398,10 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Retrieves and removes the head of the stack, or returns {@code null} if this stack is empty.
+   * Retrieves and removes the most recently added element from the stack, or returns {@code null}
+   * if this stack is empty.
    *
-   * @return the head of this stack, or {@code null} if this stack is empty
+   * @return the top of this stack, or {@code null} if this stack is empty
    */
   public E poll() {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -408,17 +413,17 @@ public class ConcurrentMonoStack<E> {
     localLock.lock();
     try {
       // Allow poll if closed for additions
-      return (item == null) ? null : dequeue();
+      return (item == null) ? null : doPop();
     } finally {
       localLock.unlock();
     }
   }
 
   /**
-   * Retrieves, but does not remove, the head of the stack, or returns {@code null} if this stack is
-   * empty.
+   * Retrieves, but does not remove, the most recently added element from the stack, or returns
+   * {@code null} if this stack is empty.
    *
-   * @return the head of this stack, or {@code null} if this stack is empty
+   * @return the top of this stack, or {@code null} if this stack is empty
    */
   public E peek() {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
