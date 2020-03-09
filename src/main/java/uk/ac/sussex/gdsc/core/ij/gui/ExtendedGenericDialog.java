@@ -60,8 +60,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -88,12 +88,12 @@ public class ExtendedGenericDialog extends GenericDialog {
 
   private Component positionComponent;
 
-  private transient TurboList<OptionListener<?>> listeners;
+  private transient LocalList<OptionListener<?>> listeners;
 
-  private transient TurboList<OptionCollectedListener> optionCollectedListeners;
+  private transient LocalList<OptionCollectedListener> optionCollectedListeners;
 
   /** The labels. Used to reset the recorder. */
-  private final TurboList<String> labels = new TurboList<>();
+  private final LocalList<String> labels = new LocalList<>();
 
   // We capture all components added to the dialog and put them on a single panel
   private GridBagLayout grid;
@@ -874,7 +874,7 @@ public class ExtendedGenericDialog extends GenericDialog {
    */
   public void addOptionCollectedListener(OptionCollectedListener listener) {
     if (optionCollectedListeners == null) {
-      optionCollectedListeners = new TurboList<>();
+      optionCollectedListeners = new LocalList<>();
     }
     optionCollectedListeners.add(listener);
   }
@@ -885,7 +885,7 @@ public class ExtendedGenericDialog extends GenericDialog {
     }
     final OptionCollectedEvent e = new OptionCollectedEvent(label);
     for (int i = 0; i < optionCollectedListeners.size(); i++) {
-      optionCollectedListeners.getf(i).optionCollected(e);
+      optionCollectedListeners.unsafeGet(i).optionCollected(e);
     }
   }
 
@@ -914,7 +914,7 @@ public class ExtendedGenericDialog extends GenericDialog {
 
   private int addOptionListener(OptionListener<?> optionListener) {
     if (listeners == null) {
-      listeners = new TurboList<>();
+      listeners = new LocalList<>();
     }
     final int id = listeners.size();
     listeners.add(optionListener);
@@ -1109,7 +1109,7 @@ public class ExtendedGenericDialog extends GenericDialog {
       return;
     }
     for (int i = 0; i < listeners.size(); i++) {
-      listeners.getf(i).collectOptions();
+      listeners.unsafeGet(i).collectOptions();
     }
   }
 

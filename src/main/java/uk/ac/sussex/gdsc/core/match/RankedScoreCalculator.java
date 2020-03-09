@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.match;
 
 import java.util.Arrays;
 import java.util.BitSet;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 /**
  * Calculates the match scoring statistics for the first N predictions in a set of assignments
@@ -231,8 +231,8 @@ public class RankedScoreCalculator {
     // set fits into cached memory and the standard boolean array does not.
     final boolean[] actualAssignment = new boolean[maxA + 1];
     final int sizeP = Math.min(numberOfPredictions, maxP + 1);
-    final TurboList<FractionalAssignment> scored =
-        (save) ? new TurboList<>(Math.min(sizeP, actualAssignment.length)) : null;
+    final LocalList<FractionalAssignment> scored =
+        (save) ? new LocalList<>(Math.min(sizeP, actualAssignment.length)) : null;
 
     double[] result;
 
@@ -271,7 +271,7 @@ public class RankedScoreCalculator {
    */
   private double[] scoreMultiMatches(int numberOfPredictions, boolean save,
       final FractionalAssignment[] localAssignments, final boolean[] actualAssignment,
-      final int sizeP, final TurboList<FractionalAssignment> scored) {
+      final int sizeP, final LocalList<FractionalAssignment> scored) {
     final double[] predictedAssignments = new double[sizeP];
 
     double tp = 0;
@@ -324,7 +324,7 @@ public class RankedScoreCalculator {
    */
   private double[] scoreSingleMatches(int numberOfPredictions, boolean save,
       final FractionalAssignment[] localAssignments, final boolean[] actualAssignment,
-      final int sizeP, final TurboList<FractionalAssignment> scored) {
+      final int sizeP, final LocalList<FractionalAssignment> scored) {
     final boolean[] predictedAssignment = new boolean[sizeP];
 
     double tp = 0;

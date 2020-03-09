@@ -38,8 +38,8 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 
 /**
@@ -989,8 +989,8 @@ public class OpticsResult implements ClusteringResult {
     // https://elki-project.github.io/
     // The ELKI project is used for JUnit testing this implementation.
 
-    final TurboList<SteepDownArea> setOfSteepDownAreas = new TurboList<>();
-    final TurboList<OpticsCluster> setOfClusters = new TurboList<>();
+    final LocalList<SteepDownArea> setOfSteepDownAreas = new LocalList<>();
+    final LocalList<OpticsCluster> setOfClusters = new LocalList<>();
     int index = 0;
     // The maximum value between a certain point and the current index; Maximum-in-between (mib).
     double mib = 0;
@@ -1095,7 +1095,7 @@ public class OpticsResult implements ClusteringResult {
         // Note: mib currently holds the value at the end-of-steep-up
         final double threshold = mib * ixi;
         for (int i = setOfSteepDownAreas.size(); i-- > 0;) {
-          final SteepDownArea sda = setOfSteepDownAreas.getf(i);
+          final SteepDownArea sda = setOfSteepDownAreas.unsafeGet(i);
 
           // Condition 3B:
           // All points within the start-end are below min(r[start],r[end]) * (1-Xi).
@@ -1168,7 +1168,7 @@ public class OpticsResult implements ClusteringResult {
 
             final boolean[] remove = new boolean[setOfClusters.size()];
             for (int ii = 0; ii < setOfClusters.size(); ii++) {
-              final OpticsCluster child = setOfClusters.getf(ii);
+              final OpticsCluster child = setOfClusters.unsafeGet(ii);
               if (cstart <= child.start && child.end <= cend) {
                 if (lowestId > child.clusterId) {
                   lowestId = child.clusterId;
@@ -1199,7 +1199,7 @@ public class OpticsResult implements ClusteringResult {
             // Build the hierarchy of clusters
             final boolean[] remove = new boolean[setOfClusters.size()];
             for (int ii = 0; ii < setOfClusters.size(); ii++) {
-              final OpticsCluster child = setOfClusters.getf(ii);
+              final OpticsCluster child = setOfClusters.unsafeGet(ii);
               if (cstart <= child.start && child.end <= cend) {
                 cluster.addChildCluster(child);
                 remove[ii] = true;
@@ -1229,7 +1229,7 @@ public class OpticsResult implements ClusteringResult {
    * @param ixi the ixi
    */
   private static void updateFilterSdaSet(final double mib,
-      TurboList<SteepDownArea> setOfSteepDownAreas, final double ixi) {
+      LocalList<SteepDownArea> setOfSteepDownAreas, final double ixi) {
     final double threshold = mib / ixi;
     // Return true to remove.
     // "we filter all steep down areas from SDASet whose start multiplied by (1-ξ)
@@ -1237,8 +1237,8 @@ public class OpticsResult implements ClusteringResult {
     setOfSteepDownAreas.removeIf(sda -> sda.maximum < threshold);
     // Update mib-values
     for (int i = setOfSteepDownAreas.size(); i-- > 0;) {
-      if (mib > setOfSteepDownAreas.getf(i).mib) {
-        setOfSteepDownAreas.getf(i).mib = mib;
+      if (mib > setOfSteepDownAreas.unsafeGet(i).mib) {
+        setOfSteepDownAreas.unsafeGet(i).mib = mib;
       }
     }
   }

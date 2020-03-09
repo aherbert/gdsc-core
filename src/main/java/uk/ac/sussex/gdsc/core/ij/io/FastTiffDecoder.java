@@ -42,8 +42,8 @@ import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Re-implement the {@link ij.io.TiffDecoder} to allow it to use a SeekableStream interface.
@@ -1500,7 +1500,7 @@ public abstract class FastTiffDecoder {
     if (ifdOffset < 8L) {
       return null;
     }
-    final TurboList<ExtendedFileInfo> list = new TurboList<>();
+    final LocalList<ExtendedFileInfo> list = new LocalList<>();
     if (debugMode) {
       debugInfo = "\n  " + name + ": opening\n";
     }

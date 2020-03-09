@@ -35,8 +35,8 @@ import java.util.concurrent.Future;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.FloatIntKdTree2D;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.IntNeighbourStore;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.Status;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
@@ -280,7 +280,7 @@ public class LoOp {
     // Multi-thread
     final int threadCount = getNumberOfThreads();
     final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-    final TurboList<Future<?>> futures = new TurboList<>(threadCount);
+    final LocalList<Future<?>> futures = new LocalList<>(threadCount);
     final int nPerThread = (int) Math.ceil((double) size / threadCount);
 
     // Find neighbours for each point and
@@ -297,7 +297,7 @@ public class LoOp {
 
     // Compute Probabilistic Local Outlier Factors (PLOF)
     final double[] plofs = new double[size];
-    final TurboList<PlofWorker> workers = new TurboList<>(threadCount);
+    final LocalList<PlofWorker> workers = new LocalList<>(threadCount);
     for (int from = 0; from < size;) {
       final int to = Math.min(from + nPerThread, size);
       final PlofWorker w = new PlofWorker(neighbours, neighbourCount, pd, plofs, from, to);
@@ -329,7 +329,7 @@ public class LoOp {
     return plofs;
   }
 
-  private static void wait(TurboList<Future<?>> futures)
+  private static void wait(LocalList<Future<?>> futures)
       throws InterruptedException, ExecutionException {
     ConcurrencyUtils.waitForCompletion(futures);
     futures.clear();

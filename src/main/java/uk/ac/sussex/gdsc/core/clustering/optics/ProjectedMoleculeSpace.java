@@ -44,10 +44,10 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.Pcg32;
@@ -129,7 +129,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   private ExecutorService executorService;
 
   /** Sets that resulted from recursive split of entire point set. */
-  private TurboList<Split> splitSets;
+  private LocalList<Split> splitSets;
 
   /** The neighbours of each point. */
   private int[][] allNeighbours;
@@ -143,14 +143,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   private static class Split {
 
     /** The sets. */
-    final TurboList<int[]> sets;
+    final LocalList<int[]> sets;
 
     /**
      * Instantiates a new split.
      *
      * @param sets the sets
      */
-    Split(TurboList<int[]> sets) {
+    Split(LocalList<int[]> sets) {
       this.sets = sets;
     }
   }
@@ -199,7 +199,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @throws ConcurrentRuntimeException If interrupted while computing
    */
   public void computeSets(int minSplitSize) {
-    splitSets = new TurboList<>();
+    splitSets = new LocalList<>();
 
     // Edge cases
     if (minSplitSize < MIN_NEIGHBOURS_SIZE || size < MIN_NEIGHBOURS_SIZE) {
@@ -208,7 +208,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (size == MIN_NEIGHBOURS_SIZE) {
       // No point performing projections and splits
-      final TurboList<int[]> sets = new TurboList<>(1);
+      final LocalList<int[]> sets = new LocalList<>(1);
       sets.add(new int[] {0, 1});
       splitSets.add(new Split(sets));
       return;
@@ -243,7 +243,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final double increment = Math.PI / localNumberOfProjections;
 
     final Ticker ticker = Ticker.createStarted(tracker, localNumberOfProjections, true);
-    final TurboList<Runnable> tasks = new TurboList<>();
+    final LocalList<Runnable> tasks = new LocalList<>();
     for (int i = 0; i < localNumberOfProjections; i++) {
       final double[] randomVector = createUnitVector(vectorGen, increment, i);
       final int index = i;
@@ -283,7 +283,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       }
 
       tasks.add(() -> {
-        final TurboList<int[]> sets = new TurboList<>();
+        final LocalList<int[]> sets = new LocalList<>();
         // New random generator using the split
         splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.natural(size), 0, size, 0,
             rng.split(), minSplitSize);
@@ -382,13 +382,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    *
    * @param tasks the tasks
    */
-  private void runTasks(TurboList<Runnable> tasks) {
+  private void runTasks(LocalList<Runnable> tasks) {
     if (executorService == null) {
       for (final Runnable task : tasks) {
         task.run();
       }
     } else {
-      final List<Future<?>> futures = new TurboList<>();
+      final List<Future<?>> futures = new LocalList<>();
       for (final Runnable task : tasks) {
         futures.add(executorService.submit(task));
       }
@@ -419,7 +419,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param minSplitSize minimum size for which a point set is further partitioned (roughly
    *        corresponds to minPts in OPTICS)
    */
-  private void splitupNoSort(TurboList<int[]> splitSets, float[][] projectedPoints, int[] ind,
+  private void splitupNoSort(LocalList<int[]> splitSets, float[][] projectedPoints, int[] ind,
       int begin, int end, int depth, UniformRandomProvider rand, int minSplitSize) {
     final int nele = end - begin;
 
@@ -466,7 +466,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     }
   }
 
-  private void saveSet(TurboList<int[]> splitSets, int[] ind, int begin, int end,
+  private void saveSet(LocalList<int[]> splitSets, int[] ind, int begin, int end,
       UniformRandomProvider rand, float[] tpro) {
     final int[] indices = Arrays.copyOfRange(ind, begin, end);
     if (sampleMode == SampleMode.RANDOM) {
@@ -633,12 +633,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     // Multi-thread the hash set operations for speed.
     // We can do this if each split uses each index only once.
-    final TurboList<Future<?>> futures =
-        (executorService != null && n > 1 && !saveApproximateSets) ? new TurboList<>() : null;
+    final LocalList<Future<?>> futures =
+        (executorService != null && n > 1 && !saveApproximateSets) ? new LocalList<>() : null;
 
     final Ticker ticker = Ticker.createStarted(tracker, n, futures != null);
     for (int i = 0; i < n; i++) {
-      final Split split = splitSets.getf(i);
+      final Split split = splitSets.unsafeGet(i);
       if (futures == null) {
         sampleNeighbours(sumDistances, countDistances, neighbours, split.sets, 0,
             split.sets.size());
@@ -694,21 +694,21 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param to the to index
    */
   private void sampleNeighbours(double[] sumDistances, int[] countDistances,
-      TIntHashSet[] neighbours, TurboList<int[]> sets, int from, int to) {
+      TIntHashSet[] neighbours, LocalList<int[]> sets, int from, int to) {
     switch (sampleMode) {
       case RANDOM:
         for (int i = from; i < to; i++) {
-          sampleNeighboursRandom(sumDistances, countDistances, neighbours, sets.getf(i));
+          sampleNeighboursRandom(sumDistances, countDistances, neighbours, sets.unsafeGet(i));
         }
         break;
       case MEDIAN:
         for (int i = from; i < to; i++) {
-          sampleNeighboursUsingMedian(sumDistances, countDistances, neighbours, sets.getf(i));
+          sampleNeighboursUsingMedian(sumDistances, countDistances, neighbours, sets.unsafeGet(i));
         }
         break;
       case ALL:
         for (int i = from; i < to; i++) {
-          sampleNeighboursAll(sumDistances, countDistances, neighbours, sets.getf(i));
+          sampleNeighboursAll(sumDistances, countDistances, neighbours, sets.unsafeGet(i));
         }
         break;
       default:

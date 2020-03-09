@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.ij.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -46,7 +46,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
   private static final int BLOCK_SHIFT = 10;
   private final InputStream src;
   private long pointer;
-  private final TurboList<byte[]> data;
+  private final LocalList<byte[]> data;
   private long length;
   private boolean endOfStream;
 
@@ -58,7 +58,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
    */
   public MemoryCacheSeekableStream(InputStream inputstream) {
     ValidationUtils.checkNotNull(inputstream, "input stream must not be null");
-    data = new TurboList<>();
+    data = new LocalList<>();
     src = inputstream;
   }
 

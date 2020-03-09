@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 /**
  * Contains utility functions for using {@code java.util.logging} within ImageJ.
@@ -117,7 +117,7 @@ public final class ImageJLoggingUtils {
    * @return the list
    */
   public static List<Handler> collectHandlers(Logger logger) {
-    final TurboList<Handler> handlers = new TurboList<>();
+    final LocalList<Handler> handlers = new LocalList<>();
     while (logger != null) {
       handlers.addAll(Arrays.asList(logger.getHandlers()));
       if (!logger.getUseParentHandlers()) {

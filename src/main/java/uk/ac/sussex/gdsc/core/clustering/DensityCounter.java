@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
@@ -678,7 +678,7 @@ public class DensityCounter {
 
       // Use an executor service so that we know when complete
       final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-      final TurboList<Future<?>> futures = new TurboList<>(threadCount);
+      final LocalList<Future<?>> futures = new LocalList<>(threadCount);
 
       final int nPerThread = (int) Math.ceil((double) process.length / threadCount);
       for (int from = 0; from < process.length;) {
@@ -734,7 +734,7 @@ public class DensityCounter {
 
       // Use an executor service so that we know when complete
       final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-      final TurboList<Future<?>> futures = new TurboList<>(threadCount);
+      final LocalList<Future<?>> futures = new LocalList<>(threadCount);
 
       final int nPerThread = (int) Math.ceil((double) moleculesLength / threadCount);
       for (int molecule = 0; molecule < moleculesLength;) {

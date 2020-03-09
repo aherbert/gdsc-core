@@ -54,8 +54,8 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
@@ -297,7 +297,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
           CustomTricubicInterpolator.getTaskSizeAndNumberOfTasks(total, safeTaskSize);
       safeTaskSize = tmp[0];
       final long nTasks = tmp[1];
-      final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
+      final LocalList<Future<?>> futures = new LocalList<>((int) nTasks);
       for (long i = 0; i < total;) {
         final long from = i;
         final long to = Math.min(i + safeTaskSize, total);

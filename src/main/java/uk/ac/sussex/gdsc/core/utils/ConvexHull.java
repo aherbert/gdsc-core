@@ -122,7 +122,7 @@ public final class ConvexHull {
   public static ConvexHull create(float xbase, float ybase, float[] x, float[] y, int n) {
     // Use Apache Math to do this
     final MonotoneChain chain = new MonotoneChain(false, DEFAULT_TOLERANCE);
-    final TurboList<Vector2D> points = new TurboList<>(n);
+    final LocalList<Vector2D> points = new LocalList<>(n);
     for (int i = 0; i < n; i++) {
       points.add(new Vector2D(xbase + x[i], ybase + y[i]));
     }

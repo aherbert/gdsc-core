@@ -42,8 +42,8 @@ import uk.ac.sussex.gdsc.core.data.ValueProvider;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
@@ -354,7 +354,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       final long[] tmp = getTaskSizeAndNumberOfTasks(total, localTaskSize);
       localTaskSize = tmp[0];
       final long numberOfTasks = tmp[1];
-      final TurboList<Future<?>> futures = new TurboList<>((int) numberOfTasks);
+      final LocalList<Future<?>> futures = new LocalList<>((int) numberOfTasks);
       for (long i = 0; i < total;) {
         final long from = i;
         final long to = Math.min(i + localTaskSize, total);
@@ -1257,7 +1257,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       final long[] tmp = getTaskSizeAndNumberOfTasks(nNodes, localTaskSize);
       localTaskSize = tmp[0];
       final long numberOfTasks = tmp[1];
-      final TurboList<Future<?>> futures = new TurboList<>((int) numberOfTasks);
+      final LocalList<Future<?>> futures = new LocalList<>((int) numberOfTasks);
       for (long n = 0; n < nNodes;) {
         final long from = n;
         final long to = Math.min(n + localTaskSize, nNodes);

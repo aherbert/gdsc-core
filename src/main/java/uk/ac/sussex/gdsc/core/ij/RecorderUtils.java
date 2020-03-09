@@ -29,7 +29,7 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import ij.plugin.frame.Recorder;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 /**
  * Contains helper functions for the recorder.
@@ -64,7 +64,7 @@ public final class RecorderUtils {
     // " "+key+"="+value
     // " "+key+"=["+value+"]"
     boolean ignored = false;
-    final TurboList<String[]> pairs = new TurboList<>();
+    final LocalList<String[]> pairs = new LocalList<>();
     int current = 0;
     final int len = commandOptions.length();
     while (current < len) {
@@ -123,7 +123,7 @@ public final class RecorderUtils {
     // Re-record all the remaining pairs
     Recorder.setCommand(commandName);
     for (int i = 0; i < pairs.size(); i++) {
-      final String[] pair = pairs.getf(i);
+      final String[] pair = pairs.unsafeGet(i);
       final String key = pair[0];
       String value = pair[1];
       if (value == null) {
