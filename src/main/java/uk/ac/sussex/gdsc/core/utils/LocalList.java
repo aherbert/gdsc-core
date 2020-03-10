@@ -378,11 +378,13 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   /**
    * Get the element at the specified index.
    *
+   * <p>Package level access for inner classes.
+   *
    * @param index the index
    * @return the element
    */
   @SuppressWarnings("unchecked")
-  private E elementAt(int index) {
+  E elementAt(int index) {
     return (E) data[index];
   }
 
@@ -1309,7 +1311,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
         cursor = i + 1;
         lastElement = i;
         // Assumes the list size and data are synchronized, i.e. no concurrent modification.
-        return LocalList.this.unsafeGet(i);
+        return LocalList.this.elementAt(i);
       }
       throw new NoSuchElementException();
     }
@@ -1327,7 +1329,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
         cursor = i;
         lastElement = i;
         // Assumes no concurrent modification of the list size
-        return LocalList.this.unsafeGet(i);
+        return LocalList.this.elementAt(i);
       }
       throw new NoSuchElementException();
     }
