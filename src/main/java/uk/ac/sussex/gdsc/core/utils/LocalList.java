@@ -228,7 +228,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @param fromIndex index of first element to be copied
    * @param toIndex index after last element to be copied
    * @return the copy
-   * @throws IndexOutOfBoundsException if {@code toIndex > size} or {@code fromIndex < 0}
+   * @throws IndexOutOfBoundsException if {@code fromIndex < 0} or {@code toIndex > size}
    * @throws IllegalArgumentException if {@code toIndex < fromIndex}
    */
   public LocalList<E> copyOfRange(int fromIndex, int toIndex) {
@@ -606,7 +606,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
   @Override
   public void add(int index, E element) {
-    checkRangeForInsert(index, size);
+    checkRangeForInsert(index);
     // Note this may resize the array copying all the data in the process.
     // In this case it may be more efficient to allocate the new array and
     // then copy from old to new here.
@@ -660,7 +660,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
   @Override
   public boolean addAll(int index, Collection<? extends E> c) {
-    checkRangeForInsert(index, size);
+    checkRangeForInsert(index);
     // Dump to an array and insert.
     final Object[] all = c.toArray();
     final int len = all.length;
@@ -683,7 +683,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *         size()</tt>)
    */
   public boolean addAll(int index, LocalList<? extends E> c) {
-    checkRangeForInsert(index, size);
+    checkRangeForInsert(index);
     // Direct access to the internal array
     return addAll(index, c.data, c.size);
   }
@@ -790,8 +790,10 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @throws IndexOutOfBoundsException if {@code index >= size}
    */
   private void checkRange(int index) {
+    // This method does not use indexOutOfBoundsMessage(int, int) to reduce the byte size
+    // of the method for inlining (it avoids loading the field size to pass to build the message).
     if (index >= size) {
-      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index, size));
+      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
     }
   }
 
@@ -799,17 +801,25 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * Check the index is within the range [0, size], thus it is a valid insertion index for an
    * element in the list (including at the end of the list).
    *
-   * <p>It is assumed this method is used for an insertion before an array access. Thus the check
-   * for negative values is ignored as it will throw an IndexOutOfBoundsException.
-   *
    * @param index the index
    * @param size the size
    * @throws IndexOutOfBoundsException if {@code index > size} or {@code index < 0}
    */
-  private static void checkRangeForInsert(int index, int size) {
+  private void checkRangeForInsert(int index) {
     if (index > size || index < 0) {
-      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index, size));
+      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
     }
+  }
+
+  /**
+   * Create an error message using the index and size assuming an index is out of the allowed bounds
+   * defined by the current size.
+   *
+   * @param index the index
+   * @return the error message
+   */
+  private String indexOutOfBoundsMessage(int index) {
+    return "Index " + index + " not valid for size " + size;
   }
 
   /**
@@ -819,31 +829,19 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @param fromIndex low point (inclusive) of the sub-list
    * @param toIndex high point (exclusive) of the sub-list
    * @param size the size
-   * @throws IndexOutOfBoundsException if {@code toIndex > size} or {@code fromIndex < 0}
+   * @throws IndexOutOfBoundsException if {@code fromIndex < 0} or {@code toIndex > size}
    * @throws IllegalArgumentException if {@code toIndex < fromIndex}
    */
-  private static void checkRangeForSubList(int fromIndex, int toIndex, int size) {
-    if (toIndex > size) {
-      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(toIndex, size));
-    }
+  static void checkRangeForSubList(int fromIndex, int toIndex, int size) {
     if (fromIndex < 0) {
-      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(fromIndex, size));
+      throw new IndexOutOfBoundsException("From index " + fromIndex);
+    }
+    if (toIndex > size) {
+      throw new IndexOutOfBoundsException("To index " + toIndex + " not valid for size " + size);
     }
     if (toIndex < fromIndex) {
-      throw new IllegalArgumentException("Invalid range, to " + toIndex + " < " + fromIndex);
+      throw new IllegalArgumentException("Invalid range, to " + toIndex + " < from " + fromIndex);
     }
-  }
-
-  /**
-   * Create an error message using the index and size assuming an index is out of the allowed bounds
-   * defined by size.
-   *
-   * @param index the index
-   * @param size the size
-   * @return the error message
-   */
-  private static String indexOutOfBoundsMessage(int index, int size) {
-    return "Index " + index + " not valid for size " + size;
   }
 
   @Override
@@ -990,7 +988,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * @param fromIndex index of first element to be cleared
    * @param toIndex index after last element to be cleared
-   * @throws IndexOutOfBoundsException if {@code toIndex > size} or {@code fromIndex < 0}
+   * @throws IndexOutOfBoundsException if {@code fromIndex < 0} or {@code toIndex > size}
    * @throws IllegalArgumentException if {@code toIndex < fromIndex}
    * @see #clear()
    */
@@ -1107,7 +1105,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    */
   @Override
   public ListIterator<E> listIterator(int index) {
-    checkRangeForInsert(index, size);
+    checkRangeForInsert(index);
     return new LocalListListIterator(index);
   }
 
@@ -1122,7 +1120,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * operation. Use the {@link #listIterator()} to allow modification of the sub-list via an
    * iterator.
    *
-   * @throws IndexOutOfBoundsException if {@code toIndex > size} or {@code fromIndex < 0}
+   * @throws IndexOutOfBoundsException if {@code fromIndex < 0} or {@code toIndex > size}
    * @throws IllegalArgumentException if {@code toIndex < fromIndex}
    */
   @Override
@@ -1486,7 +1484,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
     @Override
     public void add(int index, E element) {
-      checkRangeForInsert(index, size);
+      checkRangeForInsert(index);
       parent.add(offset + index, element);
       size++;
     }
@@ -1499,7 +1497,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-      checkRangeForInsert(index, size);
+      checkRangeForInsert(index);
       final int before = parent.size();
       parent.addAll(offset + index, c);
       final int after = parent.size();
@@ -1569,12 +1567,23 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     }
 
     // Adapted from LocalList.checkRange.
-    // For a sublist we cannot rely on the implicit IndexOutOfBounds exception for
-    // a negative index so also check if index is negative.
+
     private void checkRange(int index) {
+      // For a sublist we cannot rely on the implicit IndexOutOfBounds exception for
+      // a negative index so also check if index is negative.
       if (index < 0 || index >= size) {
-        throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index, size));
+        throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
       }
+    }
+
+    private void checkRangeForInsert(int index) {
+      if (index > size || index < 0) {
+        throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
+      }
+    }
+
+    private String indexOutOfBoundsMessage(int index) {
+      return "Index " + index + " not valid for size " + size;
     }
   }
 }

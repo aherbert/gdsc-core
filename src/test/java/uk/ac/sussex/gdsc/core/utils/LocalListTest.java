@@ -1304,6 +1304,8 @@ public class LocalListTest {
     final LocalList<Integer> list = new LocalList<>(c);
 
     final List<Integer> sub = list.subList(2, 4);
+    assertListEquals(createList(2, 3), sub);
+
     sub.add(-1);
     assertListEquals(createList(2, 3, -1), sub);
     assertListEquals(createList(0, 1, 2, 3, -1, 4), list);
@@ -1313,6 +1315,46 @@ public class LocalListTest {
     assertListEquals(createList(3, -2), sub2);
     assertListEquals(createList(2, 3, -2, -1), sub);
     assertListEquals(createList(0, 1, 2, 3, -2, -1, 4), list);
+  }
+
+  @Test
+  public void testSubListAddIndex() {
+    final List<Integer> c = createList(0, 1, 2, 3, 4);
+    final LocalList<Integer> list = new LocalList<>(c);
+
+    final List<Integer> sub = list.subList(2, 4);
+    assertListEquals(createList(2, 3), sub);
+
+    // Add at start
+    sub.add(0, -1);
+    assertListEquals(createList(-1, 2, 3), sub);
+    assertListEquals(createList(0, 1, -1, 2, 3, 4), list);
+
+    // Add in middle
+    sub.add(1, -2);
+    assertListEquals(createList(-1, -2, 2, 3), sub);
+    assertListEquals(createList(0, 1, -1, -2, 2, 3, 4), list);
+
+    // Add at end
+    sub.add(sub.size(), -3);
+    assertListEquals(createList(-1, -2, 2, 3, -3), sub);
+    assertListEquals(createList(0, 1, -1, -2, 2, 3, -3, 4), list);
+
+    // Bad index
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> sub.add(-1, 99));
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> sub.add(sub.size() + 1, 99));
+
+    // Sub-list of sub-list
+    final List<Integer> sub2 = sub.subList(1, 3);
+    assertListEquals(createList(-2, 2), sub2);
+    sub2.add(1, -4);
+    assertListEquals(createList(-2, -4, 2), sub2);
+    assertListEquals(createList(-1, -2, -4, 2, 3, -3), sub);
+    assertListEquals(createList(0, 1, -1, -2, -4, 2, 3, -3, 4), list);
+
+    // Bad index
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> sub2.add(-1, 99));
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> sub2.add(sub2.size() + 1, 99));
   }
 
   @Test
