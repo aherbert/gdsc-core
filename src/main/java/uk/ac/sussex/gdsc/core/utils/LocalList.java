@@ -278,6 +278,19 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   }
 
   /**
+   * Sets the element data to null in the given range. This is used to clear stale references for
+   * garbage collection.
+   *
+   * @param start the start (inclusive)
+   * @param end the end (exclusive)
+   */
+  private void setToNull(int start, int end) {
+    for (int i = start; i < end; i++) {
+      data[i] = null;
+    }
+  }
+
+  /**
    * Increases the capacity to hold at least the minimum required capacity.
    *
    * <p>Note: This will silently ignore a negative capacity.
@@ -292,19 +305,14 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   }
 
   /**
-   * Check the capacity can hold at least the minimum required capacity.
+   * Increase the capacity to hold at least one more than the current capacity. This will reallocate
+   * a new array and should only be called when the capacity has been checked and is known to be too
+   * small.
    *
-   * <p>Note: The capacity is treated as if an unsigned 32-bit integer. If it is negative as a
-   * signed 32-bit integer then an {@link OutOfMemoryError} is thrown as the unsigned size is too
-   * large.
-   *
-   * @param minCapacity the minimum required capacity
+   * @return the new data array
    */
-  private void checkCapacity(int minCapacity) {
-    // Equivalent to: minCapacity > data.length
-    if (minCapacity - data.length > 0) {
-      increaseCapacity(minCapacity);
-    }
+  private Object[] increaseCapacity() {
+    return data = Arrays.copyOf(data, createNewCapacity(data.length + 1, data.length));
   }
 
   /**
@@ -313,9 +321,10 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * small.
    *
    * @param minCapacity the minimum required capacity
+   * @return the new data array
    */
-  private void increaseCapacity(final int minCapacity) {
-    data = Arrays.copyOf(data, createNewCapacity(minCapacity, data.length));
+  private Object[] increaseCapacity(final int minCapacity) {
+    return data = Arrays.copyOf(data, createNewCapacity(minCapacity, data.length));
   }
 
   /**
@@ -373,44 +382,6 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     // the capacity must be expanded again. But it allows maxing out the potential of the
     // current VM.
     return (minCapacity > MAX_BUFFER_SIZE) ? minCapacity : MAX_BUFFER_SIZE;
-  }
-
-  /**
-   * Get the element at the specified index.
-   *
-   * <p>Package level access for inner classes.
-   *
-   * @param index the index
-   * @return the element
-   */
-  @SuppressWarnings("unchecked")
-  E elementAt(int index) {
-    return (E) data[index];
-  }
-
-  /**
-   * Get the object array as if an array of the correct element type. The resulting object should
-   * not be leaked outside of the scope of code known to safely handle the array as read-only
-   * avoiding a runtime ClassCastException.
-   *
-   * @return the elements
-   */
-  @SuppressWarnings("unchecked")
-  private E[] elements() {
-    return (E[]) data;
-  }
-
-  /**
-   * Sets the element data to null in the given range. This is used to clear stale references for
-   * garbage collection.
-   *
-   * @param start the start (inclusive)
-   * @param end the end (exclusive)
-   */
-  private void setToNull(int start, int end) {
-    for (int i = start; i < end; i++) {
-      data[i] = null;
-    }
   }
 
   // Fast methods with no checks.
@@ -499,7 +470,8 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   public E pop() {
     final int index = size - 1;
     // Implicit index-out-of-bounds exception
-    final E element = elementAt(index);
+    @SuppressWarnings("unchecked")
+    final E element = (E) data[index];
     data[index] = null;
     size = index;
     return element;
@@ -583,40 +555,86 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     return a;
   }
 
+  /**
+   * Get the object array as if an array of the correct element type. The resulting object should
+   * not be leaked outside of the scope of code known to safely handle the array as read-only
+   * avoiding a runtime ClassCastException.
+   *
+   * <p>Package level access for inner classes.
+   *
+   * @return the elements
+   */
+  @SuppressWarnings("unchecked")
+  E[] elements() {
+    return (E[]) data;
+  }
+
+  /**
+   * Get the element at the specified index. Internal method to perform an unchecked cast on the raw
+   * object to the corrrect return type.
+   *
+   * <p>Package level access for inner classes.
+   *
+   * @param index the index
+   * @return the element
+   */
+  @SuppressWarnings("unchecked")
+  E elementAt(int index) {
+    return (E) data[index];
+  }
+
   @Override
   public E get(int index) {
-    checkRange(index);
+    if (index >= size) {
+      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
+    }
+    // Implicit IndexOutOfBounds for index < 0
     return elementAt(index);
   }
 
   @Override
   public E set(int index, E element) {
-    checkRange(index);
-    final E previous = elementAt(index);
+    if (index >= size) {
+      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
+    }
+    // Implicit IndexOutOfBounds for index < 0
+    @SuppressWarnings("unchecked")
+    final E previous = (E) data[index];
     data[index] = element;
     return previous;
   }
 
   @Override
-  public boolean add(E e) {
-    checkCapacity(size + 1);
-    data[size++] = e;
+  public boolean add(E element) {
+    // Ideally this method byte code size should be below -XX:MaxInlineSize
+    // (which defaults to 35 bytes). This compiles to 34 bytes.
+    final int s = size;
+    Object[] elements = data;
+    if (s == elements.length) {
+      elements = increaseCapacity();
+    }
+    size = s + 1;
+    elements[s] = element;
     return true;
   }
 
   @Override
   public void add(int index, E element) {
     checkRangeForInsert(index);
-    // Note this may resize the array copying all the data in the process.
-    // In this case it may be more efficient to allocate the new array and
-    // then copy from old to new here.
-    checkCapacity(size + 1);
+    final int s = size;
+    Object[] elements = data;
+    if (s == elements.length) {
+      // Note this will resize the array copying all the data in the process.
+      // In this case it may be more efficient to allocate the new array and
+      // then copy from old to new here.
+      elements = increaseCapacity();
+    }
     // Shift right all elements after the insert index.
     // Does nothing if index == size (insert at the end of the list).
-    System.arraycopy(data, index, data, index + 1, size - index);
+    System.arraycopy(elements, index, elements, index + 1, s - index);
     // Insert
-    data[index] = element;
-    size++;
+    size = s + 1;
+    elements[index] = element;
   }
 
   @Override
@@ -651,11 +669,19 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @return <tt>true</tt> if this list changed as a result of the call
    */
   private boolean addAll(Object[] all, int len) {
-    checkCapacity(size + len);
+    if (len == 0) {
+      return false;
+    }
+    final int s = size;
+    Object[] elements = data;
+    // spare = elements.length - size
+    if (len > elements.length - s) {
+      elements = increaseCapacity(s + len);
+    }
     // Append
-    System.arraycopy(all, 0, data, size, len);
-    size += len;
-    return len != 0;
+    System.arraycopy(all, 0, data, s, len);
+    size = s + len;
+    return true;
   }
 
   @Override
@@ -697,20 +723,31 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @return <tt>true</tt> if this list changed as a result of the call
    */
   private boolean addAll(int index, Object[] all, int len) {
-    checkCapacity(size + len);
+    if (len == 0) {
+      return false;
+    }
+    final int s = size;
+    Object[] elements = data;
+    // spare = elements.length - size
+    if (len > elements.length - s) {
+      elements = increaseCapacity(s + len);
+    }
     // Shift right all elements after the insert index.
-    // Does nothing if index == size (insert at the end of the list).
-    System.arraycopy(data, index, data, index + len, size - index);
+    System.arraycopy(elements, index, elements, index + len, s - index);
     // Insert
-    System.arraycopy(all, 0, data, index, len);
-    size += len;
-    return len != 0;
+    System.arraycopy(all, 0, elements, index, len);
+    size = s + len;
+    return true;
   }
 
   @Override
   public E remove(int index) {
-    checkRange(index);
-    final E previous = elementAt(index);
+    if (index >= size) {
+      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
+    }
+    // Implicit IndexOutOfBounds for index < 0
+    @SuppressWarnings("unchecked")
+    final E previous = (E) data[index];
     removeElement(index);
     return previous;
   }
@@ -780,24 +817,6 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   }
 
   /**
-   * Check the index is within the range [0, size), thus it is a valid index for an element in the
-   * list.
-   *
-   * <p>It is assumed this method is used immediately before an array access. Thus the check for
-   * negative values is ignored as it will throw an IndexOutOfBoundsException.
-   *
-   * @param index the index
-   * @throws IndexOutOfBoundsException if {@code index >= size}
-   */
-  private void checkRange(int index) {
-    // This method does not use indexOutOfBoundsMessage(int, int) to reduce the byte size
-    // of the method for inlining (it avoids loading the field size to pass to build the message).
-    if (index >= size) {
-      throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
-    }
-  }
-
-  /**
    * Check the index is within the range [0, size], thus it is a valid insertion index for an
    * element in the list (including at the end of the list).
    *
@@ -806,7 +825,8 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @throws IndexOutOfBoundsException if {@code index > size} or {@code index < 0}
    */
   private void checkRangeForInsert(int index) {
-    if (index > size || index < 0) {
+    // Insert allowed as the end
+    if (index < 0 || index > size) {
       throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
     }
   }
@@ -1566,18 +1586,18 @@ public final class LocalList<E> implements List<E>, RandomAccess {
       Arrays.sort(LocalList.this.elements(), origin, origin + size, c);
     }
 
-    // Adapted from LocalList.checkRange.
+    // For a sublist we cannot rely on the implicit IndexOutOfBounds exception for
+    // a negative index so also check if index is negative.
 
     private void checkRange(int index) {
-      // For a sublist we cannot rely on the implicit IndexOutOfBounds exception for
-      // a negative index so also check if index is negative.
       if (index < 0 || index >= size) {
         throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
       }
     }
 
     private void checkRangeForInsert(int index) {
-      if (index > size || index < 0) {
+      // Insert allowed as the end
+      if (index < 0 || index > size) {
         throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
       }
     }
