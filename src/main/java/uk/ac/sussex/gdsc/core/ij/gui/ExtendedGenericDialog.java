@@ -775,7 +775,8 @@ public class ExtendedGenericDialog extends GenericDialog {
 
     // Add a button
     final Panel buttons = new Panel();
-    buttons.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    // Q. Are buttons better aligned left or right?
+    buttons.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
     final Button button = new Button(label);
     button.addActionListener(actionListener);
     buttons.add(button);
