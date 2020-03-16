@@ -37,6 +37,7 @@ import ij.Macro;
 import ij.WindowManager;
 import ij.gui.GUI;
 import ij.macro.Interpreter;
+import ij.macro.MacroRunner;
 import ij.plugin.frame.Recorder;
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -64,6 +65,7 @@ import java.util.Locale;
 import java.util.function.Function;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
+import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 /**
  * Shows a list dialog allowing multiple items to be selected.
@@ -83,10 +85,12 @@ public class MultiDialog extends Dialog {
   private Button okay;
   private Button all;
   private Button none;
+  private Button help;
   private boolean wasCanceled;
   private JList<String> list;
   private final String macroOptions;
   private final boolean macro;
+  private String helpUrl;
 
   private final List<String> items;
   private transient Function<String, String> displayConverter = Function.identity();
@@ -208,6 +212,15 @@ public class MultiDialog extends Dialog {
   }
 
   /**
+   * Sets the help url to be opened by a help button. The default is no help button.
+   *
+   * @param helpUrl the new help url
+   */
+  public void setHelpUrl(String helpUrl) {
+    this.helpUrl = helpUrl;
+  }
+
+  /**
    * Show the dialog.
    */
   public void showDialog() {
@@ -316,9 +329,16 @@ public class MultiDialog extends Dialog {
     cancel.addActionListener(this::actionPerformed);
     cancel.addKeyListener(keyAdapter);
     buttons.add(cancel);
+    if (TextUtils.isNotEmpty(helpUrl)) {
+      help = new Button("Help");
+      help.addActionListener(this::actionPerformed);
+      help.addKeyListener(keyAdapter);
+      buttons.add(help);
+    }
     return buttons;
   }
 
+  @SuppressWarnings("unused")
   private void actionPerformed(ActionEvent event) {
     final Object source = event.getSource();
     if (source == okay || source == cancel) {
@@ -328,6 +348,9 @@ public class MultiDialog extends Dialog {
       list.setSelectionInterval(0, items.size() - 1);
     } else if (source == none) {
       list.clearSelection();
+    } else if (source == help) {
+      String macro = "run('URL...', 'url=" + helpUrl + "');";
+      new MacroRunner(macro);
     }
   }
 
