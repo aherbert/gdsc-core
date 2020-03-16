@@ -31,9 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.IJ;
 import ij.ImageJ;
 import ij.Prefs;
-import ij.gui.GenericDialog;
 import ij.macro.MacroRunner;
-import java.awt.Button;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +43,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import uk.ac.sussex.gdsc.analytics.GoogleAnalyticsClient;
 import uk.ac.sussex.gdsc.core.VersionUtils;
+import uk.ac.sussex.gdsc.core.ij.gui.ExtendedGenericDialog;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 /**
@@ -465,40 +464,24 @@ public final class ImageJAnalyticsUtils {
    * @param title The dialog title
    * @param autoMessage Set to true to display the message about automatically showing when the
    *        status is unknown
+   * @param helpUrl the help url (null to use the default)
    */
   @SuppressWarnings("unused")
-  public static void showDialog(String title, boolean autoMessage) {
-    final GenericDialog gd = new GenericDialog(title);
+  public static void showDialog(String title, boolean autoMessage, String helpUrl) {
+    final ExtendedGenericDialog gd = new ExtendedGenericDialog(title);
     // @formatter:off
     gd.addMessage(
         APPLICATION_NAME +
         "\n \n" +
         "We use tracking code to make our plugins better.");
-
-    // With ImageJ 1.48a hiding the cancel button means the dialog is disposed when pressing 'Help'.
-    // To work around this we add an empty string and our own listener to show the help. ImageJ
-    // should then notify listeners due to the empty help URL.
-    gd.setHelpLabel(HELP_LABEL);
-    gd.addHelp("");
-    gd.addDialogListener((dialog, event) -> {
-        if (event != null && event.getSource() instanceof Button)
-        {
-          final Button button = (Button) (event.getSource());
-          if (button.getLabel().equals(HELP_LABEL))
-          {
-            final String macro = "run('URL...', 'url=" +
-                TRACKING_HELP_URL + "');";
-            new MacroRunner(macro);
-          }
-        }
-        return true;
-    });
+    // @formatter:on
 
     // Get the preferences
     boolean disabled = isDisabled();
 
     // Use Opt-in to make the wording clear
     gd.addCheckbox("Opt in", !disabled);
+    // @formatter:off
     if (autoMessage) {
       gd.addMessage(
           "Note: This message is shown when your\n" +
@@ -506,6 +489,12 @@ public final class ImageJAnalyticsUtils {
     }
     // @formatter:on
     gd.hideCancelButton();
+
+    gd.addAndGetButton(HELP_LABEL, event -> {
+      final String url = TextUtils.isNotEmpty(helpUrl) ? helpUrl : TRACKING_HELP_URL;
+      final String macro = "run('URL...', 'url=" + url + "');";
+      new MacroRunner(macro);
+    });
 
     gd.showDialog();
 
