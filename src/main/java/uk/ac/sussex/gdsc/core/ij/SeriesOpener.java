@@ -54,6 +54,7 @@ public class SeriesOpener {
   private int height = -1;
   private boolean variableSize;
   private int numberOfThreads;
+  private String helpUrl;
 
   // Used to filter the image list
   private int maximumNumberOfImages;
@@ -82,8 +83,24 @@ public class SeriesOpener {
    * @return the series opener
    */
   public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads) {
+    return create(path, showDialog, numberOfThreads, null);
+  }
+
+  /**
+   * Create an opener with the given path.
+   *
+   * @param path the path
+   * @param showDialog Open a dialog and allow the user to filter the images
+   * @param numberOfThreads Set the number of threads specified in the input dialog. If zero then
+   *        this field is not shown.
+   * @param helpUrl the help url (null to ignore)
+   * @return the series opener
+   */
+  public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads,
+      String helpUrl) {
     final SeriesOpener opener = new SeriesOpener(path);
-    opener.numberOfThreads = Math.abs(numberOfThreads);
+    opener.numberOfThreads = numberOfThreads > 0 ? numberOfThreads : 0;
+    opener.helpUrl = helpUrl;
     if (showDialog) {
       opener.filterImageList();
     }
@@ -277,6 +294,7 @@ public class SeriesOpener {
       gd.addNumericField("Series_number_of_threads:", numberOfThreads, 0);
     }
     gd.addMessage("[info...]");
+    gd.addHelp(helpUrl);
     gd.showDialog();
     if (gd.wasCanceled()) {
       return false;
@@ -302,7 +320,7 @@ public class SeriesOpener {
   /**
    * Set to true to allow subsequent images after the first to have different XY dimensions.
    *
-   * @param variableSize True for vairable size images
+   * @param variableSize True for variable size images
    */
   public void setVariableSize(boolean variableSize) {
     this.variableSize = variableSize;
