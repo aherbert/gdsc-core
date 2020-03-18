@@ -66,6 +66,9 @@ public class FloatHistogram extends Histogram {
    *
    * <p>The input array is unchanged.
    *
+   * <p>The resulting histogram will have bin values corresponding to distinct input values. Bins
+   * will not be evenly spaced. Counts will be the frequency of each value in the input data.
+   *
    * @param data The data
    * @param doSort True if the data should be sorted
    * @return The histogram
@@ -80,6 +83,9 @@ public class FloatHistogram extends Histogram {
    *
    * <p>Note that input data array is modified if the in-place option is specified. Otherwise the
    * input array is unchanged.
+   *
+   * <p>The resulting histogram will have bin values corresponding to distinct input values. Bins
+   * will not be evenly spaced. Counts will be the frequency of each value in the input data.
    *
    * @param data The data
    * @param doSort True if the data should be sorted
@@ -112,9 +118,10 @@ public class FloatHistogram extends Histogram {
         histogram[size++] = count;
         // Reset the count of the current value
         currentValue = value;
-        count = 0;
+        count = 1;
+      } else {
+        count++;
       }
-      count++;
     }
     // Final count
     values[size] = currentValue;
