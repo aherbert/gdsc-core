@@ -36,8 +36,7 @@ import org.apache.commons.rng.UniformRandomProvider;
  *
  * @since 2.0
  */
-public abstract class UniformRandomProviderDecorator
-    implements UniformRandomProvider {
+public abstract class UniformRandomProviderDecorator implements UniformRandomProvider {
   /** The rng. */
   private final UniformRandomProvider rng;
 

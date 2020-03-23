@@ -83,9 +83,8 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
   @Override
   public int read(byte[] bytes, int off, int len) throws IOException {
     ValidationUtils.checkNotNull(bytes, "bytes must not be null");
-    if (off < 0 || len < 0
-        // Overflow safe
-        || off + len - bytes.length > 0) {
+    // Overflow safe
+    if (off < 0 || len < 0 || off + len - bytes.length > 0) {
       throw new IndexOutOfBoundsException();
     }
     if (len == 0) {

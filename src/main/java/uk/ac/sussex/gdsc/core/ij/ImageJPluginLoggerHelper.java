@@ -45,10 +45,11 @@ import java.util.logging.Logger;
  */
 public final class ImageJPluginLoggerHelper {
 
-  /** A reference to the redirected logger for the GDSC package.
+  /**
+   * A reference to the redirected logger for the GDSC package.
    *
-   * <p>This is not used but a reference is held to allow the configuration to be maintained
-   * since the LogManager only holds a weak reference to the configured logger.
+   * <p>This is not used but a reference is held to allow the configuration to be maintained since
+   * the LogManager only holds a weak reference to the configured logger.
    */
   private static final Logger redirectedLogger;
 

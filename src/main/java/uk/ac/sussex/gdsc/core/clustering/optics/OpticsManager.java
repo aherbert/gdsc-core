@@ -1452,9 +1452,7 @@ public class OpticsManager extends CoordinateStore {
       indices = SimpleArrayUtils.natural(sampleSize);
     } else {
       // Random sample
-      indices =
-          new PermutationSampler(UniformRandomProviders.create(), size, sampleSize)
-              .sample();
+      indices = new PermutationSampler(UniformRandomProviders.create(), size, sampleSize).sample();
     }
 
     // Use a KDtree to allow search of the space

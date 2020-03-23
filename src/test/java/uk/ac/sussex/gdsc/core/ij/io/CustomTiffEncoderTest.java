@@ -49,8 +49,8 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 /**
- * This tests writing pixels and image metadata using the the {@link CustomTiffEncoder}
- * matches the binary data written by the ImageJ {@link TiffEncoder}.
+ * This tests writing pixels and image metadata using the the {@link CustomTiffEncoder} matches the
+ * binary data written by the ImageJ {@link TiffEncoder}.
  */
 @SuppressWarnings({"javadoc"})
 public class CustomTiffEncoderTest {

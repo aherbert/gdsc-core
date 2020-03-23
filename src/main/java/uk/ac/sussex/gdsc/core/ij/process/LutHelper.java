@@ -376,7 +376,7 @@ public final class LutHelper {
      * @return the lut colour (or null)
      */
     public static LutColour forName(String name) {
-      for (final LutColour value :  LutColour.values()) {
+      for (final LutColour value : LutColour.values()) {
         if (value.nameString.equalsIgnoreCase(name)) {
           return value;
         }

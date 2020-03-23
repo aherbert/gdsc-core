@@ -34,9 +34,10 @@ import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler
 /**
  * Sampling from the interval {@code [-1, 1)}.
  *
- * <p>Samples evenly from the 2<sup>54</sup> dyadic rationals in the range.
- * Sampling uses 64-bits per sample and branch conditions are avoided for efficient sampling.
- * This sampler can be used as an alternative to:
+ * <p>Samples evenly from the 2<sup>54</sup> dyadic rationals in the range. Sampling uses 64-bits
+ * per sample and branch conditions are avoided for efficient sampling. This sampler can be used as
+ * an alternative to:
+ *
  * <pre>
  * // Samples from 2^54 dyadic rationals with a branch condition
  * x = rng.nextDouble() - (rng.nextBoolean() ? 1.0 : 0);

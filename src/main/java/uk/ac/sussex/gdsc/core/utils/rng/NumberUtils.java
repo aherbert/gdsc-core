@@ -481,8 +481,8 @@ public final class NumberUtils {
   }
 
   /**
-   * Creates a signed double in the range {@code [-1, 1)}. The magnitude is sampled
-   * evenly from the 2<sup>54</sup> dyadic rationals in the range.
+   * Creates a signed double in the range {@code [-1, 1)}. The magnitude is sampled evenly from the
+   * 2<sup>54</sup> dyadic rationals in the range.
    *
    * <p>Note: This method will not return samples for both -0.0 and 0.0.
    *
@@ -497,8 +497,8 @@ public final class NumberUtils {
   }
 
   /**
-   * Creates a normalised double in the range {@code [1, 2)}. The magnitude is sampled
-   * evenly from the 2<sup>52</sup> dyadic rationals in the range.
+   * Creates a normalised double in the range {@code [1, 2)}. The magnitude is sampled evenly from
+   * the 2<sup>52</sup> dyadic rationals in the range.
    *
    * @param bits the bits
    * @return the double

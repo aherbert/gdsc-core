@@ -135,7 +135,7 @@ public final class ByteArraySeekableStream extends SeekableStream {
     final int pos = position;
     final long newpos = pos + n;
     // Overflow sensitive:
-    // x > y  == x - y  > 0
+    // x > y == x - y > 0
     if (newpos - length > 0) {
       position = length;
     } else {

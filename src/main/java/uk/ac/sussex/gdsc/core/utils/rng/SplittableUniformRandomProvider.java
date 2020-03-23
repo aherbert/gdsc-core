@@ -43,9 +43,9 @@ import org.apache.commons.rng.UniformRandomProvider;
  * with random starting points in the sequence, and assuming that {@code sl/p} is very small, the
  * probability that there is some overlap is approximately {@code s}<sup>2</sup>{@code l/p}.
  *
- * <p>For example if {@code s=l=}2<sup>20</sup> the overlap probability
- * 2<sup>60</sup>{@code /p} is near 2<sup>-68</sup> for
- * {@code p=}2<sup>128</sup> and near 2<sup>-964</sup> for {@code p=}2<sup>1024</sup>.
+ * <p>For example if {@code s=l=}2<sup>20</sup> the overlap probability 2<sup>60</sup>{@code /p} is
+ * near 2<sup>-68</sup> for {@code p=}2<sup>128</sup> and near 2<sup>-964</sup> for
+ * {@code p=}2<sup>1024</sup>.
  *
  * @since 2.0
  * @see <a href="https://doi.org/10.1016/j.matcom.2016.05.005">L&#39;Ecuyer, et al. Random numbers

@@ -46,8 +46,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * element. However the blocking functionality is more similar to the concurrent collections in
  * {@code java.util.concurrent} than an {@link java.util.concurrent.atomic.AtomicReference
  * AtomicReference}. The class and methods have been named using similar wording to a
- * {@link java.util.Deque Deque} which can be used as a stack for adding (push, offer) and
- * removal (pop, poll, peek).
+ * {@link java.util.Deque Deque} which can be used as a stack for adding (push, offer) and removal
+ * (pop, poll, peek).
  *
  * @param <E> the element type
  * @since 1.2.0
