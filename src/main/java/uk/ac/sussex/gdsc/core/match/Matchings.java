@@ -31,16 +31,17 @@ package uk.ac.sussex.gdsc.core.match;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.tuple.Pair;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.match.HopcroftKarpMatching.IntBiConsumer;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -431,15 +432,15 @@ public final class Matchings {
    * minimum sum of distances. The distance must be less than or equal to the threshold to be
    * considered a neighbour ({@code distance <= threshold}).
    *
-   * <p>The cardinality of the match may not be maximal as an alternative matching may have a lower
-   * or equal sum of distances.
+   * <p>The cardinality of the match may not be maximal as an alternative matching with higher
+   * cardinality may have a greater or equal sum of distances.
    *
    * <p>The output matched and those unmatched from each set can be obtained using the consumer
    * functions. Use the matched consumer to obtain the sum of distances between matched vertices.
    *
    * <p>This uses an assignment algorithm based on an all-vs-all distance matrix. Distances below
-   * the threshold are mapped linearly to 16-bit integers. Any vertex not within the distance
-   * threshold to any other vertices is excluded.
+   * the threshold are mapped linearly to 16-bit unsigned integers. Any vertex not within the
+   * distance threshold to a vertex in the opposite set is excluded.
    *
    * <p>The distances should be constructed to avoid the range between maximum and minimum distance
    * being infinite. This will break the linear mapping and an exception is raised.
@@ -496,29 +497,68 @@ public final class Matchings {
     final TIntArrayList mapB = new TIntArrayList(sizeB);
     IntStream.range(0, sizeB).filter(v -> matchedB[v]).forEachOrdered(mapB::add);
 
-    // Create the final cost matrix and compute assignments
-    final int[] cost2 = createCostMatrix(pairV, pairD, sizeB, mapB);
+    // There may be non-connected sub-graphs within the entire set of connections.
+    // The cost matrix can be divided into separate sub-matrices for each graph.
+    // This increases the resolution when mapping to the 16-bit integer range for
+    // each sub-graph (if a sub-graph has a different [min:max] range to the global range).
+    // It will also increase speed for processing large input data.
 
-    final int[] assignments = KuhnMunkresAssignment.compute(cost2, mapA.size(), mapB.size());
+    final List<Pair<int[], int[]>> subGraphs =
+        BiPartiteGraphs.extractSubGraphs(mapA.size(), mapB.size(),
+            // The list of indices for a is the sorted original index value of all B closer
+            // than the distance threshold. Binary search will work. It may be prohibitively
+            // slow if each a has many connections. The alternative is to materialise the all-vs-all
+            // connections as a matrix for fast look-up.
+            (a, b) -> Arrays.binarySearch(pairV.get(a), mapB.getQuick(b)) >= 0);
+
+    // The final assignments. These are for the reduced indices for vertices that are close.
+    final int[] assignments = SimpleArrayUtils.newIntArray(mapA.size(), -1);
+
+    // Create mapping from original B index to a reduced index
+    final int[] originalToReduced = new int[sizeB];
+
+    // Process each sub graph
+    for (final Pair<int[], int[]> sg : subGraphs) {
+      // The value in these arrays are reduced indices.
+      // Convert to the original indices using map.get(i).
+      final int[] setA = sg.getKey();
+      final int[] setB = sg.getValue();
+      // Note that we do not require setB to extract the sub-graph from the pairs as
+      // they implicitly already contain only B indices that are within the distance threshold.
+      // All we require is to extract the cost for each connection from the subset A to B.
+      // The cost matrix is compacted again from the already reduced indices. We have to map
+      // the original index B to a value in [0, setB.length).
+      for (int i = 0; i < setB.length; i++) {
+        originalToReduced[mapB.getQuick(setB[i])] = i;
+      }
+      final int[] cost = createCostMatrix(setA, pairV, pairD, setB.length, originalToReduced);
+      final int[] mappedAssignments = KuhnMunkresAssignment.compute(cost, setA.length, setB.length);
+      for (int i = 0; i < mappedAssignments.length; i++) {
+        if (mappedAssignments[i] != -1) {
+          assignments[setA[i]] = setB[mappedAssignments[i]];
+        }
+      }
+    }
 
     // Remove those above the match distance.
-    // The cost matrix is modified so recompute the distance.
     int max = 0;
     final boolean[] matchedA = new boolean[sizeA];
     Arrays.fill(matchedB, false);
     for (int u = 0; u < assignments.length; u++) {
       final int v = assignments[u];
       if (v != NO_ASSIGNMENT) {
-        // Check the distance as a precaution against bad assignments that minimise
+        // Check this was a valid connection.
+        // This is a precaution against bad assignments that minimise
         // the sum of distances by including a pair above the maximum cost.
-        final T itemA = verticesA.get(mapA.getQuick(u));
-        final U itemB = verticesB.get(mapB.getQuick(v));
-        if (edges.applyAsDouble(itemA, itemB) <= threshold) {
+        final int index = Arrays.binarySearch(pairV.get(u), mapB.getQuick(v));
+        if (index >= 0) {
           max++;
           matchedA[mapA.getQuick(u)] = true;
           matchedB[mapB.getQuick(v)] = true;
           // Feed consumer
           if (matched != null) {
+            final T itemA = verticesA.get(mapA.getQuick(u));
+            final U itemB = verticesB.get(mapB.getQuick(v));
             matched.accept(itemA, itemB);
           }
         }
@@ -577,28 +617,30 @@ public final class Matchings {
 
 
   /**
-   * Create the packed cost matrix data from only those matches within the distance.
+   * Create the packed cost matrix data for the specified mapped vertices in A to the set of
+   * vertices B of the specified size. A mapping from the original index to the reduced index in the
+   * range [0, sizeB) is required.
    *
+   * @param verticesA the mapped vertices A
    * @param pairV the matching vertices B for each mapped vertex A
    * @param pairD the distance to vertices B for each mapped vertex A
-   * @param sizeB the original size of B
+   * @param sizeB the size of the vertices B
    * @param mapB the map of those B with a valid cost
+   * @param originalToReduced the mapping from original B index to the reduced index
    * @return the cost matrix
    */
-  private static int[] createCostMatrix(ArrayList<int[]> pairV, ArrayList<double[]> pairD,
-      int sizeB, TIntArrayList mapB) {
-    // Create mapping from original B index to reduced index
-    final int[] originalToReduced = new int[sizeB];
-    for (int i = 0; i < mapB.size(); i++) {
-      originalToReduced[mapB.getQuick(i)] = i;
-    }
-
+  private static int[] createCostMatrix(int[] verticesA, ArrayList<int[]> pairV,
+      ArrayList<double[]> pairD, int sizeB, int[] originalToReduced) {
     // Create a cost matrix.
     // The matrix is re-mapped to integers to avoid float-point cumulative errors in
     // the Munkres algorithm which uses additions and subtractions.
-    final Iterator<double[]> it = pairD.iterator();
-    final double[] limits = MathUtils.limits(it.next());
-    it.forEachRemaining(distances -> MathUtils.limits(limits, distances));
+
+    // Find the limits
+    final double[] limits = MathUtils.limits(pairD.get(verticesA[0]));
+    for (int i = 1; i < verticesA.length; i++) {
+      MathUtils.limits(limits, pairD.get(verticesA[i]));
+    }
+
     final double min = limits[0];
     // Note: It does not matter if the range is 0.
     // The Math.round() function will return 0 for a NaN input when converting to integer.
@@ -609,16 +651,17 @@ public final class Matchings {
     // The cost of matches above the distance threshold is set to twice the maximum cost + 1.
     // This ensures the algorithm will favour two matches at max cost instead of 1 perfect match
     // and 1 disallowed match (since (2 * max) < (0 + 2 * max + 1)).
-    final int[] cost = new int[pairV.size() * mapB.size()];
+    final int[] cost = new int[verticesA.length * sizeB];
     Arrays.fill(cost, MAX_COST * 2 + 1);
 
     // Write in the known costs to the matrix
-    for (int i = 0; i < pairV.size(); i++) {
+    for (int i = 0; i < verticesA.length; i++) {
       // Data is packed as i * cols + j.
       // Compute the start offset for this row.
-      final int rowOffset = i * mapB.size();
-      final int[] tmpV = pairV.get(i);
-      final double[] tmpD = pairD.get(i);
+      final int rowOffset = i * sizeB;
+      final int a = verticesA[i];
+      final int[] tmpV = pairV.get(a);
+      final double[] tmpD = pairD.get(a);
       for (int j = 0; j < tmpV.length; j++) {
         // Convert to integer
         cost[rowOffset + originalToReduced[tmpV[j]]] =

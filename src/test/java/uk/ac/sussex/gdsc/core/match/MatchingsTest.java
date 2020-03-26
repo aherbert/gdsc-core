@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.match.Matchings.CompositeMatchConsumer;
 import uk.ac.sussex.gdsc.core.match.Matchings.IntersectionMatchConsumer;
@@ -64,7 +65,6 @@ public class MatchingsTest {
     @SuppressWarnings("rawtypes")
     static final NearestNeighbourMatchingFunction INSTANCE = new NearestNeighbourMatchingFunction();
 
-    @SuppressWarnings("unchecked")
     static <T, U> MatchingFunction<T, U> instance() {
       return INSTANCE;
     }
@@ -88,7 +88,6 @@ public class MatchingsTest {
     @SuppressWarnings("rawtypes")
     static final MinimumDistanceMatchingFunction INSTANCE = new MinimumDistanceMatchingFunction();
 
-    @SuppressWarnings("unchecked")
     static <T, U> MatchingFunction<T, U> instance() {
       return INSTANCE;
     }
@@ -329,6 +328,27 @@ public class MatchingsTest {
   }
 
   @Test
+  public void testMinimumDistanceWithSubGraphs() {
+    final double[][] connections = new double[10][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(10, Double.MAX_VALUE);
+    }
+    connections[1][1] = 0;
+    connections[1][2] = 0.25;
+    connections[4][1] = 0.33;
+    connections[4][2] = 0.75;
+    connections[4][3] = 1;
+    connections[6][7] = 0.1;
+    connections[7][9] = 0.1;
+    connections[9][7] = 0;
+    connections[9][9] = 0.1;
+
+    // Two sub-graphs with minimum distance so the matches are: (0.25 + 0.33) + (0.1 + 0)
+    final int[][] expected = new int[][] {{1, 2}, {4, 1}, {7, 9}, {9, 7}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+  }
+
+  @Test
   public void testMinimumDistanceWithPerfectAssignments() {
     final double[][] connections = new double[2][2];
 
@@ -351,6 +371,7 @@ public class MatchingsTest {
 
   @Test
   public void testMinimumDistanceWithAssignmentsAboveMatchDistance() {
+    // 1 is max distance. 2 is above distance threshold.
     //@formatter:off
     final double[][] connections = new double[][] {
       {0, 2, 2, 1},
@@ -360,9 +381,36 @@ public class MatchingsTest {
     };
     //@formatter:on
 
-    // Here the Matchings mapping with convert those distances above the threshold to more than
+    // Here the Matchings mapping will convert those distances above the threshold to more than
     // double any other value. Thus {2,3} + {3,2} is favoured over {2,2} + {3,3}.
     final int[][] expected = new int[][] {{0, 0}, {1, 1}, {2, 3}, {3, 2}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+  }
+
+  @Disabled("The minimum distance matching does not currently totally exclude those above the distance threshold")
+  @Test
+  public void testMinimumDistanceWithAssignmentsAboveMatchDistanceB() {
+    // 1 is max distance. 2 is above distance threshold.
+    //@formatter:off
+    final double[][] connections = new double[][] {
+      {0, 1, 2},
+      {2, 0, 1},
+      {1, 2, 2},
+    };
+    //@formatter:on
+
+    // Possible:
+    // 1A 0
+    // 2B 0
+    // 3C undef
+
+    // This should be preferred (i.e. include allowed connections and ignore those above
+    // the distance threshold)
+    // 1B max
+    // 2C max
+    // 3A max
+
+    final int[][] expected = new int[][] {{0, 1}, {1, 2}, {2, 0}};
     assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
   }
 
@@ -497,7 +545,4 @@ public class MatchingsTest {
     Collections.sort(unmatchedB);
     Assertions.assertEquals(verticesB, unmatchedB, "Unmatched B");
   }
-
-  // Tests for minimum distance
-
 }
