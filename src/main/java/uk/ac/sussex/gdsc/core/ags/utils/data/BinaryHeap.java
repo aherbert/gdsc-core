@@ -40,9 +40,6 @@ public abstract class BinaryHeap<T> {
   /** The keys. */
   private double[] keys;
 
-  /** The capacity. */
-  private int capacity;
-
   /** The size. */
   private int size;
 
@@ -56,7 +53,6 @@ public abstract class BinaryHeap<T> {
     this.direction = direction;
     this.data = new Object[capacity];
     this.keys = new double[capacity];
-    this.capacity = capacity;
     this.size = 0;
   }
 
@@ -68,10 +64,9 @@ public abstract class BinaryHeap<T> {
    */
   public void offer(double key, T value) {
     // If move room is needed, double array size
-    if (size >= capacity) {
-      capacity *= 2;
-      data = Arrays.copyOf(data, capacity);
-      keys = Arrays.copyOf(keys, capacity);
+    if (size == data.length) {
+      data = Arrays.copyOf(data, size * 2);
+      keys = Arrays.copyOf(keys, size * 2);
     }
 
     // Insert new value at the end
@@ -187,15 +182,6 @@ public abstract class BinaryHeap<T> {
    */
   public int size() {
     return size;
-  }
-
-  /**
-   * Get the capacity.
-   *
-   * @return the capacity
-   */
-  public int capacity() {
-    return capacity;
   }
 
   /**

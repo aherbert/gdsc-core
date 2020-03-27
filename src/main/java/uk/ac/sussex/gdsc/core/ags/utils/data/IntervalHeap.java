@@ -39,9 +39,6 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
   /** The keys. */
   private double[] keys;
 
-  /** The capacity. */
-  private int capacity;
-
   /** The size. */
   private int size;
 
@@ -60,17 +57,15 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
   public IntervalHeap(int capacity) {
     this.data = new Object[capacity];
     this.keys = new double[capacity];
-    this.capacity = capacity;
     this.size = 0;
   }
 
   @Override
   public void offer(double key, T value) {
-    // If move room is needed, double array size
-    if (size >= capacity) {
-      capacity *= 2;
-      data = Arrays.copyOf(data, capacity);
-      keys = Arrays.copyOf(keys, capacity);
+    // If more room is needed, double array size
+    if (size == data.length) {
+      data = Arrays.copyOf(data, size * 2);
+      keys = Arrays.copyOf(keys, size * 2);
     }
 
     // Insert new value at the end
@@ -325,20 +320,11 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
     return size;
   }
 
-  /**
-   * Get the capacity.
-   *
-   * @return the capacity
-   */
-  public int capacity() {
-    return capacity;
-  }
-
   @Override
   public String toString() {
     final DecimalFormat twoPlaces = new DecimalFormat("0.00");
     final StringBuilder str = new StringBuilder(100).append(IntervalHeap.class.getCanonicalName())
-        .append(", size: ").append(size()).append(" capacity: ").append(capacity());
+        .append(", size: ").append(size());
     int index = 0;
     int parent = 2;
     while (index < size()) {
