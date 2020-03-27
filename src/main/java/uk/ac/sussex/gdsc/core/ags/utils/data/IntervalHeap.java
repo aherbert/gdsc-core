@@ -68,9 +68,9 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
     }
 
     // Insert new value at the end
+    data[size] = value;
+    keys[size] = key;
     size++;
-    data[size - 1] = value;
-    keys[size - 1] = key;
     siftInsertedValueUp();
   }
 
