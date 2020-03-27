@@ -213,7 +213,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
     FloatIntKdTreeNode2D cursor = this;
     status[cursor.id] = Status.NONE;
     float range = Float.POSITIVE_INFINITY;
-    final FloatIntResultHeap resultHeap = new FloatIntResultHeap(count);
+    final IntFloatHeap resultHeap = new IntFloatHeap(count);
 
     do {
       if (status[cursor.id] == Status.ALLVISITED) {
@@ -324,7 +324,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
     FloatIntKdTreeNode2D cursor = this;
     status[cursor.id] = Status.NONE;
     float range = Float.POSITIVE_INFINITY;
-    final FloatIntResultHeap resultHeap = new FloatIntResultHeap(count);
+    final IntFloatHeap resultHeap = new IntFloatHeap(count);
 
     do {
       if (status[cursor.id] == Status.ALLVISITED) {

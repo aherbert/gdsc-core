@@ -248,7 +248,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
     KdTreeNode<T> cursor = this;
     cursor.status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
-    final ResultHeap<T> resultHeap = new ResultHeap<>(count);
+    final TDoubleHeap<T> resultHeap = new TDoubleHeap<>(count);
 
     do {
       if (cursor.status == Status.ALLVISITED) {
@@ -264,13 +264,13 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
             final double dist = pointDist(cursor.locations[0], location);
             if (dist <= range) {
               for (int i = 0; i < cursor.locationCount; i++) {
-                resultHeap.addValueFast(dist, cursor.data[i]);
+                resultHeap.addValue(dist, (T) cursor.data[i]);
               }
             }
           } else {
             for (int i = 0; i < cursor.locationCount; i++) {
               final double dist = pointDist(cursor.locations[i], location);
-              resultHeap.addValueFast(dist, cursor.data[i]);
+              resultHeap.addValue(dist, (T) cursor.data[i]);
             }
           }
           range = resultHeap.getMaxDist();
@@ -319,9 +319,9 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
       cursor.status = Status.NONE;
     } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.size);
+    final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.getSize());
     if (sequentialSorting) {
-      while (resultHeap.size > 0) {
+      while (resultHeap.getSize() > 0) {
         resultHeap.removeLargest();
         results.add(new Entry<>(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }

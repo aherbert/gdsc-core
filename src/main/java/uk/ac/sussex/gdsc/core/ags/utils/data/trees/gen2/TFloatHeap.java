@@ -23,17 +23,16 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'capacity' closest size.
+ * Class for tracking up to 'capacity' closest distances.
+ *
+ * @param <T> the generic type
  */
-public class FloatIntResultHeap {
+public class TFloatHeap<T> {
   /** The data. */
-  private final int[] data;
+  private final Object[] data;
 
   /** The distance. */
   private final float[] distance;
-
-  /** The capacity. */
-  private final int capacity;
 
   /** The size. */
   private int size;
@@ -41,7 +40,7 @@ public class FloatIntResultHeap {
   /**
    * The removed data.
    */
-  private int removedData;
+  private Object removedData;
 
   /**
    * The removed distance.
@@ -49,26 +48,24 @@ public class FloatIntResultHeap {
   private float removedDistance;
 
   /**
-   * Instantiates a new float int result heap.
+   * Instantiates a new float result heap.
    *
    * @param capacity the capacity
    */
-  public FloatIntResultHeap(int capacity) {
-    this.data = new int[capacity];
+  public TFloatHeap(int capacity) {
+    this.data = new Object[capacity];
     this.distance = new float[capacity];
-    this.capacity = capacity;
-    this.size = 0;
   }
 
   /**
    * Adds the value.
    *
-   * @param dist the dist
+   * @param dist the distance
    * @param value the value
    */
-  public void addValue(float dist, int value) {
+  public void addValue(float dist, T value) {
     // If there is still room in the heap
-    if (size < capacity) {
+    if (size != distance.length) {
       // Insert new value at the end
       data[size] = value;
       distance[size] = dist;
@@ -109,7 +106,7 @@ public class FloatIntResultHeap {
     while (child > 0) {
       final int p = (child - 1) >>> 1;
       if (distance[child] > distance[p]) {
-        final int pData = data[p];
+        final Object pData = data[p];
         final float pDist = distance[p];
         data[p] = data[child];
         distance[p] = distance[child];
@@ -134,7 +131,7 @@ public class FloatIntResultHeap {
       }
       if (distance[p] < distance[c]) {
         // Swap the points
-        final int pData = data[p];
+        final Object pData = data[p];
         final float pDist = distance[p];
         data[p] = data[c];
         distance[p] = distance[c];
@@ -152,7 +149,8 @@ public class FloatIntResultHeap {
    * @return the max dist
    */
   public float getMaxDist() {
-    if (size < capacity) {
+    if (size != distance.length) {
+      // Not yet full
       return Float.POSITIVE_INFINITY;
     }
     return distance[0];
@@ -173,7 +171,7 @@ public class FloatIntResultHeap {
    * @return the capacity
    */
   public int getCapacity() {
-    return capacity;
+    return distance.length;
   }
 
   /**
@@ -200,7 +198,7 @@ public class FloatIntResultHeap {
    *
    * @return the data
    */
-  public int[] getData() {
+  public Object[] getData() {
     return Arrays.copyOf(data, size);
   }
 
@@ -210,8 +208,24 @@ public class FloatIntResultHeap {
    * @param index the index
    * @return the data
    */
-  public int getData(int index) {
+  public Object getData(int index) {
     return data[index];
+  }
+
+  /**
+   * Gets the data.
+   *
+   * @param array the array
+   * @return the data
+   */
+  @SuppressWarnings("unchecked")
+  public T[] getData(T[] array) {
+    if (array.length < size) {
+      // Make a new array of a's runtime type, but my contents:
+      return (T[]) Arrays.copyOf(data, size, array.getClass());
+    }
+    System.arraycopy(data, 0, array, 0, size);
+    return array;
   }
 
   /**
@@ -220,8 +234,9 @@ public class FloatIntResultHeap {
    * @return the removed data
    * @see #removeLargest()
    */
-  public int getRemovedData() {
-    return removedData;
+  @SuppressWarnings("unchecked")
+  public T getRemovedData() {
+    return (T) removedData;
   }
 
   /**

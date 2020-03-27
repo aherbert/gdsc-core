@@ -23,7 +23,7 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'capacity' closest size.
+ * Class for tracking up to 'capacity' closest distances.
  */
 public class DoubleHeap {
   /** The distance. */
@@ -42,13 +42,12 @@ public class DoubleHeap {
    */
   public DoubleHeap(int capacity) {
     this.distance = new double[capacity];
-    this.size = 0;
   }
 
   /**
    * Adds the value.
    *
-   * @param dist the dist
+   * @param dist the distance
    */
   public void addValue(double dist) {
     // If there is still room in the heap

@@ -174,7 +174,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
     SimpleKdTreeNode2D cursor = this;
     cursor.status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
-    final ResultHeap<double[]> resultHeap = new ResultHeap<>(count);
+    final TDoubleHeap<double[]> resultHeap = new TDoubleHeap<>(count);
 
     do {
       if (cursor.status == Status.ALLVISITED) {
@@ -245,9 +245,9 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
       cursor.status = Status.NONE;
     } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    final ArrayList<Entry> results = new ArrayList<>(resultHeap.size);
+    final ArrayList<Entry> results = new ArrayList<>(resultHeap.getSize());
     if (sequentialSorting) {
-      while (resultHeap.size > 0) {
+      while (resultHeap.getSize() > 0) {
         resultHeap.removeLargest();
         results.add(new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }

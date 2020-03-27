@@ -27,13 +27,21 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.DistanceUtils;
 /**
  * An efficient well-optimized kd-tree.
  *
- * <p>This is a basic copy of the KdTree class but limited to 2 dimensions. Functionality to limit
- * the tree size has been removed.
+ * <p>This is a basic copy of the KdTree class but has no ability to store object data.
+ * Functionality to limit the tree size has been removed.
  *
  * @author Alex Herbert
- * @param <T> the generic type
  */
-public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
+public abstract class SimpleKdTree extends SimpleKdTreeNode {
+  /**
+   * Construct a RTree with a given number of dimensions.
+   *
+   * @param dimensions the dimensions
+   */
+  public SimpleKdTree(int dimensions) {
+    super(dimensions);
+  }
+
   /**
    * Get the number of points in the tree.
    *
@@ -44,13 +52,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
   }
 
   /**
-   * Add a point and associated value to the tree.
+   * Add a point to the tree.
    *
    * @param location the location
-   * @param value the value
    */
-  public void addPoint(double[] location, T value) {
-    KdTreeNode2D<T> cursor = this;
+  public void addPoint(double[] location) {
+    SimpleKdTreeNode cursor = this;
 
     while (cursor.locations == null || cursor.locationCount >= cursor.locations.length) {
       if (cursor.locations != null) {
@@ -73,9 +80,6 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
           final double[][] newLocations = new double[cursor.locations.length * 2][];
           System.arraycopy(cursor.locations, 0, newLocations, 0, cursor.locationCount);
           cursor.locations = newLocations;
-          final Object[] newData = new Object[newLocations.length];
-          System.arraycopy(cursor.data, 0, newData, 0, cursor.locationCount);
-          cursor.data = newData;
           break;
         }
 
@@ -86,23 +90,20 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
         }
 
         // Create child leaves
-        final KdTreeNode2D<T> left = new ChildNode(cursor);
-        final KdTreeNode2D<T> right = new ChildNode(cursor);
+        final SimpleKdTreeNode left = new ChildNode(cursor);
+        final SimpleKdTreeNode right = new ChildNode(cursor);
 
         // Move locations into children
         for (int i = 0; i < cursor.locationCount; i++) {
           final double[] oldLocation = cursor.locations[i];
-          final Object oldData = cursor.data[i];
           if (oldLocation[cursor.splitDimension] > cursor.splitValue) {
             // Right
             right.locations[right.locationCount] = oldLocation;
-            right.data[right.locationCount] = oldData;
             right.locationCount++;
             right.extendBounds(oldLocation);
           } else {
             // Left
             left.locations[left.locationCount] = oldLocation;
-            left.data[left.locationCount] = oldData;
             left.locationCount++;
             left.extendBounds(oldLocation);
           }
@@ -112,7 +113,6 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
         cursor.left = left;
         cursor.right = right;
         cursor.locations = null;
-        cursor.data = null;
       }
 
       cursor.locationCount++;
@@ -126,22 +126,19 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
     }
 
     cursor.locations[cursor.locationCount] = location;
-    cursor.data[cursor.locationCount] = value;
     cursor.locationCount++;
     cursor.extendBounds(location);
   }
 
   /**
    * Stores a distance and value to output.
-   *
-   * @param <T> the generic type
    */
-  public static class Entry<T> {
+  public static class Entry {
     /** The distance. */
     private final double distance;
 
     /** The value. */
-    private final T value;
+    private final double[] value;
 
     /**
      * Instantiates a new entry.
@@ -149,7 +146,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
      * @param distance the distance
      * @param value the value
      */
-    public Entry(double distance, T value) {
+    public Entry(double distance, double[] value) {
       this.distance = distance;
       this.value = value;
     }
@@ -168,7 +165,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
      *
      * @return the value
      */
-    public T getValue() {
+    public double[] getValue() {
       return value;
     }
   }
@@ -181,12 +178,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
    * @param sequentialSorting the sequential sorting
    * @return the list
    */
-  @SuppressWarnings({"unchecked", "null"})
-  public List<Entry<T>> nearestNeighbor(double[] location, int count, boolean sequentialSorting) {
-    KdTreeNode2D<T> cursor = this;
+  @SuppressWarnings({"null"})
+  public List<Entry> nearestNeighbor(double[] location, int count, boolean sequentialSorting) {
+    SimpleKdTreeNode cursor = this;
     cursor.status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
-    final TDoubleHeap<T> resultHeap = new TDoubleHeap<>(count);
+    final TDoubleHeap<double[]> resultHeap = new TDoubleHeap<>(count);
 
     do {
       if (cursor.status == Status.ALLVISITED) {
@@ -202,13 +199,13 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
             final double dist = pointDist(cursor.locations[0], location);
             if (dist <= range) {
               for (int i = 0; i < cursor.locationCount; i++) {
-                resultHeap.addValue(dist, (T) cursor.data[i]);
+                resultHeap.addValue(dist, cursor.locations[i]);
               }
             }
           } else {
             for (int i = 0; i < cursor.locationCount; i++) {
               final double dist = pointDist(cursor.locations[i], location);
-              resultHeap.addValue(dist, (T) cursor.data[i]);
+              resultHeap.addValue(dist, cursor.locations[i]);
             }
           }
           range = resultHeap.getMaxDist();
@@ -222,7 +219,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       }
 
       // Going to descend
-      KdTreeNode2D<T> nextCursor = null;
+      SimpleKdTreeNode nextCursor = null;
       if (cursor.status == Status.NONE) {
         // At a fresh node, descend the most probably useful direction
         if (location[cursor.splitDimension] > cursor.splitValue) {
@@ -257,15 +254,15 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       cursor.status = Status.NONE;
     } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.getSize());
+    final ArrayList<Entry> results = new ArrayList<>(resultHeap.getSize());
     if (sequentialSorting) {
       while (resultHeap.getSize() > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry<>(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
+        results.add(new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.getSize(); i++) {
-        results.add(new Entry<>(resultHeap.getDistance(i), (T) resultHeap.getData(i)));
+        results.add(new Entry(resultHeap.getDistance(i), (double[]) resultHeap.getData(i)));
       }
     }
 
@@ -273,18 +270,21 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
   }
 
   /**
-   * Calculates the nearest 'count' points to 'location'.
+   * Calculates the minimum distance of any point to 'location'.
+   *
+   * <p>In the special case that the tree is empty the distance is zero.
    *
    * @param location the location
-   * @param count the count
-   * @param results the results
+   * @return the distance
    */
-  @SuppressWarnings({"unchecked", "null"})
-  public void nearestNeighbor(double[] location, int count, NeighbourStore<T> results) {
-    KdTreeNode2D<T> cursor = this;
+  @SuppressWarnings({"null"})
+  public double minimumDistance(double[] location) {
+    if (size() == 0) {
+      return 0;
+    }
+    SimpleKdTreeNode cursor = this;
     cursor.status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
-    final TDoubleHeap<T> resultHeap = new TDoubleHeap<>(count);
 
     do {
       if (cursor.status == Status.ALLVISITED) {
@@ -298,18 +298,17 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
         if (cursor.locationCount > 0) {
           if (cursor.singularity) {
             final double dist = pointDist(cursor.locations[0], location);
-            if (dist <= range) {
-              for (int i = 0; i < cursor.locationCount; i++) {
-                resultHeap.addValue(dist, (T) cursor.data[i]);
-              }
+            if (dist < range) {
+              range = dist;
             }
           } else {
             for (int i = 0; i < cursor.locationCount; i++) {
               final double dist = pointDist(cursor.locations[i], location);
-              resultHeap.addValue(dist, (T) cursor.data[i]);
+              if (dist < range) {
+                range = dist;
+              }
             }
           }
-          range = resultHeap.getMaxDist();
         }
 
         if (cursor.parent == null) {
@@ -320,7 +319,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       }
 
       // Going to descend
-      KdTreeNode2D<T> nextCursor = null;
+      SimpleKdTreeNode nextCursor = null;
       if (cursor.status == Status.NONE) {
         // At a fresh node, descend the most probably useful direction
         if (location[cursor.splitDimension] > cursor.splitValue) {
@@ -355,105 +354,19 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       cursor.status = Status.NONE;
     } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    for (int i = 0; i < resultHeap.getSize(); i++) {
-      results.add(resultHeap.getDistance(i), (T) resultHeap.getData(i));
-    }
-  }
-
-  /**
-   * Calculates the neighbour points within 'range' to 'location' and puts them in the results
-   * store.
-   *
-   * @param location the location
-   * @param range the range
-   * @param results the results
-   */
-  @SuppressWarnings({"unchecked", "null"})
-  public void findNeighbor(double[] location, double range, NeighbourStore<T> results) {
-    KdTreeNode2D<T> cursor = this;
-    cursor.status = Status.NONE;
-
-    do {
-      if (cursor.status == Status.ALLVISITED) {
-        // At a fully visited part. Move up the tree
-        cursor = cursor.parent;
-        continue;
-      }
-
-      if (cursor.status == Status.NONE && cursor.locations != null) {
-        // At a leaf. Use the data.
-        if (cursor.locationCount > 0) {
-          if (cursor.singularity) {
-            final double dist = pointDist(cursor.locations[0], location);
-            if (dist <= range) {
-              for (int i = 0; i < cursor.locationCount; i++) {
-                results.add(dist, (T) cursor.data[i]);
-              }
-            }
-          } else {
-            for (int i = 0; i < cursor.locationCount; i++) {
-              final double dist = pointDist(cursor.locations[i], location);
-              if (dist <= range) {
-                results.add(dist, (T) cursor.data[i]);
-              }
-            }
-          }
-        }
-
-        if (cursor.parent == null) {
-          break;
-        }
-        cursor = cursor.parent;
-        continue;
-      }
-
-      // Going to descend
-      KdTreeNode2D<T> nextCursor = null;
-      if (cursor.status == Status.NONE) {
-        // At a fresh node, descend the most probably useful direction
-        if (location[cursor.splitDimension] > cursor.splitValue) {
-          // Descend right
-          nextCursor = cursor.right;
-          cursor.status = Status.RIGHTVISITED;
-        } else {
-          // Descend left
-          nextCursor = cursor.left;
-          cursor.status = Status.LEFTVISITED;
-        }
-      } else if (cursor.status == Status.LEFTVISITED) {
-        // Left node visited, descend right.
-        nextCursor = cursor.right;
-        cursor.status = Status.ALLVISITED;
-      } else if (cursor.status == Status.RIGHTVISITED) {
-        // Right node visited, descend left.
-        nextCursor = cursor.left;
-        cursor.status = Status.ALLVISITED;
-      }
-
-      // Check if it's worth descending. Assume it is if it's sibling has
-      // not been visited yet.
-      if (cursor.status == Status.ALLVISITED
-          && (nextCursor.locationCount == 0 || (!nextCursor.singularity
-              && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))) {
-        continue;
-      }
-
-      // Descend down the tree
-      cursor = nextCursor;
-      cursor.status = Status.NONE;
-    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    return range;
   }
 
   /**
    * Internal class for child nodes.
    */
-  private class ChildNode extends KdTreeNode2D<T> {
+  private class ChildNode extends SimpleKdTreeNode {
     /**
      * Instantiates a new child node.
      *
      * @param parent the parent
      */
-    private ChildNode(KdTreeNode2D<T> parent) {
+    private ChildNode(SimpleKdTreeNode parent) {
       super(parent);
     }
 
@@ -470,15 +383,66 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
   }
 
   /**
+   * Class for tree with Unweighted Squared Euclidean distancing with no NaN
+   * distance checking.
+   */
+  public static class SqrEuclid extends SimpleKdTree {
+    /**
+     * Create a new instance.
+     *
+     * @param dimensions the dimensions
+     */
+    public SqrEuclid(int dimensions) {
+      super(dimensions);
+    }
+
+    @Override
+    protected double pointDist(double[] p1, double[] p2) {
+      double distance = 0;
+
+      for (int i = 0; i < p1.length; i++) {
+        final double diff = (p1[i] - p2[i]);
+        distance += diff * diff;
+      }
+
+      return distance;
+    }
+
+    @Override
+    protected double pointRegionDist(double[] point, double[] min, double[] max) {
+      double distance = 0;
+
+      for (int i = 0; i < point.length; i++) {
+        double diff = 0;
+        if (point[i] > max[i]) {
+          diff = (point[i] - max[i]);
+        } else if (point[i] < min[i]) {
+          diff = (point[i] - min[i]);
+        }
+
+        distance += diff * diff;
+      }
+
+      return distance;
+    }
+  }
+
+  /**
    * Class for tree with Unweighted Squared Euclidean distancing assuming 2 dimensions with no NaN
    * distance checking.
    *
    * <p>This is an optimised version for use in the GDSC Core project.
    *
    * @author Alex Herbert
-   * @param <T> the generic type
    */
-  public static class SqrEuclid2D<T> extends KdTree2D<T> {
+  public static class SqrEuclid2D extends SimpleKdTree {
+    /**
+     * Create a new instance.
+     */
+    public SqrEuclid2D() {
+      super(2);
+    }
+
     @Override
     protected double pointDist(double[] p1, double[] p2) {
       final double dx = p1[0] - p2[0];
@@ -491,6 +455,39 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       final double dx = DistanceUtils.getDistanceOutsideRange(point[0], min[0], max[0]);
       final double dy = DistanceUtils.getDistanceOutsideRange(point[1], min[1], max[1]);
       return dx * dx + dy * dy;
+    }
+  }
+
+  /**
+   * Class for tree with Unweighted Squared Euclidean distancing assuming 3 dimensions with no NaN
+   * distance checking.
+   *
+   * <p>This is an optimised version for use in the GDSC Core project.
+   *
+   * @author Alex Herbert
+   */
+  public static class SqrEuclid3D extends SimpleKdTree {
+    /**
+     * Create a new instance.
+     */
+    public SqrEuclid3D() {
+      super(3);
+    }
+
+    @Override
+    protected double pointDist(double[] p1, double[] p2) {
+      final double dx = p1[0] - p2[0];
+      final double dy = p1[1] - p2[1];
+      final double dz = p1[2] - p2[2];
+      return dx * dx + dy * dy + dz * dz;
+    }
+
+    @Override
+    protected double pointRegionDist(double[] point, double[] min, double[] max) {
+      final double dx = DistanceUtils.getDistanceOutsideRange(point[0], min[0], max[0]);
+      final double dy = DistanceUtils.getDistanceOutsideRange(point[1], min[1], max[1]);
+      final double dz = DistanceUtils.getDistanceOutsideRange(point[2], min[2], max[2]);
+      return dx * dx + dy * dy + dz * dz;
     }
   }
 }

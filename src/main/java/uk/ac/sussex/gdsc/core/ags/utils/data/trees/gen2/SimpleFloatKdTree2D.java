@@ -175,7 +175,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
     SimpleFloatKdTreeNode2D cursor = this;
     cursor.status = Status.NONE;
     float range = Float.POSITIVE_INFINITY;
-    final FloatResultHeap<float[]> resultHeap = new FloatResultHeap<>(count);
+    final TFloatHeap<float[]> resultHeap = new TFloatHeap<>(count);
 
     do {
       if (cursor.status == Status.ALLVISITED) {

@@ -23,17 +23,14 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'capacity' closest size.
+ * Class for tracking up to 'capacity' closest distances.
  */
-public class IntResultHeap {
+public class IntFloatHeap {
   /** The data. */
   private final int[] data;
 
   /** The distance. */
-  private final double[] distance;
-
-  /** The capacity. */
-  private final int capacity;
+  private final float[] distance;
 
   /** The size. */
   private int size;
@@ -46,29 +43,27 @@ public class IntResultHeap {
   /**
    * The removed distance.
    */
-  private double removedDistance;
+  private float removedDistance;
 
   /**
-   * Instantiates a new double int result heap.
+   * Instantiates a new float int result heap.
    *
    * @param capacity the capacity
    */
-  public IntResultHeap(int capacity) {
+  public IntFloatHeap(int capacity) {
     this.data = new int[capacity];
-    this.distance = new double[capacity];
-    this.capacity = capacity;
-    this.size = 0;
+    this.distance = new float[capacity];
   }
 
   /**
    * Adds the value.
    *
-   * @param dist the dist
+   * @param dist the distance
    * @param value the value
    */
-  public void addValue(double dist, int value) {
+  public void addValue(float dist, int value) {
     // If there is still room in the heap
-    if (size < capacity) {
+    if (size != distance.length) {
       // Insert new value at the end
       data[size] = value;
       distance[size] = dist;
@@ -110,7 +105,7 @@ public class IntResultHeap {
       final int p = (child - 1) >>> 1;
       if (distance[child] > distance[p]) {
         final int pData = data[p];
-        final double pDist = distance[p];
+        final float pDist = distance[p];
         data[p] = data[child];
         distance[p] = distance[child];
         data[child] = pData;
@@ -135,7 +130,7 @@ public class IntResultHeap {
       if (distance[p] < distance[c]) {
         // Swap the points
         final int pData = data[p];
-        final double pDist = distance[p];
+        final float pDist = distance[p];
         data[p] = data[c];
         distance[p] = distance[c];
         data[c] = pData;
@@ -151,9 +146,10 @@ public class IntResultHeap {
    *
    * @return the max dist
    */
-  public double getMaxDist() {
-    if (size < capacity) {
-      return Double.POSITIVE_INFINITY;
+  public float getMaxDist() {
+    if (size != distance.length) {
+      // Not yet full
+      return Float.POSITIVE_INFINITY;
     }
     return distance[0];
   }
@@ -173,7 +169,7 @@ public class IntResultHeap {
    * @return the capacity
    */
   public int getCapacity() {
-    return capacity;
+    return distance.length;
   }
 
   /**
@@ -181,7 +177,7 @@ public class IntResultHeap {
    *
    * @return the distance
    */
-  public double[] getDistance() {
+  public float[] getDistance() {
     return Arrays.copyOf(distance, size);
   }
 
@@ -191,7 +187,7 @@ public class IntResultHeap {
    * @param index the index
    * @return the distance
    */
-  public double getDistance(int index) {
+  public float getDistance(int index) {
     return distance[index];
   }
 
@@ -230,7 +226,7 @@ public class IntResultHeap {
    * @return the removed distance
    * @see #removeLargest()
    */
-  public double getRemovedDistance() {
+  public float getRemovedDistance() {
     return removedDistance;
   }
 }

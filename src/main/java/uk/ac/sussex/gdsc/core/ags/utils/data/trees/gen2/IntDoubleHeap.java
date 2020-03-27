@@ -23,27 +23,22 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'capacity' closest size.
- *
- * @param <T> the generic type
+ * Class for tracking up to 'capacity' closest distances.
  */
-public class ResultHeap<T> {
+public class IntDoubleHeap {
   /** The data. */
-  final Object[] data;
+  private final int[] data;
 
   /** The distance. */
-  final double[] distance;
-
-  /** The capacity. */
-  private final int capacity;
+  private final double[] distance;
 
   /** The size. */
-  int size;
+  private int size;
 
   /**
    * The removed data.
    */
-  private Object removedData;
+  private int removedData;
 
   /**
    * The removed distance.
@@ -51,49 +46,24 @@ public class ResultHeap<T> {
   private double removedDistance;
 
   /**
-   * Instantiates a new result heap.
+   * Instantiates a new double int result heap.
    *
    * @param capacity the capacity
    */
-  public ResultHeap(int capacity) {
-    this.data = new Object[capacity];
+  public IntDoubleHeap(int capacity) {
+    this.data = new int[capacity];
     this.distance = new double[capacity];
-    this.capacity = capacity;
-    this.size = 0;
   }
 
   /**
    * Adds the value.
    *
-   * @param dist the dist
+   * @param dist the distance
    * @param value the value
    */
-  public void addValue(double dist, T value) {
+  public void addValue(double dist, int value) {
     // If there is still room in the heap
-    if (size < capacity) {
-      // Insert new value at the end
-      data[size] = value;
-      distance[size] = dist;
-      upHeapify(size);
-      size++;
-    } else if (dist < distance[0]) {
-      // If there is no room left in the heap, and the new entry is lower
-      // than the max entry replace the max entry with the new entry
-      data[0] = value;
-      distance[0] = dist;
-      downHeapify(0);
-    }
-  }
-
-  /**
-   * Adds the value fast.
-   *
-   * @param dist the dist
-   * @param value the value
-   */
-  void addValueFast(double dist, Object value) {
-    // If there is still room in the heap
-    if (size < capacity) {
+    if (size != data.length) {
       // Insert new value at the end
       data[size] = value;
       distance[size] = dist;
@@ -134,7 +104,7 @@ public class ResultHeap<T> {
     while (child > 0) {
       final int p = (child - 1) >>> 1;
       if (distance[child] > distance[p]) {
-        final Object pData = data[p];
+        final int pData = data[p];
         final double pDist = distance[p];
         data[p] = data[child];
         distance[p] = distance[child];
@@ -159,7 +129,7 @@ public class ResultHeap<T> {
       }
       if (distance[p] < distance[c]) {
         // Swap the points
-        final Object pData = data[p];
+        final int pData = data[p];
         final double pDist = distance[p];
         data[p] = data[c];
         distance[p] = distance[c];
@@ -177,7 +147,8 @@ public class ResultHeap<T> {
    * @return the max dist
    */
   public double getMaxDist() {
-    if (size < capacity) {
+    if (size != distance.length) {
+      // Not yet full
       return Double.POSITIVE_INFINITY;
     }
     return distance[0];
@@ -198,7 +169,7 @@ public class ResultHeap<T> {
    * @return the capacity
    */
   public int getCapacity() {
-    return capacity;
+    return distance.length;
   }
 
   /**
@@ -225,7 +196,7 @@ public class ResultHeap<T> {
    *
    * @return the data
    */
-  public Object[] getData() {
+  public int[] getData() {
     return Arrays.copyOf(data, size);
   }
 
@@ -235,27 +206,8 @@ public class ResultHeap<T> {
    * @param index the index
    * @return the data
    */
-  public Object getData(int index) {
+  public int getData(int index) {
     return data[index];
-  }
-
-  /**
-   * Gets the data.
-   *
-   * @param array the array
-   * @return the data
-   */
-  @SuppressWarnings("unchecked")
-  public T[] getData(T[] array) {
-    if (array.length < size) {
-      // Make a new array of a's runtime type, but my contents:
-      return (T[]) Arrays.copyOf(data, size, array.getClass());
-    }
-    System.arraycopy(data, 0, array, 0, size);
-    if (array.length > size) {
-      array[size] = null;
-    }
-    return array;
   }
 
   /**
@@ -264,9 +216,8 @@ public class ResultHeap<T> {
    * @return the removed data
    * @see #removeLargest()
    */
-  @SuppressWarnings("unchecked")
-  public T getRemovedData() {
-    return (T) removedData;
+  public int getRemovedData() {
+    return removedData;
   }
 
   /**
