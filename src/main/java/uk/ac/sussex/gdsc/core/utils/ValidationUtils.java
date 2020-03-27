@@ -813,18 +813,19 @@ public final class ValidationUtils {
 
   /**
    * Check the specified value is positive.
-   *
+   * 
    * <p>An error message is constructed using:
-   *
+   * 
    * <pre>
    * "Value is not positive: " + value
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(int value) {
-    checkPositive(value, VALUE);
+  public static int checkPositive(int value) {
+    return checkPositive(value, VALUE);
   }
 
   /**
@@ -838,12 +839,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(int value, String name) {
+  public static int checkPositive(int value, String name) {
     if (value < 0) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -856,10 +859,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(long value) {
-    checkPositive(value, VALUE);
+  public static long checkPositive(long value) {
+    return checkPositive(value, VALUE);
   }
 
   /**
@@ -873,12 +877,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(long value, String name) {
+  public static long checkPositive(long value, String name) {
     if (value < 0) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -891,10 +897,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(float value) {
-    checkPositive(value, VALUE);
+  public static float checkPositive(float value) {
+    return checkPositive(value, VALUE);
   }
 
   /**
@@ -908,12 +915,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(float value, String name) {
+  public static float checkPositive(float value, String name) {
     if (value < 0 || Float.isNaN(value)) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -926,10 +935,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(double value) {
-    checkPositive(value, VALUE);
+  public static double checkPositive(double value) {
+    return checkPositive(value, VALUE);
   }
 
   /**
@@ -943,12 +953,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >=0}
    */
-  public static void checkPositive(double value, String name) {
+  public static double checkPositive(double value, String name) {
     if (value < 0 || Double.isNaN(value)) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -961,10 +973,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(int value) {
-    checkStrictlyPositive(value, VALUE);
+  public static int checkStrictlyPositive(int value) {
+    return checkStrictlyPositive(value, VALUE);
   }
 
   /**
@@ -978,12 +991,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(int value, String name) {
+  public static int checkStrictlyPositive(int value, String name) {
     if (value <= 0) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -996,10 +1011,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(long value) {
-    checkStrictlyPositive(value, VALUE);
+  public static long checkStrictlyPositive(long value) {
+    return checkStrictlyPositive(value, VALUE);
   }
 
   /**
@@ -1013,12 +1029,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(long value, String name) {
+  public static long checkStrictlyPositive(long value, String name) {
     if (value <= 0) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -1032,10 +1050,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(float value) {
-    checkStrictlyPositive(value, VALUE);
+  public static float checkStrictlyPositive(float value) {
+    return checkStrictlyPositive(value, VALUE);
   }
 
   /**
@@ -1050,12 +1069,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(float value, String name) {
+  public static float checkStrictlyPositive(float value, String name) {
     if (value <= 0 || Float.isNaN(value)) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
     }
+    return value;
   }
 
   /**
@@ -1069,10 +1090,11 @@ public final class ValidationUtils {
    * </pre>
    *
    * @param value the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(double value) {
-    checkStrictlyPositive(value, VALUE);
+  public static double checkStrictlyPositive(double value) {
+    return checkStrictlyPositive(value, VALUE);
   }
 
   /**
@@ -1087,12 +1109,14 @@ public final class ValidationUtils {
    *
    * @param value the value
    * @param name the name of the value
+   * @return the value
    * @throws IllegalArgumentException if {@code value} is not {@code >0}
    */
-  public static void checkStrictlyPositive(double value, String name) {
+  public static double checkStrictlyPositive(double value, String name) {
     if (value <= 0 || Double.isNaN(value)) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
     }
+    return value;
   }
 
   /**

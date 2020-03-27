@@ -917,6 +917,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckPositiveWithInt() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42));
     int value = 0;
     ValidationUtils.checkPositive(value);
     for (int badValue : new int[] {Integer.MIN_VALUE, -1}) {
@@ -931,6 +932,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckPositiveWithLong() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42L));
     long value = 0;
     ValidationUtils.checkPositive(value);
     for (long badValue : new long[] {Long.MIN_VALUE, -1}) {
@@ -945,6 +947,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckPositiveWithFloat() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0F));
     float value = 0;
     ValidationUtils.checkPositive(value);
     for (float badValue : new float[] {Float.NaN, -1}) {
@@ -959,6 +962,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckPositiveWithDouble() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0));
     double value = 0;
     ValidationUtils.checkPositive(value);
     for (double badValue : new double[] {Double.NaN, -1}) {
@@ -973,6 +977,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckStrictlyPositiveWithInt() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42));
     int value = 1;
     ValidationUtils.checkStrictlyPositive(value);
     for (int badValue : new int[] {Integer.MIN_VALUE, -1, 0}) {
@@ -987,6 +992,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckStrictlyPositiveWithLong() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42L));
     long value = 1;
     ValidationUtils.checkStrictlyPositive(value);
     for (long badValue : new long[] {Long.MIN_VALUE, -1, 0}) {
@@ -1001,6 +1007,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckStrictlyPositiveWithFloat() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0F));
     float value = 1;
     ValidationUtils.checkStrictlyPositive(value);
     for (float badValue : new float[] {Float.NaN, -1, 0}) {
@@ -1015,6 +1022,7 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckStrictlyPositiveWithDouble() {
+    Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0));
     double value = 1;
     ValidationUtils.checkStrictlyPositive(value);
     for (double badValue : new double[] {Double.NaN, -1, 0}) {
