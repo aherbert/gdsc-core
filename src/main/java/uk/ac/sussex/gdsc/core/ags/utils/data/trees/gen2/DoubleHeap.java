@@ -29,9 +29,6 @@ public class DoubleHeap {
   /** The distance. */
   private final double[] distance;
 
-  /** The capacity. */
-  private final int capacity;
-
   /** The size. */
   private int size;
 
@@ -45,7 +42,6 @@ public class DoubleHeap {
    */
   public DoubleHeap(int capacity) {
     this.distance = new double[capacity];
-    this.capacity = capacity;
     this.size = 0;
   }
 
@@ -56,7 +52,7 @@ public class DoubleHeap {
    */
   public void addValue(double dist) {
     // If there is still room in the heap
-    if (size < capacity) {
+    if (size != distance.length) {
       // Insert new value at the end
       distance[size] = dist;
       upHeapify(size);
@@ -130,7 +126,8 @@ public class DoubleHeap {
    * @return the max dist
    */
   public double getMaxDist() {
-    if (size < capacity) {
+    if (size != distance.length) {
+      // Not yet full
       return Double.POSITIVE_INFINITY;
     }
     return distance[0];
@@ -151,7 +148,7 @@ public class DoubleHeap {
    * @return the capacity
    */
   public int getCapacity() {
-    return capacity;
+    return distance.length;
   }
 
   /**
