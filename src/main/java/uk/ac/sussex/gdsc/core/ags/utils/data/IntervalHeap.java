@@ -20,7 +20,6 @@
 
 package uk.ac.sussex.gdsc.core.ags.utils.data;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 
 /**
@@ -318,49 +317,5 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
   @Override
   public int size() {
     return size;
-  }
-
-  @Override
-  public String toString() {
-    final DecimalFormat twoPlaces = new DecimalFormat("0.00");
-    final StringBuilder str = new StringBuilder(100).append(IntervalHeap.class.getCanonicalName())
-        .append(", size: ").append(size());
-    int index = 0;
-    int parent = 2;
-    while (index < size()) {
-      int counter = 0;
-      str.append('\t');
-      while ((index + counter) < size() && counter < parent) {
-        str.append(twoPlaces.format(keys[index + counter])).append(", ");
-        counter++;
-      }
-      str.append('\n');
-      index += counter;
-      parent *= 2;
-    }
-    return str.toString();
-  }
-
-  /**
-   * Validate the heap. This can be used to check the heap construction.
-   *
-   * @return true, if valid
-   */
-  boolean validateHeap() {
-    // Validate left-right
-    for (int i = 0; i < size - 1; i += 2) {
-      if (keys[i] > keys[i + 1]) {
-        return false;
-      }
-    }
-    // Validate within parent interval
-    for (int i = 2; i < size; i++) {
-      final double maxParent = keys[(i / 2 - 1) | 1];
-      final double minParent = keys[(i / 2 - 1) & ~1];
-      if (keys[i] > maxParent || keys[i] < minParent) {
-        return false;
-      }
-    }
-    return true;
   }
 }
