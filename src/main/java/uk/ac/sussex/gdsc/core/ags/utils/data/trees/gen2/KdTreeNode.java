@@ -27,7 +27,7 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
  * @param <T> the generic type
  */
 abstract class KdTreeNode<T> {
-  /** The Constant BUCKET_SIZE. */
+  /** The bucket size. */
   static final int BUCKET_SIZE = 24;
 
   // All types
