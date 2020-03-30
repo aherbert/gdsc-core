@@ -198,7 +198,7 @@ public class PartialSortTest {
     });
 
     final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(size);
-    ts.execute(new MyTimingTask("DoubleHeap" + msg, data) {
+    ts.execute(new MyTimingTask("DoubleMinHeap" + msg, data) {
       @Override
       public Object run(Object data) {
         return heap.bottom(0, (double[]) data);
@@ -361,7 +361,7 @@ public class PartialSortTest {
     });
 
     final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(size);
-    ts.execute(new MyTimingTask("DoubleHeap" + msg, data) {
+    ts.execute(new MyTimingTask("DoubleMinHeap" + msg, data) {
       @Override
       public Object run(Object data) {
         return heap.top(0, (double[]) data);

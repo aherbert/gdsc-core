@@ -42,6 +42,8 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.MaxHeap;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.Entry;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.DistanceFunction;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.SquareEuclideanDistanceFunction2D;
+import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
+import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -513,8 +515,60 @@ public class KdTreeTest {
       }
     });
 
+    ts.execute(new NnTimingTask("ObjDoubleND", data, expected) {
+      @Override
+      public Object run(Object objectData) {
+        final uk.ac.sussex.gdsc.core.trees.ObjDoubleKdTree<Object> tree =
+            KdTrees.newObjDoubleKdTree(2);
+        final double[][] data = (double[][]) objectData;
+        for (final double[] location : data) {
+          tree.addPoint(location, null);
+        }
+
+        final double[] o = new double[data.length];
+        double[] max = new double[1];
+        for (int i = 0; i < data.length; i++) {
+          max[0] = Double.NaN;
+          tree.nearestNeighbours(data[i], k, false, DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D,
+              (t, d) -> {
+                if (Double.isNaN(max[0])) {
+                  max[0] = d;
+                }
+              });
+          o[i] = max[0];
+        }
+        return o;
+      }
+    });
+
+    ts.execute(new NnTimingTask("DoubleND", data, expected) {
+      @Override
+      public Object run(Object objectData) {
+        final uk.ac.sussex.gdsc.core.trees.DoubleKdTree tree = KdTrees.newDoubleKdTree(2);
+        final double[][] data = (double[][]) objectData;
+        for (final double[] location : data) {
+          tree.addPoint(location);
+        }
+
+        final double[] o = new double[data.length];
+        double[] max = new double[1];
+        for (int i = 0; i < data.length; i++) {
+          max[0] = Double.NaN;
+          tree.nearestNeighbours(data[i], k, false, DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D, d -> {
+            if (Double.isNaN(max[0])) {
+              max[0] = d;
+            }
+          });
+          o[i] = max[0];
+        }
+        return o;
+      }
+    });
+
     ts.check();
     final int number = ts.getSize();
+    ts.repeat(number);
+    ts.repeat(number);
     ts.repeat(number);
     ts.repeat(number);
 
