@@ -813,9 +813,9 @@ public final class ValidationUtils {
 
   /**
    * Check the specified value is positive.
-   * 
+   *
    * <p>An error message is constructed using:
-   * 
+   *
    * <pre>
    * "Value is not positive: " + value
    * </pre>
