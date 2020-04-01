@@ -64,7 +64,8 @@ public interface IntFloatKdTree {
    * item.
    *
    * <p>The result consumer will be called with the minimum of {@code count} or the current number
-   * of items in the tree.
+   * of items in the tree. It is recommended that the first result passed to the consumer should be
+   * the neighbour with the highest distance.
    *
    * @param location the location
    * @param count the count
