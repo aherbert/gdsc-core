@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import gnu.trove.list.array.TDoubleArrayList;
 import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.Set;
@@ -39,11 +40,13 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
-import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunctions;
+import uk.ac.sussex.gdsc.core.trees.FloatKdTree;
+import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -96,7 +99,7 @@ public class OpticsManager extends CoordinateStore {
    * <p>This can be cached as it is initialised with the current coordinates (that should not
    * change).
    */
-  private SimpleFloatKdTree2D tree;
+  private FloatKdTree tree;
 
   /**
    * Options for the algorithms.
@@ -1457,7 +1460,7 @@ public class OpticsManager extends CoordinateStore {
 
     // Use a KDtree to allow search of the space
     if (tree == null) {
-      tree = new SimpleFloatKdTree2D.SqrEuclid2D();
+      tree = KdTrees.newFloatKdTree(2);
       for (int i = 0; i < size; i++) {
         tree.addPoint(new float[] {xcoord[i], ycoord[i]});
       }
@@ -1466,7 +1469,8 @@ public class OpticsManager extends CoordinateStore {
     // Note: The k-nearest neighbour search will include the actual point so increment by 1
     numNeighbours++;
 
-    final float[] location = new float[2];
+    final double[] location = new double[2];
+    final TDoubleArrayList tmp = new TDoubleArrayList(numNeighbours);
     for (int i = 0; i < sampleSize; i++) {
       if (tracker != null) {
         tracker.progress(i, sampleSize);
@@ -1474,8 +1478,12 @@ public class OpticsManager extends CoordinateStore {
       final int index = indices[i];
       location[0] = xcoord[index];
       location[1] = ycoord[index];
-      // The tree will use the squared distance so compute the root
-      d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, numNeighbours)[0]));
+      tmp.resetQuick();
+      tree.nearestNeighbours(location, numNeighbours, false,
+          FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D, dist -> tmp.setQuick(tmp.size(), dist));
+      // The tree will use the squared distance so compute the root.
+      // This assumes the first result is the maximum
+      d[i] = (float) (Math.sqrt(tmp.getQuick(0)));
     }
     if (tracker != null) {
       time = System.currentTimeMillis() - time;

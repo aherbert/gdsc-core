@@ -32,12 +32,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.FloatIntKdTree2D;
-import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.IntNeighbourStore;
-import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.Status;
+import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunctions;
+import uk.ac.sussex.gdsc.core.trees.IntFloatKdTree;
+import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
+import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
 /**
  * LoOP: Local Outlier Probabilities.
@@ -65,7 +66,7 @@ public class LoOp {
    *
    * <p>Package private to allow access from worker inner classes.
    */
-  final FloatIntKdTree2D.SqrEuclid2D tree;
+  final IntFloatKdTree tree;
 
   /**
    * The points.
@@ -77,7 +78,7 @@ public class LoOp {
   /**
    * Class to store the nearest neighbours of each point.
    */
-  private static class KnnStore implements IntNeighbourStore {
+  private static class KnnStore implements IntDoubleConsumer {
 
     /** The neighbours. */
     final int[][] neighbours;
@@ -99,7 +100,7 @@ public class LoOp {
     }
 
     @Override
-    public void add(double distance, int neighbour) {
+    public void accept(int neighbour, double distance) {
       if (index == neighbour) {
         // Ignore self
         return;
@@ -144,10 +145,13 @@ public class LoOp {
       // Note: The numberOfNeigbours-nearest neighbour search will include the actual
       // point so increment by 1
       final int k1 = numberOfNeigbours + 1;
-      final Status[] status = new Status[tree.getNumberOfNodes()];
+      final double[] search = new double[2];
       for (int i = from; i < to; i++) {
         store.reset(i);
-        tree.nearestNeighbor(points[i], k1, store, status);
+        search[0] = points[i][0];
+        search[1] = points[i][1];
+        tree.nearestNeighbours(search, k1, false, FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D,
+            store);
         pd[i] = Math.sqrt(store.sumDistances / numberOfNeigbours);
       }
     }
@@ -231,7 +235,7 @@ public class LoOp {
    */
   public LoOp(float[] x, float[] y) {
     points = new float[x.length][];
-    tree = new FloatIntKdTree2D.SqrEuclid2D();
+    tree = KdTrees.newIntFloatKdTree(2);
     for (int i = 0; i < x.length; i++) {
       points[i] = new float[] {x[i], y[i]};
       tree.addPoint(points[i], i);
@@ -245,7 +249,7 @@ public class LoOp {
    */
   LoOp(float[][] points) {
     this.points = points;
-    tree = new FloatIntKdTree2D.SqrEuclid2D();
+    tree = KdTrees.newIntFloatKdTree(2);
     for (int i = 0; i < points.length; i++) {
       tree.addPoint(points[i], i);
     }

@@ -982,7 +982,8 @@ public class OpticsManagerTest {
   }
 
   private static void opticsAreEqual(String title, OpticsResult r1, OpticsResult r2) {
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-5, 0);
+    final DoubleDoubleBiPredicate equality =
+        TestHelper.doublesAreClose(1e-5, 0).or(TestHelper.doublesEqual());
     for (int i = 0; i < r1.size(); i++) {
       // Edge-points are random so ignore them. Only do core points.
       if (!r1.get(i).isCorePoint() || !r1.get(i).isCorePoint()) {
@@ -1499,7 +1500,7 @@ public class OpticsManagerTest {
   }
 
   private enum TestMoleculeSpace {
-    SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE, TREE2
+    SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE, TREE2, TREE3
   }
 
   private abstract class MyTimingTask extends BaseTimingTask {
@@ -1553,9 +1554,12 @@ public class OpticsManagerTest {
           space = new InnerRadialMoleculeSpace(om[index], generatingDistanceE, resolution);
           break;
         case TREE:
-          space = new TreeMoleculeSpace2ndGen(om[index], generatingDistanceE);
+          space = new FloatTreeMoleculeSpace(om[index], generatingDistanceE);
           break;
         case TREE2:
+          space = new TreeMoleculeSpace2ndGen(om[index], generatingDistanceE);
+          break;
+        case TREE3:
           space = new TreeMoleculeSpace3rdGen(om[index], generatingDistanceE);
           break;
         default:
@@ -1713,6 +1717,15 @@ public class OpticsManagerTest {
             Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
           }
         }, check);
+    ts.execute(
+        new FindNeighboursTimingTask(TestMoleculeSpace.TREE3, om, minPts, generatingDistanceE, 0) {
+          @Override
+          public void check(int index, Object result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        }, check);
 
     if (loops > 1) {
       logger.info(ts.getReport());
@@ -1810,6 +1823,15 @@ public class OpticsManagerTest {
       }
     }, check);
     ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.TREE2, true, om, minPts,
+        generatingDistanceE, 0) {
+      @Override
+      public void check(int index, Object result) {
+        final int[][] e = n[index];
+        final int[][] o = format(result);
+        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+      }
+    }, check);
+    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.TREE3, true, om, minPts,
         generatingDistanceE, 0) {
       @Override
       public void check(int index, Object result) {
