@@ -43,6 +43,7 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.Entry;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.DistanceFunction;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.SquareEuclideanDistanceFunction2D;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
+import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunctions;
 import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
@@ -554,11 +555,40 @@ public class KdTreeTest {
         double[] max = new double[1];
         for (int i = 0; i < data.length; i++) {
           max[0] = Double.NaN;
-          tree.nearestNeighbours(data[i], k, false, DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D, d -> {
-            if (Double.isNaN(max[0])) {
-              max[0] = d;
-            }
-          });
+          tree.nearestNeighbours(data[i], k, false, DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D,
+              d -> {
+                if (Double.isNaN(max[0])) {
+                  max[0] = d;
+                }
+              });
+          o[i] = max[0];
+        }
+        return o;
+      }
+    });
+
+    ts.execute(new NnTimingTask("FloatND", data, expected, 1e-3) {
+      @Override
+      public Object run(Object objectData) {
+        final uk.ac.sussex.gdsc.core.trees.FloatKdTree tree = KdTrees.newFloatKdTree(2);
+        final float[][] data = (float[][]) objectData;
+        for (final float[] location : data) {
+          tree.addPoint(location);
+        }
+
+        final double[] o = new double[data.length];
+        double[] max = new double[1];
+        double[] search = new double[2];
+        for (int i = 0; i < data.length; i++) {
+          search[0] = data[i][0];
+          search[1] = data[i][1];
+          max[0] = Double.NaN;
+          tree.nearestNeighbours(search, k, false, FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D,
+              d -> {
+                if (Double.isNaN(max[0])) {
+                  max[0] = d;
+                }
+              });
           o[i] = max[0];
         }
         return o;
