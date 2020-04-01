@@ -1134,10 +1134,10 @@ public class OpticsManagerTest {
     final float[][] data = om.getData();
     final float[] x = data[0];
     final float[] y = data[1];
-    final float[][] d2 = new float[n][n];
+    final double[][] d2 = new double[n][n];
     for (int i = 0; i < n; i++) {
       for (int j = i + 1; j < n; j++) {
-        d2[i][j] = d2[j][i] = MathUtils.distance2(x[i], y[i], x[j], y[j]);
+        d2[i][j] = d2[j][i] = MathUtils.distance2((double) x[i], y[i], x[j], y[j]);
       }
     }
 

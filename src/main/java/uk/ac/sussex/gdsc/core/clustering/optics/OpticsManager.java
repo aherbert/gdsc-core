@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import gnu.trove.list.array.TDoubleArrayList;
 import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.Set;
@@ -53,6 +52,7 @@ import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 
+// TODO: Auto-generated Javadoc
 /**
  * Compute clustering using OPTICS.
  *
@@ -161,12 +161,24 @@ public class OpticsManager extends CoordinateStore {
    * Used in the DBSCAN algorithm to store a queue of molecules to process.
    */
   private static class MoleculeQueue extends MoleculeList {
+
+    /** The next. */
     int next;
 
+    /**
+     * Instantiates a new molecule queue.
+     *
+     * @param capacity the capacity
+     */
     MoleculeQueue(int capacity) {
       super(capacity);
     }
 
+    /**
+     * Push.
+     *
+     * @param molecule the molecule
+     */
     void push(Molecule molecule) {
       add(molecule);
     }
@@ -176,10 +188,20 @@ public class OpticsManager extends CoordinateStore {
       size = next = 0;
     }
 
+    /**
+     * Checks for next.
+     *
+     * @return true, if successful
+     */
     boolean hasNext() {
       return next < size;
     }
 
+    /**
+     * Gets the next.
+     *
+     * @return the next
+     */
     Molecule getNext() {
       return list[next++];
     }
@@ -191,15 +213,31 @@ public class OpticsManager extends CoordinateStore {
   private class Counter {
     /** Constants instance of the tracker throughout processing. */
     final TrackProgress tracker;
+
+    /** The next. */
     int next;
+
+    /** The progress. */
     int progress;
+
+    /** The total. */
     int total;
 
+    /**
+     * Instantiates a new counter.
+     *
+     * @param total the total
+     */
     Counter(int total) {
       tracker = NullTrackProgress.createIfNull(OpticsManager.this.getTracker());
       this.total = total;
     }
 
+    /**
+     * Next cluster id.
+     *
+     * @return the int
+     */
     int nextClusterId() {
       return ++next;
     }
@@ -214,6 +252,11 @@ public class OpticsManager extends CoordinateStore {
       return tracker.isEnded();
     }
 
+    /**
+     * Gets the total clusters.
+     *
+     * @return the total clusters
+     */
     int getTotalClusters() {
       return next;
     }
@@ -262,8 +305,15 @@ public class OpticsManager extends CoordinateStore {
    * Used in the OPTICS algorithm to store the next seed is a priority queue.
    */
   private class OpticsMoleculePriorityQueue extends MoleculeList implements OpticsPriorityQueue {
+
+    /** The next index. */
     int nextIndex;
 
+    /**
+     * Instantiates a new optics molecule priority queue.
+     *
+     * @param capacity the capacity
+     */
     OpticsMoleculePriorityQueue(int capacity) {
       super(capacity);
     }
@@ -274,6 +324,12 @@ public class OpticsManager extends CoordinateStore {
       moveUp(molecule);
     }
 
+    /**
+     * Sets the.
+     *
+     * @param molecule the molecule
+     * @param index the index
+     */
     void set(Molecule molecule, int index) {
       list[index] = molecule;
       molecule.setQueueIndex(index);
@@ -307,6 +363,12 @@ public class OpticsManager extends CoordinateStore {
       return molecule;
     }
 
+    /**
+     * Swap.
+     *
+     * @param index1 the index 1
+     * @param index2 the index 2
+     */
     void swap(int index1, int index2) {
       final Molecule molecule = list[index1];
       set(list[index2], index1);
@@ -318,6 +380,13 @@ public class OpticsManager extends CoordinateStore {
       size = nextIndex = 0;
     }
 
+    /**
+     * Lower.
+     *
+     * @param m1 the m 1
+     * @param m2 the m 2
+     * @return true, if successful
+     */
     boolean lower(Molecule m1, Molecule m2) {
       return m1.reachabilityDistance < m2.reachabilityDistance;
     }
@@ -329,6 +398,12 @@ public class OpticsManager extends CoordinateStore {
    * <p>If distances are equal then IDs are used to sort the objects in order.
    */
   private class OpticsMoleculePriorityQueueIdOrdered extends OpticsMoleculePriorityQueue {
+
+    /**
+     * Instantiates a new optics molecule priority queue id ordered.
+     *
+     * @param capacity the capacity
+     */
     OpticsMoleculePriorityQueueIdOrdered(int capacity) {
       super(capacity);
     }
@@ -351,6 +426,12 @@ public class OpticsManager extends CoordinateStore {
    * <p>If distances are equal then IDs are used to sort the objects in reverse order.
    */
   private class OpticsMoleculePriorityQueueReverseIdOrdered extends OpticsMoleculePriorityQueue {
+
+    /**
+     * Instantiates a new optics molecule priority queue reverse id ordered.
+     *
+     * @param capacity the capacity
+     */
     OpticsMoleculePriorityQueueReverseIdOrdered(int capacity) {
       super(capacity);
     }
@@ -373,6 +454,12 @@ public class OpticsManager extends CoordinateStore {
    * <p>This class is based on ags.utils.dataStructures.BinaryHeap
    */
   private class OpticsMoleculeBinaryHeap extends MoleculeList implements OpticsPriorityQueue {
+
+    /**
+     * Instantiates a new optics molecule binary heap.
+     *
+     * @param capacity the capacity
+     */
     OpticsMoleculeBinaryHeap(int capacity) {
       super(capacity);
     }
@@ -383,6 +470,12 @@ public class OpticsManager extends CoordinateStore {
       moveUp(molecule);
     }
 
+    /**
+     * Sets the.
+     *
+     * @param molecule the molecule
+     * @param index the index
+     */
     void set(Molecule molecule, int index) {
       list[index] = molecule;
       molecule.setQueueIndex(index);
@@ -406,6 +499,11 @@ public class OpticsManager extends CoordinateStore {
       siftUp(object.getQueueIndex());
     }
 
+    /**
+     * Sift up.
+     *
+     * @param index the index
+     */
     void siftUp(int index) {
       // Remove unnecessary loop set-up statements, i.e. where p is not needed
       int child = index;
@@ -420,12 +518,23 @@ public class OpticsManager extends CoordinateStore {
       }
     }
 
+    /**
+     * Swap.
+     *
+     * @param index1 the index 1
+     * @param index2 the index 2
+     */
     void swap(int index1, int index2) {
       final Molecule m = list[index1];
       set(list[index2], index1);
       set(m, index2);
     }
 
+    /**
+     * Sift down.
+     *
+     * @param index the index
+     */
     void siftDown(int index) {
       for (int parent = index, child = parent * 2 + 1; child < size;
           parent = child, child = parent * 2 + 1) {
@@ -475,6 +584,12 @@ public class OpticsManager extends CoordinateStore {
    * <p>If distances are equal then IDs are used to sort the objects in order.
    */
   private class OpticsMoleculeBinaryHeapIdOrdered extends OpticsMoleculeBinaryHeap {
+
+    /**
+     * Instantiates a new optics molecule binary heap id ordered.
+     *
+     * @param capacity the capacity
+     */
     OpticsMoleculeBinaryHeapIdOrdered(int capacity) {
       super(capacity);
     }
@@ -508,6 +623,12 @@ public class OpticsManager extends CoordinateStore {
    * <p>If distances are equal then IDs are used to sort the objects in reverse order.
    */
   private class OpticsMoleculeBinaryHeapReverseIdOrdered extends OpticsMoleculeBinaryHeap {
+
+    /**
+     * Instantiates a new optics molecule binary heap reverse id ordered.
+     *
+     * @param capacity the capacity
+     */
     OpticsMoleculeBinaryHeapReverseIdOrdered(int capacity) {
       super(capacity);
     }
@@ -541,9 +662,18 @@ public class OpticsManager extends CoordinateStore {
   private class OpticsResultList {
     /** Constants instance of the tracker throughout processing. */
     final TrackProgress tracker;
+
+    /** The list. */
     final OpticsOrder[] list;
+
+    /** The size. */
     int size;
 
+    /**
+     * Instantiates a new optics result list.
+     *
+     * @param capacity the capacity
+     */
     OpticsResultList(int capacity) {
       tracker = NullTrackProgress.createIfNull(OpticsManager.this.getTracker());
       list = new OpticsOrder[capacity];
@@ -620,10 +750,20 @@ public class OpticsManager extends CoordinateStore {
       }
     }
 
+    /**
+     * Gets the max value.
+     *
+     * @return the max value
+     */
     float getMaxValue() {
       return queue[0];
     }
 
+    /**
+     * Up heapify.
+     *
+     * @param index the index
+     */
     void upHeapify(int index) {
       int child = index;
       while (child > 0) {
@@ -639,6 +779,11 @@ public class OpticsManager extends CoordinateStore {
       }
     }
 
+    /**
+     * Down heapify.
+     *
+     * @param index the index
+     */
     void downHeapify(int index) {
       for (int parent = index, child = parent * 2 + 1; child < size;
           parent = child, child = parent * 2 + 1) {
@@ -654,6 +799,52 @@ public class OpticsManager extends CoordinateStore {
           break;
         }
       }
+    }
+  }
+
+  /**
+   * A fixed size double list.
+   */
+  private static class DoubleList {
+    /** The size. */
+    int size;
+
+    /** The values. */
+    double[] values;
+
+    /**
+     * Create a new instance.
+     *
+     * @param capacity the capacity
+     */
+    DoubleList(int capacity) {
+      values = new double[capacity];
+    }
+
+    /**
+     * Adds the value.
+     *
+     * @param value the value
+     */
+    void add(double value) {
+      values[size++] = value;
+    }
+
+    /**
+     * Clear the list.
+     */
+    void clear() {
+      size = 0;
+    }
+
+    /**
+     * Gets the value.
+     *
+     * @param index the index
+     * @return the value
+     */
+    double get(int index) {
+      return values[index];
     }
   }
 
@@ -781,10 +972,22 @@ public class OpticsManager extends CoordinateStore {
     return optics;
   }
 
+  /**
+   * Pleuralise cluster count.
+   *
+   * @param count the count
+   * @return the string
+   */
   private static String pleuraliseClusterCount(int count) {
     return TextUtils.pleuralise(count, "Cluster", "Clusters");
   }
 
+  /**
+   * Creates the queue.
+   *
+   * @param size the size
+   * @return the optics priority queue
+   */
   private OpticsPriorityQueue createQueue(final int size) {
     OpticsPriorityQueue orderSeeds;
     if (options.contains(Option.OPTICS_SIMPLE_PRIORITY_QUEUE)) {
@@ -839,6 +1042,12 @@ public class OpticsManager extends CoordinateStore {
     initialise(workingGeneratingDistanceE, minPts, clazz);
   }
 
+  /**
+   * Initialise dbscan.
+   *
+   * @param generatingDistanceE the generating distance E
+   * @param minPts the min pts
+   */
   private void initialiseDbscan(float generatingDistanceE, int minPts) {
     Class<?> clazz = getPreferredMoleculeSpace(true);
     float workingGeneratingDistanceE = generatingDistanceE;
@@ -910,7 +1119,7 @@ public class OpticsManager extends CoordinateStore {
    * Initialise the memory structure for the OPTICS algorithm. This can be cached if the
    * generatingDistanceE does not change.
    *
-   * @param generatingDistanceE the generating distance (E)
+   * @param generatingDistanceE1 the generating distance E 1
    * @param minPts the min points for a core object
    * @param clazz the preferred class for the molecule space
    */
@@ -1021,7 +1230,7 @@ public class OpticsManager extends CoordinateStore {
    * Expand cluster order.
    *
    * @param object the object
-   * @param e the generating distance (squared)
+   * @param generatingDistance the generating distance
    * @param minPts the min points for a core object
    * @param orderedFile the results
    * @param orderSeeds the order seeds
@@ -1297,6 +1506,16 @@ public class OpticsManager extends CoordinateStore {
     return dbscanResult;
   }
 
+  /**
+   * Dbscan expand cluster.
+   *
+   * @param object the object
+   * @param generatingDistance the generating distance
+   * @param minPts the min pts
+   * @param counter the counter
+   * @param seeds the seeds
+   * @return true, if successful
+   */
   private boolean dbscanExpandCluster(Molecule object, float generatingDistance, int minPts,
       Counter counter, MoleculeQueue seeds) {
     grid.findNeighbours(minPts, object, generatingDistance);
@@ -1470,7 +1689,7 @@ public class OpticsManager extends CoordinateStore {
     numNeighbours++;
 
     final double[] location = new double[2];
-    final TDoubleArrayList tmp = new TDoubleArrayList(numNeighbours);
+    final DoubleList tmp = new DoubleList(numNeighbours);
     for (int i = 0; i < sampleSize; i++) {
       if (tracker != null) {
         tracker.progress(i, sampleSize);
@@ -1478,12 +1697,12 @@ public class OpticsManager extends CoordinateStore {
       final int index = indices[i];
       location[0] = xcoord[index];
       location[1] = ycoord[index];
-      tmp.resetQuick();
+      tmp.clear();
       tree.nearestNeighbours(location, numNeighbours, false,
-          FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D, dist -> tmp.setQuick(tmp.size(), dist));
+          FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D, dist -> tmp.add(dist));
       // The tree will use the squared distance so compute the root.
       // This assumes the first result is the maximum
-      d[i] = (float) (Math.sqrt(tmp.getQuick(0)));
+      d[i] = (float) (Math.sqrt(tmp.get(0)));
     }
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
@@ -1967,6 +2186,11 @@ public class OpticsManager extends CoordinateStore {
     return null;
   }
 
+  /**
+   * Handle loop exception.
+   *
+   * @param ex the ex
+   */
   private void handleLoopException(Exception ex) {
     if (tracker != null) {
       tracker.log("Failed LoOP computation: " + ex.getMessage());
