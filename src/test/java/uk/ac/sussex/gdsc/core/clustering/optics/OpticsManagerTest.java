@@ -1500,7 +1500,7 @@ public class OpticsManagerTest {
   }
 
   private enum TestMoleculeSpace {
-    SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE, TREE2, TREE3
+    SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE
   }
 
   private abstract class MyTimingTask extends BaseTimingTask {
@@ -1555,12 +1555,6 @@ public class OpticsManagerTest {
           break;
         case TREE:
           space = new FloatTreeMoleculeSpace(om[index], generatingDistanceE);
-          break;
-        case TREE2:
-          space = new TreeMoleculeSpace2ndGen(om[index], generatingDistanceE);
-          break;
-        case TREE3:
-          space = new TreeMoleculeSpace3rdGen(om[index], generatingDistanceE);
           break;
         default:
           Assertions.fail("Unknown option: " + ms);
@@ -1708,24 +1702,6 @@ public class OpticsManagerTest {
             Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
           }
         }, check);
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.TREE2, om, minPts, generatingDistanceE, 0) {
-          @Override
-          public void check(int index, Object result) {
-            final int[][] e = n[index];
-            final int[][] o = format(result);
-            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-          }
-        }, check);
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.TREE3, om, minPts, generatingDistanceE, 0) {
-          @Override
-          public void check(int index, Object result) {
-            final int[][] e = n[index];
-            final int[][] o = format(result);
-            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-          }
-        }, check);
 
     if (loops > 1) {
       logger.info(ts.getReport());
@@ -1814,24 +1790,6 @@ public class OpticsManagerTest {
       }
     }, check);
     ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.TREE, true, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.TREE2, true, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.TREE3, true, om, minPts,
         generatingDistanceE, 0) {
       @Override
       public void check(int index, Object result) {
