@@ -83,8 +83,8 @@ public final class PartialSort {
   /**
    * Provide partial sort of double arrays.
    *
-   * <p>This class is based on ags.utils.dataStructures.trees.secondGenKD.ResultHeap. Ideas have
-   * been taken from: http://sites.fas.harvard.edu/~libs111/code/heaps/Heap.java
+   * <p>This class is based on ideas in this Harvard University code example: <a
+   * href="https://sites.fas.harvard.edu/~libs111/code/heaps/Heap.java">Heap.java </a>
    */
   public static class DoubleHeap {
     /**
@@ -490,8 +490,8 @@ public final class PartialSort {
   /**
    * Provide partial sort of float arrays.
    *
-   * <p>This class is based on ags.utils.dataStructures.trees.secondGenKD.ResultHeap. Ideas have
-   * been taken from: http://sites.fas.harvard.edu/~libs111/code/heaps/Heap.java
+   * <p>This class is based on ideas in this Harvard University code example: <a
+   * href="https://sites.fas.harvard.edu/~libs111/code/heaps/Heap.java">Heap.java </a>
    */
   public static class FloatHeap {
     /**
