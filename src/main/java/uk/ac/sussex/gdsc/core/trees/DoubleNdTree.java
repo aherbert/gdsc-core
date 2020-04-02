@@ -32,27 +32,12 @@ class DoubleNdTree implements DoubleKdTree {
   /** The bucket size. */
   private static final int BUCKET_SIZE = 24;
 
-  // Root only
-
-  /**
-   * The maximum depth of the tree. This is the maximum number of parents from a leaf node back to
-   * the root. It can be used to optimise the storage of the search status for tree nodes.
-   */
-  private int maximumDepth;
-
   // All types
 
   /** The dimensions. */
   private final int dimensions;
   /** The parent. */
   private final DoubleNdTree parent;
-  /** The dimension weight function. */
-  private final IntToDoubleFunction dimensionWeight;
-
-  // Leaf only
-
-  /** The locations. */
-  private double[][] locations;
   /**
    * The location count. If a leaf this is the count of locations. If a stem this is a count of all
    * position below the current node.
@@ -62,6 +47,30 @@ class DoubleNdTree implements DoubleKdTree {
    * children.
    */
   private int locationCount;
+
+  // Bounds
+
+  /** The minimum limit of the points in the tree below the current node/leaf. */
+  private double[] minLimit;
+  /** The maximum limit of the points in the tree below the current node/leaf. */
+  private double[] maxLimit;
+  /** The singularity flag. Set to true if all points have the same location. */
+  private boolean singularity = true;
+
+  // Root only
+
+  /**
+   * The maximum depth of the tree. This is the maximum number of parents from a leaf node back to
+   * the root. It can be used to optimise the storage of the search status for tree nodes.
+   */
+  private int maximumDepth;
+  /** The dimension weight function. */
+  private final IntToDoubleFunction dimensionWeight;
+
+  // Leaf only
+
+  /** The locations. */
+  private double[][] locations;
 
   // Stem only
 
@@ -73,15 +82,6 @@ class DoubleNdTree implements DoubleKdTree {
   private int splitDimension;
   /** The value to split into left and right. */
   private double splitValue;
-
-  // Bounds
-
-  /** The minimum limit of the points in the tree below the current node/leaf. */
-  private double[] minLimit;
-  /** The maximum limit of the points in the tree below the current node/leaf. */
-  private double[] maxLimit;
-  /** The singularity flag. Set to true if all points have the same location. */
-  private boolean singularity = true;
 
   /**
    * Construct a tree with a given number of dimensions.
@@ -140,6 +140,13 @@ class DoubleNdTree implements DoubleKdTree {
 
   @Override
   public void addPoint(double[] location) {
+    if (locationCount == 0) {
+      locations[locationCount] = location;
+      locationCount = 1;
+      initialiseBounds(location);
+      return;
+    }
+
     DoubleNdTree cursor = this;
 
     // Descend the tree until a leaf
@@ -227,7 +234,7 @@ class DoubleNdTree implements DoubleKdTree {
     // Add to the leaf
     cursor.locations[cursor.locationCount] = location;
     cursor.locationCount++;
-    cursor.initialiseOrExtendBounds(location);
+    cursor.extendBounds(location);
   }
 
   /**
@@ -240,21 +247,8 @@ class DoubleNdTree implements DoubleKdTree {
    */
   private static DoubleNdTree updateAndDescend(DoubleNdTree current, double[] location) {
     current.locationCount++;
-    current.initialiseOrExtendBounds(location);
+    current.extendBounds(location);
     return location[current.splitDimension] > current.splitValue ? current.right : current.left;
-  }
-
-  /**
-   * Extends the bounds of this node to include a new location.
-   *
-   * @param location the location
-   */
-  private final void initialiseOrExtendBounds(double[] location) {
-    if (minLimit == null) {
-      initialiseBounds(location);
-    } else {
-      extendBounds(location);
-    }
   }
 
   /**
@@ -262,7 +256,7 @@ class DoubleNdTree implements DoubleKdTree {
    *
    * @param location the location
    */
-  private final void initialiseBounds(double[] location) {
+  private void initialiseBounds(double[] location) {
     minLimit = new double[dimensions];
     System.arraycopy(location, 0, minLimit, 0, dimensions);
     maxLimit = minLimit.clone();
@@ -273,7 +267,7 @@ class DoubleNdTree implements DoubleKdTree {
    *
    * @param location the location
    */
-  private final void extendBounds(double[] location) {
+  private void extendBounds(double[] location) {
     for (int i = 0; i < dimensions; i++) {
       if (Double.isNaN(location[i])) {
         minLimit[i] = Double.NaN;
@@ -294,7 +288,7 @@ class DoubleNdTree implements DoubleKdTree {
    *
    * @return the axis
    */
-  private final int findWidestAxis() {
+  private int findWidestAxis() {
     int widest = 0;
     double width = (maxLimit[0] - minLimit[0]) * dimensionWeight.applyAsDouble(0);
     if (Double.isNaN(width)) {

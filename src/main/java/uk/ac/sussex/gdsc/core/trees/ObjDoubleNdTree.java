@@ -30,17 +30,9 @@ import uk.ac.sussex.gdsc.core.trees.heaps.ObjDoubleMinHeap;
  *
  * @param <T> the type of the item
  */
-class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
+final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   /** The bucket size. */
   private static final int BUCKET_SIZE = 24;
-
-  // Root only
-
-  /**
-   * The maximum depth of the tree. This is the maximum number of parents from a leaf node back to
-   * the root. It can be used to optimise the storage of the search status for tree nodes.
-   */
-  private int maximumDepth;
 
   // All types
 
@@ -48,15 +40,6 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   private final int dimensions;
   /** The parent. */
   private final ObjDoubleNdTree<T> parent;
-  /** The dimension weight function. */
-  private final IntToDoubleFunction dimensionWeight;
-
-  // Leaf only
-
-  /** The locations. */
-  private double[][] locations;
-  /** The data. */
-  private Object[] data;
   /**
    * The location count. If a leaf this is the count of locations. If a stem this is a count of all
    * position below the current node.
@@ -66,6 +49,32 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
    * children.
    */
   private int locationCount;
+
+  // Bounds
+
+  /** The minimum limit of the points in the tree below the current node/leaf. */
+  private double[] minLimit;
+  /** The maximum limit of the points in the tree below the current node/leaf. */
+  private double[] maxLimit;
+  /** The singularity flag. Set to true if all points have the same location. */
+  private boolean singularity = true;
+
+  // Root only
+
+  /**
+   * The maximum depth of the tree. This is the maximum number of parents from a leaf node back to
+   * the root. It can be used to optimise the storage of the search status for tree nodes.
+   */
+  private int maximumDepth;
+  /** The dimension weight function. */
+  private final IntToDoubleFunction dimensionWeight;
+
+  // Leaf only
+
+  /** The locations. */
+  private double[][] locations;
+  /** The data. */
+  private Object[] data;
 
   // Stem only
 
@@ -77,15 +86,6 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   private int splitDimension;
   /** The value to split into left and right. */
   private double splitValue;
-
-  // Bounds
-
-  /** The minimum limit of the points in the tree below the current node/leaf. */
-  private double[] minLimit;
-  /** The maximum limit of the points in the tree below the current node/leaf. */
-  private double[] maxLimit;
-  /** The singularity flag. Set to true if all points have the same location. */
-  private boolean singularity = true;
 
   /**
    * Construct a tree with a given number of dimensions.
@@ -148,6 +148,15 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
 
   @Override
   public void addPoint(double[] location, T value) {
+    // Special case if empty where the bounds can just be initialised.
+    if (locationCount == 0) {
+      locations[locationCount] = location;
+      data[locationCount] = value;
+      locationCount = 1;
+      initialiseBounds(location);
+      return;
+    }
+
     ObjDoubleNdTree<T> cursor = this;
 
     // Descend the tree until a leaf
@@ -244,7 +253,7 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
     cursor.locations[cursor.locationCount] = location;
     cursor.data[cursor.locationCount] = value;
     cursor.locationCount++;
-    cursor.initialiseOrExtendBounds(location);
+    cursor.extendBounds(location);
   }
 
   /**
@@ -257,21 +266,8 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
    */
   private ObjDoubleNdTree<T> updateAndDescend(ObjDoubleNdTree<T> current, double[] location) {
     current.locationCount++;
-    current.initialiseOrExtendBounds(location);
+    current.extendBounds(location);
     return location[current.splitDimension] > current.splitValue ? current.right : current.left;
-  }
-
-  /**
-   * Extends the bounds of this node to include a new location.
-   *
-   * @param location the location
-   */
-  private final void initialiseOrExtendBounds(double[] location) {
-    if (minLimit == null) {
-      initialiseBounds(location);
-    } else {
-      extendBounds(location);
-    }
   }
 
   /**
@@ -279,7 +275,7 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
    *
    * @param location the location
    */
-  private final void initialiseBounds(double[] location) {
+  private void initialiseBounds(double[] location) {
     minLimit = new double[dimensions];
     System.arraycopy(location, 0, minLimit, 0, dimensions);
     maxLimit = minLimit.clone();
@@ -290,7 +286,7 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
    *
    * @param location the location
    */
-  private final void extendBounds(double[] location) {
+  private void extendBounds(double[] location) {
     for (int i = 0; i < dimensions; i++) {
       if (Double.isNaN(location[i])) {
         minLimit[i] = Double.NaN;
@@ -311,7 +307,7 @@ class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
    *
    * @return the axis
    */
-  private final int findWidestAxis() {
+  private int findWidestAxis() {
     int widest = 0;
     double width = (maxLimit[0] - minLimit[0]) * dimensionWeight.applyAsDouble(0);
     if (Double.isNaN(width)) {
