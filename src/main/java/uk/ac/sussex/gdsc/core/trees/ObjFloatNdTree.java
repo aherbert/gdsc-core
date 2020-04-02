@@ -337,19 +337,23 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
     ObjFloatNdTree<T> cursor = this;
     // The status of the path taken to the point in the tree
     final StatusStack searchStatus = new StatusStack(maximumDepth);
-    Status status = Status.NONE;
+    int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
     final ObjDoubleMinHeap<T> resultHeap = new ObjDoubleMinHeap<>(count);
 
-    do {
-      if (status == Status.ALLVISITED) {
-        // At a fully visited part. Move up the tree
-        cursor = cursor.parent;
-        status = searchStatus.pop();
-        continue;
-      }
+    while (cursor != null) {
+      if (status == Status.NONE) {
+        // Drop down the unvisited tree until a leaf
+        while (cursor.locations == null) {
+          if (location[cursor.splitDimension] > cursor.splitValue) {
+            cursor = cursor.right;
+            searchStatus.push(Status.RIGHTVISITED);
+          } else {
+            cursor = cursor.left;
+            searchStatus.push(Status.LEFTVISITED);
+          }
+        }
 
-      if (cursor.locations != null) {
         // At a leaf. Use the data.
         if (cursor.singularity) {
           final double dist = distanceFunction.distance(location, cursor.locations[0]);
@@ -366,51 +370,30 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
         }
         range = resultHeap.getThreshold();
 
-        // If at the root of the tree then stop
-        if (cursor.parent == null) {
-          break;
-        }
         // Ascend back up the tree
         cursor = cursor.parent;
         status = searchStatus.pop();
-        continue;
-      }
-
-      // Going to descend
-      ObjFloatNdTree<T> nextCursor;
-      if (status == Status.NONE) {
-        // At a fresh node, descend the most probably useful direction
-        if (location[cursor.splitDimension] > cursor.splitValue) {
-          // Descend right
-          nextCursor = cursor.right;
-          status = Status.RIGHTVISITED;
-        } else {
-          // Descend left
-          nextCursor = cursor.left;
-          status = Status.LEFTVISITED;
-        }
+      } else if (status == Status.ALLVISITED) {
+        // At a fully visited part. Move up the tree
+        cursor = cursor.parent;
+        status = searchStatus.pop();
       } else {
-        if (status == Status.LEFTVISITED) {
-          // Left node visited, descend right.
-          nextCursor = cursor.right;
-          status = Status.ALLVISITED;
-        } else {
-          // Right node visited, descend left.
-          nextCursor = cursor.left;
-          status = Status.ALLVISITED;
-        }
+        // Part visited, descend other direction
+        final ObjFloatNdTree<T> nextCursor =
+            status == Status.LEFTVISITED ? cursor.right : cursor.left;
         // Check if it's worth descending.
         if (distanceFunction.distanceToRectangle(location, nextCursor.minLimit,
             nextCursor.maxLimit) > range) {
-          continue;
+          // Ascend back up the tree
+          cursor = cursor.parent;
+          status = searchStatus.pop();
+        } else {
+          searchStatus.push(Status.ALLVISITED);
+          cursor = nextCursor;
+          status = Status.NONE;
         }
       }
-
-      // Descend down the tree
-      cursor = nextCursor;
-      searchStatus.push(status);
-      status = Status.NONE;
-    } while (cursor.parent != null || status != Status.ALLVISITED);
+    }
 
     // Happens for example if the search point was NaN and the distance was NaN
     if (resultHeap.getSize() == 0) {
@@ -441,18 +424,22 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
     ObjFloatNdTree<T> cursor = this;
     // The status of the path taken to the point in the tree
     final StatusStack searchStatus = new StatusStack(maximumDepth);
-    Status status = Status.NONE;
+    int status = Status.NONE;
     boolean found = false;
 
-    do {
-      if (status == Status.ALLVISITED) {
-        // At a fully visited part. Move up the tree
-        cursor = cursor.parent;
-        status = searchStatus.pop();
-        continue;
-      }
+    while (cursor != null) {
+      if (status == Status.NONE) {
+        // Drop down the unvisited tree until a leaf
+        while (cursor.locations == null) {
+          if (location[cursor.splitDimension] > cursor.splitValue) {
+            cursor = cursor.right;
+            searchStatus.push(Status.RIGHTVISITED);
+          } else {
+            cursor = cursor.left;
+            searchStatus.push(Status.LEFTVISITED);
+          }
+        }
 
-      if (cursor.locations != null) {
         // At a leaf. Use the data.
         if (cursor.singularity) {
           final double dist = distanceFunction.distance(location, cursor.locations[0]);
@@ -472,49 +459,30 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
           }
         }
 
-        if (cursor.parent == null) {
-          break;
-        }
+        // Ascend back up the tree
         cursor = cursor.parent;
         status = searchStatus.pop();
-        continue;
-      }
-
-      // Going to descend
-      ObjFloatNdTree<T> nextCursor;
-      if (status == Status.NONE) {
-        // At a fresh node, descend the most probably useful direction
-        if (location[cursor.splitDimension] > cursor.splitValue) {
-          // Descend right
-          nextCursor = cursor.right;
-          status = Status.RIGHTVISITED;
-        } else {
-          // Descend left
-          nextCursor = cursor.left;
-          status = Status.LEFTVISITED;
-        }
+      } else if (status == Status.ALLVISITED) {
+        // At a fully visited part. Move up the tree
+        cursor = cursor.parent;
+        status = searchStatus.pop();
       } else {
-        if (status == Status.LEFTVISITED) {
-          // Left node visited, descend right.
-          nextCursor = cursor.right;
-          status = Status.ALLVISITED;
-        } else {
-          // Right node visited, descend left.
-          nextCursor = cursor.left;
-          status = Status.ALLVISITED;
-        }
+        // Part visited, descend other direction
+        final ObjFloatNdTree<T> nextCursor =
+            status == Status.LEFTVISITED ? cursor.right : cursor.left;
         // Check if it's worth descending.
         if (distanceFunction.distanceToRectangle(location, nextCursor.minLimit,
             nextCursor.maxLimit) > range) {
-          continue;
+          // Ascend back up the tree
+          cursor = cursor.parent;
+          status = searchStatus.pop();
+        } else {
+          searchStatus.push(Status.ALLVISITED);
+          cursor = nextCursor;
+          status = Status.NONE;
         }
       }
-
-      // Descend down the tree
-      cursor = nextCursor;
-      searchStatus.push(status);
-      status = Status.NONE;
-    } while (cursor.parent != null || status != Status.ALLVISITED);
+    }
 
     return found;
   }
@@ -529,20 +497,24 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
 
     ObjFloatNdTree<T> cursor = this;
     final StatusStack searchStatus = new StatusStack(maximumDepth);
-    Status status = Status.NONE;
+    int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
     Object item = null;
     boolean found = false;
 
-    do {
-      if (status == Status.ALLVISITED) {
-        // At a fully visited part. Move up the tree
-        cursor = cursor.parent;
-        status = searchStatus.pop();
-        continue;
-      }
+    while (cursor != null) {
+      if (status == Status.NONE) {
+        // Drop down the unvisited tree until a leaf
+        while (cursor.locations == null) {
+          if (location[cursor.splitDimension] > cursor.splitValue) {
+            cursor = cursor.right;
+            searchStatus.push(Status.RIGHTVISITED);
+          } else {
+            cursor = cursor.left;
+            searchStatus.push(Status.LEFTVISITED);
+          }
+        }
 
-      if (cursor.locations != null) {
         // At a leaf. Use the data.
         if (cursor.singularity) {
           final double dist = distanceFunction.distance(location, cursor.locations[0]);
@@ -562,49 +534,30 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
           }
         }
 
-        if (cursor.parent == null) {
-          break;
-        }
+        // Ascend back up the tree
         cursor = cursor.parent;
         status = searchStatus.pop();
-        continue;
-      }
-
-      // Going to descend
-      ObjFloatNdTree<T> nextCursor;
-      if (status == Status.NONE) {
-        // At a fresh node, descend the most probably useful direction
-        if (location[cursor.splitDimension] > cursor.splitValue) {
-          // Descend right
-          nextCursor = cursor.right;
-          status = Status.RIGHTVISITED;
-        } else {
-          // Descend left
-          nextCursor = cursor.left;
-          status = Status.LEFTVISITED;
-        }
+      } else if (status == Status.ALLVISITED) {
+        // At a fully visited part. Move up the tree
+        cursor = cursor.parent;
+        status = searchStatus.pop();
       } else {
-        if (status == Status.LEFTVISITED) {
-          // Left node visited, descend right.
-          nextCursor = cursor.right;
-          status = Status.ALLVISITED;
-        } else {
-          // Right node visited, descend left.
-          nextCursor = cursor.left;
-          status = Status.ALLVISITED;
-        }
+        // Part visited, descend other direction
+        final ObjFloatNdTree<T> nextCursor =
+            status == Status.LEFTVISITED ? cursor.right : cursor.left;
         // Check if it's worth descending.
         if (distanceFunction.distanceToRectangle(location, nextCursor.minLimit,
             nextCursor.maxLimit) > range) {
-          continue;
+          // Ascend back up the tree
+          cursor = cursor.parent;
+          status = searchStatus.pop();
+        } else {
+          searchStatus.push(Status.ALLVISITED);
+          cursor = nextCursor;
+          status = Status.NONE;
         }
       }
-
-      // Descend down the tree
-      cursor = nextCursor;
-      searchStatus.push(status);
-      status = Status.NONE;
-    } while (cursor.parent != null || status != Status.ALLVISITED);
+    }
 
     if (!found) {
       // Invalid distance

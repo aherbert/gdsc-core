@@ -43,6 +43,8 @@ public class StatusStackTest {
     Assertions.assertEquals(Status.LEFTVISITED, stack.pop());
     Assertions.assertEquals(Status.RIGHTVISITED, stack.pop());
     Assertions.assertEquals(Status.ALLVISITED, stack.pop());
+    // Allows pop to be called once when empty
+    Assertions.assertEquals(0, stack.pop());
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> stack.pop());
   }
 }

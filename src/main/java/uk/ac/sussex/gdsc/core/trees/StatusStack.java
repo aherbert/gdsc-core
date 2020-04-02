@@ -30,10 +30,16 @@ package uk.ac.sussex.gdsc.core.trees;
 
 /**
  * A Last-In-First-Out (LIFO) stack of node status used to descend the branches of a binary tree.
+ *
+ * <p>This is a specialised structure used for searching a KD-tree. It has no bounds checking.
  */
 class StatusStack {
-  /** The values. */
-  private Status[] values;
+  /**
+   * The values.
+   *
+   * <p>Warning: this is indexed starting at 1.
+   */
+  private int[] values;
 
   /** The size. */
   private int size;
@@ -44,29 +50,34 @@ class StatusStack {
    * @param capacity the capacity
    */
   StatusStack(int capacity) {
-    this.values = new Status[capacity];
+    this.values = new int[capacity + 1];
   }
 
   /**
    * Pushes the element onto the top of the stack.
    *
+   * <p>No capacity checking is performed.
+   *
    * @param value the value
    */
-  void push(Status value) {
-    final int s = size;
+  void push(int value) {
+    final int s = size + 1;
     values[s] = value;
-    size = s + 1;
+    size = s;
   }
 
   /**
    * Pops an element from the top of the stack.
    *
-   * @return the element
-   * @throws IndexOutOfBoundsException If the current size is zero
+   * <p>No capacity checking is performed. This will return 0 on the first call when empty,
+   * otherwise will throw an exception.
+   *
+   * @return the element (or 0 on the first call when empty)
+   * @throws IndexOutOfBoundsException If empty
    */
-  Status pop() {
-    // Do not set the value at the index to null. Since it is an enum singleton then setting
-    // to null would not effect garbage collection.
-    return values[--size];
+  int pop() {
+    // Note: This deliberately decrements after. It means when the size is 0 it will return 0
+    // for the first call when empty.
+    return values[size--];
   }
 }

@@ -17,15 +17,22 @@
 package uk.ac.sussex.gdsc.core.trees;
 
 /**
- * Enumeration representing the status of a node during the running of a search.
+ * Constants representing the status of a node during the running of a search.
+ *
+ * <p>This is deliberately not an enum to minimise memory overhead when storing an array
+ * of the status. An enum would be a class instance and may be larger than 32-bits per
+ * value depending on the JVM platform.
  */
-enum Status {
+final class Status {
   /** Status indicating that neither child has been visited. */
-  NONE,
+  static final int NONE = 0x0;
   /** Status indicating that the left has been visited. */
-  LEFTVISITED,
+  static final int LEFTVISITED = 0x1;
   /** Status indicating that the right has been visited. */
-  RIGHTVISITED,
+  static final int RIGHTVISITED = 0x2;
   /** Status indicating that both the left and the right have been visited. */
-  ALLVISITED
+  static final int ALLVISITED = 0x3;
+
+  /** No instances. */
+  private Status() {}
 }
