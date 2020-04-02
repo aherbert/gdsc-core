@@ -54,8 +54,6 @@ class FloatNdTree implements FloatKdTree {
   private float[] minLimit;
   /** The maximum limit of the points in the tree below the current node/leaf. */
   private float[] maxLimit;
-  /** The singularity flag. Set to true if all points have the same location. */
-  private boolean singularity = true;
 
   // Root only
 
@@ -273,13 +271,10 @@ class FloatNdTree implements FloatKdTree {
       if (Float.isNaN(location[i])) {
         minLimit[i] = Float.NaN;
         maxLimit[i] = Float.NaN;
-        singularity = false;
       } else if (minLimit[i] > location[i]) {
         minLimit[i] = location[i];
-        singularity = false;
       } else if (maxLimit[i] < location[i]) {
         maxLimit[i] = location[i];
-        singularity = false;
       }
     }
   }
@@ -337,18 +332,9 @@ class FloatNdTree implements FloatKdTree {
         }
 
         // At a leaf. Use the data.
-        if (cursor.singularity) {
-          final double dist = distanceFunction.distance(location, cursor.locations[0]);
-          if (dist <= range) {
-            for (int i = 0; i < cursor.locationCount; i++) {
-              resultHeap.offer(dist);
-            }
-          }
-        } else {
-          for (int i = 0; i < cursor.locationCount; i++) {
-            final double dist = distanceFunction.distance(location, cursor.locations[i]);
-            resultHeap.offer(dist);
-          }
+        for (int i = 0; i < cursor.locationCount; i++) {
+          final double dist = distanceFunction.distance(location, cursor.locations[i]);
+          resultHeap.offer(dist);
         }
         range = resultHeap.getThreshold();
 
@@ -361,8 +347,7 @@ class FloatNdTree implements FloatKdTree {
         status = searchStatus.pop();
       } else {
         // Part visited, descend other direction
-        final FloatNdTree nextCursor =
-            status == Status.LEFTVISITED ? cursor.right : cursor.left;
+        final FloatNdTree nextCursor = status == Status.LEFTVISITED ? cursor.right : cursor.left;
         // Check if it's worth descending.
         if (distanceFunction.distanceToRectangle(location, nextCursor.minLimit,
             nextCursor.maxLimit) > range) {
@@ -422,21 +407,11 @@ class FloatNdTree implements FloatKdTree {
         }
 
         // At a leaf. Use the data.
-        if (cursor.singularity) {
-          final double dist = distanceFunction.distance(location, cursor.locations[0]);
+        for (int i = 0; i < cursor.locationCount; i++) {
+          final double dist = distanceFunction.distance(location, cursor.locations[i]);
           if (dist <= range) {
-            for (int i = 0; i < cursor.locationCount; i++) {
-              results.accept(dist);
-            }
+            results.accept(dist);
             found = true;
-          }
-        } else {
-          for (int i = 0; i < cursor.locationCount; i++) {
-            final double dist = distanceFunction.distance(location, cursor.locations[i]);
-            if (dist <= range) {
-              results.accept(dist);
-              found = true;
-            }
           }
         }
 
@@ -449,8 +424,7 @@ class FloatNdTree implements FloatKdTree {
         status = searchStatus.pop();
       } else {
         // Part visited, descend other direction
-        final FloatNdTree nextCursor =
-            status == Status.LEFTVISITED ? cursor.right : cursor.left;
+        final FloatNdTree nextCursor = status == Status.LEFTVISITED ? cursor.right : cursor.left;
         // Check if it's worth descending.
         if (distanceFunction.distanceToRectangle(location, nextCursor.minLimit,
             nextCursor.maxLimit) > range) {
@@ -495,19 +469,11 @@ class FloatNdTree implements FloatKdTree {
         }
 
         // At a leaf. Use the data.
-        if (cursor.singularity) {
-          final double dist = distanceFunction.distance(location, cursor.locations[0]);
+        for (int i = 0; i < cursor.locationCount; i++) {
+          final double dist = distanceFunction.distance(location, cursor.locations[i]);
           if (dist <= range) {
             range = dist;
             found = true;
-          }
-        } else {
-          for (int i = 0; i < cursor.locationCount; i++) {
-            final double dist = distanceFunction.distance(location, cursor.locations[i]);
-            if (dist <= range) {
-              range = dist;
-              found = true;
-            }
           }
         }
 
@@ -520,8 +486,7 @@ class FloatNdTree implements FloatKdTree {
         status = searchStatus.pop();
       } else {
         // Part visited, descend other direction
-        final FloatNdTree nextCursor =
-            status == Status.LEFTVISITED ? cursor.right : cursor.left;
+        final FloatNdTree nextCursor = status == Status.LEFTVISITED ? cursor.right : cursor.left;
         // Check if it's worth descending.
         if (distanceFunction.distanceToRectangle(location, nextCursor.minLimit,
             nextCursor.maxLimit) > range) {

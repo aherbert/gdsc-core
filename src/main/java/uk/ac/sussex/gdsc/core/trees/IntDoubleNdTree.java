@@ -54,8 +54,6 @@ class IntDoubleNdTree implements IntDoubleKdTree {
   private double[] minLimit;
   /** The maximum limit of the points in the tree below the current node/leaf. */
   private double[] maxLimit;
-  /** The singularity flag. Set to true if all points have the same location. */
-  private boolean singularity = true;
 
   // Root only
 
@@ -289,13 +287,10 @@ class IntDoubleNdTree implements IntDoubleKdTree {
       if (Double.isNaN(location[i])) {
         minLimit[i] = Double.NaN;
         maxLimit[i] = Double.NaN;
-        singularity = false;
       } else if (minLimit[i] > location[i]) {
         minLimit[i] = location[i];
-        singularity = false;
       } else if (maxLimit[i] < location[i]) {
         maxLimit[i] = location[i];
-        singularity = false;
       }
     }
   }
@@ -353,18 +348,9 @@ class IntDoubleNdTree implements IntDoubleKdTree {
         }
 
         // At a leaf. Use the data.
-        if (cursor.singularity) {
-          final double dist = distanceFunction.distance(location, cursor.locations[0]);
-          if (dist <= range) {
-            for (int i = 0; i < cursor.locationCount; i++) {
-              resultHeap.offer(dist, cursor.data[i]);
-            }
-          }
-        } else {
-          for (int i = 0; i < cursor.locationCount; i++) {
-            final double dist = distanceFunction.distance(location, cursor.locations[i]);
-            resultHeap.offer(dist, cursor.data[i]);
-          }
+        for (int i = 0; i < cursor.locationCount; i++) {
+          final double dist = distanceFunction.distance(location, cursor.locations[i]);
+          resultHeap.offer(dist, cursor.data[i]);
         }
         range = resultHeap.getThreshold();
 
@@ -438,21 +424,11 @@ class IntDoubleNdTree implements IntDoubleKdTree {
         }
 
         // At a leaf. Use the data.
-        if (cursor.singularity) {
-          final double dist = distanceFunction.distance(location, cursor.locations[0]);
+        for (int i = 0; i < cursor.locationCount; i++) {
+          final double dist = distanceFunction.distance(location, cursor.locations[i]);
           if (dist <= range) {
-            for (int i = 0; i < cursor.locationCount; i++) {
-              results.accept(cursor.data[i], dist);
-            }
+            results.accept(cursor.data[i], dist);
             found = true;
-          }
-        } else {
-          for (int i = 0; i < cursor.locationCount; i++) {
-            final double dist = distanceFunction.distance(location, cursor.locations[i]);
-            if (dist <= range) {
-              results.accept(cursor.data[i], dist);
-              found = true;
-            }
           }
         }
 
@@ -512,21 +488,12 @@ class IntDoubleNdTree implements IntDoubleKdTree {
         }
 
         // At a leaf. Use the data.
-        if (cursor.singularity) {
-          final double dist = distanceFunction.distance(location, cursor.locations[0]);
+        for (int i = 0; i < cursor.locationCount; i++) {
+          final double dist = distanceFunction.distance(location, cursor.locations[i]);
           if (dist <= range) {
             range = dist;
-            item = cursor.data[0];
+            item = cursor.data[i];
             found = true;
-          }
-        } else {
-          for (int i = 0; i < cursor.locationCount; i++) {
-            final double dist = distanceFunction.distance(location, cursor.locations[i]);
-            if (dist <= range) {
-              range = dist;
-              item = cursor.data[i];
-              found = true;
-            }
           }
         }
 
