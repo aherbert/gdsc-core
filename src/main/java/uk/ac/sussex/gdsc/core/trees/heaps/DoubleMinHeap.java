@@ -40,12 +40,14 @@ public class DoubleMinHeap {
   /**
    * Adds the value if the value is less than the current threshold, or the heap is not at capacity.
    *
+   * <p>NaN values are silently ignored.
+   *
    * @param value the value
    * @see #getThreshold()
    */
   public void offer(double value) {
     // If there is still room in the heap
-    if (size != values.length) {
+    if (size != values.length && !Double.isNaN(value)) {
       // Insert new item at the end
       values[size] = value;
       upHeapify(size);

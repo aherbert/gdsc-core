@@ -46,6 +46,14 @@ public class ObjDoubleMinHeapTest {
   }
 
   @Test
+  public void testNaN() {
+    final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(5);
+    Assertions.assertEquals(0, heap.getSize());
+    heap.offer(Double.NaN, 42);
+    Assertions.assertEquals(0, heap.getSize());
+  }
+
+  @Test
   public void testPartial() {
     final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(5);
     heap.offer(1.1, 100);
