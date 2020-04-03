@@ -31,8 +31,23 @@ package uk.ac.sussex.gdsc.core.match;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.ToDoubleBiFunction;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 /**
  * Test for {@link RmsmdCalculator}.
@@ -41,9 +56,9 @@ import org.junit.jupiter.api.Test;
 public class RmsmdCalculatorTest {
   @Test
   public void testBadArguments() {
-    List<double[]> c2 = Arrays.asList(new double[2]);
-    List<double[]> empty = Collections.emptyList();
-    List<double[]> c3 = Arrays.asList(new double[3]);
+    final List<double[]> c2 = Arrays.asList(new double[2]);
+    final List<double[]> empty = Collections.emptyList();
+    final List<double[]> c3 = Arrays.asList(new double[3]);
     // Check OK with the same size
     Assertions.assertEquals(0, RmsmdCalculator.rmsmd(c2, c2));
     Assertions.assertEquals(0, RmsmdCalculator.rmsmd(c3, c3));
@@ -58,13 +73,13 @@ public class RmsmdCalculatorTest {
   public void testRmsmd() {
     // From the RMSMD paper
     //@formatter:off
-    List<double[]> s = Arrays.asList(
+    final List<double[]> s = Arrays.asList(
         new double[] {200, 460},
         new double[] {750, 660},
         new double[] {1190, 600},
         new double[] {1200, 200}
     );
-    List<double[]> x = Arrays.asList(
+    final List<double[]> x = Arrays.asList(
         new double[] {300, 400},
         new double[] {260, 760},
         new double[] {550, 800},
@@ -80,13 +95,13 @@ public class RmsmdCalculatorTest {
   public void testRmsmdWithObjects() {
     // From the RMSMD paper
     //@formatter:off
-    List<BasePoint> s = Arrays.asList(
+    final List<BasePoint> s = Arrays.asList(
         new BasePoint(200, 460),
         new BasePoint(750, 660),
         new BasePoint(1190, 600),
         new BasePoint(1200, 200)
     );
-    List<BasePoint> x = Arrays.asList(
+    final List<BasePoint> x = Arrays.asList(
         new BasePoint(300, 400),
         new BasePoint(260, 760),
         new BasePoint(550, 800),
@@ -97,5 +112,139 @@ public class RmsmdCalculatorTest {
     //@formatter:on
     Assertions.assertEquals(Math.sqrt(40740),
         RmsmdCalculator.rmsmd(s, x, p -> new double[] {p.getX(), p.getY()}));
+  }
+
+  @Test
+  public void testSumMinimumDistance() {
+    // From the RMSMD paper
+    //@formatter:off
+    final double[][] s = new double[][] {
+        new double[] {200, 460},
+        new double[] {750, 660},
+        new double[] {1190, 600},
+        new double[] {1200, 200}
+    };
+    final double[][] x = new double[][] {
+        new double[] {300, 400},
+        new double[] {260, 760},
+        new double[] {550, 800},
+        new double[] {820, 560},
+        new double[] {950, 800},
+        new double[] {1100, 100}
+    };
+    //@formatter:on
+    // Re-use an existing distance function
+    final ToDoubleBiFunction<double[], double[]> distanceFunction =
+        DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D::distance;
+    final double expected = 40740 * (s.length + x.length);
+    // Check implementations are correct
+    Assertions.assertEquals(expected,
+        RmsmdCalculator.sumMinimumDistancesAllVsAll(s, x, distanceFunction)
+            + RmsmdCalculator.sumMinimumDistancesAllVsAll(x, s, distanceFunction));
+    Assertions.assertEquals(expected,
+        RmsmdCalculator.sumMinimumDistancesKdTree(s, x, distanceFunction)
+            + RmsmdCalculator.sumMinimumDistancesKdTree(x, s, distanceFunction));
+  }
+
+  @SeededTest
+  public void testRmsmdWithDifferentSizes(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    // Create enough data to trigger use of the tree
+    final double[][] p1 = createData(rg, 4);
+    final double[][] p2 = createData(rg, 512);
+    final ToDoubleBiFunction<double[], double[]> distanceFunction =
+        DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D::distance;
+    Assertions.assertEquals(RmsmdCalculator.sumMinimumDistancesAllVsAll(p1, p2, distanceFunction),
+        RmsmdCalculator.sumMinimumDistances(p1, p2, distanceFunction));
+  }
+
+  /**
+   * Test the speed of different methods.
+   *
+   * @param seed the seed
+   */
+  @SpeedTag
+  @SeededTest
+  public void testSumMinimumDistanceSpeed(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    // 2^11 = 2048
+    final int n = 1 << 11;
+    final double[][] data = createData(rg, n);
+    final Logger logger = Logger.getLogger(RmsmdCalculatorTest.class.getName());
+    final ToDoubleBiFunction<double[], double[]> distanceFunction =
+        DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D::distance;
+    for (int k = 8; k <= n; k *= 2) {
+      final double[][] p2 = extractPoints(data, new PermutationSampler(rg, n, k).sample());
+
+      final TimingService ts = new TimingService();
+
+      for (int k1 = k; k1 > 1; k1 /= 2) {
+        final double[][] p1 = extractPoints(data, new PermutationSampler(rg, n, k1).sample());
+        ts.execute(new DummyTimingTask("All-vs-all", k1, k) {
+          @Override
+          public Object run(Object data) {
+            return RmsmdCalculator.sumMinimumDistancesAllVsAll(p1, p2, distanceFunction);
+          }
+        });
+        ts.execute(new DummyTimingTask("Kd-tree", k1, k) {
+          @Override
+          public Object run(Object data) {
+            return RmsmdCalculator.sumMinimumDistancesKdTree(p1, p2, distanceFunction);
+          }
+        });
+      }
+
+      final int size = ts.repeat();
+      ts.repeat(size);
+
+      logger.info(ts.getReport(size));
+    }
+  }
+
+  /**
+   * Creates the data.
+   *
+   * @param rg the random generator
+   * @param size the size
+   * @return the data
+   */
+  private static double[][] createData(UniformRandomProvider rg, int size) {
+    return IntStream.range(0, size).mapToObj(i -> new double[] {rg.nextDouble(), rg.nextDouble()})
+        .toArray(double[][]::new);
+  }
+
+  /**
+   * Extract points.
+   *
+   * @param data the data
+   * @param indices the indices
+   * @return the points
+   */
+  private static double[][] extractPoints(double[][] data, int[] indices) {
+    final double[][] d = new double[indices.length][];
+    for (int i = 0; i < indices.length; i++) {
+      d[i] = data[indices[i]];
+    }
+    return d;
+  }
+
+  /**
+   * A simple timing task to create a name and implement unused methods.
+   */
+  private abstract static class DummyTimingTask extends BaseTimingTask {
+    public DummyTimingTask(String name, int size1, int size2) {
+      super(name + " " + size1 + " " + size2);
+    }
+
+    @Override
+    public int getSize() {
+      return 1;
+    }
+
+    @Override
+    public Object getData(int index) {
+      return null;
+    }
   }
 }

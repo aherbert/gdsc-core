@@ -31,6 +31,10 @@ package uk.ac.sussex.gdsc.core.match;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunction;
+import uk.ac.sussex.gdsc.core.trees.DoubleKdTree;
+import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -41,6 +45,21 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * </blockquote>
  */
 public final class RmsmdCalculator {
+  /**
+   * The threshold to switch to using a KD-tree. This is set to a size where construction time of
+   * the tree is small relative to the all-vs-all comparison time allowing the tree to have an
+   * advantage.
+   */
+  private static final int SIZE_THRESHOLD_KD_TREE = 512;
+  /**
+   * The threshold to switch to using a KD-tree for a search set of a given size. This is set
+   * heuristically. It is only worth constructing the tree if there are a several points in the
+   * search.
+   *
+   * <p>This has been set based on testing on uniform 2D data.
+   */
+  private static final int SIZE_THRESHOLD_KD_TREE_SEARCH = 64;
+
   /** No public construction. */
   private RmsmdCalculator() {}
 
@@ -178,7 +197,7 @@ public final class RmsmdCalculator {
    * @param d2 the second point
    * @return the squared Euclidean distance
    */
-  static double distanceSquared(double[] d1, double[] d2) {
+  private static double distanceSquared(double[] d1, double[] d2) {
     double sum = 0;
     for (int i = 0; i < d1.length; i++) {
       final double d = d1[i] - d2[i];
@@ -195,13 +214,41 @@ public final class RmsmdCalculator {
    * @param distanceFunction the distance function
    * @return the sum
    */
-  private static double sumMinimumDistances(double[][] points1, double[][] points2,
+  @VisibleForTesting
+  static double sumMinimumDistances(double[][] points1, double[][] points2,
       ToDoubleBiFunction<double[], double[]> distanceFunction) {
-    // TODO
     // All-vs-all will not scale well.
     // If the collection of points 2 is large then put into a KD-tree for efficient
     // nearest neighbour search for each point 1.
+    if (useKdTree(points1.length, points2.length)) {
+      return sumMinimumDistancesKdTree(points1, points2, distanceFunction);
+    }
+    return sumMinimumDistancesAllVsAll(points1, points2, distanceFunction);
+  }
 
+  /**
+   * Return true if the KD tree is recommended.
+   *
+   * @param searchSize the search size
+   * @param treeSize the tree size
+   * @return true if a KD-tree is recommended
+   */
+  private static boolean useKdTree(int searchSize, int treeSize) {
+    return treeSize > SIZE_THRESHOLD_KD_TREE && searchSize > SIZE_THRESHOLD_KD_TREE_SEARCH;
+  }
+
+  /**
+   * Sum the minimum distances between each point in set 1 to any point in set 2 using an all-vs-all
+   * comparison.
+   *
+   * @param points1 the first set of points
+   * @param points2 the second set of points
+   * @param distanceFunction the distance function
+   * @return the sum
+   */
+  @VisibleForTesting
+  static double sumMinimumDistancesAllVsAll(double[][] points1, double[][] points2,
+      ToDoubleBiFunction<double[], double[]> distanceFunction) {
     double sum = 0;
     for (final double[] p1 : points1) {
       double min = distanceFunction.applyAsDouble(p1, points2[0]);
@@ -214,5 +261,66 @@ public final class RmsmdCalculator {
       sum += min;
     }
     return sum;
+  }
+
+  /**
+   * Sum the minimum distances between each point in set 1 to any point in set 2 using a KD-Tree to
+   * store all points from the second set and compute the minimum distance to each in the first set.
+   *
+   * @param points1 the first set of points
+   * @param points2 the second set of points
+   * @param distanceFunction the distance function
+   * @return the sum
+   */
+  @VisibleForTesting
+  static double sumMinimumDistancesKdTree(double[][] points1, double[][] points2,
+      ToDoubleBiFunction<double[], double[]> distanceFunction) {
+    // Put all points1 in a KD-Tree
+    final DoubleKdTree tree = KdTrees.newDoubleKdTree(points2[0].length);
+    for (double[] p : points2) {
+      tree.addPoint(p);
+    }
+
+    double sum = 0;
+    final DoubleDistanceFunction df =
+        createDoubleDistanceFunction(distanceFunction, tree.dimensions());
+    for (final double[] p1 : points1) {
+      sum += tree.nearestNeighbour(p1, df, null);
+    }
+    return sum;
+  }
+
+  /**
+   * Creates the KD-tree distance function from the standard distance function.
+   *
+   * @param distanceFunction the distance function
+   * @param dimensions the dimensions
+   * @return the double distance function
+   */
+  private static DoubleDistanceFunction createDoubleDistanceFunction(
+      final ToDoubleBiFunction<double[], double[]> distanceFunction, int dimensions) {
+    // This relies on the KD-tree search not using the distance function concurrently
+    return new DoubleDistanceFunction() {
+      private final double[] tmp = new double[dimensions];
+
+      @Override
+      public double distanceToRectangle(double[] point, double[] min, double[] max) {
+        // Create a fake point at the boundary of the region.
+        // Thus the distance to point and the region is the distance to the boundary.
+        for (int i = 0; i < dimensions; i++) {
+          if (point[i] > max[i]) {
+            tmp[i] = max[i];
+          } else {
+            tmp[i] = point[i] < min[i] ? min[i] : point[i];
+          }
+        }
+        return distanceFunction.applyAsDouble(point, tmp);
+      }
+
+      @Override
+      public double distance(double[] p1, double[] p2) {
+        return distanceFunction.applyAsDouble(p1, p2);
+      }
+    };
   }
 }
