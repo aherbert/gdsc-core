@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunction;
+import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
 import uk.ac.sussex.gdsc.core.trees.DoubleKdTree;
 import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
@@ -60,6 +61,14 @@ public final class RmsmdCalculator {
    */
   private static final int SIZE_THRESHOLD_KD_TREE_SEARCH = 64;
 
+  /**
+   * The default square Euclidean distance function.
+   *
+   * <p>Create an instance to allow detection of the default.
+   */
+  private static final ToDoubleBiFunction<double[], double[]> DEFAULT_DISTANCE_FUNCTION =
+      DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND::distance;
+
   /** No public construction. */
   private RmsmdCalculator() {}
 
@@ -76,7 +85,7 @@ public final class RmsmdCalculator {
    * @throws IndexOutOfBoundsException if points have mismatched dimensions
    */
   public static double rmsmd(Collection<double[]> a, Collection<double[]> b) {
-    return rmsmd(a, b, RmsmdCalculator::distanceSquared);
+    return rmsmd(a, b, DEFAULT_DISTANCE_FUNCTION);
   }
 
   /**
@@ -98,7 +107,7 @@ public final class RmsmdCalculator {
     final double[][] cA = a.toArray(new double[0][]);
     final double[][] cB = b.toArray(new double[0][]);
 
-    return rmsmd(cA, cB, RmsmdCalculator::distanceSquared);
+    return rmsmd(cA, cB, DEFAULT_DISTANCE_FUNCTION);
   }
 
   /**
@@ -138,7 +147,7 @@ public final class RmsmdCalculator {
    */
   public static <U, V> double rmsmd(Collection<U> a, Collection<V> b,
       Function<U, double[]> toCoordinatesA, Function<V, double[]> toCoordinatesB) {
-    return rmsmd(a, b, toCoordinatesA, toCoordinatesB, RmsmdCalculator::distanceSquared);
+    return rmsmd(a, b, toCoordinatesA, toCoordinatesB, DEFAULT_DISTANCE_FUNCTION);
   }
 
   /**
@@ -190,23 +199,6 @@ public final class RmsmdCalculator {
   }
 
   /**
-   * Compute the sum of squared distances in each dimension for the square distance. This is the
-   * square of the Euclidean distance between the two points.
-   *
-   * @param d1 the first point
-   * @param d2 the second point
-   * @return the squared Euclidean distance
-   */
-  private static double distanceSquared(double[] d1, double[] d2) {
-    double sum = 0;
-    for (int i = 0; i < d1.length; i++) {
-      final double d = d1[i] - d2[i];
-      sum += d * d;
-    }
-    return sum;
-  }
-
-  /**
    * Sum the minimum distances between each point in set 1 to any point in set 2.
    *
    * @param points1 the first set of points
@@ -221,7 +213,9 @@ public final class RmsmdCalculator {
     // If the collection of points 2 is large then put into a KD-tree for efficient
     // nearest neighbour search for each point 1.
     if (useKdTree(points1.length, points2.length)) {
-      return sumMinimumDistancesKdTree(points1, points2, distanceFunction);
+      final DoubleDistanceFunction df =
+          createDoubleDistanceFunction(distanceFunction, points2[0].length);
+      return sumMinimumDistancesKdTree(points1, points2, df);
     }
     return sumMinimumDistancesAllVsAll(points1, points2, distanceFunction);
   }
@@ -234,7 +228,7 @@ public final class RmsmdCalculator {
    * @return true if a KD-tree is recommended
    */
   private static boolean useKdTree(int searchSize, int treeSize) {
-    return treeSize > SIZE_THRESHOLD_KD_TREE && searchSize > SIZE_THRESHOLD_KD_TREE_SEARCH;
+    return treeSize >= SIZE_THRESHOLD_KD_TREE && searchSize >= SIZE_THRESHOLD_KD_TREE_SEARCH;
   }
 
   /**
@@ -274,18 +268,16 @@ public final class RmsmdCalculator {
    */
   @VisibleForTesting
   static double sumMinimumDistancesKdTree(double[][] points1, double[][] points2,
-      ToDoubleBiFunction<double[], double[]> distanceFunction) {
+      DoubleDistanceFunction distanceFunction) {
     // Put all points1 in a KD-Tree
     final DoubleKdTree tree = KdTrees.newDoubleKdTree(points2[0].length);
-    for (double[] p : points2) {
+    for (final double[] p : points2) {
       tree.addPoint(p);
     }
 
     double sum = 0;
-    final DoubleDistanceFunction df =
-        createDoubleDistanceFunction(distanceFunction, tree.dimensions());
     for (final double[] p1 : points1) {
-      sum += tree.nearestNeighbour(p1, df, null);
+      sum += tree.nearestNeighbour(p1, distanceFunction, null);
     }
     return sum;
   }
@@ -299,6 +291,17 @@ public final class RmsmdCalculator {
    */
   private static DoubleDistanceFunction createDoubleDistanceFunction(
       final ToDoubleBiFunction<double[], double[]> distanceFunction, int dimensions) {
+    // Check if the function is the default
+    if (distanceFunction == DEFAULT_DISTANCE_FUNCTION) {
+      if (dimensions == 2) {
+        return DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
+      }
+      if (dimensions == 3) {
+        return DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+      }
+      return DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND;
+    }
+
     // This relies on the KD-tree search not using the distance function concurrently
     return new DoubleDistanceFunction() {
       private final double[] tmp = new double[dimensions];
@@ -306,7 +309,7 @@ public final class RmsmdCalculator {
       @Override
       public double distanceToRectangle(double[] point, double[] min, double[] max) {
         // Create a fake point at the boundary of the region.
-        // Thus the distance to point and the region is the distance to the boundary.
+        // Thus the distance between the point and the region is the distance to the boundary.
         for (int i = 0; i < dimensions; i++) {
           if (point[i] > max[i]) {
             tmp[i] = max[i];

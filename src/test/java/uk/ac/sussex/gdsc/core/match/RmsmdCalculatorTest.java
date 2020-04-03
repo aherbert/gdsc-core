@@ -115,6 +115,71 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
+  public void testRmsmdWithCustomDistanceFunction() {
+    // From the RMSMD paper
+    //@formatter:off
+    final List<double[]> s = Arrays.asList(
+        new double[] {200, 460},
+        new double[] {750, 660},
+        new double[] {1190, 600},
+        new double[] {1200, 200}
+    );
+    final List<double[]> x = Arrays.asList(
+        new double[] {300, 400},
+        new double[] {260, 760},
+        new double[] {550, 800},
+        new double[] {820, 560},
+        new double[] {950, 800},
+        new double[] {1100, 100}
+    );
+    //@formatter:on
+    Assertions.assertEquals(Math.sqrt(40740),
+        RmsmdCalculator.rmsmd(s, x, DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D::distance));
+  }
+
+  @Test
+  public void testRmsmd3d() {
+    //@formatter:off
+    final List<double[]> s = Arrays.asList(
+        new double[] {0, 200, 460},
+        new double[] {0, 750, 660},
+        new double[] {0, 1190, 600},
+        new double[] {0, 1200, 200}
+    );
+    final List<double[]> x = Arrays.asList(
+        new double[] {0, 300, 400},
+        new double[] {0, 260, 760},
+        new double[] {0, 550, 800},
+        new double[] {0, 820, 560},
+        new double[] {0, 950, 800},
+        new double[] {0, 1100, 100}
+    );
+    //@formatter:on
+    Assertions.assertEquals(Math.sqrt(40740), RmsmdCalculator.rmsmd(s, x));
+  }
+
+  @Test
+  public void testRmsmdNd() {
+    //@formatter:off
+    final List<double[]> s = Arrays.asList(
+        new double[] {0, 0, 200, 460},
+        new double[] {0, 0, 750, 660},
+        new double[] {0, 0, 1190, 600},
+        new double[] {0, 0, 1200, 200}
+    );
+    final List<double[]> x = Arrays.asList(
+        new double[] {0, 0, 300, 400},
+        new double[] {0, 0, 260, 760},
+        new double[] {0, 0, 550, 800},
+        new double[] {0, 0, 820, 560},
+        new double[] {0, 0, 950, 800},
+        new double[] {0, 0, 1100, 100}
+    );
+    //@formatter:on
+    Assertions.assertEquals(Math.sqrt(40740), RmsmdCalculator.rmsmd(s, x));
+  }
+
+  @Test
   public void testSumMinimumDistance() {
     // From the RMSMD paper
     //@formatter:off
@@ -142,20 +207,47 @@ public class RmsmdCalculatorTest {
         RmsmdCalculator.sumMinimumDistancesAllVsAll(s, x, distanceFunction)
             + RmsmdCalculator.sumMinimumDistancesAllVsAll(x, s, distanceFunction));
     Assertions.assertEquals(expected,
-        RmsmdCalculator.sumMinimumDistancesKdTree(s, x, distanceFunction)
-            + RmsmdCalculator.sumMinimumDistancesKdTree(x, s, distanceFunction));
+        RmsmdCalculator.sumMinimumDistancesKdTree(s, x,
+            DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D)
+            + RmsmdCalculator.sumMinimumDistancesKdTree(x, s,
+                DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D));
   }
 
   @SeededTest
-  public void testRmsmdWithDifferentSizes(RandomSeed seed) {
+  public void testRmsmd1dWithKdTree(RandomSeed seed) {
+    assertRmsmdNdWithKdTree(seed, 1);
+  }
+
+  @SeededTest
+  public void testRmsmd2dWithKdTree(RandomSeed seed) {
+    assertRmsmdNdWithKdTree(seed, 2);
+  }
+
+  @SeededTest
+  public void testRmsmd3dWithKdTree(RandomSeed seed) {
+    assertRmsmdNdWithKdTree(seed, 3);
+  }
+
+  private static void assertRmsmdNdWithKdTree(RandomSeed seed, int dimensions) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     // Create enough data to trigger use of the tree
-    final double[][] p1 = createData(rg, 4);
-    final double[][] p2 = createData(rg, 512);
+    final double[][] p0 = createData(dimensions, rg, 4);
+    final double[][] p1 = createData(dimensions, rg, 64);
+    final double[][] p2 = createData(dimensions, rg, 512);
     final ToDoubleBiFunction<double[], double[]> distanceFunction =
-        DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D::distance;
+        DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND::distance;
+    // Hit edge cases for use of the tree using a custom distance function
+    Assertions.assertEquals(RmsmdCalculator.sumMinimumDistancesAllVsAll(p0, p2, distanceFunction),
+        RmsmdCalculator.sumMinimumDistances(p0, p2, distanceFunction));
     Assertions.assertEquals(RmsmdCalculator.sumMinimumDistancesAllVsAll(p1, p2, distanceFunction),
         RmsmdCalculator.sumMinimumDistances(p1, p2, distanceFunction));
+
+    // With default distance function
+    Assertions.assertEquals(
+        Math.sqrt((RmsmdCalculator.sumMinimumDistancesAllVsAll(p1, p2, distanceFunction)
+            + RmsmdCalculator.sumMinimumDistancesAllVsAll(p2, p1, distanceFunction))
+            / (p1.length + p2.length)),
+        RmsmdCalculator.rmsmd(Arrays.asList(p1), Arrays.asList(p2)));
   }
 
   /**
@@ -190,7 +282,8 @@ public class RmsmdCalculatorTest {
         ts.execute(new DummyTimingTask("Kd-tree", k1, k) {
           @Override
           public Object run(Object data) {
-            return RmsmdCalculator.sumMinimumDistancesKdTree(p1, p2, distanceFunction);
+            return RmsmdCalculator.sumMinimumDistancesKdTree(p1, p2,
+                DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D);
           }
         });
       }
@@ -212,6 +305,23 @@ public class RmsmdCalculatorTest {
   private static double[][] createData(UniformRandomProvider rg, int size) {
     return IntStream.range(0, size).mapToObj(i -> new double[] {rg.nextDouble(), rg.nextDouble()})
         .toArray(double[][]::new);
+  }
+
+  /**
+   * Creates the ND data.
+   *
+   * @param rg the random generator
+   * @param size the size
+   * @return the data
+   */
+  private static double[][] createData(int dimensions, UniformRandomProvider rg, int size) {
+    return IntStream.range(0, size).mapToObj(i -> {
+      final double[] tmp = new double[dimensions];
+      for (int j = 0; j < dimensions; j++) {
+        tmp[j] = rg.nextDouble();
+      }
+      return tmp;
+    }).toArray(double[][]::new);
   }
 
   /**
