@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -67,6 +68,21 @@ public final class ValidationUtils {
   public static void checkArgument(boolean result) {
     if (!result) {
       throw new IllegalArgumentException();
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using {@link Supplier#get()}.
+   *
+   * @param result the result
+   * @param message the supplier of the exception message
+   * @throws IllegalArgumentException if not {@code true}
+   */
+  public static void checkArgument(boolean result, Supplier<String> message) {
+    if (!result) {
+      throw new IllegalArgumentException(message.get());
     }
   }
 
@@ -310,6 +326,21 @@ public final class ValidationUtils {
   /**
    * Check the {@code result} is {@code true}.
    *
+   * <p>If not {@code true} the exception message is formed using {@link Supplier#get()}.
+   *
+   * @param result the result
+   * @param message the supplier of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, Supplier<String> message) {
+    if (!result) {
+      throw new IllegalStateException(message.get());
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
    * <p>If not {@code true} the exception message is formed using {@link String#valueOf(Object)}.
    *
    * @param result the result
@@ -543,6 +574,24 @@ public final class ValidationUtils {
   public static <T> T checkNotNull(T object) {
     if (object == null) {
       throw new NullPointerException();
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using {@link Supplier#get()}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param message the supplier of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, Supplier<String> message) {
+    if (object == null) {
+      throw new NullPointerException(message.get());
     }
     return object;
   }
@@ -810,6 +859,8 @@ public final class ValidationUtils {
     }
     return object;
   }
+
+
 
   /**
    * Check the specified value is positive.
