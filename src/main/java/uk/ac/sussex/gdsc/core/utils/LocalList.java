@@ -904,7 +904,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <pre>
    * int newSize = 0;
    * for (int i = 0; i < size; i++) {
-   *   if (filter.test((E[]) data[i])) {
+   *   if (filter.test((E) data[i])) {
    *     // remove
    *     continue;
    *   }
