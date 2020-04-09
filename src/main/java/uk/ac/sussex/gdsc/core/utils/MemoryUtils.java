@@ -34,6 +34,15 @@ import java.util.function.Supplier;
  * Memory utilities.
  */
 public final class MemoryUtils {
+  /**
+   * The maximum size buffer to safely allocate. Attempts to allocate above this size may fail.
+   *
+   * <p>This is set to the same size used in the JDK {@code java.util.ArrayList}:
+   *
+   * <blockquote> Some VMs reserve some header words in an array. Attempts to allocate larger arrays
+   * may result in OutOfMemoryError: Requested array size exceeds VM limit. </blockquote>
+   */
+  private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;
 
   /** The runtime for the currrent Java application. */
   private static final Runtime runtime = Runtime.getRuntime();
@@ -173,5 +182,77 @@ public final class MemoryUtils {
     MemoryUtils.runGarbageCollector();
 
     return memorySize;
+  }
+
+  /**
+   * Create a new capacity for an array at least as large the minimum required capacity. The old
+   * capacity is used to set an initial increase based on the current capacity. If the minimum
+   * capacity is negative then this throws an OutOfMemoryError as no array can be allocated.
+   *
+   * <p>It is assumed the old capacity is positive. Results are undefined if the old capacity is
+   * negative.
+   *
+   * <p>This method is intended for use when resizing arrays:
+   *
+   * <pre>
+   * {@code int[] data = ...;
+   * int size = ...;
+   * int[] newData = ...;
+   * int oldCapacity = data.length;
+   * int newCapacity = MemoryUtils.createNewCapacity(data.length + newData.length, oldCapacity));
+   * data = Arrays.copyOf(data, newCapacity);
+   * System.arraycopy(newData, newData.length, data, size, newData.length);
+   * size += newData.length;
+   * }
+   * </pre>
+   *
+   * @param minCapacity the minimum capacity
+   * @param oldCapacity the old capacity (must be positive)
+   * @return the capacity
+   * @throws OutOfMemoryError if the minimum capacity is negative
+   */
+  public static int createNewCapacity(final int minCapacity, final int oldCapacity) {
+    // Overflow-conscious code treats the min and new capacity as unsigned.
+
+    // Increase by 50%
+    int newCapacity = oldCapacity + oldCapacity / 2;
+
+    // Check if large enough for the min capacity.
+    // Equivalent to Integer.compareUnsigned(newCapacity, minCapacity) < 0.
+    if (newCapacity + Integer.MIN_VALUE < minCapacity + Integer.MIN_VALUE) {
+      newCapacity = minCapacity;
+    }
+    // Check if too large.
+    // Equivalent to Integer.compareUnsigned(newCapacity, MAX_BUFFER_SIZE) > 0.
+    if (newCapacity + Integer.MIN_VALUE > MAX_BUFFER_SIZE + Integer.MIN_VALUE) {
+      newCapacity = createPositiveCapacity(minCapacity);
+    }
+
+    return newCapacity;
+  }
+
+  /**
+   * Create a positive capacity at least as large the minimum required capacity. If the minimum
+   * capacity is negative then this throws an OutOfMemoryError as no array can be allocated.
+   *
+   * @param minCapacity the minimum capacity
+   * @return the capacity
+   */
+  private static int createPositiveCapacity(final int minCapacity) {
+    if (minCapacity < 0) {
+      // overflow
+      throw new OutOfMemoryError(
+          "Unable to allocate array size: " + Integer.toUnsignedString(minCapacity));
+    }
+    // This is called when we require buffer expansion to a very big array.
+    // Use the conservative maximum buffer size if possible, otherwise the biggest required.
+    //
+    // Note: In this situation JDK 1.8 java.util.ArrayList returns Integer.MAX_VALUE.
+    // This excludes some VMs that can exceed MAX_BUFFER_SIZE but not allocate a full
+    // Integer.MAX_VALUE length array.
+    // The result is that we may have to allocate an array of this size more than once if
+    // the capacity must be expanded again. But it allows maxing out the potential of the
+    // current VM.
+    return (minCapacity > MAX_BUFFER_SIZE) ? minCapacity : MAX_BUFFER_SIZE;
   }
 }

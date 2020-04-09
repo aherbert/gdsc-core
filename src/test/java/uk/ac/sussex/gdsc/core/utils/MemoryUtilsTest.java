@@ -62,4 +62,40 @@ public class MemoryUtilsTest {
     // This is flaky so do not assert the test
     // Assertions.assertEquals(expected, size, expected * 0.1);
   }
+
+  /**
+   * Test the method to create a new capacity.
+   */
+  @Test
+  public void testCreateNewCapacity() {
+    // Start from the default
+    int capacity = 11;
+    for (;;) {
+      int newCapacity = MemoryUtils.createNewCapacity(capacity + 1, capacity);
+      Assertions.assertTrue(newCapacity >= capacity + 1);
+      capacity = newCapacity;
+      if (capacity == Integer.MAX_VALUE) {
+        break;
+      }
+    }
+
+    // Stop increasing in jumps at the safe max capacity
+    final int safeMaxCapacity = Integer.MAX_VALUE - 8;
+    Assertions.assertEquals(safeMaxCapacity,
+        MemoryUtils.createNewCapacity(safeMaxCapacity - 5, safeMaxCapacity - 10));
+    // Approach max value in single step increments
+    for (int i = 1; i <= 8; i++) {
+      Assertions.assertEquals(safeMaxCapacity + i,
+          MemoryUtils.createNewCapacity(safeMaxCapacity + i, safeMaxCapacity));
+      Assertions.assertEquals(safeMaxCapacity + i,
+          MemoryUtils.createNewCapacity(safeMaxCapacity + i, safeMaxCapacity + i - 1));
+    }
+
+    Assertions.assertThrows(OutOfMemoryError.class,
+        () -> MemoryUtils.createNewCapacity(1 + Integer.MAX_VALUE, 10));
+    Assertions.assertThrows(OutOfMemoryError.class,
+        () -> MemoryUtils.createNewCapacity(1 + Integer.MAX_VALUE, safeMaxCapacity));
+    Assertions.assertThrows(OutOfMemoryError.class,
+        () -> MemoryUtils.createNewCapacity(1 + Integer.MAX_VALUE, Integer.MAX_VALUE));
+  }
 }
