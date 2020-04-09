@@ -35,6 +35,62 @@ package uk.ac.sussex.gdsc.core.data.utils;
  */
 public interface TypeConverter<T> extends Converter {
   /**
+   * {@inheritDoc}
+   *
+   * <p>The input value is in the {@link #from() from} unit and the output is in the {@link #to()
+   * to} unit.
+   *
+   * @param value the value
+   * @return the new value
+   * @see #from()
+   * @see #to()
+   */
+  @Override
+  double convert(double value);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The input value is in the {@link #from() from} unit and the output is in the {@link #to()
+   * to} unit.
+   *
+   * @param value the value
+   * @return the new value
+   * @see #from()
+   * @see #to()
+   */
+  @Override
+  float convert(float value);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The input value is in the {@link #to() to} unit and the output is in the {@link #from()
+   * from} unit.
+   *
+   * @param value the value
+   * @return the new value
+   * @see #to()
+   * @see #from()
+   */
+  @Override
+  double convertBack(double value);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The input value is in the {@link #to() to} unit and the output is in the {@link #from()
+   * from} unit.
+   *
+   * @param value the value
+   * @return the new value
+   * @see #to()
+   * @see #from()
+   */
+  @Override
+  float convertBack(float value);
+
+  /**
    * Specify the source unit to be converted from.
    *
    * @return the source unit
