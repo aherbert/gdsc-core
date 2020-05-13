@@ -28,10 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import gnu.trove.list.array.TIntArrayList;
 import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
@@ -168,7 +168,7 @@ public class KuhnMunkresAssignment {
     final byte[] zeroMask = new byte[cost.length];
     final boolean[] rowMask = new boolean[rows];
     final boolean[] colMask = new boolean[cols];
-    final TIntArrayList sequence = new TIntArrayList();
+    final IntFixedList sequence = new IntFixedList(rows + cols);
 
     // Subtract smallest element from each row and column.
     // This is done conditionally.
@@ -436,9 +436,9 @@ public class KuhnMunkresAssignment {
    * @param sequence the sequence
    * @return the next step
    */
-  private int step4(byte[] zeroMask, boolean[] rowMask, boolean[] colMask, TIntArrayList sequence) {
+  private int step4(byte[] zeroMask, boolean[] rowMask, boolean[] colMask, IntFixedList sequence) {
     // Start at the uncovered 0'
-    sequence.resetQuick();
+    sequence.clear();
     sequence.add(z0);
 
     int col = z0 % cols;
@@ -454,11 +454,11 @@ public class KuhnMunkresAssignment {
 
     // Unstar each starred zero of the sequence
     for (int i = 1; i < sequence.size(); i += 2) {
-      zeroMask[sequence.getQuick(i)] = NORMAL;
+      zeroMask[sequence.get(i)] = NORMAL;
     }
     // and star each primed zero of the sequence.
     for (int i = 0; i < sequence.size(); i += 2) {
-      zeroMask[sequence.getQuick(i)] = STAR;
+      zeroMask[sequence.get(i)] = STAR;
     }
 
     // Erase all primes
@@ -482,7 +482,7 @@ public class KuhnMunkresAssignment {
    * @param sequence the sequence
    * @return the row (or -1)
    */
-  private int findStarInColumn(byte[] zeroMask, int col, TIntArrayList sequence) {
+  private int findStarInColumn(byte[] zeroMask, int col, IntFixedList sequence) {
     for (int i = col; i < zeroMask.length; i += cols) {
       if (zeroMask[i] == STAR) {
         sequence.add(i);
@@ -500,7 +500,7 @@ public class KuhnMunkresAssignment {
    * @param sequence the sequence
    * @return the column
    */
-  private int findPrimeInRow(byte[] zeroMask, int row, TIntArrayList sequence) {
+  private int findPrimeInRow(byte[] zeroMask, int row, IntFixedList sequence) {
     final int start = row * cols;
     final int end = start + cols;
     for (int i = start; i < end; i++) {
