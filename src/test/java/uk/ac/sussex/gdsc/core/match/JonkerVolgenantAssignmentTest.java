@@ -32,46 +32,44 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test for {@link KuhnMunkresAssignment}.
+ * Test for {@link JonkerVolgenantAssignment}.
  */
 @SuppressWarnings({"javadoc"})
-public class KuhnMunkresAssignmentTest {
+public class JonkerVolgenantAssignmentTest {
   @Test
-  public void testWithoutOverflow() {
-    Assertions.assertThrows(ArithmeticException.class,
-        () -> KuhnMunkresAssignment.addWithoutOverflow(Integer.MAX_VALUE, 1));
-  }
-
-  @Test
-  public void testCreateThrows() {
+  public void testComputeThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> KuhnMunkresAssignment.create(null), "null input");
+        () -> JonkerVolgenantAssignment.compute(null), "null input");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> KuhnMunkresAssignment.create(new int[1][]), "null second input");
+        () -> JonkerVolgenantAssignment.compute(new int[1][]), "null second input");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> KuhnMunkresAssignment.create(new int[0][0]), "zero length input");
+        () -> JonkerVolgenantAssignment.compute(new int[0][0]), "zero length input");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> KuhnMunkresAssignment.create(new int[1][0]), "zero length second input");
+        () -> JonkerVolgenantAssignment.compute(new int[1][0]),
+        "zero length second input");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> KuhnMunkresAssignment.create(new int[][] {{1, 2, 3}, {1, 2}}),
+        () -> JonkerVolgenantAssignment.compute(new int[][] {{1, 2, 3}, {1, 2}}),
         "Non rectangular input");
   }
 
   @Test
-  public void testComputeThrows() {
-    Assertions.assertThrows(ArithmeticException.class,
-        () -> KuhnMunkresAssignment
-            .compute(new int[][] {{Integer.MIN_VALUE, Integer.MAX_VALUE}, {0, 0}}),
-        "Expected overflow when zeroing rows");
-    // Force the columns computation first using rows > columns
-    Assertions.assertThrows(ArithmeticException.class,
-        () -> KuhnMunkresAssignment
-            .compute(new int[][] {{Integer.MIN_VALUE, 0}, {Integer.MAX_VALUE, 0}, {0, 0}}),
-        "Expected overflow when zeroing columns");
+  public void testAssignment2x3Linear() {
+    // Data from Bourgeois and Lassalle (1971)
+    // Communications of the ACM Volume 14, Issue 12, 802-804.
+    //@formatter:off
+    final int[] cost = {
+        7, 5, 11,
+        5, 4, 1,
+    };
+    //@formatter:on
+    // 5 + 1 == 6
+    final int[] expected = {1, 2};
+    final int[] assignments = JonkerVolgenantAssignment.compute(cost, 2, 3);
+    Assertions.assertArrayEquals(expected, assignments);
   }
 
   @Test
-  public void testAssignment2x3Linear() {
+  public void testAssignment3x2Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -83,7 +81,7 @@ public class KuhnMunkresAssignmentTest {
     //@formatter:on
     // 7 + 1 + 3 == 11
     final int[] expected = {-1, 1, 0};
-    final int[] assignments = KuhnMunkresAssignment.compute(cost, 3, 2);
+    final int[] assignments = JonkerVolgenantAssignment.compute(cost, 3, 2);
     Assertions.assertArrayEquals(expected, assignments);
   }
 }
