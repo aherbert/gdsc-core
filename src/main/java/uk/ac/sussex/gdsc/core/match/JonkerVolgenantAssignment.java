@@ -55,13 +55,25 @@ public class JonkerVolgenantAssignment {
   private final int[][] cost;
 
   /**
+   * Set to true if the cost matrix has been transposed.
+   *
+   * <p>The algorithm is faster when padding with empty rows rather than empty columns. An input
+   * non-square matrix with more rows than columns should be transposed then padded with an empty
+   * rows. The solution will return the mapping from columns to rows rather than rows to columns.
+   */
+  private final boolean transposed;
+
+  /**
    * Create a new instance. The cost matrix is assumed to be square. Non-square matrices should be
-   * padded with zeros. Assignments of additional pad columns or rows should be ignored.
+   * padded with zeros. Assignments of additional pad columns or rows should be ignored from the
+   * computed result.
    *
    * @param cost the cost of an assignment between row and column
+   * @param transposed true if the matrix is transposed
    */
-  private JonkerVolgenantAssignment(int[][] cost) {
+  private JonkerVolgenantAssignment(int[][] cost, boolean transposed) {
     this.cost = cost;
+    this.transposed = transposed;
   }
 
   /**
@@ -70,7 +82,7 @@ public class JonkerVolgenantAssignment {
    * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
    * {@code k = min(n, m)} so that the sum of these elements is minimum.
    *
-   * <p>A value of -1 is used for no assignment. Costs must be positive.
+   * <p>A value of -1 is used for no assignment.
    *
    * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
    * @return the assignments
@@ -89,22 +101,25 @@ public class JonkerVolgenantAssignment {
     // Create square matrix using zero padding
     final int n = Math.max(rows, cols);
     int[][] c;
-    if (rows < n) {
-      c = Arrays.copyOf(cost, n);
-      // Remaining rows can be all the same empty array as the matrix is not modified
-      final int[] tmp = new int[n];
-      for (int i = rows; i < n; i++) {
-        c[i] = tmp;
-      }
-    } else if (cols < n) {
+    boolean transposed = false;
+    if (cols < n) {
+      transposed = true;
       c = new int[n][];
-      for (int i = 0; i < n; i++) {
-        c[i] = Arrays.copyOf(cost[i], n);
+      for (int i = 0; i < cols; i++) {
+        c[i] = new int[n];
+        for (int j = 0; j < n; j++) {
+          c[i][j] = cost[j][i];
+        }
       }
+      pad(n, cols, c);
+    } else if (rows < n) {
+      c = Arrays.copyOf(cost, n);
+      pad(n, rows, c);
     } else {
       c = cost;
     }
-    return truncate(rows, cols, new JonkerVolgenantAssignment(c).compute());
+    return JonkerVolgenantAssignment.truncate(rows, cols,
+        new JonkerVolgenantAssignment(c, transposed).compute());
   }
 
   /**
@@ -113,7 +128,7 @@ public class JonkerVolgenantAssignment {
    * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
    * {@code k = min(n, m)} so that the sum of these elements is minimum.
    *
-   * <p>A value of -1 is used for no assignment. Costs must be positive.
+   * <p>A value of -1 is used for no assignment.
    *
    * @param cost the cost of an assignment between row and column (as
    *        {@code cost(i,j) = [i * cols + j]}).
@@ -127,19 +142,29 @@ public class JonkerVolgenantAssignment {
     // Convert to square matrix form using zero padding
     final int n = Math.max(rows, cols);
     final int[][] c = new int[n][];
-    for (int i = 0; i < rows; i++) {
-      final int[] tmp = new int[n];
-      System.arraycopy(cost, i * cols, tmp, 0, cols);
-      c[i] = tmp;
-    }
-    // Remaining rows can be all the same empty array as the matrix is not modified
-    if (rows != n) {
-      final int[] tmp = new int[n];
-      for (int i = rows; i < n; i++) {
+    boolean transposed;
+    if (cols < n) {
+      transposed = true;
+      for (int i = 0; i < cols; i++) {
+        c[i] = new int[n];
+        for (int j = 0; j < n; j++) {
+          c[i][j] = cost[j * cols + i];
+        }
+      }
+      pad(n, cols, c);
+    } else {
+      transposed = false;
+      for (int i = 0; i < rows; i++) {
+        final int[] tmp = new int[n];
+        System.arraycopy(cost, i * cols, tmp, 0, cols);
         c[i] = tmp;
       }
+      if (rows != n) {
+        pad(n, rows, c);
+      }
     }
-    return truncate(rows, cols, new JonkerVolgenantAssignment(c).compute());
+    return JonkerVolgenantAssignment.truncate(rows, cols,
+        new JonkerVolgenantAssignment(c, transposed).compute());
   }
 
   /**
@@ -226,7 +251,7 @@ public class JonkerVolgenantAssignment {
 
     if (f == 0) {
       // No unassigned rows
-      return finaliseAssignments(n, x);
+      return finaliseAssignments(n, x, y);
     }
 
     // AUGMENTING ROW REDUCTION
@@ -363,13 +388,40 @@ public class JonkerVolgenantAssignment {
       } while (i1 != i);
     }
 
-    return finaliseAssignments(n, x);
+    return finaliseAssignments(n, x, y);
+  }
+
+  /**
+   * Pad the matrix from the specified row.
+   *
+   * @param n the n
+   * @param row the row
+   * @param cost the cost matrix
+   */
+  private static void pad(int n, int row, int[][] cost) {
+    // Remaining rows can be all the same empty array as the matrix is not modified
+    final int[] tmp = new int[n];
+    for (int i = row; i < n; i++) {
+      cost[i] = tmp;
+    }
   }
 
   /**
    * Finalise the assignments. The indices in the assignments are offset by 1.
    *
-   * @param n the number of
+   * @param n the number of rows/columns
+   * @param x the columns assigned to rows
+   * @param y the rows assigned to columns
+   * @return the assignments
+   */
+  private int[] finaliseAssignments(final int n, final int[] x, final int[] y) {
+    return finaliseAssignments(n, transposed ? y : x);
+  }
+
+  /**
+   * Finalise the assignments. The indices in the assignments are offset by 1.
+   *
+   * @param n the number of rows
    * @param x the columns assigned to rows
    * @return the assignments
    */

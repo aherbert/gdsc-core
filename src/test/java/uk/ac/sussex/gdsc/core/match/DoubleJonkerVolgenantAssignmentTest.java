@@ -53,6 +53,23 @@ public class DoubleJonkerVolgenantAssignmentTest {
   }
 
   @Test
+  public void testAssignment3x3Linear() {
+    // Data from Bourgeois and Lassalle (1971)
+    // Communications of the ACM Volume 14, Issue 12, 802-804.
+    //@formatter:off
+    final double[] cost = {
+        7, 5, 11,
+        5, 4, 1,
+        9, 3, 2,
+    };
+    //@formatter:on
+    // 7 + 1 + 3 == 11
+    final int[] expected = {0, 2, 1};
+    final int[] assignments = DoubleJonkerVolgenantAssignment.compute(cost, 3, 3);
+    Assertions.assertArrayEquals(expected, assignments);
+  }
+
+  @Test
   public void testAssignment2x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
