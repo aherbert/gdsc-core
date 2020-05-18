@@ -352,7 +352,8 @@ public class MatchingsTest {
   public void testMinimumDistanceWithPerfectAssignments() {
     final double[][] connections = new double[2][2];
 
-    final int[][] expected = new int[][] {{0, 0}, {1, 1}};
+    // LAPVJ will assign highest columns first, thus the expected is not {{0, 0}, {1, 1}}
+    final int[][] expected = new int[][] {{0, 1}, {1, 0}};
     assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
   }
 
@@ -487,6 +488,21 @@ public class MatchingsTest {
 
   private static void assertMatchingFunction(MatchingFunction<Integer, Integer> function,
       double[][] connections, double threshold, int[][] expected) {
+    assertMatchingFunction(function, connections, threshold, expected, true);
+  }
+
+  /**
+   * Assert matching function.
+   *
+   * @param function the function
+   * @param connections the connections
+   * @param threshold the threshold
+   * @param expected the expected
+   * @param testEdges set to true to test the expected edges; set to false if the solution is not
+   *        unique and edges may differ.
+   */
+  private static void assertMatchingFunction(MatchingFunction<Integer, Integer> function,
+      double[][] connections, double threshold, int[][] expected, boolean testEdges) {
     final List<Integer> verticesA =
         IntStream.range(0, connections.length).boxed().collect(Collectors.toList());
     final List<Integer> verticesB =
@@ -510,15 +526,17 @@ public class MatchingsTest {
     Assertions.assertEquals(expected.length, max, "Cardinality with consumers");
     Assertions.assertEquals(expected.length, pairs.size(), "Size of matched");
 
-    for (final Pair<Integer, Integer> pair : pairs) {
-      boolean found = false;
-      for (final int[] edge : expected) {
-        if (pair.getLeft() == edge[0] && pair.getRight() == edge[1]) {
-          found = true;
-          break;
+    if (testEdges) {
+      for (final Pair<Integer, Integer> pair : pairs) {
+        boolean found = false;
+        for (final int[] edge : expected) {
+          if (pair.getLeft() == edge[0] && pair.getRight() == edge[1]) {
+            found = true;
+            break;
+          }
         }
+        Assertions.assertTrue(found, "Missing an expected edge");
       }
-      Assertions.assertTrue(found, "Missing an expected edge");
     }
 
     verticesA.removeIf(i -> {

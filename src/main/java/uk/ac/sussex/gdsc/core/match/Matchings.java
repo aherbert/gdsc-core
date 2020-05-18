@@ -532,7 +532,7 @@ public final class Matchings {
         originalToReduced[mapB.getQuick(setB[i])] = i;
       }
       final int[] cost = createCostMatrix(setA, pairV, pairD, setB.length, originalToReduced);
-      final int[] mappedAssignments = KuhnMunkresAssignment.compute(cost, setA.length, setB.length);
+      final int[] mappedAssignments = computeAssignments(cost, setA.length, setB.length);
       for (int i = 0; i < mappedAssignments.length; i++) {
         if (mappedAssignments[i] != -1) {
           assignments[setA[i]] = setB[mappedAssignments[i]];
@@ -670,5 +670,20 @@ public final class Matchings {
     }
 
     return cost;
+  }
+
+  /**
+   * Compute the assignments.
+   *
+   * @param cost the cost matrix
+   * @param rows the rows
+   * @param columns the columns
+   * @return the assignments
+   */
+  private static int[] computeAssignments(final int[] cost, int rows, int columns) {
+    // Switch to LAPJV when approaching a square matrix
+    return (Math.min(rows, columns) >= Math.max(rows, columns) / 4)
+        ? JonkerVolgenantAssignment.compute(cost, rows, columns)
+        : KuhnMunkresAssignment.compute(cost, rows, columns);
   }
 }
