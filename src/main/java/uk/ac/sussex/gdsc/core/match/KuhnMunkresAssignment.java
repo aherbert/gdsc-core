@@ -241,8 +241,9 @@ public class KuhnMunkresAssignment {
           min = cost[i];
         }
       }
+      min = Math.negateExact(min);
       for (int i = start; i < end; i++) {
-        cost[i] = Math.addExact(cost[i], -min);
+        cost[i] = Math.addExact(cost[i], min);
       }
     }
   }
@@ -262,8 +263,9 @@ public class KuhnMunkresAssignment {
           min = cost[i];
         }
       }
+      min = Math.negateExact(min);
       for (int i = start; i < end; i += cols) {
-        cost[i] = Math.addExact(cost[i], -min);
+        cost[i] = Math.addExact(cost[i], min);
       }
     }
   }

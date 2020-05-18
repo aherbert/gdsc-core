@@ -247,8 +247,9 @@ public class DoubleKuhnMunkresAssignment {
           min = cost[i];
         }
       }
+      min = -min;
       for (int i = start; i < end; i++) {
-        cost[i] = addWithoutOverflow(cost[i], -min);
+        cost[i] = addWithoutOverflow(cost[i], min);
       }
     }
   }
@@ -268,8 +269,9 @@ public class DoubleKuhnMunkresAssignment {
           min = cost[i];
         }
       }
+      min = -min;
       for (int i = start; i < end; i += cols) {
-        cost[i] = addWithoutOverflow(cost[i], -min);
+        cost[i] = addWithoutOverflow(cost[i], min);
       }
     }
   }
