@@ -114,10 +114,10 @@ public class DoubleJonkerVolgenantAssignment {
 
   /**
    * Compute the assignments of rows to columns.
-   * 
+   *
    * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
    * {@code k = min(n, m)} so that the sum of these elements is minimum.
-   * 
+   *
    * <p>A value of -1 is used for no assignment.
    *
    * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
