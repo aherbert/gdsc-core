@@ -648,11 +648,16 @@ public final class Matchings {
     ValidationUtils.checkArgument(Double.isFinite(range),
         "Max (%f) - min (%f) distance is not finite", limits[1], min);
 
-    // The cost of matches above the distance threshold is set to twice the maximum cost + 1.
-    // This ensures the algorithm will favour two matches at max cost instead of 1 perfect match
-    // and 1 disallowed match (since (2 * max) < (0 + 2 * max + 1)).
+    // The cost of matches above the distance threshold is set to a prohibitive value.
+    // This should be set so that the algorithm will never choose such an assignment as
+    // the sum of all other possible combinations is less. This can be set using the max
+    // cost and the number of possible assignments.
+    // The number of assignments is the minimum of the matrix dimensions.
+    // Prevent overflow when approaching the largest supported square matrix.
+    final int n = Math.min(verticesA.length, sizeB);
+    final int notAllowed = (int) Math.min(1L << 30, MAX_COST * n + 1L);
     final int[] cost = new int[verticesA.length * sizeB];
-    Arrays.fill(cost, MAX_COST * 2 + 1);
+    Arrays.fill(cost, notAllowed);
 
     // Write in the known costs to the matrix
     for (int i = 0; i < verticesA.length; i++) {
