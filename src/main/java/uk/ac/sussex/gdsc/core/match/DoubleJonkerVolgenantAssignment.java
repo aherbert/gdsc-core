@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.match;
 
 import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
@@ -55,6 +56,10 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 public class DoubleJonkerVolgenantAssignment {
   /** A suitably large number. */
   private static final double INF = Double.POSITIVE_INFINITY;
+  /** The default relative error. */
+  private static final double RELATIVE_ERROR = 1e-9;
+  /** The default absolute error. */
+  private static final double ABSOLUTE_ERROR = 1e-16;
 
   /** The cost matrix. */
   private final double[][] cost;
@@ -68,6 +73,11 @@ public class DoubleJonkerVolgenantAssignment {
    */
   private final boolean transposed;
 
+  /** The maximum relative error for cost equality. */
+  private final double maxRelativeError;
+  /** The maximum absolute error for cost equality. */
+  private final double maxAbsoluteError;
+
   /**
    * Create a new instance. The cost matrix is assumed to be square. Non-square matrices should be
    * padded with zeros. Assignments of additional pad columns or rows should be ignored from the
@@ -75,10 +85,15 @@ public class DoubleJonkerVolgenantAssignment {
    *
    * @param cost the cost of an assignment between row and column
    * @param transposed true if the matrix is transposed
+   * @param maxRelativeError the maximum relative error for cost equality
+   * @param maxAbsoluteError the maximum absolute error for cost equality
    */
-  private DoubleJonkerVolgenantAssignment(double[][] cost, boolean transposed) {
+  private DoubleJonkerVolgenantAssignment(double[][] cost, boolean transposed,
+      double maxRelativeError, double maxAbsoluteError) {
     this.cost = cost;
     this.transposed = transposed;
+    this.maxRelativeError = maxRelativeError;
+    this.maxAbsoluteError = maxAbsoluteError;
   }
 
   /**
@@ -94,6 +109,24 @@ public class DoubleJonkerVolgenantAssignment {
    * @throws IllegalArgumentException if the array is null, empty or not rectangular
    */
   public static int[] compute(double[][] cost) {
+    return compute(cost, RELATIVE_ERROR, ABSOLUTE_ERROR);
+  }
+
+  /**
+   * Compute the assignments of rows to columns.
+   * 
+   * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
+   * {@code k = min(n, m)} so that the sum of these elements is minimum.
+   * 
+   * <p>A value of -1 is used for no assignment.
+   *
+   * @param cost the cost of an assignment between row and column (as {@code cost(i,j) = [i][j]}).
+   * @param maxRelativeError the maximum relative error for cost equality
+   * @param maxAbsoluteError the maximum absolute error for cost equality
+   * @return the assignments
+   * @throws IllegalArgumentException if the array is null, empty or not rectangular
+   */
+  public static int[] compute(double[][] cost, double maxRelativeError, double maxAbsoluteError) {
     // Check the data
     final int rows = ArrayUtils.getLength(cost);
     ValidationUtils.checkStrictlyPositive(rows, "No rows");
@@ -124,7 +157,8 @@ public class DoubleJonkerVolgenantAssignment {
       c = cost;
     }
     return JonkerVolgenantAssignment.truncate(rows, cols,
-        new DoubleJonkerVolgenantAssignment(c, transposed).compute());
+        new DoubleJonkerVolgenantAssignment(c, transposed, maxRelativeError, maxAbsoluteError)
+            .compute());
   }
 
   /**
@@ -143,6 +177,28 @@ public class DoubleJonkerVolgenantAssignment {
    * @throws IllegalArgumentException if the array is null, empty or not equal to rows * columns
    */
   public static int[] compute(double[] cost, int rows, int cols) {
+    return compute(cost, rows, cols, RELATIVE_ERROR, ABSOLUTE_ERROR);
+  }
+
+  /**
+   * Compute the assignments of rows to columns.
+   *
+   * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
+   * {@code k = min(n, m)} so that the sum of these elements is minimum.
+   *
+   * <p>A value of -1 is used for no assignment.
+   *
+   * @param cost the cost of an assignment between row and column (as
+   *        {@code cost(i,j) = [i * cols + j]}).
+   * @param rows the rows
+   * @param cols the columns
+   * @param maxRelativeError the maximum relative error for cost equality
+   * @param maxAbsoluteError the maximum absolute error for cost equality
+   * @return the assignments
+   * @throws IllegalArgumentException if the array is null, empty or not equal to rows * columns
+   */
+  public static int[] compute(double[] cost, int rows, int cols, double maxRelativeError,
+      double maxAbsoluteError) {
     SimpleArrayUtils.hasData2D(rows, cols, cost);
     // Convert to square matrix form using zero padding
     final int n = Math.max(rows, cols);
@@ -169,7 +225,8 @@ public class DoubleJonkerVolgenantAssignment {
       }
     }
     return JonkerVolgenantAssignment.truncate(rows, cols,
-        new DoubleJonkerVolgenantAssignment(c, transposed).compute());
+        new DoubleJonkerVolgenantAssignment(c, transposed, maxRelativeError, maxAbsoluteError)
+            .compute());
   }
 
   /**
@@ -186,8 +243,7 @@ public class DoubleJonkerVolgenantAssignment {
     // The original code uses column first naming convention: c[col][row] OR c[i][j]
     // The assignment required is created in 'x'.
 
-    // XXX:
-    // Potential addition to use a floating-point equality check
+    // A modification has been made to use a floating-point equality check
     // for comparison of minimum and sub-minimum (u1 and u2). If the two
     // are approximately equal then the algorithm can stop augmenting reduction.
 
@@ -291,14 +347,19 @@ public class DoubleJonkerVolgenantAssignment {
           }
         }
         int i1 = y[j1] - 1;
-        if (u1 < u2) {
+        // if (u1 < u2)
+        // u1 = minimum cost; u2 = second minimum cost.
+        // Allow some margin for floating-point relative error.
+        final boolean better = !DoubleEquality.almostEqualRelativeOrAbsolute(u1, u2,
+            maxRelativeError, maxAbsoluteError);
+        if (better) {
           v[j1] = v[j1] - u2 + u1;
         } else if (i1 >= 0) {
           j1 = j2;
           i1 = y[j1] - 1;
         }
         if (i1 >= 0) {
-          if (u1 < u2) {
+          if (better) {
             free[--k] = i1;
           } else {
             free[f++] = i1;
