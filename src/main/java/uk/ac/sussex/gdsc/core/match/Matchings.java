@@ -625,7 +625,6 @@ public final class Matchings {
    * @param pairV the matching vertices B for each mapped vertex A
    * @param pairD the distance to vertices B for each mapped vertex A
    * @param sizeB the size of the vertices B
-   * @param mapB the map of those B with a valid cost
    * @param originalToReduced the mapping from original B index to the reduced index
    * @return the cost matrix
    */
