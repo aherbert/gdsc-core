@@ -55,7 +55,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  */
 public class DoubleJonkerVolgenantAssignment {
   /** A suitably large number. */
-  private static final double INF = Double.POSITIVE_INFINITY;
+  private static final double INF = Double.MAX_VALUE;
   /** The default relative error. */
   private static final double RELATIVE_ERROR = 1e-9;
   /** The default absolute error. */
