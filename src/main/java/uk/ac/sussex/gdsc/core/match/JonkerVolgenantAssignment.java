@@ -40,7 +40,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * <p>Complexity is {@code O(n^3)} for a square matrix of size {@code n}.
  *
  * @see <a href="https://en.wikipedia.org/wiki/Assignment_problem">Assignment problem</a>
- * @see <a href="https://dl.acm.org/citation.cfm?id=362945">Jonker and Volgenant (1987) A Shortest
+ * @see <a href="https://doi.org/10.1007/BF02278710">Jonker and Volgenant (1987) A Shortest
  *      Augmenting Path Algorithm for Dense and Sparse Linear Assignment Problems. Computing 38,
  *      325-340.</a>
  *
