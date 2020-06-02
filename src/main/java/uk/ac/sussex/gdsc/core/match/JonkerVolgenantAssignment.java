@@ -43,6 +43,9 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * @see <a href="https://doi.org/10.1007/BF02278710">Jonker and Volgenant (1987) A Shortest
  *      Augmenting Path Algorithm for Dense and Sparse Linear Assignment Problems. Computing 38,
  *      325-340.</a>
+ * @see <a href="https://doi.org/10.1016/0305-0548(96)00010-X">Volgenant (1996) Linear and
+ *      semi-assignment problems: A core oriented approach. Computers & Operations Research 23,
+ *      917-932.</a>
  *
  * @since 2.0
  */
@@ -63,9 +66,10 @@ public class JonkerVolgenantAssignment {
   private final boolean transposed;
 
   /**
-   * Create a new instance. The cost matrix is assumed to be square. Non-square matrices should be
-   * padded with zeros. Assignments of additional pad columns or rows should be ignored from the
-   * computed result.
+   * Create a new instance. The cost matrix is assumed to be rectangular with
+   * {@code rows <= columns}. If the matrix is transposed then the assignment result from
+   * {@link #compute()} will be returned for rows assigned to each column; otherwise it is columns
+   * assigned to each row.
    *
    * @param cost the cost of an assignment between row and column
    * @param transposed true if the matrix is transposed
@@ -97,23 +101,18 @@ public class JonkerVolgenantAssignment {
       ValidationUtils.checkArgument(ArrayUtils.getLength(cost[i]) == cols,
           "Irregular size on row[%d]", i);
     }
-    // Create square matrix using zero padding
+    // Create matrix where rows <= columns
     final int n = Math.max(rows, cols);
     int[][] c;
-    boolean transposed = false;
-    if (cols < n) {
-      transposed = true;
-      c = new int[n][];
+    final boolean transposed = cols < n;
+    if (transposed) {
+      c = new int[cols][];
       for (int i = 0; i < cols; i++) {
         c[i] = new int[n];
         for (int j = 0; j < n; j++) {
           c[i][j] = cost[j][i];
         }
       }
-      pad(n, cols, c);
-    } else if (rows < n) {
-      c = Arrays.copyOf(cost, n);
-      pad(n, rows, c);
     } else {
       c = cost;
     }
@@ -138,28 +137,24 @@ public class JonkerVolgenantAssignment {
    */
   public static int[] compute(int[] cost, int rows, int cols) {
     SimpleArrayUtils.hasData2D(rows, cols, cost);
-    // Convert to square matrix form using zero padding
+    // Create matrix where rows <= columns
     final int n = Math.max(rows, cols);
-    final int[][] c = new int[n][];
-    boolean transposed;
-    if (cols < n) {
-      transposed = true;
+    int[][] c;
+    final boolean transposed = cols < n;
+    if (transposed) {
+      c = new int[cols][];
       for (int i = 0; i < cols; i++) {
         c[i] = new int[n];
         for (int j = 0; j < n; j++) {
           c[i][j] = cost[j * cols + i];
         }
       }
-      pad(n, cols, c);
     } else {
-      transposed = false;
+      c = new int[rows][];
       for (int i = 0; i < rows; i++) {
         final int[] tmp = new int[n];
         System.arraycopy(cost, i * cols, tmp, 0, cols);
         c[i] = tmp;
-      }
-      if (rows != n) {
-        pad(n, rows, c);
       }
     }
     return JonkerVolgenantAssignment.truncate(rows, cols,
@@ -171,24 +166,29 @@ public class JonkerVolgenantAssignment {
    *
    * <p>A value of -1 is used for no assignment.
    *
+   * <p>If the matrix was transposed then the assignment result will be returned for rows assigned
+   * to each column; otherwise it is columns assigned to each row.
+   *
    * @return the assignments
-   * @throws ArithmeticException if there is an overflow in the cost matrix to infinity
    */
   private int[] compute() {
     // Note:
-    // This is a direct port from the Pascal code listed in Jonker & Volgenant (1987).
-    // The original code uses column first naming convention: c[col][row] OR c[i][j]
+    // This is a port from the Pascal code listed in Jonker & Volgenant (1987).
+    // The code uses row first naming convention: cost[row][col] OR cost[i][j]
     // The assignment required is created in 'x'.
+    // It has been modified for the rectangular matrix where rows < columns.
+    // See Volgenant (1996).
 
-    // Assumes a square matrix
-    final int n = cost.length;
+    // Assumes a matrix rows <= columns
+    final int rows = cost.length;
+    final int n = cost[0].length;
 
-    // x: columns assigned to rows
-    // y: rows assigned to columns
+    // x: columns (j) assigned to rows (i)
+    // y: rows (i) assigned to columns (j)
     // The original Fortran code uses 1-based indexing. So we replicate the
     // algorithm by storing indices plus 1. A value of zero is unassigned.
     // Thus the maximum supported matrix size is Integer.MAX_VALUE - 1.
-    final int[] x = new int[n];
+    final int[] x = new int[rows];
     final int[] y = new int[n];
 
     // array of columns:
@@ -197,60 +197,77 @@ public class JonkerVolgenantAssignment {
     // unlabelled (k=up-1 ... n-1),
     final int[] col = new int[n];
 
-    // COLUMN REDUCTION
-    final int[] v = new int[n];
-    for (int j = n - 1; j >= 0; j--) {
-      col[j] = j;
-      int h = cost[0][j];
-      int i1 = 0;
-      for (int i = 1; i < n; i++) {
-        if (cost[i][j] < h) {
-          h = cost[i][j];
-          i1 = i;
-        }
-      }
-      v[j] = h;
-      if (x[i1] == 0) {
-        x[i1] = j + 1;
-        y[j] = i1 + 1;
-      } else {
-        // x[i1] = -abs(x[i1])
-        if (x[i1] > 0) {
-          x[i1] = -x[i1];
-        }
-        // y is initialised to zero
-        // y[j] = 0;
-      }
-    }
-
-    // REDUCTION TRANSFER
     int f = 0;
-    final int[] free = new int[n];
-    for (int i = 0; i < n; i++) {
-      if (x[i] == 0) {
-        // unassigned row in free-array
-        free[f++] = i;
-      } else if (x[i] < 0) {
-        // no reduction transfer possible
-        x[i] = -x[i];
-      } else {
-        // reduction transfer from assigned row
-        final int j1 = x[i] - 1;
-        int min = INF;
-        for (int j = 0; j < n; j++) {
-          if (j != j1) {
-            if (cost[i][j] - v[j] < min) {
-              min = cost[i][j] - v[j];
-            }
+    final int[] free = new int[rows];
+    final int[] v = new int[n];
+    if (rows < n) {
+      // Modification for rows < columns: see Volgenant (1996).
+      // No column reduction. The pad rows will have zero cost and the minimum
+      // will always be zero. No reduction transfer as all rows are unassigned.
+      // Initialise the columns
+      for (int j = n - 1; j != 0; j--) {
+        col[j] = j;
+      }
+      // All rows unassigned
+      for (int i = rows - 1; i != 0; i--) {
+        free[i] = i;
+      }
+      f = rows;
+    } else {
+      // Square matrix
+
+      // COLUMN REDUCTION
+      for (int j = n - 1; j >= 0; j--) {
+        col[j] = j;
+        int h = cost[0][j];
+        int i1 = 0;
+        for (int i = 1; i < n; i++) {
+          if (cost[i][j] < h) {
+            h = cost[i][j];
+            i1 = i;
           }
         }
-        v[j1] -= min;
+        v[j] = h;
+        if (x[i1] == 0) {
+          x[i1] = j + 1;
+          y[j] = i1 + 1;
+        } else {
+          // x[i1] = -abs(x[i1])
+          if (x[i1] > 0) {
+            x[i1] = -x[i1];
+          }
+          // y is initialised to zero
+          // y[j] = 0;
+        }
       }
-    }
 
-    if (f == 0) {
-      // No unassigned rows
-      return finaliseAssignments(n, x, y);
+      // REDUCTION TRANSFER
+      for (int i = 0; i < n; i++) {
+        if (x[i] == 0) {
+          // unassigned row in free-array
+          free[f++] = i;
+        } else if (x[i] < 0) {
+          // no reduction transfer possible
+          x[i] = -x[i];
+        } else {
+          // reduction transfer from assigned row
+          final int j1 = x[i] - 1;
+          int min = INF;
+          for (int j = 0; j < n; j++) {
+            if (j != j1) {
+              if (cost[i][j] - v[j] < min) {
+                min = cost[i][j] - v[j];
+              }
+            }
+          }
+          v[j1] -= min;
+        }
+      }
+
+      if (f == 0) {
+        // No unassigned rows
+        return finaliseAssignments(x, y);
+      }
     }
 
     // AUGMENTING ROW REDUCTION
@@ -387,22 +404,7 @@ public class JonkerVolgenantAssignment {
       } while (i1 != i);
     }
 
-    return finaliseAssignments(n, x, y);
-  }
-
-  /**
-   * Pad the matrix from the specified row.
-   *
-   * @param n the n
-   * @param row the row
-   * @param cost the cost matrix
-   */
-  private static void pad(int n, int row, int[][] cost) {
-    // Remaining rows can be all the same empty array as the matrix is not modified
-    final int[] tmp = new int[n];
-    for (int i = row; i < n; i++) {
-      cost[i] = tmp;
-    }
+    return finaliseAssignments(x, y);
   }
 
   /**
@@ -413,24 +415,25 @@ public class JonkerVolgenantAssignment {
    * @param y the rows assigned to columns
    * @return the assignments
    */
-  private int[] finaliseAssignments(final int n, final int[] x, final int[] y) {
-    return finaliseAssignments(n, transposed ? y : x);
+  private int[] finaliseAssignments(final int[] x, final int[] y) {
+    return finaliseAssignments(transposed ? y : x);
   }
 
   /**
    * Finalise the assignments. The indices in the assignments are offset by 1.
    *
-   * @param n the number of rows
    * @param x the columns assigned to rows
    * @return the assignments
    */
-  private static int[] finaliseAssignments(final int n, final int[] x) {
+  private static int[] finaliseAssignments(final int[] x) {
     // The assignment of i -> j is in x offset by 1
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < x.length; i++) {
       x[i]--;
     }
     return x;
   }
+
+  // TODO - this is redundant ?
 
   /**
    * Truncate the assignment array to the specified number of rows. Set references to pad columns to

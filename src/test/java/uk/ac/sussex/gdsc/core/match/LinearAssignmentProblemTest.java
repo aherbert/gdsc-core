@@ -544,9 +544,21 @@ public class LinearAssignmentProblemTest {
 
   @Test
   public void testIntAssignmentNxN() {
+    testIntAssignment(100, 100);
+  }
+
+  @Test
+  public void testIntAssignmentNxM() {
+    testIntAssignment(20, 100);
+  }
+
+  @Test
+  public void testIntAssignmentMxN() {
+    testIntAssignment(100, 20);
+  }
+
+  private static void testIntAssignment(int agents, int tasks) {
     final int limit = 1000;
-    final int agents = 100;
-    final int tasks = agents;
     final UniformRandomProvider rng = RngUtils.create(67681623912L);
     final int[][] cost = new int[agents][tasks];
     for (int i = 0; i < agents; i++) {
@@ -561,9 +573,21 @@ public class LinearAssignmentProblemTest {
 
   @Test
   public void testDoubleAssignmentNxN() {
+    testDoubleAssignment(100, 100);
+  }
+
+  @Test
+  public void testDoubleAssignmentNxM() {
+    testDoubleAssignment(20, 100);
+  }
+
+  @Test
+  public void testDoubleAssignmentMxN() {
+    testDoubleAssignment(100, 20);
+  }
+
+  private static void testDoubleAssignment(int agents, int tasks) {
     final int limit = 1000;
-    final int agents = 100;
-    final int tasks = agents;
     final UniformRandomProvider rng = RngUtils.create(67681623912L);
     final double[][] cost = new double[agents][tasks];
     for (int i = 0; i < agents; i++) {
