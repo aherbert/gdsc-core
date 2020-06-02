@@ -43,7 +43,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * @see <a href="https://dl.acm.org/citation.cfm?id=362945">Jonker and Volgenant (1987) A Shortest
  *      Augmenting Path Algorithm for Dense and Sparse Linear Assignment Problems. Computing 38,
  *      325-340.</a>
- * @see JonkerVolgenantAssignment
  *
  * @since 2.0
  */
