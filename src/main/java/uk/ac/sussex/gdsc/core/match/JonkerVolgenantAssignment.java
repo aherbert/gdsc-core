@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
