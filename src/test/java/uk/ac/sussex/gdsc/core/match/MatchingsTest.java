@@ -350,11 +350,19 @@ public class MatchingsTest {
 
   @Test
   public void testMinimumDistanceWithPerfectAssignments() {
-    final double[][] connections = new double[2][2];
-
-    // LAPVJ will assign highest columns first, thus the expected is not {{0, 0}, {1, 1}}
-    final int[][] expected = new int[][] {{0, 1}, {1, 0}};
-    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections, 1, expected);
+    // This should be detected as arbitrary and assign the diagonal
+    final double[][] connections2x2 = new double[2][2];
+    final int[][] expected2x2 = new int[][] {{0, 0}, {1, 1}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections2x2, 1,
+        expected2x2);
+    final double[][] connections3x2 = new double[3][2];
+    final int[][] expected3x2 = new int[][] {{0, 0}, {1, 1}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections3x2, 1,
+        expected3x2);
+    final double[][] connections2x3 = new double[2][3];
+    final int[][] expected2x3 = new int[][] {{0, 0}, {1, 1}};
+    assertMatchingFunction(MinimumDistanceMatchingFunction.instance(), connections2x3, 1,
+        expected2x3);
   }
 
   @Test

@@ -531,8 +531,8 @@ public final class Matchings {
       for (int i = 0; i < setB.length; i++) {
         originalToReduced[mapB.getQuick(setB[i])] = i;
       }
-      final int[][] cost = createCostMatrix(setA, pairV, pairD, setB.length, originalToReduced);
-      final int[] mappedAssignments = computeAssignments(cost);
+      final int[] mappedAssignments =
+          computeMappedAssignments(setA, pairV, pairD, setB.length, originalToReduced);
       for (int i = 0; i < mappedAssignments.length; i++) {
         if (mappedAssignments[i] != -1) {
           assignments[setA[i]] = setB[mappedAssignments[i]];
@@ -617,18 +617,22 @@ public final class Matchings {
 
 
   /**
-   * Create the cost matrix data for the specified mapped vertices in A to the set of
-   * vertices B of the specified size. A mapping from the original index to the reduced index in the
-   * range [0, sizeB) is required.
+   * Compute the mapped assignments.
+   *
+   * <p>Create the cost matrix data for the specified mapped vertices in A to the set of vertices B
+   * of the specified size. A mapping from the original index to the reduced index in the range [0,
+   * sizeB) is required.
+   *
+   * <p>Computes the assignments from the cost matrix for the reduced index.
    *
    * @param verticesA the mapped vertices A
    * @param pairV the matching vertices B for each mapped vertex A
    * @param pairD the distance to vertices B for each mapped vertex A
    * @param sizeB the size of the vertices B
    * @param originalToReduced the mapping from original B index to the reduced index
-   * @return the cost matrix
+   * @return the assignments
    */
-  private static int[][] createCostMatrix(int[] verticesA, ArrayList<int[]> pairV,
+  private static int[] computeMappedAssignments(int[] verticesA, ArrayList<int[]> pairV,
       ArrayList<double[]> pairD, int sizeB, int[] originalToReduced) {
     // Create a cost matrix.
     // The matrix is re-mapped to integers to avoid float-point cumulative errors in
@@ -641,9 +645,22 @@ public final class Matchings {
     }
 
     final double min = limits[0];
-    // Note: It does not matter if the range is 0.
     // The Math.round() function will return 0 for a NaN input when converting to integer.
     final double range = limits[1] - min;
+    // Note: If the range is 0 then the assignments are arbitrary
+    if (range == 0) {
+      final int[] result = new int[verticesA.length];
+      // Assign the columns to the rows using the diagonal
+      final int n = Math.min(result.length, sizeB);
+      for (int i = 0; i < n; i++) {
+        result[i] = i;
+      }
+      for (int i = n; i < result.length; i++) {
+        result[i] = NO_ASSIGNMENT;
+      }
+      return result;
+    }
+
     ValidationUtils.checkArgument(Double.isFinite(range),
         "Max (%f) - min (%f) distance is not finite", limits[1], min);
 
@@ -666,21 +683,10 @@ public final class Matchings {
       final double[] tmpD = pairD.get(a);
       for (int j = 0; j < tmpV.length; j++) {
         // Convert to integer
-        c[originalToReduced[tmpV[j]]] =
-            (int) Math.round(MAX_COST * ((tmpD[j] - min) / range));
+        c[originalToReduced[tmpV[j]]] = (int) Math.round(MAX_COST * ((tmpD[j] - min) / range));
       }
     }
 
-    return cost;
-  }
-
-  /**
-   * Compute the assignments.
-   *
-   * @param cost the cost matrix
-   * @return the assignments
-   */
-  private static int[] computeAssignments(final int[][] cost) {
     // LAPJV is "always" faster than Kuhn-Munkres and handles non-square matrices
     return JonkerVolgenantAssignment.compute(cost);
   }
