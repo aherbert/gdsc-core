@@ -151,9 +151,8 @@ public class DoubleJonkerVolgenantAssignment {
     } else {
       c = cost;
     }
-    return JonkerVolgenantAssignment.truncate(rows, cols,
-        new DoubleJonkerVolgenantAssignment(c, transposed, maxRelativeError, maxAbsoluteError)
-            .compute());
+    return new DoubleJonkerVolgenantAssignment(c, transposed, maxRelativeError, maxAbsoluteError)
+        .compute();
   }
 
   /**
@@ -215,9 +214,8 @@ public class DoubleJonkerVolgenantAssignment {
         c[i] = tmp;
       }
     }
-    return JonkerVolgenantAssignment.truncate(rows, cols,
-        new DoubleJonkerVolgenantAssignment(c, transposed, maxRelativeError, maxAbsoluteError)
-            .compute());
+    return new DoubleJonkerVolgenantAssignment(c, transposed, maxRelativeError, maxAbsoluteError)
+        .compute();
   }
 
   /**

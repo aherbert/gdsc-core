@@ -116,8 +116,7 @@ public class JonkerVolgenantAssignment {
     } else {
       c = cost;
     }
-    return JonkerVolgenantAssignment.truncate(rows, cols,
-        new JonkerVolgenantAssignment(c, transposed).compute());
+    return new JonkerVolgenantAssignment(c, transposed).compute();
   }
 
   /**
@@ -157,8 +156,7 @@ public class JonkerVolgenantAssignment {
         c[i] = tmp;
       }
     }
-    return JonkerVolgenantAssignment.truncate(rows, cols,
-        new JonkerVolgenantAssignment(c, transposed).compute());
+    return new JonkerVolgenantAssignment(c, transposed).compute();
   }
 
   /**
@@ -431,32 +429,5 @@ public class JonkerVolgenantAssignment {
       x[i]--;
     }
     return x;
-  }
-
-  // TODO - this is redundant ?
-
-  /**
-   * Truncate the assignment array to the specified number of rows. Set references to pad columns to
-   * -1.
-   *
-   * @param rows the rows
-   * @param cols the columns
-   * @param array the array
-   * @return the truncated array
-   */
-  static int[] truncate(int rows, int cols, int[] array) {
-    if (rows < array.length) {
-      // Remove extra rows
-      return Arrays.copyOf(array, rows);
-    } else if (cols < array.length) {
-      // Remove extra columns
-      for (int i = 0; i < rows; i++) {
-        if (array[i] >= cols) {
-          // Invalid pad column
-          array[i] = -1;
-        }
-      }
-    }
-    return array;
   }
 }
