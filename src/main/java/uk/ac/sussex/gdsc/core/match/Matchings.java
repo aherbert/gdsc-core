@@ -531,8 +531,8 @@ public final class Matchings {
       for (int i = 0; i < setB.length; i++) {
         originalToReduced[mapB.getQuick(setB[i])] = i;
       }
-      final int[] cost = createCostMatrix(setA, pairV, pairD, setB.length, originalToReduced);
-      final int[] mappedAssignments = computeAssignments(cost, setA.length, setB.length);
+      final int[][] cost = createCostMatrix(setA, pairV, pairD, setB.length, originalToReduced);
+      final int[] mappedAssignments = computeAssignments(cost);
       for (int i = 0; i < mappedAssignments.length; i++) {
         if (mappedAssignments[i] != -1) {
           assignments[setA[i]] = setB[mappedAssignments[i]];
@@ -617,7 +617,7 @@ public final class Matchings {
 
 
   /**
-   * Create the packed cost matrix data for the specified mapped vertices in A to the set of
+   * Create the cost matrix data for the specified mapped vertices in A to the set of
    * vertices B of the specified size. A mapping from the original index to the reduced index in the
    * range [0, sizeB) is required.
    *
@@ -628,7 +628,7 @@ public final class Matchings {
    * @param originalToReduced the mapping from original B index to the reduced index
    * @return the cost matrix
    */
-  private static int[] createCostMatrix(int[] verticesA, ArrayList<int[]> pairV,
+  private static int[][] createCostMatrix(int[] verticesA, ArrayList<int[]> pairV,
       ArrayList<double[]> pairD, int sizeB, int[] originalToReduced) {
     // Create a cost matrix.
     // The matrix is re-mapped to integers to avoid float-point cumulative errors in
@@ -655,20 +655,18 @@ public final class Matchings {
     // Prevent overflow when approaching the largest supported square matrix.
     final int n = Math.min(verticesA.length, sizeB);
     final int notAllowed = (int) Math.min(1L << 30, MAX_COST * n + 1L);
-    final int[] cost = new int[verticesA.length * sizeB];
-    Arrays.fill(cost, notAllowed);
+    final int[][] cost = new int[verticesA.length][sizeB];
 
     // Write in the known costs to the matrix
     for (int i = 0; i < verticesA.length; i++) {
-      // Data is packed as i * cols + j.
-      // Compute the start offset for this row.
-      final int rowOffset = i * sizeB;
+      final int[] c = cost[i];
+      Arrays.fill(c, notAllowed);
       final int a = verticesA[i];
       final int[] tmpV = pairV.get(a);
       final double[] tmpD = pairD.get(a);
       for (int j = 0; j < tmpV.length; j++) {
         // Convert to integer
-        cost[rowOffset + originalToReduced[tmpV[j]]] =
+        c[originalToReduced[tmpV[j]]] =
             (int) Math.round(MAX_COST * ((tmpD[j] - min) / range));
       }
     }
@@ -680,12 +678,10 @@ public final class Matchings {
    * Compute the assignments.
    *
    * @param cost the cost matrix
-   * @param rows the rows
-   * @param columns the columns
    * @return the assignments
    */
-  private static int[] computeAssignments(final int[] cost, int rows, int columns) {
+  private static int[] computeAssignments(final int[][] cost) {
     // LAPJV is "always" faster than Kuhn-Munkres and handles non-square matrices
-    return JonkerVolgenantAssignment.compute(cost, rows, columns);
+    return JonkerVolgenantAssignment.compute(cost);
   }
 }
