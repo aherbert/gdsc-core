@@ -229,6 +229,21 @@ public class LinearAssignmentProblemTest {
     assertAssignment(algorithm, cost, expected);
   }
 
+  @ParameterizedTest(name = "{index}: {0}")
+  @ArgumentsSource(AlgorithmFactoryParams.class)
+  public void testAssignment3x3c(AssignmentAlgorithm algorithm) {
+    //@formatter:off
+    final int[][] cost = {
+        { 1, 10, 10 },
+        { 10, 10, 0 },
+        { 10, 2, 10 },
+    };
+    //@formatter:on
+    // 1 + 0 + 2 == 3
+    final int[] expected = {0, 2, 1};
+    assertAssignment(algorithm, cost, expected);
+  }
+
   // Permutations from
   // https://www.mathsisfun.com/combinatorics/combinations-permutations-calculator.html
 
