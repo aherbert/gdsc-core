@@ -685,9 +685,7 @@ public final class Matchings {
    * @return the assignments
    */
   private static int[] computeAssignments(final int[] cost, int rows, int columns) {
-    // Switch to LAPJV when approaching a square matrix
-    return (Math.min(rows, columns) >= Math.max(rows, columns) / 4)
-        ? JonkerVolgenantAssignment.compute(cost, rows, columns)
-        : KuhnMunkresAssignment.compute(cost, rows, columns);
+    // LAPJV is "always" faster than Kuhn-Munkres and handles non-square matrices
+    return JonkerVolgenantAssignment.compute(cost, rows, columns);
   }
 }
