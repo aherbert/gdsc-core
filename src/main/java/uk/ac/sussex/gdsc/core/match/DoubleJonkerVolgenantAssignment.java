@@ -161,7 +161,8 @@ public class DoubleJonkerVolgenantAssignment {
    * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
    * {@code k = min(n, m)} so that the sum of these elements is minimum.
    *
-   * <p>A value of -1 is used for no assignment.
+   * <p>The returned array will have length equal to {@code rows}. A value of -1 is used for no
+   * assignment when there are more rows than columns.
    *
    * @param cost the cost of an assignment between row and column (as
    *        {@code cost(i,j) = [i * cols + j]}).
@@ -180,7 +181,8 @@ public class DoubleJonkerVolgenantAssignment {
    * <p>Given the {@code n x m} matrix, find a set of {@code k} independent elements
    * {@code k = min(n, m)} so that the sum of these elements is minimum.
    *
-   * <p>A value of -1 is used for no assignment.
+   * <p>The returned array will have length equal to {@code rows}. A value of -1 is used for no
+   * assignment when there are more rows than columns.
    *
    * @param cost the cost of an assignment between row and column (as
    *        {@code cost(i,j) = [i * cols + j]}).
