@@ -668,34 +668,22 @@ public final class MathUtils {
   }
 
   /**
-   * Get the bias-corrected Akaike Information Criterion (AICc).
-   *
-   * @param sumOfSquaredResiduals the sum of squared residuals from the nonlinear least-squares fit
-   * @param numberOfPoints The number of data points
-   * @param numberOfParameters The number of fitted parameters
-   * @return The corrected Akaike Information Criterion
-   * @see <a
-   *      href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">https://
-   *      en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a>
-   */
-  public static double getAkaikeInformationCriterionFromResiduals(double sumOfSquaredResiduals,
-      int numberOfPoints, int numberOfParameters) {
-    return getAkaikeInformationCriterion(getLogLikelihood(sumOfSquaredResiduals, numberOfPoints),
-        numberOfPoints, numberOfParameters);
-  }
-
-  /**
    * Gets the log likelihood for a least squares estimate. This assumes that the residuals are
-   * distributed according to independent identical normal distributions (with zero mean). This is
-   * approximately the case for weighted-least squares fitting of Poisson distributed data (with the
-   * weight equal to the Poisson mean of each measurement).
+   * distributed according to independent identical normal distributions (with zero mean).
    *
-   * @param sumOfSquaredResiduals the sum of squared residuals from the nonlinear least-squares fit
+   * <pre>
+   * ln(L) = - n ln(2pi) / 2 - n ln(rss/n) / 2 - n / 2
+   * </pre>
+   *
+   * <p>For example this assumption is approximately the case for weighted least squares fitting of
+   * data.
+   *
+   * @param sumOfSquaredResiduals the sum of squared residuals from the weighted least squares fit
    * @param numberOfPoints The number of data points
    * @return the log likelihood
    * @see <a
-   *      href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">https://
-   *      en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a>
+   *      href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">Wikipedia:
+   *      AIC comparison with least squares</a>
    */
   public static double getLogLikelihood(double sumOfSquaredResiduals, int numberOfPoints) {
     // logLikelihood = 0.5 * (-numberOfPoints * log(2 * PI) - numberOfPoints *
@@ -708,15 +696,40 @@ public final class MathUtils {
   }
 
   /**
-   * Get the bias-corrected Akaike Information Criterion (AICc).
+   * Get the Akaike Information Criterion (AICc).
    *
-   * @param logLikelihood the log-likelihood of the fit (from Maximum likelihood estimation)
-   * @param numberOfPoints The number of data points
-   * @param numberOfParameters The number of fitted parameters
+   * <pre>
+   * AIC = 2k - 2 ln(L)
+   * </pre>
+   *
+   * @param logLikelihood the log-likelihood of the fit (from Maximum likelihood estimation; ln(L))
+   * @param numberOfParameters The number of fitted parameters (k)
+   * @return The Akaike Information Criterion
+   * @see <a href="http://en.wikipedia.org/wiki/Akaike_information_criterion">Wikipedia: Akaike
+   *      information criterion</a>
+   */
+  public static double getAkaikeInformationCriterion(double logLikelihood, int numberOfParameters) {
+    // aic = 2.0 * numberOfParameters - 2.0 * logLikelihood
+    return 2.0 * (numberOfParameters - logLikelihood);
+  }
+
+  /**
+   * Get the corrected Akaike Information Criterion (AICc).
+   *
+   * <pre>
+   * AICc = 2k - 2 ln(L) + (2k^2 + 2k) / (n - k - 1)
+   * </pre>
+   *
+   * <p>The correction is assuming that the model is univariate, is linear in its parameters, and
+   * has normally-distributed residuals.
+   *
+   * @param logLikelihood the log-likelihood of the fit (from Maximum likelihood estimation; ln(L))
+   * @param numberOfPoints The number of data points (n)
+   * @param numberOfParameters The number of fitted parameters (k)
    * @return The corrected Akaike Information Criterion
    * @see <a
-   *      href="http://en.wikipedia.org/wiki/Akaike_information_criterion#AICc">http://en.wikipedia.org/wiki/
-   *      Akaike_information_criterion#AICc</a>
+   *      href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Modification_for_small_sample_size">
+   *      Wikipedia: Corrected Akaike information criterion (AICc)</a>
    */
   public static double getAkaikeInformationCriterion(double logLikelihood, int numberOfPoints,
       int numberOfParameters) {
@@ -745,34 +758,18 @@ public final class MathUtils {
   }
 
   /**
-   * Get the Bayesian Information Criterion (BIC), which gives a higher penalty on the number of
-   * parameters that the AICc.
+   * Get the Bayesian Information Criterion (BIC).
    *
-   * @param sumOfSquaredResiduals the sum of squared residuals from the nonlinear least-squares fit
-   * @param numberOfPoints The number of data points
-   * @param numberOfParameters The number of fitted parameters
-   * @return The Bayesian Information Criterion
-   * @see <a
-   *      href="http://en.wikipedia.org/wiki/Bayesian_information_criterion">http://en.wikipedia.org/wiki/
-   *      Bayesian_information_criterion</a>
-   */
-  public static double getBayesianInformationCriterionFromResiduals(double sumOfSquaredResiduals,
-      int numberOfPoints, int numberOfParameters) {
-    return getBayesianInformationCriterion(getLogLikelihood(sumOfSquaredResiduals, numberOfPoints),
-        numberOfPoints, numberOfParameters);
-  }
-
-  /**
-   * Get the Bayesian Information Criterion (BIC), which gives a higher penalty on the number of
-   * parameters that the AICc.
+   * <pre>
+   * BIC = k ln(n) - 2 ln(L)
+   * </pre>
    *
-   * @param logLikelihood the log-likelihood of the fit (from Maximum likelihood estimation)
-   * @param numberOfPoints The number of data points
-   * @param numberOfParameters The number of fitted parameters
+   * @param logLikelihood the log-likelihood of the fit (from Maximum likelihood estimation; ln(L))
+   * @param numberOfPoints The number of data points (n)
+   * @param numberOfParameters The number of fitted parameters (k)
    * @return The Bayesian Information Criterion
-   * @see <a
-   *      href="http://en.wikipedia.org/wiki/Bayesian_information_criterion">http://en.wikipedia.org/wiki/
-   *      Bayesian_information_criterion</a>
+   * @see <a href="http://en.wikipedia.org/wiki/Bayesian_information_criterion">Wikipedia: Bayesian
+   *      information criterion</a>
    */
   public static double getBayesianInformationCriterion(double logLikelihood, int numberOfPoints,
       int numberOfParameters) {
@@ -785,12 +782,19 @@ public final class MathUtils {
   /**
    * Gets the adjusted coefficient of determination.
    *
-   * @param residualSumSquares The sum of squared residuals from the model
+   * <pre>
+   * Adjusted r^2 = 1 - rss/tss * (n-1) / (n-k-1)
+   * </pre>
+   *
+   * @param residualSumSquares The sum of squared residuals from the model (rss)
    * @param totalSumSquares the sum of the squared differences from the mean of the dependent
-   *        variable (total sum of squares)
-   * @param numberOfPoints The number of data points
-   * @param numberOfParameters The number of fitted parameters
+   *        variable (total sum of squares; tss)
+   * @param numberOfPoints The number of data points (n)
+   * @param numberOfParameters The number of fitted parameters (k)
    * @return The adjusted coefficient of determination
+   * @see <a
+   *      href="https://en.wikipedia.org/wiki/Coefficient_of_determination#Adjusted_R2">Wikipedia:
+   *      Adjusted r^2</a>
    */
   public static double getAdjustedCoefficientOfDetermination(double residualSumSquares,
       double totalSumSquares, int numberOfPoints, int numberOfParameters) {
@@ -800,6 +804,10 @@ public final class MathUtils {
 
   /**
    * Gets the total sum of squares.
+   *
+   * <pre>
+   * tss = sum(x ^ 2) - sum(x) ^ 2 / n
+   * </pre>
    *
    * @param values the values
    * @return the total sum of squares

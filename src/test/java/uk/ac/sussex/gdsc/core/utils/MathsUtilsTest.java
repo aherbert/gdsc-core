@@ -106,4 +106,67 @@ public class MathsUtilsTest {
     Assertions.assertEquals(2, MathUtils.log2(4));
     Assertions.assertEquals(8, MathUtils.log2(256));
   }
+
+  @Test
+  public void canGetLogLikelihoodFromResidualSumOfSquares() {
+    for (int n : new int[] {34, 67}) {
+      for (double rss : new double[] {456.78, 98.123}) {
+        final double expected =
+            -n * Math.log(2 * Math.PI) / 2 - n * Math.log(rss / n) / 2 - n / 2.0;
+        Assertions.assertEquals(expected, MathUtils.getLogLikelihood(rss, n),
+            Math.abs(expected) * 1e-8);
+      }
+    }
+  }
+
+  @Test
+  public void canComputeAic() {
+    for (int k : new int[] {3, 6}) {
+      for (double ll : new double[] {-456.78, 98.123}) {
+        final double expected = 2 * k - 2 * ll;
+        Assertions.assertEquals(expected, MathUtils.getAkaikeInformationCriterion(ll, k));
+      }
+    }
+  }
+
+  @Test
+  public void canComputeAicc() {
+    for (int n : new int[] {13, 42}) {
+      for (int k : new int[] {3, 6}) {
+        for (double ll : new double[] {-456.78, 98.123}) {
+          double expected = 2 * k - 2 * ll;
+          // adjust
+          expected += (2.0 * k * k + 2 * k) / (n - k - 1);
+          Assertions.assertEquals(expected, MathUtils.getAkaikeInformationCriterion(ll, n, k));
+        }
+      }
+    }
+  }
+
+  @Test
+  public void canComputeBic() {
+    for (int n : new int[] {13, 42}) {
+      for (int k : new int[] {3, 6}) {
+        for (double ll : new double[] {-456.78, 98.123}) {
+          final double expected = k * Math.log(n) - 2 * ll;
+          Assertions.assertEquals(expected, MathUtils.getBayesianInformationCriterion(ll, n, k));
+        }
+      }
+    }
+  }
+
+  @Test
+  public void canComputeAdjustedR2() {
+    for (int n : new int[] {13, 42}) {
+      for (int k : new int[] {3, 6}) {
+        for (double rss : new double[] {-456.78, 98.123}) {
+          for (double tss : new double[] {-456.78, 98.123}) {
+            final double expected = 1 - (rss / tss) * ((double) (n - 1) / (n - k - 1));
+            Assertions.assertEquals(expected,
+                MathUtils.getAdjustedCoefficientOfDetermination(rss, tss, n, k));
+          }
+        }
+      }
+    }
+  }
 }
