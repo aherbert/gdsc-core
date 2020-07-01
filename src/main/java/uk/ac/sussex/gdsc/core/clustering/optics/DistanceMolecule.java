@@ -29,7 +29,7 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
+ * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules with an associated distance.
  */
 class DistanceMolecule extends Molecule {
   /**
