@@ -246,6 +246,15 @@ class Molecule {
   }
 
   /**
+   * Gets the z coordinate. This is zero for a 2D molecule.
+   *
+   * @return the z coordinate.
+   */
+  float getZ() {
+    return 0f;
+  }
+
+  /**
    * Gets the working data.
    *
    * <p>The working data usually represents the cluster that contains the molecule, or zero if not
