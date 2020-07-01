@@ -62,20 +62,19 @@ class GridMolecule extends DistanceMolecule {
   }
 
   /**
-   * Sets the next molecule (used to create a linked-list).
+   * Gets the x bin.
    *
-   * @param next the new next
+   * @return the x bin
    */
-  public void setNext(GridMolecule next) {
-    this.next = next;
-  }
-
-  @Override
   int getXBin() {
     return xbin;
   }
 
-  @Override
+  /**
+   * Gets the y bin.
+   *
+   * @return the y bin
+   */
   int getYBin() {
     return ybin;
   }

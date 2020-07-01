@@ -32,6 +32,9 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
 /**
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
+ *
+ * <p>Note: The class contains methods with no implementation for use by specialised sub-classes
+ * which process 2D grids. The
  */
 class Molecule {
   /** The id. */
@@ -230,33 +233,6 @@ class Molecule {
    * @return the next molecule
    */
   public Molecule getNext() {
-    throw new NotImplementedException();
-  }
-
-  /**
-   * Sets the next molecule.
-   *
-   * @param next the new next molecule
-   */
-  public void setNext(Molecule next) {
-    throw new NotImplementedException();
-  }
-
-  /**
-   * Gets the x bin.
-   *
-   * @return the x bin
-   */
-  int getXBin() {
-    throw new NotImplementedException();
-  }
-
-  /**
-   * Gets the y bin.
-   *
-   * @return the y bin
-   */
-  int getYBin() {
     throw new NotImplementedException();
   }
 

@@ -178,9 +178,9 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
 
   @Override
   void findNeighbours(int minPts, Molecule object, float generatingDistanceE) {
-
-    final int xbin = object.getXBin();
-    final int ybin = object.getYBin();
+    final GridMolecule gm = (GridMolecule) object;
+    final int xbin = gm.getXBin();
+    final int ybin = gm.getYBin();
 
     neighbours.clear();
 
@@ -414,8 +414,9 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     // We can avoid checks if the max square is inside the grid. If not then we can avoid
     // checks up to the first intersect ring.
 
-    final int xbin = object.getXBin();
-    final int ybin = object.getYBin();
+    final GridMolecule gm = (GridMolecule) object;
+    final int xbin = gm.getXBin();
+    final int ybin = gm.getYBin();
 
     neighbours.clear();
 

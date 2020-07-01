@@ -320,8 +320,9 @@ class GridMoleculeSpace extends MoleculeSpace {
     // Match findNeighboursAndDistances(minPts, object, generatingDistance)
     // but do not store the distances
 
-    final int xbin = object.getXBin();
-    final int ybin = object.getYBin();
+    final GridMolecule gm = (GridMolecule) object;
+    final int xbin = gm.getXBin();
+    final int ybin = gm.getYBin();
 
     neighbours.clear();
 
@@ -365,8 +366,9 @@ class GridMoleculeSpace extends MoleculeSpace {
 
   @Override
   void findNeighboursAndDistances(int minPts, Molecule object, float generatingDistance) {
-    final int xbin = object.getXBin();
-    final int ybin = object.getYBin();
+    final GridMolecule gm = (GridMolecule) object;
+    final int xbin = gm.getXBin();
+    final int ybin = gm.getYBin();
 
     neighbours.clear();
 
