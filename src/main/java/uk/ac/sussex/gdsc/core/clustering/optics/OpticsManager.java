@@ -52,7 +52,6 @@ import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 
-// TODO: Auto-generated Javadoc
 /**
  * Compute clustering using OPTICS.
  *
