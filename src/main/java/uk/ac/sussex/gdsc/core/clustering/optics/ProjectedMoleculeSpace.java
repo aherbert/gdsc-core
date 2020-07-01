@@ -739,7 +739,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       if (it == v) {
         continue;
       }
-      final double dist = midpoint.distance(setOfObjects[it]);
+      final double dist = Math.sqrt(midpoint.distanceSquared(setOfObjects[it]));
       sumDistances[v] += dist;
       sumDistances[it] += dist;
       countDistances[it]++;
@@ -771,7 +771,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       final int a = indices[0];
       final int b = indices[1];
 
-      final double dist = setOfObjects[a].distance(setOfObjects[b]);
+      final double dist = Math.sqrt(setOfObjects[a].distanceSquared(setOfObjects[b]));
 
       sumDistances[a] += dist;
       sumDistances[b] += dist;
@@ -792,7 +792,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         final int b = indices[k];
         k = j;
 
-        final double dist = setOfObjects[a].distance(setOfObjects[b]);
+        final double dist = Math.sqrt(setOfObjects[a].distanceSquared(setOfObjects[b]));
 
         sumDistances[a] += dist;
         sumDistances[b] += dist;
@@ -830,7 +830,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       for (int j = i + 1; j < n; j++) {
         final int b = indices[j];
 
-        final double dist = ma.distance(setOfObjects[b]);
+        final double dist = Math.sqrt(ma.distanceSquared(setOfObjects[b]));
 
         sum += dist;
         sumDistances[b] += dist;

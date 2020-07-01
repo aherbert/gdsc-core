@@ -51,7 +51,7 @@ class Molecule {
    * The Id of the point that set the current min reachability distance. A value of -1 has no
    * predecessor (and so was the first point chosen by the algorithm).
    */
-  int predecessor = -1;
+  int predecessor;
 
   /**
    * Working data used in algorithm support.
@@ -100,16 +100,6 @@ class Molecule {
     final float dx = x - other.x;
     final float dy = y - other.y;
     return dx * dx + dy * dy;
-  }
-
-  /**
-   * Get the distance to the other molecule.
-   *
-   * @param other the other
-   * @return the distance
-   */
-  double distance(Molecule other) {
-    return Math.sqrt(distanceSquared(other));
   }
 
   /**
