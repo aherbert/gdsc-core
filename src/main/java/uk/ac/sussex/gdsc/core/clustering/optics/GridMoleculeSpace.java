@@ -52,7 +52,7 @@ class GridMoleculeSpace extends MoleculeSpace {
   int ybins;
 
   /** The grid. */
-  Molecule[][] grid;
+  GridMolecule[][] grid;
 
   /** The fast forward indices (the index to the next position that contains data). */
   int[] fastForward;
@@ -145,7 +145,7 @@ class GridMoleculeSpace extends MoleculeSpace {
     }
 
     // Convert grid to arrays ..
-    grid = new Molecule[xbins * ybins][];
+    grid = new GridMolecule[xbins * ybins][];
     for (int ybin = 0, index = 0; ybin < ybins; ybin++) {
       for (int xbin = 0; xbin < xbins; xbin++, index++) {
         if (linkedListGrid[ybin][xbin] == null) {
@@ -155,7 +155,7 @@ class GridMoleculeSpace extends MoleculeSpace {
         for (GridMolecule m = linkedListGrid[ybin][xbin]; m != null; m = m.getNext()) {
           count++;
         }
-        final Molecule[] list = new Molecule[count];
+        final GridMolecule[] list = new GridMolecule[count];
         for (GridMolecule m = linkedListGrid[ybin][xbin]; m != null; m = m.getNext()) {
           list[--count] = m;
         }
@@ -411,12 +411,12 @@ class GridMoleculeSpace extends MoleculeSpace {
         index = fastForward[index];
       }
       while (index < endIndex) {
-        final Molecule[] list = grid[index];
+        final GridMolecule[] list = grid[index];
         for (int i = list.length; i-- > 0;) {
           final float d = object.distanceSquared(list[i]);
           if (d <= generatingDistance) {
             // Build a list of all the neighbours and their working distance
-            final Molecule otherObject = list[i];
+            final GridMolecule otherObject = list[i];
             otherObject.setD(d);
             neighbours.add(otherObject);
           }

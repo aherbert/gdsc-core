@@ -34,7 +34,7 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
  *
  * <p>Note: The class contains methods with no implementation for use by specialised sub-classes
- * which process 2D grids. The
+ * which process molecules with distances.
  */
 class Molecule {
   /** The id. */

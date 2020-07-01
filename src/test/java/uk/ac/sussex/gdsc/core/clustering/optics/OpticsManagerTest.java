@@ -208,7 +208,7 @@ public class OpticsManagerTest {
       neighbours.clear();
       for (int i = 0; i < fdata.length; i++) {
         if (fdata[i] <= generatingDistanceE) {
-          setOfObjects[i].setD(fdata[i]);
+          ((DistanceMolecule) setOfObjects[i]).setD(fdata[i]);
           neighbours.add(setOfObjects[i]);
         }
       }

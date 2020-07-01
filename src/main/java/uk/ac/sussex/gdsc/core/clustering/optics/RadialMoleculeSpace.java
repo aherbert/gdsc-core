@@ -443,7 +443,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
         }
 
         while (index < endIndex) {
-          final Molecule[] list = grid[index];
+          final GridMolecule[] list = grid[index];
 
           // Build a list of all the neighbours
           // If not internal then compute distances
@@ -451,7 +451,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
             final float d = object.distanceSquared(list[i]);
             if (d <= generatingDistanceE) {
               // Build a list of all the neighbours and their working distance
-              final Molecule otherObject = list[i];
+              final GridMolecule otherObject = list[i];
               otherObject.setD(d);
               neighbours.add(otherObject);
             }
@@ -473,7 +473,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
         }
 
         while (index < endIndex) {
-          final Molecule[] list = grid[index];
+          final GridMolecule[] list = grid[index];
 
           // Build a list of all the neighbours
           // If not internal then compute distances
@@ -481,7 +481,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
             final float d = object.distanceSquared(list[i]);
             if (d <= generatingDistanceE) {
               // Build a list of all the neighbours and their working distance
-              final Molecule otherObject = list[i];
+              final GridMolecule otherObject = list[i];
               otherObject.setD(d);
               neighbours.add(otherObject);
             }
