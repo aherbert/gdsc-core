@@ -152,11 +152,11 @@ class GridMoleculeSpace extends MoleculeSpace {
           continue;
         }
         int count = 0;
-        for (Molecule m = linkedListGrid[ybin][xbin]; m != null; m = m.getNext()) {
+        for (GridMolecule m = linkedListGrid[ybin][xbin]; m != null; m = m.getNext()) {
           count++;
         }
         final Molecule[] list = new Molecule[count];
-        for (Molecule m = linkedListGrid[ybin][xbin]; m != null; m = m.getNext()) {
+        for (GridMolecule m = linkedListGrid[ybin][xbin]; m != null; m = m.getNext()) {
           list[--count] = m;
         }
         grid[index] = list;

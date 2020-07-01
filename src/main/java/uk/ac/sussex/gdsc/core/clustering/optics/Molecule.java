@@ -228,15 +228,6 @@ class Molecule {
   }
 
   /**
-   * Gets the next molecule.
-   *
-   * @return the next molecule
-   */
-  public Molecule getNext() {
-    throw new NotImplementedException();
-  }
-
-  /**
    * Gets the distance.
    *
    * @return the distance

@@ -56,8 +56,13 @@ class GridMolecule extends DistanceMolecule {
     this.ybin = ybin;
   }
 
-  @Override
-  public GridMolecule getNext() {
+
+  /**
+   * Gets the next molecule.
+   *
+   * @return the next molecule
+   */
+  GridMolecule getNext() {
     return next;
   }
 
