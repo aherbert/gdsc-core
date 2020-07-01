@@ -162,7 +162,7 @@ public class OpticsManagerTest {
         final float x = xcoord[i];
         final float y = ycoord[i];
         // Build a single linked list
-        final Molecule m = new DistanceMolecule(i, x, y);
+        final Molecule m = new Molecule(i, x, y);
         setOfObjects[i] = m;
         for (int j = i; j-- > 0;) {
           distances[i][j] = distances[j][i] = m.distanceSquared(setOfObjects[j]);
@@ -208,7 +208,7 @@ public class OpticsManagerTest {
       neighbours.clear();
       for (int i = 0; i < fdata.length; i++) {
         if (fdata[i] <= generatingDistanceE) {
-          ((DistanceMolecule) setOfObjects[i]).setD(fdata[i]);
+          setOfObjects[i].setD(fdata[i]);
           neighbours.add(setOfObjects[i]);
         }
       }

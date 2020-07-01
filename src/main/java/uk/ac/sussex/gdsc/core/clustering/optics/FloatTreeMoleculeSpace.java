@@ -43,7 +43,7 @@ class FloatTreeMoleculeSpace extends MoleculeSpace {
   private final OpticsManager opticsManager;
 
   /** The 2nd generation tree implementation. */
-  private ObjFloatKdTree<DistanceMolecule> tree;
+  private ObjFloatKdTree<Molecule> tree;
 
   /**
    * Instantiates a new tree molecule space.
@@ -67,7 +67,7 @@ class FloatTreeMoleculeSpace extends MoleculeSpace {
     for (int i = 0; i < xcoord.length; i++) {
       final float x = xcoord[i];
       final float y = ycoord[i];
-      final DistanceMolecule m = new DistanceMolecule(i, x, y);
+      final Molecule m = new Molecule(i, x, y);
       setOfObjects[i] = m;
       tree.addPoint(new float[] {x, y}, m);
     }

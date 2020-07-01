@@ -28,13 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.data.NotImplementedException;
-
 /**
- * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
- *
- * <p>Note: The class contains methods with no implementation for use by specialised sub-classes
- * which process molecules with distances.
+ * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules. The molecule can store
+ * distances used in the processing algorithm (current, core and reachability distances).
  */
 class Molecule {
   /** The id. */
@@ -49,6 +45,10 @@ class Molecule {
   float coreDistance;
   /** The reachability distance. */
   float reachabilityDistance;
+  /**
+   * Working distance to current centre object.
+   */
+  private float distance;
 
   /**
    * The Id of the point that set the current min reachability distance. A value of -1 has no
@@ -233,7 +233,7 @@ class Molecule {
    * @return the distance
    */
   float getD() {
-    throw new NotImplementedException();
+    return distance;
   }
 
   /**
@@ -242,7 +242,7 @@ class Molecule {
    * @param distance the new distance
    */
   void setD(float distance) {
-    throw new NotImplementedException();
+    this.distance = distance;
   }
 
   /**
