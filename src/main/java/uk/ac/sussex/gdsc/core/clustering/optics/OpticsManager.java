@@ -81,9 +81,7 @@ public class OpticsManager extends CoordinateStore {
   /** The seed for random algorithms. */
   private long seed;
 
-  /**
-   * The grid. Package level for JUnit testing
-   */
+  /** The grid. Package level for JUnit testing. */
   MoleculeSpace grid;
 
   /** The heap for storing the top n distances. */
