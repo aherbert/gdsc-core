@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import java.awt.Rectangle;
 import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
@@ -73,11 +72,11 @@ public class DensityManager extends CoordinateStore {
    *
    * @param xcoord the x coordinates
    * @param ycoord the y coordinates
-   * @param bounds the bounds
+   * @param area the volume of the coordinates (width by height)
    * @throws IllegalArgumentException if results are null or empty
    */
-  public DensityManager(float[] xcoord, float[] ycoord, Rectangle bounds) {
-    super(xcoord, ycoord, bounds);
+  public DensityManager(float[] xcoord, float[] ycoord, double area) {
+    super(xcoord, ycoord, area);
   }
 
   /**

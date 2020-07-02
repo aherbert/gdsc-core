@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -104,6 +103,9 @@ public class OpticsManager extends CoordinateStore {
 
   /** The optional coordinates for the z dimension. */
   private final float[] zcoord;
+
+  /** The volume of the coordinates. */
+  private final double volume;
 
   /**
    * Options for the algorithms.
@@ -860,13 +862,37 @@ public class OpticsManager extends CoordinateStore {
    *
    * @param xcoord the xcoord
    * @param ycoord the ycoord
-   * @param bounds the bounds
+   * @param area the volume of the coordinates (width by height)
    * @throws IllegalArgumentException if results are null or empty
    */
-  public OpticsManager(float[] xcoord, float[] ycoord, Rectangle bounds) {
-    super(xcoord, ycoord, bounds);
+  public OpticsManager(float[] xcoord, float[] ycoord, double area) {
+    super(xcoord, ycoord, area);
     distanceFunction = MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     zcoord = null;
+    volume = this.area;
+  }
+
+  /**
+   * Input arrays are modified.
+   *
+   * @param xcoord the xcoord
+   * @param ycoord the ycoord
+   * @param zcoord the zcoord
+   * @param volume the volume of the coordinates (width by height by depth)
+   * @throws IllegalArgumentException if results are null or empty
+   */
+  public OpticsManager(float[] xcoord, float[] ycoord, float[] zcoord, double volume) {
+    super(xcoord, ycoord, volume);
+    if (zcoord == null || xcoord.length != zcoord.length) {
+      throw new IllegalArgumentException("Results are null or empty or mismatched in length");
+    }
+    distanceFunction = MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+    this.zcoord = zcoord;
+
+    // Ensure the volume stores at least the minimum volume to contain the coordinates
+    final float[] limits = MathUtils.limits(zcoord);
+    final double vol = (maxXCoord - minXCoord) * (maxYCoord - minYCoord) * (limits[1] - limits[0]);
+    this.volume = Math.max(vol, volume);
   }
 
   /**
@@ -883,6 +909,7 @@ public class OpticsManager extends CoordinateStore {
     seed = source.seed;
     distanceFunction = source.distanceFunction;
     zcoord = source.zcoord;
+    volume = source.volume;
     // Do not copy the state used for algorithms:
     // tracker
     // loop

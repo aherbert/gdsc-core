@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -973,8 +972,7 @@ public class ClusteringEngine {
       index++;
     }
     // The bounds are not used in the density calculation when not adjusting for borders
-    final Rectangle bounds = new Rectangle();
-    final DensityManager dm = new DensityManager(xcoord, ycoord, bounds);
+    final DensityManager dm = new DensityManager(xcoord, ycoord, 0);
     return dm.calculateDensity((float) radius, false);
   }
 

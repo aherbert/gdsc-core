@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import java.awt.Rectangle;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -292,7 +291,6 @@ public class DensityManagerTest {
       xcoord[i] = rng.nextFloat() * size;
       ycoord[i] = rng.nextFloat() * size;
     }
-    final DensityManager dm = new DensityManager(xcoord, ycoord, new Rectangle(size, size));
-    return dm;
+    return new DensityManager(xcoord, ycoord, size * size);
   }
 }

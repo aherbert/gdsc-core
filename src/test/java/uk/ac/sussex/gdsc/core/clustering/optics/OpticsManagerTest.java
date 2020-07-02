@@ -65,7 +65,6 @@ import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
 import de.lmu.ifi.dbs.elki.result.outlier.OutlierResult;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
-import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -1268,8 +1267,7 @@ public class OpticsManagerTest {
 
   @Test
   public void canPerformOpticsWithColocatedData() {
-    final OpticsManager om =
-        new OpticsManager(new float[10], new float[10], new Rectangle(size, size));
+    final OpticsManager om = new OpticsManager(new float[10], new float[10], size * size);
 
     for (final float radius : new float[] {-1, 0, 0.01f, 1f}) {
       for (final int minPts : new int[] {-1, 0, 1, 10}) {
@@ -2361,6 +2359,6 @@ public class OpticsManagerTest {
       }
     }
 
-    return new OpticsManager(xcoord, ycoord, new Rectangle(size, size));
+    return new OpticsManager(xcoord, ycoord, size * size);
   }
 }

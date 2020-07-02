@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import java.awt.Rectangle;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
@@ -66,14 +65,16 @@ public class CoordinateStore {
   /**
    * Create a new instance.
    *
-   * <p>Input arrays are modified.
+   * <p>Input arrays are modified. The area may be provided or left as zero. The stored area will be
+   * the larger of the input area and the product of the lengths defined by the maximum minus the
+   * minimum in each dimension.
    *
    * @param xcoord the x coordinates
    * @param ycoord the y coordinates
-   * @param bounds the bounds used to define the volume of the coordinates (wdith by height)
+   * @param area the volume of the coordinates (width by height)
    * @throws IllegalArgumentException if results are null or empty
    */
-  public CoordinateStore(float[] xcoord, float[] ycoord, Rectangle bounds) {
+  public CoordinateStore(float[] xcoord, float[] ycoord, double area) {
     if (xcoord == null || ycoord == null || xcoord.length == 0 || xcoord.length != ycoord.length) {
       throw new IllegalArgumentException("Results are null or empty or mismatched in length");
     }
@@ -99,7 +100,7 @@ public class CoordinateStore {
     this.maxYCoord = MathUtils.max(ycoord);
 
     // Store the area of the input results
-    area = bounds.width * bounds.height;
+    this.area = Math.max(area, (maxXCoord - minXCoord) * (maxYCoord - minYCoord));
   }
 
   /**
