@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.ArrayUtils;
@@ -97,6 +98,9 @@ public class OpticsManager extends CoordinateStore {
    * change).
    */
   private FloatKdTree tree;
+
+  /** The distance function for the number of dimensions. */
+  final ToDoubleBiFunction<Molecule, Molecule> distanceFunction;
 
   /**
    * Options for the algorithms.
@@ -858,6 +862,7 @@ public class OpticsManager extends CoordinateStore {
    */
   public OpticsManager(float[] xcoord, float[] ycoord, Rectangle bounds) {
     super(xcoord, ycoord, bounds);
+    distanceFunction = MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D;
   }
 
   /**
@@ -872,6 +877,7 @@ public class OpticsManager extends CoordinateStore {
     options = EnumSet.copyOf(source.options);
     numberOfThreads = source.numberOfThreads;
     seed = source.seed;
+    distanceFunction = source.distanceFunction;
     // Do not copy the state used for algorithms:
     // tracker
     // loop
@@ -1946,8 +1952,8 @@ public class OpticsManager extends CoordinateStore {
    * @param neighbours the neighbours
    * @param centreObject the object
    */
-  private static void fillWithComputeDistance(OpticsPriorityQueue orderSeeds,
-      MoleculeList neighbours, Molecule centreObject) {
+  private void fillWithComputeDistance(OpticsPriorityQueue orderSeeds, MoleculeList neighbours,
+      Molecule centreObject) {
     orderSeeds.clear();
 
     final float coreDist = centreObject.coreDistance;
@@ -1955,7 +1961,8 @@ public class OpticsManager extends CoordinateStore {
       final Molecule object = neighbours.get(i);
       if (object.isNotProcessed()) {
         // This is new so add it to the list
-        object.reachabilityDistance = max(coreDist, object.distanceSquared(centreObject));
+        object.reachabilityDistance =
+            max(coreDist, (float) distanceFunction.applyAsDouble(object, centreObject));
         object.predecessor = centreObject.id;
         orderSeeds.push(object);
       }
@@ -1970,13 +1977,14 @@ public class OpticsManager extends CoordinateStore {
    * @param neighbours the neighbours
    * @param centreObject the object
    */
-  private static void updateWithComputeDistance(OpticsPriorityQueue orderSeeds,
-      MoleculeList neighbours, Molecule centreObject) {
+  private void updateWithComputeDistance(OpticsPriorityQueue orderSeeds, MoleculeList neighbours,
+      Molecule centreObject) {
     final float coreDist = centreObject.coreDistance;
     for (int i = neighbours.size; i-- > 0;) {
       final Molecule object = neighbours.get(i);
       if (object.isNotProcessed()) {
-        final float newReachabilityDistance = max(coreDist, object.distanceSquared(centreObject));
+        final float newReachabilityDistance =
+            max(coreDist, (float) distanceFunction.applyAsDouble(object, centreObject));
         if (object.reachabilityDistance == UNDEFINED) {
           // This is new so add it to the list
           object.reachabilityDistance = newReachabilityDistance;

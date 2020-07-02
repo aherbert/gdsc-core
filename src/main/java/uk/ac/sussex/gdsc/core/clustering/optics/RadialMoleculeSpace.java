@@ -192,6 +192,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     final int maxy = Math.min(ybin + resolution + 1, ybins);
     final int startRow = Math.max(resolution - ybin, 0);
 
+    final double generatingDistanceAsDouble = generatingDistanceE;
     if (useInternal) {
       // Internal processing. Any pixel that is internal does not require
       // a distance computation.
@@ -221,7 +222,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+                if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                    list[i]) <= generatingDistanceAsDouble) {
                   neighbours.add(list[i]);
                 }
               }
@@ -245,7 +247,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+                if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                    list[i]) <= generatingDistanceAsDouble) {
                   neighbours.add(list[i]);
                 }
               }
@@ -259,7 +262,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If not internal then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+                if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                    list[i]) <= generatingDistanceAsDouble) {
                   neighbours.add(list[i]);
                 }
               }
@@ -291,7 +295,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+                if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                    list[i]) <= generatingDistanceAsDouble) {
                   neighbours.add(list[i]);
                 }
               }
@@ -315,7 +320,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+                if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                    list[i]) <= generatingDistanceAsDouble) {
                   neighbours.add(list[i]);
                 }
               }
@@ -329,7 +335,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If not internal then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+                if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                    list[i]) <= generatingDistanceAsDouble) {
                   neighbours.add(list[i]);
                 }
               }
@@ -359,7 +366,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+            if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                list[i]) <= generatingDistanceAsDouble) {
               neighbours.add(list[i]);
             }
           }
@@ -385,7 +393,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            if (object.distanceSquared(list[i]) <= generatingDistanceE) {
+            if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+                list[i]) <= generatingDistanceAsDouble) {
               neighbours.add(list[i]);
             }
           }
@@ -428,6 +437,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     final int maxy = Math.min(ybin + resolution + 1, ybins);
     final int startRow = Math.max(resolution - ybin, 0);
 
+    final double generatingDistanceAsDouble = generatingDistanceE;
     if (xbin + resolution < xbins && xbin - resolution >= 0) {
       // Internal X. Maintain the centre index and use offsets to set the indices
       int centreIndex = getIndex(xbin, miny);
@@ -448,11 +458,12 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            final float d = object.distanceSquared(list[i]);
-            if (d <= generatingDistanceE) {
+            final double d =
+                MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object, list[i]);
+            if (d <= generatingDistanceAsDouble) {
               // Build a list of all the neighbours and their working distance
               final GridMolecule otherObject = list[i];
-              otherObject.setD(d);
+              otherObject.setD((float) d);
               neighbours.add(otherObject);
             }
           }
@@ -478,11 +489,12 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            final float d = object.distanceSquared(list[i]);
-            if (d <= generatingDistanceE) {
+            final double d =
+                MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object, list[i]);
+            if (d <= generatingDistanceAsDouble) {
               // Build a list of all the neighbours and their working distance
               final GridMolecule otherObject = list[i];
-              otherObject.setD(d);
+              otherObject.setD((float) d);
               neighbours.add(otherObject);
             }
           }

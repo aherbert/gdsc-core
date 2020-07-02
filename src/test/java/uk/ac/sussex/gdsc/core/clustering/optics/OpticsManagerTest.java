@@ -165,7 +165,8 @@ public class OpticsManagerTest {
         final Molecule m = new Molecule(i, x, y);
         setOfObjects[i] = m;
         for (int j = i; j-- > 0;) {
-          distances[i][j] = distances[j][i] = m.distanceSquared(setOfObjects[j]);
+          distances[i][j] = distances[j][i] = (float) MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D
+              .applyAsDouble(m, setOfObjects[j]);
         }
       }
 

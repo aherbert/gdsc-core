@@ -334,6 +334,7 @@ class GridMoleculeSpace extends MoleculeSpace {
     final int maxy = Math.min(ybin + resolution + 1, ybins);
 
     // Compute distances
+    final double generatingDistanceAsDouble = generatingDistance;
     for (int y = miny; y < maxy; y++) {
       int index = getIndex(minx, y);
       final int endIndex = index + diff;
@@ -343,7 +344,8 @@ class GridMoleculeSpace extends MoleculeSpace {
       while (index < endIndex) {
         final Molecule[] list = grid[index];
         for (int i = list.length; i-- > 0;) {
-          if (object.distanceSquared(list[i]) <= generatingDistance) {
+          if (MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object,
+              list[i]) <= generatingDistanceAsDouble) {
             // Build a list of all the neighbours
             neighbours.add(list[i]);
           }
@@ -403,6 +405,7 @@ class GridMoleculeSpace extends MoleculeSpace {
     }
 
     // Compute distances
+    final double generatingDistanceAsDouble = generatingDistance;
     for (int y = miny; y < maxy; y++) {
       // Use fast-forward to skip to the next position with data
       int index = getIndex(minx, y);
@@ -413,11 +416,12 @@ class GridMoleculeSpace extends MoleculeSpace {
       while (index < endIndex) {
         final GridMolecule[] list = grid[index];
         for (int i = list.length; i-- > 0;) {
-          final float d = object.distanceSquared(list[i]);
-          if (d <= generatingDistance) {
+          final double d =
+              MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D.applyAsDouble(object, list[i]);
+          if (d <= generatingDistanceAsDouble) {
             // Build a list of all the neighbours and their working distance
             final GridMolecule otherObject = list[i];
-            otherObject.setD(d);
+            otherObject.setD((float) d);
             neighbours.add(otherObject);
           }
         }

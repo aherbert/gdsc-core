@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
@@ -87,8 +88,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /** Minimum size where neighbours are possible. */
   private static final int MIN_NEIGHBOURS_SIZE = 2;
 
-  /** Used for access to the raw coordinates. */
-  protected final OpticsManager opticsManager;
+  /** Used for access to the raw coordinates and distance function. */
+  final OpticsManager opticsManager;
 
   /**
    * Random factory.
@@ -734,12 +735,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     distanceComputations.addAndGet(delta);
     countDistances[v] += delta;
     final Molecule midpoint = setOfObjects[v];
+    final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     for (int j = len; j-- > 0;) {
       final int it = indices[j];
       if (it == v) {
         continue;
       }
-      final double dist = Math.sqrt(midpoint.distanceSquared(setOfObjects[it]));
+      final double dist = Math.sqrt(distanceFunction.applyAsDouble(midpoint, setOfObjects[it]));
       sumDistances[v] += dist;
       sumDistances[it] += dist;
       countDistances[it]++;
@@ -764,6 +766,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   private void sampleNeighboursRandom(double[] sumDistances, int[] countDistances,
       TIntHashSet[] neighbours, int[] indices) {
+    final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     if (indices.length == MIN_NEIGHBOURS_SIZE) {
       distanceComputations.incrementAndGet();
 
@@ -771,7 +774,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       final int a = indices[0];
       final int b = indices[1];
 
-      final double dist = Math.sqrt(setOfObjects[a].distanceSquared(setOfObjects[b]));
+      final double dist =
+          Math.sqrt(distanceFunction.applyAsDouble(setOfObjects[a], setOfObjects[b]));
 
       sumDistances[a] += dist;
       sumDistances[b] += dist;
@@ -792,7 +796,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         final int b = indices[k];
         k = j;
 
-        final double dist = Math.sqrt(setOfObjects[a].distanceSquared(setOfObjects[b]));
+        final double dist =
+            Math.sqrt(distanceFunction.applyAsDouble(setOfObjects[a], setOfObjects[b]));
 
         sumDistances[a] += dist;
         sumDistances[b] += dist;
@@ -820,6 +825,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // for all-vs-all = n(n-1)/2
     distanceComputations.addAndGet((n * n1) >>> 1);
 
+    final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     for (int i = 0; i < n1; i++) {
       final int a = indices[i];
       countDistances[a] += n1;
@@ -830,7 +836,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       for (int j = i + 1; j < n; j++) {
         final int b = indices[j];
 
-        final double dist = Math.sqrt(ma.distanceSquared(setOfObjects[b]));
+        final double dist = Math.sqrt(distanceFunction.applyAsDouble(ma, setOfObjects[b]));
 
         sum += dist;
         sumDistances[b] += dist;
@@ -865,9 +871,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // Assume allNeighbours has been computed.
     neighbours.clear();
     final int[] list = allNeighbours[object.id];
+    final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     for (int i = list.length; i-- > 0;) {
       final Molecule otherObject = setOfObjects[list[i]];
-      otherObject.setD(object.distanceSquared(otherObject));
+      otherObject.setD((float) distanceFunction.applyAsDouble(object, otherObject));
       neighbours.add(otherObject);
     }
   }
