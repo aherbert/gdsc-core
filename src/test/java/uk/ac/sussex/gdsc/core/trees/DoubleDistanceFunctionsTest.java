@@ -71,4 +71,16 @@ public class DoubleDistanceFunctionsTest {
     Assertions.assertEquals(17.0, threed.distanceToRectangle(point, p1, p2));
     Assertions.assertEquals(17.0, nd.distanceToRectangle(point, p1, p2));
   }
+
+  @Test
+  public void testCreateSquareEuclideanDistanceFunction() {
+    Assertions.assertSame(DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND,
+        DoubleDistanceFunctions.squaredEuclidean(1));
+    Assertions.assertSame(DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D,
+        DoubleDistanceFunctions.squaredEuclidean(2));
+    Assertions.assertSame(DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D,
+        DoubleDistanceFunctions.squaredEuclidean(3));
+    Assertions.assertSame(DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND,
+        DoubleDistanceFunctions.squaredEuclidean(4));
+  }
 }

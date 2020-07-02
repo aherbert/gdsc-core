@@ -111,4 +111,20 @@ public enum DoubleDistanceFunctions implements DoubleDistanceFunction {
     }
     return (value < min) ? min - value : 0;
   }
+
+  /**
+   * Return a squared Euclidean distance function for the specified number of dimensions.
+   *
+   * @param dimensions the dimensions
+   * @return the distance function
+   */
+  public static DoubleDistanceFunction squaredEuclidean(int dimensions) {
+    if (dimensions == 2) {
+      return SQUARED_EUCLIDEAN_2D;
+    }
+    if (dimensions == 3) {
+      return SQUARED_EUCLIDEAN_3D;
+    }
+    return SQUARED_EUCLIDEAN_ND;
+  }
 }

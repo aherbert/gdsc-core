@@ -293,13 +293,7 @@ public final class RmsmdCalculator {
       final ToDoubleBiFunction<double[], double[]> distanceFunction, int dimensions) {
     // Check if the function is the default
     if (distanceFunction == DEFAULT_DISTANCE_FUNCTION) {
-      if (dimensions == 2) {
-        return DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
-      }
-      if (dimensions == 3) {
-        return DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D;
-      }
-      return DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND;
+      return DoubleDistanceFunctions.squaredEuclidean(dimensions);
     }
 
     // This relies on the KD-tree search not using the distance function concurrently
