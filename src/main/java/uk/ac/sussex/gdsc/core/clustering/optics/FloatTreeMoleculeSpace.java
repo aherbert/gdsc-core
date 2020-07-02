@@ -33,7 +33,7 @@ import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.trees.ObjFloatKdTree;
 
 /**
- * Store molecules in a 2D tree using float data.
+ * Store molecules in a KD tree using float data.
  */
 class FloatTreeMoleculeSpace extends MoleculeSpace {
 
@@ -42,7 +42,7 @@ class FloatTreeMoleculeSpace extends MoleculeSpace {
    */
   private final OpticsManager opticsManager;
 
-  /** The 2nd generation tree implementation. */
+  /** The KD tree implementation. */
   private ObjFloatKdTree<Molecule> tree;
 
   /**

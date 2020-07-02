@@ -29,10 +29,10 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * Used in the OPTICS/DBSCAN algorithms.
+ * Used in the OPTICS/DBSCAN algorithms to store molecules and compute neighbours.
  */
 abstract class MoleculeSpace {
-  /** the generating distance (E). */
+  /** The generating distance (E). */
   final float generatingDistanceE;
 
   /** The set of objects. */
