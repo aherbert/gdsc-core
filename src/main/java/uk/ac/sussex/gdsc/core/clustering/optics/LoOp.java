@@ -32,11 +32,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.commons.lang3.ArrayUtils;
+import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunction;
 import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunctions;
 import uk.ac.sussex.gdsc.core.trees.IntFloatKdTree;
 import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
@@ -47,14 +50,11 @@ import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
  * with statistical methods to achieve better result stability and scaling results to the range
  * [0:1].
  *
- * <p>Reference:.
+ * <p>Reference:
  *
  * <p>Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek:<br> LoOP: Local Outlier
  * Probabilities<br> In Proceedings of the 18th International Conference on Information and
- * Knowledge Management (CIKM), Hong Kong, China, 2009 </p>.
- *
- * <p>This implementation is a port of the version in the ELKI framework:
- * https://elki-project.github.io/.
+ * Knowledge Management (CIKM), Hong Kong, China, 2009.
  */
 public class LoOp {
 
@@ -67,6 +67,9 @@ public class LoOp {
    * <p>Package private to allow access from worker inner classes.
    */
   final IntFloatKdTree tree;
+
+  /** The distance function for the number of dimensions. */
+  final FloatDistanceFunction distanceFunction;
 
   /**
    * The points.
@@ -145,13 +148,13 @@ public class LoOp {
       // Note: The numberOfNeigbours-nearest neighbour search will include the actual
       // point so increment by 1
       final int k1 = numberOfNeigbours + 1;
-      final double[] search = new double[2];
+      final double[] search = new double[tree.dimensions()];
       for (int i = from; i < to; i++) {
         store.reset(i);
-        search[0] = points[i][0];
-        search[1] = points[i][1];
-        tree.nearestNeighbours(search, k1, false, FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D,
-            store);
+        for (int j = 0; j < search.length; j++) {
+          search[j] = points[i][j];
+        }
+        tree.nearestNeighbours(search, k1, false, distanceFunction, store);
         pd[i] = Math.sqrt(store.sumDistances / numberOfNeigbours);
       }
     }
@@ -228,7 +231,7 @@ public class LoOp {
   }
 
   /**
-   * Create a new instance.
+   * Create a new instance for 2D.
    *
    * @param x the x
    * @param y the y
@@ -236,8 +239,26 @@ public class LoOp {
   public LoOp(float[] x, float[] y) {
     points = new float[x.length][];
     tree = KdTrees.newIntFloatKdTree(2);
+    distanceFunction = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     for (int i = 0; i < x.length; i++) {
       points[i] = new float[] {x[i], y[i]};
+      tree.addPoint(points[i], i);
+    }
+  }
+
+  /**
+   * Create a new instance for 3D.
+   *
+   * @param x the x
+   * @param y the y
+   * @param z the z
+   */
+  public LoOp(float[] x, float[] y, float[] z) {
+    points = new float[x.length][];
+    tree = KdTrees.newIntFloatKdTree(3);
+    distanceFunction = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+    for (int i = 0; i < x.length; i++) {
+      points[i] = new float[] {x[i], y[i], z[i]};
       tree.addPoint(points[i], i);
     }
   }
@@ -249,7 +270,10 @@ public class LoOp {
    */
   LoOp(float[][] points) {
     this.points = points;
-    tree = KdTrees.newIntFloatKdTree(2);
+    ValidationUtils.checkStrictlyPositive(ArrayUtils.getLength(points), "Points length");
+    final int dim = points[0].length;
+    tree = KdTrees.newIntFloatKdTree(dim);
+    distanceFunction = FloatDistanceFunctions.squaredEuclidean(dim);
     for (int i = 0; i < points.length; i++) {
       tree.addPoint(points[i], i);
     }

@@ -1745,8 +1745,9 @@ public class OpticsManager extends CoordinateStore {
    * computed for the data range. If the data are colocated the distance is set to 1. The distance
    * is stored in the results.
    *
-   * <p>This implementation is a port of the version in the ELKI framework:
-   * https://elki-project.github.io/.
+   * <p>This implementation is based on the reference version in the <a
+   * href="https://elki-project.github.io/">ELKI framework</a> and adapted for fast processing of 2D
+   * data from a confined region, i.e. data that can be efficiently assigned to a grid.
    *
    * @param minPts the min points for a core object (recommended range around 4)
    * @return the results (or null if the algorithm was stopped using the tracker)
@@ -1783,8 +1784,9 @@ public class OpticsManager extends CoordinateStore {
    * computed for the data range. If the data are colocated the distance is set to 1. The distance
    * is stored in the results.
    *
-   * <p>This implementation is a port of the version in the ELKI framework:
-   * https://elki-project.github.io/.
+   * <p>This implementation is based on the reference version in the <a
+   * href="https://elki-project.github.io/">ELKI framework</a> and adapted for fast processing of 2D
+   * data from a confined region, i.e. data that can be efficiently assigned to a grid.
    *
    * @param minPoints the min points for a core object (recommended range around 4)
    * @param numberOfSplits The number of splits to compute (if below 1 it will be auto-computed
