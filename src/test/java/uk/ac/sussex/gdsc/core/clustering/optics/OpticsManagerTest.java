@@ -482,7 +482,7 @@ public class OpticsManagerTest {
 
         // Test verses the ELKI frame work
         final RandomProjectedNeighborsAndDensities<DoubleVector> projections =
-            new CopyRandomProjectedNeighborsAndDensities((ProjectedMoleculeSpace) om.grid);
+            new CopyRandomProjectedNeighborsAndDensities((ProjectedMoleculeSpace) om.moleculeSpace);
         final FastOPTICS<DoubleVector> fo = new FastOPTICS<>(minPts, projections);
         final ClusterOrder order = fo.run(db);
 

@@ -82,8 +82,8 @@ public class OpticsManager extends CoordinateStore {
   /** The seed for random algorithms. */
   private long seed;
 
-  /** The grid. Package level for JUnit testing. */
-  MoleculeSpace grid;
+  /** The molecule space. Package level for JUnit testing. */
+  MoleculeSpace moleculeSpace;
 
   /** The heap for storing the top n distances. */
   private FloatHeap heap;
@@ -915,7 +915,7 @@ public class OpticsManager extends CoordinateStore {
     initialiseOptics(generatingDistanceE, minPts);
 
     // The distance may be updated
-    final float workingGeneratingDistance = grid.generatingDistanceE;
+    final float workingGeneratingDistance = moleculeSpace.generatingDistanceE;
 
     if (tracker != null) {
       tracker.log("Running OPTICS ... Distance=%g, minPts=%d", workingGeneratingDistance, minPts);
@@ -930,7 +930,7 @@ public class OpticsManager extends CoordinateStore {
     final float e = workingGeneratingDistance * workingGeneratingDistance;
 
     final int size = xcoord.length;
-    final Molecule[] setOfObjects = grid.setOfObjects;
+    final Molecule[] setOfObjects = moleculeSpace.setOfObjects;
 
     // Allow different queue implementations.
     // Note:
@@ -1137,27 +1137,28 @@ public class OpticsManager extends CoordinateStore {
     final Class<?> moleculeSpaceClass = (clazz == null) ? getPreferredMoleculeSpace(false) : clazz;
 
     // Compare to the existing grid
-    if (grid == null || grid.generatingDistanceE != safeGeneratingDistanceE
-        || grid.getClass() != moleculeSpaceClass) {
+    if (moleculeSpace == null || moleculeSpace.generatingDistanceE != safeGeneratingDistanceE
+        || moleculeSpace.getClass() != moleculeSpaceClass) {
       if (tracker != null) {
         tracker.log("Initialising ...");
       }
 
       // Control the type of space we use to store the data
       if (moleculeSpaceClass == ProjectedMoleculeSpace.class) {
-        grid = new ProjectedMoleculeSpace(this, safeGeneratingDistanceE, getRandomGenerator());
+        moleculeSpace =
+            new ProjectedMoleculeSpace(this, safeGeneratingDistanceE, getRandomGenerator());
       } else if (moleculeSpaceClass == InnerRadialMoleculeSpace.class) {
-        grid = new InnerRadialMoleculeSpace(this, safeGeneratingDistanceE);
+        moleculeSpace = new InnerRadialMoleculeSpace(this, safeGeneratingDistanceE);
       } else if (moleculeSpaceClass == RadialMoleculeSpace.class) {
-        grid = new RadialMoleculeSpace(this, safeGeneratingDistanceE);
+        moleculeSpace = new RadialMoleculeSpace(this, safeGeneratingDistanceE);
       } else {
-        grid = new GridMoleculeSpace(this, safeGeneratingDistanceE);
+        moleculeSpace = new GridMoleculeSpace(this, safeGeneratingDistanceE);
       }
 
-      grid.generate();
+      moleculeSpace.generate();
     } else {
       // This is the same distance so the objects can be reused
-      grid.reset();
+      moleculeSpace.reset();
     }
 
     if (heap == null || heap.size != minPts) {
@@ -1212,7 +1213,7 @@ public class OpticsManager extends CoordinateStore {
    * @return true, if successful
    */
   public boolean hasMemory() {
-    return grid != null;
+    return moleculeSpace != null;
   }
 
   /**
@@ -1228,7 +1229,7 @@ public class OpticsManager extends CoordinateStore {
    * Clear memory used by the search algorithm.
    */
   public void clearMemory() {
-    grid = null;
+    moleculeSpace = null;
     heap = null;
   }
 
@@ -1244,28 +1245,28 @@ public class OpticsManager extends CoordinateStore {
    */
   private boolean opticsExpandClusterOrder(Molecule object, float generatingDistance, int minPts,
       OpticsResultList orderedFile, OpticsPriorityQueue orderSeeds) {
-    grid.findNeighboursAndDistances(minPts, object, generatingDistance);
+    moleculeSpace.findNeighboursAndDistances(minPts, object, generatingDistance);
     object.markProcessed();
-    setCoreDistance(object, minPts, grid.neighbours);
+    setCoreDistance(object, minPts, moleculeSpace.neighbours);
     if (orderedFile.add(object)) {
       return true;
     }
 
     if (object.coreDistance != UNDEFINED) {
       // Create seed-list for further expansion.
-      fill(orderSeeds, grid.neighbours, object);
+      fill(orderSeeds, moleculeSpace.neighbours, object);
 
       while (orderSeeds.hasNext()) {
         final Molecule nextObject = orderSeeds.next();
-        grid.findNeighboursAndDistances(minPts, nextObject, generatingDistance);
+        moleculeSpace.findNeighboursAndDistances(minPts, nextObject, generatingDistance);
         nextObject.markProcessed();
-        setCoreDistance(nextObject, minPts, grid.neighbours);
+        setCoreDistance(nextObject, minPts, moleculeSpace.neighbours);
         if (orderedFile.add(nextObject)) {
           return true;
         }
 
         if (nextObject.coreDistance != UNDEFINED) {
-          opticsUpdateSearch(orderSeeds, grid.neighbours, nextObject);
+          opticsUpdateSearch(orderSeeds, moleculeSpace.neighbours, nextObject);
         }
       }
     }
@@ -1456,7 +1457,7 @@ public class OpticsManager extends CoordinateStore {
     initialiseDbscan(generatingDistanceE, minPts);
 
     // The distance may be updated
-    final float workingGeneratingDistance = grid.generatingDistanceE;
+    final float workingGeneratingDistance = moleculeSpace.generatingDistanceE;
 
     if (tracker != null) {
       tracker.log("Running DBSCAN ... Distance=%g, minPts=%d", workingGeneratingDistance, minPts);
@@ -1469,7 +1470,7 @@ public class OpticsManager extends CoordinateStore {
     final float e = workingGeneratingDistance * workingGeneratingDistance;
 
     final int size = xcoord.length;
-    final Molecule[] setOfObjects = grid.setOfObjects;
+    final Molecule[] setOfObjects = moleculeSpace.setOfObjects;
 
     // Working storage
     final MoleculeQueue seeds = new MoleculeQueue(size);
@@ -1524,33 +1525,33 @@ public class OpticsManager extends CoordinateStore {
    */
   private boolean dbscanExpandCluster(Molecule object, float generatingDistance, int minPts,
       Counter counter, MoleculeQueue seeds) {
-    grid.findNeighbours(minPts, object, generatingDistance);
+    moleculeSpace.findNeighbours(minPts, object, generatingDistance);
     if (counter.increment()) {
       return true;
     }
 
     object.markProcessed();
-    object.setNumberOfPoints(grid.neighbours.size);
-    if (grid.neighbours.size >= minPts) {
+    object.setNumberOfPoints(moleculeSpace.neighbours.size);
+    if (moleculeSpace.neighbours.size >= minPts) {
       // New cluster
       final int clusterId = counter.nextClusterId();
       object.setClusterOrigin(clusterId);
 
       // Expand through the grid.neighbours
       seeds.clear();
-      dbscanUpdateSearch(seeds, grid.neighbours, clusterId);
+      dbscanUpdateSearch(seeds, moleculeSpace.neighbours, clusterId);
 
       while (seeds.hasNext()) {
         final Molecule nextObject = seeds.getNext();
-        grid.findNeighbours(minPts, nextObject, generatingDistance);
+        moleculeSpace.findNeighbours(minPts, nextObject, generatingDistance);
         if (counter.increment()) {
           return true;
         }
 
         nextObject.markProcessed();
-        nextObject.setNumberOfPoints(grid.neighbours.size);
-        if (grid.neighbours.size >= minPts) {
-          dbscanUpdateSearch(seeds, grid.neighbours, clusterId);
+        nextObject.setNumberOfPoints(moleculeSpace.neighbours.size);
+        if (moleculeSpace.neighbours.size >= minPts) {
+          dbscanUpdateSearch(seeds, moleculeSpace.neighbours, clusterId);
         }
       }
     }
@@ -1827,7 +1828,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     // Compute projections and find neighbours
-    final ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
+    final ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) moleculeSpace;
 
     space.setNumberOfSplits(numSplits);
     space.setNumberOfProjections(numProjections);
@@ -1852,7 +1853,7 @@ public class OpticsManager extends CoordinateStore {
     // the pseudocode implementation from the 1999 OPTICS paper.
 
     final int size = xcoord.length;
-    final Molecule[] setOfObjects = grid.setOfObjects;
+    final Molecule[] setOfObjects = moleculeSpace.setOfObjects;
 
     final OpticsPriorityQueue orderSeeds = createQueue(size);
 
@@ -1879,13 +1880,13 @@ public class OpticsManager extends CoordinateStore {
     OpticsResult optics = null;
     if (!stopped) {
       optics = new OpticsResult(this, minPts, getMaxReachability(results.list), results.list);
-      final int nClusters = optics.extractDbscanClustering(grid.generatingDistanceE);
+      final int nClusters = optics.extractDbscanClustering(moleculeSpace.generatingDistanceE);
       if (tracker != null) {
         final long end = System.currentTimeMillis();
         time = end - time;
         time2 = end - time2;
         tracker.log("Finished OPTICS: %d %s @ %s (Time = %s)", nClusters,
-            pleuraliseClusterCount(nClusters), MathUtils.rounded(grid.generatingDistanceE),
+            pleuraliseClusterCount(nClusters), MathUtils.rounded(moleculeSpace.generatingDistanceE),
             TextUtils.millisToString(time2));
         tracker.log("Finished FastOPTICS ... " + TextUtils.millisToString(time));
       }
@@ -1918,7 +1919,7 @@ public class OpticsManager extends CoordinateStore {
    */
   private boolean fastOpticsExpandClusterOrder(Molecule object, int minPts,
       OpticsResultList orderedFile, OpticsPriorityQueue orderSeeds) {
-    grid.findNeighbours(minPts, object, 0);
+    moleculeSpace.findNeighbours(minPts, object, 0);
     object.markProcessed();
     if (orderedFile.add(object)) {
       return true;
@@ -1926,18 +1927,18 @@ public class OpticsManager extends CoordinateStore {
 
     if (object.coreDistance != UNDEFINED) {
       // Create seed-list for further expansion.
-      fillWithComputeDistance(orderSeeds, grid.neighbours, object);
+      fillWithComputeDistance(orderSeeds, moleculeSpace.neighbours, object);
 
       while (orderSeeds.hasNext()) {
         final Molecule nextObject = orderSeeds.next();
-        grid.findNeighbours(minPts, nextObject, 0);
+        moleculeSpace.findNeighbours(minPts, nextObject, 0);
         nextObject.markProcessed();
         if (orderedFile.add(nextObject)) {
           return true;
         }
 
         if (nextObject.coreDistance != UNDEFINED) {
-          updateWithComputeDistance(orderSeeds, grid.neighbours, nextObject);
+          updateWithComputeDistance(orderSeeds, moleculeSpace.neighbours, nextObject);
         }
       }
     }
