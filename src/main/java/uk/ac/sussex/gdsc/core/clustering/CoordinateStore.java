@@ -57,8 +57,11 @@ public class CoordinateStore {
   /** The max Y coord. */
   public final float maxYCoord;
 
-  /** The area. This is the product of the constructor bounds width multiplied by the height. */
-  public final int area;
+  /**
+   * The volume containing the coordinates. This may be larger than the product of the lengths
+   * defined by the maximum minus the minimum in each dimension.
+   */
+  public final double area;
 
   /**
    * Create a new instance.
@@ -67,7 +70,7 @@ public class CoordinateStore {
    *
    * @param xcoord the x coordinates
    * @param ycoord the y coordinates
-   * @param bounds the bounds
+   * @param bounds the bounds used to define the volume of the coordinates (wdith by height)
    * @throws IllegalArgumentException if results are null or empty
    */
   public CoordinateStore(float[] xcoord, float[] ycoord, Rectangle bounds) {
