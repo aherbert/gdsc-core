@@ -915,17 +915,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    *
    * @param tracker the new tracker
    */
-  public void setTracker(TrackProgress tracker) {
+  void setTracker(TrackProgress tracker) {
     this.tracker = tracker;
-  }
-
-  /**
-   * Gets the number of splits.
-   *
-   * @return the number of splits
-   */
-  int getNumberOfSplits() {
-    return numberOfSplits;
   }
 
   /**
@@ -939,15 +930,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   }
 
   /**
-   * Gets the number of projections.
-   *
-   * @return the number of projections
-   */
-  int getNumberOfProjections() {
-    return numberOfProjections;
-  }
-
-  /**
    * Sets the number of projections to compute (if below 1 it will be auto-computed using the size
    * of the data).
    *
@@ -955,15 +937,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   void setNumberOfProjections(int numberOfProjections) {
     this.numberOfProjections = numberOfProjections;
-  }
-
-  /**
-   * Checks if is save approximate sets.
-   *
-   * @return true, if is save approximate sets
-   */
-  boolean isSaveApproximateSets() {
-    return saveApproximateSets;
   }
 
   /**
@@ -977,30 +950,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   }
 
   /**
-   * Gets the sample mode.
-   *
-   * @return the sample mode
-   */
-  public SampleMode getSampleMode() {
-    return sampleMode;
-  }
-
-  /**
    * Sets the sample mode.
    *
    * @param sampleMode the new sample mode
    */
-  public void setSampleMode(SampleMode sampleMode) {
+  void setSampleMode(SampleMode sampleMode) {
     this.sampleMode = ValidationUtils.defaultIfNull(sampleMode, SampleMode.RANDOM);
-  }
-
-  /**
-   * Checks if is use random vectors.
-   *
-   * @return true, if is use random vectors
-   */
-  boolean isUseRandomVectors() {
-    return useRandomVectors;
   }
 
   /**
