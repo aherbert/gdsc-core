@@ -94,18 +94,6 @@ class Molecule {
   }
 
   /**
-   * Get the squared distance to the other molecule.
-   *
-   * @param other the other
-   * @return the squared distance
-   */
-  float distanceSquared(Molecule other) {
-    final float dx = x - other.x;
-    final float dy = y - other.y;
-    return dx * dx + dy * dy;
-  }
-
-  /**
    * Reset for fresh processing.
    */
   final void reset() {
