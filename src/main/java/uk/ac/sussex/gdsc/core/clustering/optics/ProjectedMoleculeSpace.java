@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -181,11 +184,25 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final float[] xcoord = opticsManager.getXData();
     final float[] ycoord = opticsManager.getYData();
 
+    IntFunction<Molecule> factory;
+    if (opticsManager.is3d()) {
+      final float[] zcoord = opticsManager.getZData();
+      factory = i -> {
+        final float x = xcoord[i];
+        final float y = ycoord[i];
+        final float z = zcoord[i];
+        return new Molecule3d(i, x, y, z);
+      };
+    } else {
+      factory = i -> {
+        final float x = xcoord[i];
+        final float y = ycoord[i];
+        return new Molecule(i, x, y);
+      };
+    }
     setOfObjects = new Molecule[xcoord.length];
     for (int i = 0; i < xcoord.length; i++) {
-      final float x = xcoord[i];
-      final float y = ycoord[i];
-      setOfObjects[i] = new Molecule(i, x, y);
+      setOfObjects[i] = factory.apply(i);
     }
 
     return setOfObjects;
@@ -240,16 +257,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     }
 
     // Create random vectors or uniform distribution
-    final UnitSphereSampler vectorGen = (useRandomVectors) ? new UnitSphereSampler(2, rand) : null;
-    final double increment = Math.PI / localNumberOfProjections;
+    final Supplier<double[]> vectorGen = createUnitVectorGenerator(localNumberOfProjections);
+    final Function<double[], float[]> projector = createProjector();
 
     final Ticker ticker = Ticker.createStarted(tracker, localNumberOfProjections, true);
     final LocalList<Runnable> tasks = new LocalList<>();
     for (int i = 0; i < localNumberOfProjections; i++) {
-      final double[] randomVector = createUnitVector(vectorGen, increment, i);
+      final double[] randomVector = vectorGen.get();
       final int index = i;
       tasks.add(() -> {
-        projectedPoints[index] = doProjection(randomVector);
+        projectedPoints[index] = projector.apply(randomVector);
         ticker.tick();
       });
     }
@@ -335,47 +352,61 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param x X
    * @return Logarithm base 2.
    */
-  public static double log2(double x) {
+  private static double log2(double x) {
     return Math.log(x) * ONE_BY_LOG2;
   }
 
   /**
-   * Create a random unit vector. Use the generator if not null, else use a multiple of the
-   * increment.
+   * Creates the unit vector supplier for random projections.
    *
-   * @param vectorGen the vector generator
-   * @param increment the angle increment between vector
-   * @param multiple the increment multiple
-   * @return the vector
+   * @param localNumberOfProjections the number of projections
+   * @return the supplier
    */
-  private static double[] createUnitVector(final UnitSphereSampler vectorGen,
-      final double increment, int multiple) {
-    if (vectorGen == null) {
-      // For a 2D vector we can just uniformly distribute them around a semi-circle
+  private Supplier<double[]> createUnitVectorGenerator(int localNumberOfProjections) {
+    if (useRandomVectors || opticsManager.is3d()) {
+      return new UnitSphereSampler(opticsManager.is3d() ? 3 : 2, rand)::nextVector;
+    }
+    // For a 2D vector we can just uniformly distribute them around a semi-circle
+    final double increment = Math.PI / localNumberOfProjections;
+    final int[] multiple = {0};
+    return () -> {
       final double[] randomVector = new double[2];
-      final double angle = multiple * increment;
+      final double angle = multiple[0]++ * increment;
       randomVector[0] = Math.sin(angle);
       randomVector[1] = Math.cos(angle);
       return randomVector;
-    }
-    return vectorGen.nextVector();
+    };
   }
 
   /**
-   * Project points to the vector and compute the distance along the vector from the origin.
+   * Creates the projector to project points to the vector and compute the distance along the vector
+   * from the origin. This is performed using a scalar projection with the dot product of the
+   * coordinates and the unit vector.
    *
-   * @param size the size
-   * @param randomVector the random vector
-   * @return the projection distance
+   * @return the projector
    */
-  private float[] doProjection(double[] randomVector) {
-    final float[] projection = new float[size];
-    for (int it = size; it-- > 0;) {
-      final Molecule m = setOfObjects[it];
-      // Dot product:
-      projection[it] = (float) (randomVector[0] * m.x + randomVector[1] * m.y);
+  private Function<double[], float[]> createProjector() {
+    if (opticsManager.is3d()) {
+      return randomVector -> {
+        final float[] projection = new float[size];
+        for (int it = size; it-- > 0;) {
+          final Molecule m = setOfObjects[it];
+          // Dot product:
+          projection[it] =
+              (float) (randomVector[0] * m.x + randomVector[1] * m.y + randomVector[2] * m.getZ());
+        }
+        return projection;
+      };
     }
-    return projection;
+    return randomVector -> {
+      final float[] projection = new float[size];
+      for (int it = size; it-- > 0;) {
+        final Molecule m = setOfObjects[it];
+        // Dot product:
+        projection[it] = (float) (randomVector[0] * m.x + randomVector[1] * m.y);
+      }
+      return projection;
+    };
   }
 
   /**
@@ -461,7 +492,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       splitupNoSort(splitSets, projectedPoints, ind, begin, splitpos, dim + 1, rand, minSplitSize);
       splitupNoSort(splitSets, projectedPoints, ind, splitpos, end, dim + 1, rand, minSplitSize);
     } else if (!saveApproximateSets) {
-      // It it wasn't saved as an approximate set then make sure it is saved as it is less than
+      // If it wasn't saved as an approximate set then make sure it is saved as it is less than
       // minSplitSize
       saveSet(splitSets, ind, begin, end, rand, tpro);
     }
@@ -975,6 +1006,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /**
    * Sets the use random vectors flag. Set to true to use random vectors for the projections. The
    * default is to uniformly create vectors on the semi-circle interval.
+   *
+   * <p>Random vectors are always used for 3D data.
    *
    * @param useRandomVectors the new use random vectors
    */
