@@ -102,6 +102,9 @@ public class OpticsManager extends CoordinateStore {
   /** The distance function for the number of dimensions. */
   final ToDoubleBiFunction<Molecule, Molecule> distanceFunction;
 
+  /** The optional coordinates for the z dimension. */
+  private final float[] zcoord;
+
   /**
    * Options for the algorithms.
    */
@@ -863,6 +866,7 @@ public class OpticsManager extends CoordinateStore {
   public OpticsManager(float[] xcoord, float[] ycoord, Rectangle bounds) {
     super(xcoord, ycoord, bounds);
     distanceFunction = MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D;
+    zcoord = null;
   }
 
   /**
@@ -878,6 +882,7 @@ public class OpticsManager extends CoordinateStore {
     numberOfThreads = source.numberOfThreads;
     seed = source.seed;
     distanceFunction = source.distanceFunction;
+    zcoord = source.zcoord;
     // Do not copy the state used for algorithms:
     // tracker
     // loop
@@ -1620,6 +1625,25 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
+   * Gets the raw z data.
+   *
+   * @return the raw z data
+   */
+  float[] getZData() {
+    return zcoord;
+  }
+
+  /**
+   * Checks if the coordinates are 3D.
+   *
+   * @return true if 3D
+   * @see #getData()
+   */
+  boolean is3d() {
+    return zcoord != null;
+  }
+
+  /**
    * Gets the original X.
    *
    * @param index the index
@@ -1638,6 +1662,14 @@ public class OpticsManager extends CoordinateStore {
   float getOriginalY(int index) {
     return ycoord[index] + originy;
   }
+
+  // Note:
+  // Do not support exposing the z coordinate in the same manner as the 2D based
+  // CoordinateStore, e.g.
+  // public float getMinimumZ()
+  // public float getMaximumZ()
+  // public float[][] getData()
+  // public double[][] getDoubleData()
 
   /**
    * Compute (a sample of) the k-nearest neighbour distance for objects from the data The plot of
