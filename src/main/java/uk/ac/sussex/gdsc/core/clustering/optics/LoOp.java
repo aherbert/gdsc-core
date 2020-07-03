@@ -57,7 +57,7 @@ import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 public class LoOp {
 
   /** The number of threads. */
-  private int numberOfThreads = -1;
+  private int numberOfThreads;
 
   /**
    * The KD tree used to store the points for an efficient neighbour search.
@@ -352,7 +352,7 @@ public class LoOp {
    * @return the number of threads
    */
   public int getNumberOfThreads() {
-    if (numberOfThreads == -1) {
+    if (numberOfThreads == 0) {
       numberOfThreads = Runtime.getRuntime().availableProcessors();
     }
     return numberOfThreads;
