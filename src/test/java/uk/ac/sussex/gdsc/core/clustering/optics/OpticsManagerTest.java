@@ -545,6 +545,18 @@ public class OpticsManagerTest {
     Assertions.assertTrue(scores2[4] > scores2[0]);
   }
 
+  @Test
+  public void testCopy() {
+    final float[] x = {0, 1, 2, 3, 10};
+    final OpticsManager om = new OpticsManager(x, x, x, 1);
+    om.addOptions(Option.GRID_PROCESSING);
+    final float[] scores = om.loop(2, 0.5, true);
+    final OpticsManager om2 = om.copy(false);
+    final float[] scores2 = om2.loop(2, 0.5, true);
+    Assertions.assertArrayEquals(scores, scores2);
+    Assertions.assertEquals(om.getOptions(), om2.getOptions());
+  }
+
   /**
    * Test the results of Optics using the ELKI framework.
    */
