@@ -400,6 +400,14 @@ public class OpticsManagerTest {
   }
 
   @Test
+  public void testBadZCoords() {
+    final float[] x = {0};
+    final float[] z = {0, 1};
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new OpticsManager(x, x, null, 1));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new OpticsManager(x, x, z, 1));
+  }
+
+  @Test
   public void testNumberOfThreads() {
     final int expected = Runtime.getRuntime().availableProcessors();
     final float[] x = {0};
