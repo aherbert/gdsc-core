@@ -32,14 +32,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunction;
 import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunctions;
 import uk.ac.sussex.gdsc.core.trees.IntFloatKdTree;
 import uk.ac.sussex.gdsc.core.trees.KdTrees;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
@@ -261,32 +259,6 @@ public class LoOp {
       points[i] = new float[] {x[i], y[i], z[i]};
       tree.addPoint(points[i], i);
     }
-  }
-
-  /**
-   * Create a new instance.
-   *
-   * @param points the points
-   */
-  LoOp(float[][] points) {
-    this.points = points;
-    ValidationUtils.checkStrictlyPositive(ArrayUtils.getLength(points), "Points length");
-    final int dim = points[0].length;
-    tree = KdTrees.newIntFloatKdTree(dim);
-    distanceFunction = FloatDistanceFunctions.squaredEuclidean(dim);
-    for (int i = 0; i < points.length; i++) {
-      tree.addPoint(points[i], i);
-    }
-  }
-
-  /**
-   * Create a new LoOP class by wrapping the provided data.
-   *
-   * @param points the points
-   * @return the Local Outlier Probabilities class
-   */
-  public static LoOp wrap(float[][] points) {
-    return new LoOp(points);
   }
 
   /**
