@@ -345,7 +345,7 @@ public class LoOp {
   }
 
   /**
-   * Gets the number of threads to use for multi-threaded algorithms (FastOPTICS).
+   * Gets the number of threads to use for multi-threaded algorithm.
    *
    * <p>Note: This is initialised to the number of processors available to the JVM.
    *
@@ -359,7 +359,7 @@ public class LoOp {
   }
 
   /**
-   * Sets the number of threads to use for multi-threaded algorithms (FastOPTICS).
+   * Sets the number of threads to use for multi-threaded algorithm.
    *
    * @param numberOfThreads the new number of threads
    */
