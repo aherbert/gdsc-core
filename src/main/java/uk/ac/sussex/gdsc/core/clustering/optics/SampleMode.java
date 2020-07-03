@@ -64,7 +64,7 @@ public enum SampleMode {
   /**
    * Gets the sample mode.
    *
-   * <p>If the ordinal is outside the range of the enum then the value of the first declared
+   * <p>If the ordinal is outside the range of the enum then the value of the closest declared
    * constant in this enum is returned.
    *
    * @param ordinal the ordinal
