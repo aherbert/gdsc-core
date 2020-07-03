@@ -1191,15 +1191,16 @@ public class OpticsManagerTest {
 
   @Test
   public void canComputeGeneratingDistance() {
-    final int[] points = new int[] {1, 2, 3, 5, 10, 20, 50, 100};
-    final double area = size * size;
-    for (final int n : ns) {
-      for (final int minPts : points) {
-        // float d =
-        OpticsManager.computeGeneratingDistance(minPts, area, n);
-        // TestLog.debug(logger,"k=%d, volumeDS=%.1f, N=%d, d=%f", minPts, area, n, d);
-      }
-    }
+    // 1000 points in 10000 area => 10 area / point
+    Assertions.assertEquals(3.56825,
+        OpticsManager.computeGeneratingDistance(4, 10000, false, 1000), 1e-3);
+    Assertions.assertEquals(6.67558,
+        OpticsManager.computeGeneratingDistance(14, 10000, false, 1000), 1e-3);
+    // 1000 points in 10000 volume => 10 volume / point
+    Assertions.assertEquals(2.1215688,
+        OpticsManager.computeGeneratingDistance(4, 10000, true, 1000), 1e-3);
+    Assertions.assertEquals(3.221166,
+        OpticsManager.computeGeneratingDistance(14, 10000, true, 1000), 1e-3);
   }
 
   @SeededTest

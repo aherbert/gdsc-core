@@ -103,6 +103,10 @@ public class OpticsManager extends CoordinateStore {
 
   /** The optional coordinates for the z dimension. */
   private final float[] zcoord;
+  /** The min Z coord. */
+  public final float minZCoord;
+  /** The max Z coord. */
+  public final float maxZCoord;
 
   /** The volume of the coordinates. */
   private final double volume;
@@ -870,6 +874,7 @@ public class OpticsManager extends CoordinateStore {
     distanceFunction = MoleculeDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     zcoord = null;
     volume = this.area;
+    minZCoord = maxZCoord = 0;
   }
 
   /**
@@ -891,7 +896,9 @@ public class OpticsManager extends CoordinateStore {
 
     // Ensure the volume stores at least the minimum volume to contain the coordinates
     final float[] limits = MathUtils.limits(zcoord);
-    final double vol = (maxXCoord - minXCoord) * (maxYCoord - minYCoord) * (limits[1] - limits[0]);
+    minZCoord = limits[0];
+    maxZCoord = limits[1];
+    final double vol = (maxXCoord - minXCoord) * (maxYCoord - minYCoord) * (maxZCoord - minZCoord);
     this.volume = Math.max(vol, volume);
   }
 
@@ -910,6 +917,8 @@ public class OpticsManager extends CoordinateStore {
     distanceFunction = source.distanceFunction;
     zcoord = source.zcoord;
     volume = source.volume;
+    minZCoord = source.minZCoord;
+    maxZCoord = source.maxZCoord;
     // Do not copy the state used for algorithms:
     // tracker
     // loop
@@ -1060,21 +1069,24 @@ public class OpticsManager extends CoordinateStore {
 
     Class<?> clazz = getPreferredMoleculeSpace(false);
     float workingGeneratingDistanceE = generatingDistanceE;
-    if (clazz != null) {
-      // Ensure the distance is valid
-      workingGeneratingDistanceE = getWorkingGeneratingDistance(workingGeneratingDistanceE, minPts);
-
-      // OPTICS will benefit from circular processing if the density is high.
+    // Optimise the default selection of the molecule space
+    if (clazz == null) {
+      // 2D OPTICS will benefit from circular processing if the density is high.
       // This is because we can skip distance computation to molecules outside the circle.
-      // This is roughly pi/4
+      // This is roughly pi/4.
       // Compute the expected number of molecules in the area.
+      if (!is3d()) {
+        // Ensure the distance is valid
+        workingGeneratingDistanceE =
+            getWorkingGeneratingDistance(workingGeneratingDistanceE, minPts);
 
-      final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
+        final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
 
-      // TODO - JUnit test to show when to use a circle to avoid distance comparisons.
-      // We can miss 1 - pi/4 = 21% of the area.
-      if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER) {
-        clazz = RadialMoleculeSpace.class;
+        // TODO - JUnit test to show when to use a circle to avoid distance comparisons.
+        // We can miss 1 - pi/4 = 21% of the area.
+        if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER) {
+          clazz = RadialMoleculeSpace.class;
+        }
       }
     }
     initialise(workingGeneratingDistanceE, minPts, clazz);
@@ -1089,17 +1101,19 @@ public class OpticsManager extends CoordinateStore {
   private void initialiseDbscan(float generatingDistanceE, int minPts) {
     Class<?> clazz = getPreferredMoleculeSpace(true);
     float workingGeneratingDistanceE = generatingDistanceE;
-    if (clazz != null) {
-      // Ensure the distance is valid
-      workingGeneratingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
-
-      // DBSCAN will benefit from inner radial processing if the number of comparisons is high.
+    // Optimise the default selection of the molecule space
+    if (clazz == null) {
+      // 2D DBSCAN will benefit from inner radial processing if the number of comparisons is high.
       // Compute the expected number of molecules in the area.
+      if (!is3d()) {
+        // Ensure the distance is valid
+        workingGeneratingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
 
-      final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
+        final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
 
-      if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER) {
-        clazz = InnerRadialMoleculeSpace.class;
+        if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER) {
+          clazz = InnerRadialMoleculeSpace.class;
+        }
       }
     }
     initialise(workingGeneratingDistanceE, minPts, clazz);
@@ -1141,6 +1155,11 @@ public class OpticsManager extends CoordinateStore {
    * @return the preferred class for the molecule space
    */
   private Class<?> getPreferredMoleculeSpace(boolean allowNull) {
+    // 3D
+    if (is3d()) {
+      return FloatTreeMoleculeSpace.class;
+    }
+    // 2D optimisations
     if (options.contains(Option.CIRCULAR_PROCESSING)) {
       if (options.contains(Option.INNER_PROCESSING)) {
         return InnerRadialMoleculeSpace.class;
@@ -1183,6 +1202,8 @@ public class OpticsManager extends CoordinateStore {
         moleculeSpace = new InnerRadialMoleculeSpace(this, safeGeneratingDistanceE);
       } else if (moleculeSpaceClass == RadialMoleculeSpace.class) {
         moleculeSpace = new RadialMoleculeSpace(this, safeGeneratingDistanceE);
+      } else if (moleculeSpaceClass == FloatTreeMoleculeSpace.class) {
+        moleculeSpace = new FloatTreeMoleculeSpace(this, safeGeneratingDistanceE);
       } else {
         moleculeSpace = new GridMoleculeSpace(this, safeGeneratingDistanceE);
       }
@@ -1219,7 +1240,8 @@ public class OpticsManager extends CoordinateStore {
   private float getWorkingGeneratingDistance(float generatingDistanceE, int minPts) {
     final float xrange = maxXCoord - minXCoord;
     final float yrange = maxYCoord - minYCoord;
-    if (xrange == 0 && yrange == 0) {
+    final float zrange = maxZCoord - minZCoord;
+    if (xrange == 0 && yrange == 0 && zrange == 0) {
       // Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
       return 1;
     }
@@ -1230,7 +1252,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     // Compute the upper distance we can expect
-    final double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
+    final double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange + zrange * zrange);
     if (generatingDistanceE > maxDistance) {
       return (float) maxDistance;
     }
@@ -1426,34 +1448,40 @@ public class OpticsManager extends CoordinateStore {
    * @return the generating distance
    */
   public float computeGeneratingDistance(int minPts) {
-    return computeGeneratingDistance(minPts, area, xcoord.length);
+    return computeGeneratingDistance(minPts, volume, is3d(), xcoord.length);
   }
 
   /**
    * Compute the OPTICS generating distance assuming a uniform distribution in the data space.
    *
    * @param minPts the min points for a core object
-   * @param area the area of the data space
+   * @param volume the volume of the data space
+   * @param is3d true for 3D, otherwise assume 2D
    * @param numberOfPoints the number of points in the data space
    * @return the generating distance
    */
-  public static float computeGeneratingDistance(int minPts, double area, int numberOfPoints) {
+  static float computeGeneratingDistance(int minPts, double volume, boolean is3d,
+      int numberOfPoints) {
     // Taken from section 4.1 of the OPTICS paper.
 
     // Number of dimensions
     // d = 2
     // Volume of the data space (DS)
-    final double volumeDataSpace = area;
+    final double volumeDataSpace = volume;
     // Expected k-nearest-neighbours
     final int k = minPts;
 
     // Compute the volume of the hypersphere required to contain k neighbours,
     // assuming a uniform spread.
 
-    final double volumeSphere = (volumeDataSpace / numberOfPoints) * k;
+    final double volumeHyperSphere = (volumeDataSpace / numberOfPoints) * k;
 
+    if (is3d) {
+      // Note: Volume S(r) for a 3D hypersphere = 4 * pi * r^3 / 3
+      return (float) Math.cbrt(3 * volumeHyperSphere / (4 * Math.PI));
+    }
     // Note: Volume S(r) for a 2D hypersphere = pi * r^2
-    return (float) Math.sqrt(volumeSphere / Math.PI);
+    return (float) Math.sqrt(volumeHyperSphere / Math.PI);
   }
 
   /**
