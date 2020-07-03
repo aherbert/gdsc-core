@@ -326,6 +326,8 @@ public class LoOp {
     }
     wait(futures);
 
+    executor.shutdown();
+
     return plofs;
   }
 
