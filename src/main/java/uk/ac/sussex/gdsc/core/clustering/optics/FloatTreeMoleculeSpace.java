@@ -105,8 +105,9 @@ class FloatTreeMoleculeSpace extends MoleculeSpace {
   @Override
   void findNeighbours(int minPts, Molecule object, float generatingDistanceE) {
     neighbours.clear();
-    tree.findNeighbours(new double[] {object.x, object.y}, generatingDistanceE, distanceFunction,
-        (molecule, distance) -> {
+    // Empty z coordinate will be ignored in 2D
+    tree.findNeighbours(new double[] {object.x, object.y, object.getZ()}, generatingDistanceE,
+        distanceFunction, (molecule, distance) -> {
           molecule.setD((float) distance);
           neighbours.add(molecule);
         });
