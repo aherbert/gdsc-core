@@ -84,9 +84,6 @@ public class LoOp {
     /** The neighbours. */
     final int[][] neighbours;
 
-    /** The current index in the neighbours. */
-    int index;
-
     /** The size of the current list of neighbours. */
     int size;
 
@@ -102,7 +99,9 @@ public class LoOp {
 
     @Override
     public void accept(int neighbour, double distance) {
-      if (index == neighbour) {
+      // Assume results are in sorted order, largest distance first.
+      // Ignore the final neighbour as it will be the search point.
+      if (size == neighboursAtIndex.length) {
         // Ignore self
         return;
       }
@@ -116,7 +115,6 @@ public class LoOp {
      * @param index the index
      */
     void reset(int index) {
-      this.index = index;
       sumDistances = 0;
       size = 0;
       neighboursAtIndex = neighbours[index];
@@ -152,7 +150,7 @@ public class LoOp {
         for (int j = 0; j < search.length; j++) {
           search[j] = points[i][j];
         }
-        tree.nearestNeighbours(search, k1, false, distanceFunction, store);
+        tree.nearestNeighbours(search, k1, true, distanceFunction, store);
         pd[i] = Math.sqrt(store.sumDistances / numberOfNeigbours);
       }
     }
@@ -275,7 +273,7 @@ public class LoOp {
     final int size = size();
 
     // Bounds check the neighbour count (k)
-    final int neighbourCount = MathUtils.clip(1, size, numberOfNeighbours);
+    final int neighbourCount = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
     // Multi-thread
     final int threadCount = getNumberOfThreads();

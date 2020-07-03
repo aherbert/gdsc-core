@@ -69,6 +69,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -399,6 +400,57 @@ public class OpticsManagerTest {
   }
 
   @Test
+  public void testNumberOfThreads() {
+    final int expected = Runtime.getRuntime().availableProcessors();
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    Assertions.assertEquals(expected, om.getNumberOfThreads());
+    om.setNumberOfThreads(3);
+    Assertions.assertEquals(3, om.getNumberOfThreads());
+    om.setNumberOfThreads(-3);
+    Assertions.assertEquals(1, om.getNumberOfThreads());
+  }
+
+  @Test
+  public void testRandomSeed() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    Assertions.assertEquals(0, om.getRandomSeed());
+    om.setRandomSeed(42);
+    Assertions.assertEquals(42, om.getRandomSeed());
+  }
+
+  @Test
+  public void testOptions() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    final Set<Option> options = om.getOptions();
+    Assertions.assertTrue(options.isEmpty());
+    om.addOptions(Option.CACHE);
+    Assertions.assertTrue(options.contains(Option.CACHE));
+    om.removeOptions(Option.CACHE);
+    Assertions.assertTrue(options.isEmpty());
+  }
+
+  @Test
+  public void testGetExecutorService() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    Assertions.assertNull(om.getExecutorService());
+    om.setNumberOfThreads(3);
+    Assertions.assertNotNull(om.getExecutorService());
+    Assertions.assertFalse(om.getExecutorService().isShutdown());
+    om.shutdownExecutorService();
+    final ExecutorService es = om.getExecutorService();
+    Assertions.assertNotNull(es);
+    Assertions.assertFalse(om.getExecutorService().isShutdown());
+    es.shutdown();
+    Assertions.assertNotNull(om.getExecutorService());
+    Assertions.assertFalse(om.getExecutorService().isShutdown());
+    om.shutdownExecutorService();
+  }
+
+  @Test
   public void testNearestNeighbourDistanceEmpty() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 10);
@@ -438,6 +490,51 @@ public class OpticsManagerTest {
       Assertions.assertTrue(d <= end);
       Assertions.assertTrue(d >= mid);
     }
+  }
+
+  @Test
+  public void testLoopEmpty() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 10);
+    Assertions.assertArrayEquals(new float[1], om.loop(2, 3, false));
+  }
+
+  @Test
+  public void testLoop2d() {
+    final float[] x = {0, 1, 2, 3, 10};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    om.setTracker(AssertionTracker.INSTANCE);
+    final float[] scores = om.loop(2, 0.5, true);
+    Assertions.assertTrue(scores[4] > scores[0]);
+    Assertions.assertTrue(scores[0] > scores[1]);
+    Assertions.assertEquals(scores[1], scores[2]);
+    Assertions.assertEquals(scores[0], scores[3]);
+    final float[] scores2 = om.loop(10, 0.5, false);
+    Assertions.assertTrue(scores2[4] > scores2[0]);
+  }
+
+  @Test
+  public void testLoop2dColocated() {
+    final float[] x = {0, 0, 0, 0, 1, 10};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    om.setTracker(AssertionTracker.INSTANCE);
+    // The method should be robust to ignore self for colocated points
+    final float[] scores = om.loop(2, 0.5, true);
+    Assertions.assertTrue(scores[5] > scores[0]);
+  }
+
+  @Test
+  public void testLoop3d() {
+    final float[] x = {0, 1, 2, 3, 10};
+    final OpticsManager om = new OpticsManager(x, x, x, 1);
+    om.setTracker(AssertionTracker.INSTANCE);
+    final float[] scores = om.loop(2, 0.5, true);
+    Assertions.assertTrue(scores[4] > scores[0]);
+    Assertions.assertTrue(scores[0] > scores[1]);
+    Assertions.assertEquals(scores[1], scores[2]);
+    Assertions.assertEquals(scores[0], scores[3]);
+    final float[] scores2 = om.loop(10, 0.5, false);
+    Assertions.assertTrue(scores2[4] > scores2[0]);
   }
 
   /**
