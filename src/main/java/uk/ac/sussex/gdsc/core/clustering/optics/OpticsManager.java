@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.IntConsumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +44,7 @@ import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunction;
 import uk.ac.sussex.gdsc.core.trees.FloatDistanceFunctions;
 import uk.ac.sussex.gdsc.core.trees.FloatKdTree;
 import uk.ac.sussex.gdsc.core.trees.KdTrees;
@@ -1727,7 +1729,7 @@ public class OpticsManager extends CoordinateStore {
   // public double[][] getDoubleData()
 
   /**
-   * Compute (a sample of) the k-nearest neighbour distance for objects from the data The plot of
+   * Compute (a sample of) the k-nearest neighbour distance for objects from the data. The plot of
    * the sorted k-distance can be used to pick the generating distance. Or it can be done
    * automatically using a % noise threshold.
    *
@@ -1773,27 +1775,48 @@ public class OpticsManager extends CoordinateStore {
 
     // Use a KDtree to allow search of the space
     if (tree == null) {
-      tree = KdTrees.newFloatKdTree(2);
-      for (int i = 0; i < size; i++) {
-        tree.addPoint(new float[] {xcoord[i], ycoord[i]});
+      if (is3d()) {
+        tree = KdTrees.newFloatKdTree(3);
+        for (int i = 0; i < size; i++) {
+          tree.addPoint(new float[] {xcoord[i], ycoord[i], zcoord[i]});
+        }
+      } else {
+        tree = KdTrees.newFloatKdTree(2);
+        for (int i = 0; i < size; i++) {
+          tree.addPoint(new float[] {xcoord[i], ycoord[i]});
+        }
       }
     }
 
     // Note: The k-nearest neighbour search will include the actual point so increment by 1
     numNeighbours++;
 
-    final double[] location = new double[2];
+    final double[] location = new double[tree.dimensions()];
+    final FloatDistanceFunction distanceFunction =
+        FloatDistanceFunctions.squaredEuclidean(tree.dimensions());
+    IntConsumer locationSetup;
+    if (is3d()) {
+      locationSetup = i -> {
+        location[0] = xcoord[i];
+        location[1] = ycoord[i];
+        location[2] = zcoord[i];
+      };
+    } else {
+      locationSetup = i -> {
+        location[0] = xcoord[i];
+        location[1] = ycoord[i];
+      };
+    }
+
     final DoubleList tmp = new DoubleList(numNeighbours);
     for (int i = 0; i < sampleSize; i++) {
       if (tracker != null) {
         tracker.progress(i, sampleSize);
       }
-      final int index = indices[i];
-      location[0] = xcoord[index];
-      location[1] = ycoord[index];
+      locationSetup.accept(indices[i]);
       tmp.clear();
-      tree.nearestNeighbours(location, numNeighbours, false,
-          FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D, dist -> tmp.add(dist));
+      tree.nearestNeighbours(location, numNeighbours, false, distanceFunction,
+          dist -> tmp.add(dist));
       // The tree will use the squared distance so compute the root.
       // This assumes the first result is the maximum
       d[i] = (float) (Math.sqrt(tmp.get(0)));
@@ -2250,7 +2273,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     if (loopObject == null) {
-      loopObject = new LoOp(xcoord, ycoord);
+      loopObject = is3d() ? new LoOp(xcoord, ycoord, zcoord) : new LoOp(xcoord, ycoord);
     }
     loopObject.setNumberOfThreads(getNumberOfThreads());
 
