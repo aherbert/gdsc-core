@@ -1765,7 +1765,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     int[] indices;
-    if (sampleSize <= size) {
+    if (sampleSize == size) {
       // Compute all
       indices = SimpleArrayUtils.natural(sampleSize);
     } else {

@@ -85,6 +85,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
@@ -345,6 +346,97 @@ public class OpticsManagerTest {
       }
 
       return neighs;
+    }
+  }
+
+  private static class AssertionTracker implements TrackProgress {
+    static final AssertionTracker INSTANCE = new AssertionTracker();
+
+    @Override
+    public void progress(double fraction) {
+      // Ignore
+    }
+
+    @Override
+    public void progress(long position, long total) {
+      // Ignore
+    }
+
+    @Override
+    public void incrementProgress(double fraction) {
+      // Ignore
+    }
+
+    @Override
+    public void log(String format, Object... args) {
+      Assertions.assertNotNull(String.format(format, args));
+    }
+
+    @Override
+    public void status(String format, Object... args) {
+      Assertions.assertNotNull(String.format(format, args));
+    }
+
+    @Override
+    public boolean isEnded() {
+      return false;
+    }
+
+    @Override
+    public boolean isProgress() {
+      return true;
+    }
+
+    @Override
+    public boolean isLog() {
+      return true;
+    }
+
+    @Override
+    public boolean isStatus() {
+      return true;
+    }
+  }
+
+  @Test
+  public void testNearestNeighbourDistanceEmpty() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 10);
+    Assertions.assertArrayEquals(new float[0], om.nearestNeighbourDistance(5, 5, false));
+  }
+
+  @Test
+  public void testNearestNeighbourDistance2d() {
+    final float[] x = SimpleArrayUtils.newArray(5, 0f, 1f);
+    final OpticsManager om = new OpticsManager(x, x, 4 * 4);
+    om.setTracker(AssertionTracker.INSTANCE);
+    final float end = (float) Math.sqrt(2 * 2 + 2 * 2);
+    final float mid = (float) Math.sqrt(1 * 1 + 1 * 1);
+    final float[] expected = {end, mid, mid, mid, end};
+    Assertions.assertArrayEquals(expected, om.nearestNeighbourDistance(2, 5, true));
+    Assertions.assertArrayEquals(expected, om.nearestNeighbourDistance(2, 0, true));
+    // Random
+    final float[] distances = om.nearestNeighbourDistance(2, 2, false);
+    for (final float d : distances) {
+      Assertions.assertTrue(d <= end);
+      Assertions.assertTrue(d >= mid);
+    }
+  }
+
+  @Test
+  public void testNearestNeighbourDistance3d() {
+    final float[] x = SimpleArrayUtils.newArray(5, 0f, 1f);
+    final OpticsManager om = new OpticsManager(x, x, x, 4 * 4 * 4);
+    final float end = (float) Math.sqrt(2 * 2 + 2 * 2 + 2 * 2);
+    final float mid = (float) Math.sqrt(1 * 1 + 1 * 1 + 1 * 1);
+    final float[] expected = {end, mid, mid, mid, end};
+    Assertions.assertArrayEquals(expected, om.nearestNeighbourDistance(2, 5, true));
+    Assertions.assertArrayEquals(expected, om.nearestNeighbourDistance(2, 0, true));
+    // Random
+    final float[] distances = om.nearestNeighbourDistance(2, 2, false);
+    for (final float d : distances) {
+      Assertions.assertTrue(d <= end);
+      Assertions.assertTrue(d >= mid);
     }
   }
 
@@ -1192,8 +1284,8 @@ public class OpticsManagerTest {
   @Test
   public void canComputeGeneratingDistance() {
     // 1000 points in 10000 area => 10 area / point
-    Assertions.assertEquals(3.56825,
-        OpticsManager.computeGeneratingDistance(4, 10000, false, 1000), 1e-3);
+    Assertions.assertEquals(3.56825, OpticsManager.computeGeneratingDistance(4, 10000, false, 1000),
+        1e-3);
     Assertions.assertEquals(6.67558,
         OpticsManager.computeGeneratingDistance(14, 10000, false, 1000), 1e-3);
     // 1000 points in 10000 volume => 10 volume / point
@@ -1928,8 +2020,8 @@ public class OpticsManagerTest {
 
       for (int resolution = 1; resolution <= maxResolution; resolution++) {
         final double last = best[0];
-        TimingResult result = ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.GRID, om,
-            minPts, generatingDistanceE, resolution) {
+        final TimingResult result = ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.GRID,
+            om, minPts, generatingDistanceE, resolution) {
           @Override
           public void check(int index, Object result) {
             n[index] = format(result);
@@ -1999,13 +2091,14 @@ public class OpticsManagerTest {
 
       for (int resolution = 1; resolution <= maxResolution; resolution++) {
         final double last = best[0];
-        TimingResult result = ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, om,
-            minPts, generatingDistanceE, resolution) {
-          @Override
-          public void check(int index, Object result) {
-            n[index] = format(result);
-          }
-        });
+        final TimingResult result =
+            ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, om, minPts,
+                generatingDistanceE, resolution) {
+              @Override
+              public void check(int index, Object result) {
+                n[index] = format(result);
+              }
+            });
         update(result, best);
         if (last == best[0]) {
           noChange++;
@@ -2071,7 +2164,7 @@ public class OpticsManagerTest {
 
       for (int resolution = Math.max(1, lastMax - 3); resolution <= maxResolution; resolution++) {
         final double last = best[0];
-        TimingResult result =
+        final TimingResult result =
             ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, om, minPts,
                 generatingDistanceE, resolution) {
               @Override
