@@ -172,7 +172,8 @@ public class OpticsManager extends CoordinateStore {
   /**
    * Used in the DBSCAN algorithm to store a queue of molecules to process.
    */
-  private static class MoleculeQueue extends MoleculeList {
+  @VisibleForTesting
+  static class MoleculeQueue extends MoleculeList {
 
     /** The next. */
     int next;
@@ -278,7 +279,8 @@ public class OpticsManager extends CoordinateStore {
    * Interface for the OPTICS priority queue. Molecules should be ordered by their reachability
    * distance.
    */
-  private interface OpticsPriorityQueue {
+  @VisibleForTesting
+  interface OpticsPriorityQueue {
     /**
      * Push the molecule to the queue and move up.
      *
@@ -314,9 +316,10 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
-   * Used in the OPTICS algorithm to store the next seed is a priority queue.
+   * Used in the OPTICS algorithm to store the next seed in a priority queue.
    */
-  private static class OpticsMoleculePriorityQueue extends MoleculeList
+  @VisibleForTesting
+  static class OpticsMoleculePriorityQueue extends MoleculeList
       implements OpticsPriorityQueue {
 
     /** The next index. */
@@ -338,7 +341,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     /**
-     * Sets the.
+     * Sets the molecule at the index.
      *
      * @param molecule the molecule
      * @param index the index
@@ -406,11 +409,12 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
-   * Used in the OPTICS algorithm to store the next seed is a priority queue.
+   * Used in the OPTICS algorithm to store the next seed in a priority queue.
    *
    * <p>If distances are equal then IDs are used to sort the objects in order.
    */
-  private static class OpticsMoleculePriorityQueueIdOrdered extends OpticsMoleculePriorityQueue {
+  @VisibleForTesting
+  static class OpticsMoleculePriorityQueueIdOrdered extends OpticsMoleculePriorityQueue {
 
     /**
      * Instantiates a new optics molecule priority queue id ordered.
@@ -434,11 +438,12 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
-   * Used in the OPTICS algorithm to store the next seed is a priority queue.
+   * Used in the OPTICS algorithm to store the next seed in a priority queue.
    *
    * <p>If distances are equal then IDs are used to sort the objects in reverse order.
    */
-  private static class OpticsMoleculePriorityQueueReverseIdOrdered
+  @VisibleForTesting
+  static class OpticsMoleculePriorityQueueReverseIdOrdered
       extends OpticsMoleculePriorityQueue {
 
     /**
@@ -465,9 +470,10 @@ public class OpticsManager extends CoordinateStore {
   /**
    * An implementation of a binary heap respecting minimum order.
    *
-   * <p>This class is based on ags.utils.dataStructures.BinaryHeap
+   * <p>This class is based on uk.ac.sussex.gdsc.core.trees.heaps.ObjDoubleMinHeap.
    */
-  private static class OpticsMoleculeBinaryHeap extends MoleculeList
+  @VisibleForTesting
+  static class OpticsMoleculeBinaryHeap extends MoleculeList
       implements OpticsPriorityQueue {
 
     /**
@@ -486,7 +492,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     /**
-     * Sets the.
+     * Sets the molecule at the index.
      *
      * @param molecule the molecule
      * @param index the index
@@ -598,7 +604,8 @@ public class OpticsManager extends CoordinateStore {
    *
    * <p>If distances are equal then IDs are used to sort the objects in order.
    */
-  private static class OpticsMoleculeBinaryHeapIdOrdered extends OpticsMoleculeBinaryHeap {
+  @VisibleForTesting
+  static class OpticsMoleculeBinaryHeapIdOrdered extends OpticsMoleculeBinaryHeap {
 
     /**
      * Instantiates a new optics molecule binary heap id ordered.
@@ -637,7 +644,8 @@ public class OpticsManager extends CoordinateStore {
    *
    * <p>If distances are equal then IDs are used to sort the objects in reverse order.
    */
-  private static class OpticsMoleculeBinaryHeapReverseIdOrdered extends OpticsMoleculeBinaryHeap {
+  @VisibleForTesting
+  static class OpticsMoleculeBinaryHeapReverseIdOrdered extends OpticsMoleculeBinaryHeap {
 
     /**
      * Instantiates a new optics molecule binary heap reverse id ordered.
@@ -1039,7 +1047,8 @@ public class OpticsManager extends CoordinateStore {
    * @param size the size
    * @return the optics priority queue
    */
-  private OpticsPriorityQueue createQueue(final int size) {
+  @VisibleForTesting
+  OpticsPriorityQueue createQueue(final int size) {
     OpticsPriorityQueue orderSeeds;
     if (options.contains(Option.OPTICS_SIMPLE_PRIORITY_QUEUE)) {
       if (options.contains(Option.OPTICS_STRICT_ID_ORDER)) {

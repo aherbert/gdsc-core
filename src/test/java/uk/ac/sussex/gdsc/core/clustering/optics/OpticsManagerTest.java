@@ -81,6 +81,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBinaryHeap;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBinaryHeapIdOrdered;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBinaryHeapReverseIdOrdered;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculePriorityQueue;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculePriorityQueueIdOrdered;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculePriorityQueueReverseIdOrdered;
+import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsPriorityQueue;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.Option;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
@@ -646,6 +653,147 @@ public class OpticsManagerTest {
     // Don't choose use random vectors, it will default to this anyway.
     final OpticsResult r3 = om3.fastOptics(4, 0, 0, false, false, SampleMode.ALL);
     Assertions.assertEquals(1, ri.compute(r2.getClusters(), r3.getClusters()).getRandIndex());
+  }
+
+  @Test
+  public void testOpticsMoleculePriorityQueue() {
+    final OpticsPriorityQueue q = new OpticsMoleculePriorityQueue(10);
+    final Molecule m1 = createMolecule(1, 5);
+    final Molecule m2 = createMolecule(2, 2);
+    final Molecule m3 = createMolecule(3, 3);
+    final Molecule m4 = createMolecule(4, 4);
+    q.push(m1);
+    q.push(m2);
+    q.push(m3);
+    q.push(m4);
+    Assertions.assertSame(m2, q.next());
+    Assertions.assertSame(m3, q.next());
+    Assertions.assertSame(m4, q.next());
+    Assertions.assertSame(m1, q.next());
+    Assertions.assertFalse(q.hasNext());
+    q.clear();
+  }
+
+  @Test
+  public void testOpticsMoleculePriorityQueueIdOrdered() {
+    final OpticsPriorityQueue q = new OpticsMoleculePriorityQueueIdOrdered(10);
+    final Molecule m1 = createMolecule(1, 5);
+    final Molecule m2 = createMolecule(2, 2);
+    final Molecule m3 = createMolecule(3, 2);
+    final Molecule m4 = createMolecule(4, 4);
+    q.push(m1);
+    q.push(m3);
+    q.push(m2);
+    q.push(m4);
+    Assertions.assertSame(m2, q.next());
+    Assertions.assertSame(m3, q.next());
+    Assertions.assertSame(m4, q.next());
+    Assertions.assertSame(m1, q.next());
+    Assertions.assertFalse(q.hasNext());
+    q.clear();
+  }
+
+  @Test
+  public void testOpticsMoleculePriorityQueueReverseIdOrdered() {
+    final OpticsPriorityQueue q = new OpticsMoleculePriorityQueueReverseIdOrdered(10);
+    final Molecule m1 = createMolecule(1, 5);
+    final Molecule m2 = createMolecule(2, 2);
+    final Molecule m3 = createMolecule(3, 2);
+    final Molecule m4 = createMolecule(4, 4);
+    q.push(m1);
+    q.push(m2);
+    q.push(m3);
+    q.push(m4);
+    Assertions.assertSame(m3, q.next());
+    Assertions.assertSame(m2, q.next());
+    Assertions.assertSame(m4, q.next());
+    Assertions.assertSame(m1, q.next());
+    Assertions.assertFalse(q.hasNext());
+    q.clear();
+  }
+
+  @Test
+  public void testOpticsMoleculeBinaryHeap() {
+    final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeap(10);
+    final Molecule m1 = createMolecule(1, 5);
+    final Molecule m2 = createMolecule(2, 2);
+    final Molecule m3 = createMolecule(3, 3);
+    final Molecule m4 = createMolecule(4, 4);
+    q.push(m1);
+    q.push(m2);
+    q.push(m3);
+    q.push(m4);
+    Assertions.assertSame(m2, q.next());
+    Assertions.assertSame(m3, q.next());
+    Assertions.assertSame(m4, q.next());
+    Assertions.assertSame(m1, q.next());
+    Assertions.assertFalse(q.hasNext());
+    q.clear();
+  }
+
+  @Test
+  public void testOpticsMoleculeBinaryHeapIdOrdered() {
+    final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeapIdOrdered(10);
+    final Molecule m1 = createMolecule(1, 5);
+    final Molecule m2 = createMolecule(2, 2);
+    final Molecule m3 = createMolecule(3, 2);
+    final Molecule m4 = createMolecule(4, 4);
+    q.push(m1);
+    q.push(m3);
+    q.push(m2);
+    q.push(m4);
+    Assertions.assertSame(m2, q.next());
+    Assertions.assertSame(m3, q.next());
+    Assertions.assertSame(m4, q.next());
+    Assertions.assertSame(m1, q.next());
+    Assertions.assertFalse(q.hasNext());
+    q.clear();
+  }
+
+  @Test
+  public void testOpticsMoleculeBinaryHeapReverseIdOrdered() {
+    final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeapReverseIdOrdered(10);
+    final Molecule m1 = createMolecule(1, 5);
+    final Molecule m2 = createMolecule(2, 2);
+    final Molecule m3 = createMolecule(3, 2);
+    final Molecule m4 = createMolecule(4, 4);
+    q.push(m1);
+    q.push(m2);
+    q.push(m3);
+    q.push(m4);
+    Assertions.assertSame(m3, q.next());
+    Assertions.assertSame(m2, q.next());
+    Assertions.assertSame(m4, q.next());
+    Assertions.assertSame(m1, q.next());
+    Assertions.assertFalse(q.hasNext());
+    q.clear();
+  }
+
+  private static Molecule createMolecule(int id, float reachabilityDistance) {
+    final Molecule m = new Molecule(id, 0, 0);
+    m.reachabilityDistance = reachabilityDistance;
+    return m;
+  }
+
+  @Test
+  public void testCreateQueue() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    Assertions.assertEquals(OpticsMoleculeBinaryHeap.class, om.createQueue(1).getClass());
+    om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+    Assertions.assertEquals(OpticsMoleculeBinaryHeapReverseIdOrdered.class,
+        om.createQueue(1).getClass());
+    om.addOptions(Option.OPTICS_STRICT_ID_ORDER);
+    Assertions.assertEquals(OpticsMoleculeBinaryHeapIdOrdered.class, om.createQueue(1).getClass());
+    om.getOptions().clear();
+    om.addOptions(Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
+    Assertions.assertEquals(OpticsMoleculePriorityQueue.class, om.createQueue(1).getClass());
+    om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+    Assertions.assertEquals(OpticsMoleculePriorityQueueReverseIdOrdered.class,
+        om.createQueue(1).getClass());
+    om.addOptions(Option.OPTICS_STRICT_ID_ORDER);
+    Assertions.assertEquals(OpticsMoleculePriorityQueueIdOrdered.class,
+        om.createQueue(1).getClass());
   }
 
   /**
