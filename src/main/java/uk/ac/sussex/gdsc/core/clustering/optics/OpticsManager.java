@@ -900,7 +900,9 @@ public class OpticsManager extends CoordinateStore {
     final float[] limits = MathUtils.limits(zcoord);
     minZCoord = limits[0];
     maxZCoord = limits[1];
-    final double vol = (maxXCoord - minXCoord) * (maxYCoord - minYCoord) * (maxZCoord - minZCoord);
+    // Ignore dimensions with no range by ensuring a non-zero number
+    final double vol = computeDeltaOrOne(maxXCoord, minXCoord)
+        * computeDeltaOrOne(maxYCoord, minYCoord) * computeDeltaOrOne(maxZCoord, minZCoord);
     this.volume = Math.max(vol, volume);
   }
 
