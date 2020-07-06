@@ -399,6 +399,19 @@ public class OpticsManagerTest {
     }
   }
 
+  private static class AbortTracker extends AssertionTracker {
+    int count;
+
+    AbortTracker(int count) {
+      this.count = count;
+    }
+
+    @Override
+    public boolean isEnded() {
+      return count-- <= 0;
+    }
+  }
+
   @Test
   public void testBadZCoords() {
     final float[] x = {0};
@@ -510,7 +523,7 @@ public class OpticsManagerTest {
   @Test
   public void testLoop2d() {
     final float[] x = {0, 1, 2, 3, 10};
-    final OpticsManager om = new OpticsManager(x, x, 1);
+    final OpticsManager om = new OpticsManager(x, x, 10);
     om.setTracker(AssertionTracker.INSTANCE);
     final float[] scores = om.loop(2, 0.5, true);
     Assertions.assertTrue(scores[4] > scores[0]);
@@ -524,7 +537,7 @@ public class OpticsManagerTest {
   @Test
   public void testLoop2dColocated() {
     final float[] x = {0, 0, 0, 0, 1, 10};
-    final OpticsManager om = new OpticsManager(x, x, 1);
+    final OpticsManager om = new OpticsManager(x, x, 100);
     om.setTracker(AssertionTracker.INSTANCE);
     // The method should be robust to ignore self for colocated points
     final float[] scores = om.loop(2, 0.5, true);
@@ -534,7 +547,7 @@ public class OpticsManagerTest {
   @Test
   public void testLoop3d() {
     final float[] x = {0, 1, 2, 3, 10};
-    final OpticsManager om = new OpticsManager(x, x, x, 1);
+    final OpticsManager om = new OpticsManager(x, x, x, 1000);
     om.setTracker(AssertionTracker.INSTANCE);
     final float[] scores = om.loop(2, 0.5, true);
     Assertions.assertTrue(scores[4] > scores[0]);
@@ -548,13 +561,91 @@ public class OpticsManagerTest {
   @Test
   public void testCopy() {
     final float[] x = {0, 1, 2, 3, 10};
-    final OpticsManager om = new OpticsManager(x, x, x, 1);
+    final OpticsManager om = new OpticsManager(x, x, x, 1000);
     om.addOptions(Option.GRID_PROCESSING);
     final float[] scores = om.loop(2, 0.5, true);
     final OpticsManager om2 = om.copy(false);
     final float[] scores2 = om2.loop(2, 0.5, true);
     Assertions.assertArrayEquals(scores, scores2);
     Assertions.assertEquals(om.getOptions(), om2.getOptions());
+  }
+
+  @Test
+  public void testAbortOptics() {
+    final float[] x = {0, 1, 2, 3};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    for (int i = 0; i < 3; i++) {
+      om.setTracker(new AbortTracker(i));
+      Assertions.assertNull(om.optics(5, 2));
+    }
+  }
+
+  @Test
+  public void testAbortDbscan() {
+    final float[] x = {0, 1, 2, 3};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    for (int i = 0; i < 3; i++) {
+      om.setTracker(new AbortTracker(i));
+      Assertions.assertNull(om.dbscan(5, 2));
+    }
+  }
+
+  @Test
+  public void testAbortFastOptics() {
+    final float[] x = {0, 1, 2, 3};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    for (int i = 0; i < 3; i++) {
+      om.setTracker(new AbortTracker(i));
+      Assertions.assertNull(om.fastOptics(4));
+    }
+  }
+
+  @Test
+  public void testOptics2dVerses3d() {
+    final float[] x = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
+    final float[] z = new float[x.length];
+    final RandIndex ri = new RandIndex();
+    final OpticsManager om2 = new OpticsManager(x, x, 0);
+    final OpticsManager om3 = new OpticsManager(x, x, z, 0);
+    om2.setTracker(AssertionTracker.INSTANCE);
+    om3.setTracker(AssertionTracker.INSTANCE);
+    final OpticsResult r2 = om2.optics(6, 4);
+    final OpticsResult r3 = om3.optics(6, 4);
+    Assertions.assertEquals(1, ri.compute(r2.getClusters(), r3.getClusters()).getRandIndex());
+  }
+
+  @Test
+  public void testDbscan2dVerses3d() {
+    final float[] x = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
+    final float[] z = new float[x.length];
+    final RandIndex ri = new RandIndex();
+    final OpticsManager om2 = new OpticsManager(x, x, 0);
+    final OpticsManager om3 = new OpticsManager(x, x, z, 0);
+    om2.setTracker(AssertionTracker.INSTANCE);
+    om3.setTracker(AssertionTracker.INSTANCE);
+    final DbscanResult r2 = om2.dbscan(6, 4);
+    final DbscanResult r3 = om3.dbscan(6, 4);
+    Assertions.assertEquals(1,
+        ri.compute(r2.getClusters(false), r3.getClusters(false)).getRandIndex());
+  }
+
+  @Test
+  public void testFastOptics2dVerses3d() {
+    final float[] x = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
+    final float[] z = new float[x.length];
+    final RandIndex ri = new RandIndex();
+    final OpticsManager om2 = new OpticsManager(x, x, 0);
+    final OpticsManager om3 = new OpticsManager(x, x, z, 0);
+    // Sometimes the random projections create different results so use a fixed seed.
+    final long seed = 12345;
+    om2.setRandomSeed(seed);
+    om3.setRandomSeed(seed);
+    om2.setTracker(AssertionTracker.INSTANCE);
+    om3.setTracker(AssertionTracker.INSTANCE);
+    final OpticsResult r2 = om2.fastOptics(4, 0, 0, true, false, SampleMode.ALL);
+    // Don't choose use random vectors, it will default to this anyway.
+    final OpticsResult r3 = om3.fastOptics(4, 0, 0, false, false, SampleMode.ALL);
+    Assertions.assertEquals(1, ri.compute(r2.getClusters(), r3.getClusters()).getRandIndex());
   }
 
   /**
