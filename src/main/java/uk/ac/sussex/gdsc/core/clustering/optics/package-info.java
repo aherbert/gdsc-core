@@ -27,7 +27,7 @@
  */
 
 /**
- * Provides algorithms for 2D DBSCAN, OPTICS and FastOPTICS.
+ * Provides algorithms for 2D/3D DBSCAN, OPTICS and FastOPTICS.
  *
  * @see <a href="https://en.wikipedia.org/wiki/DBSCAN">DBSCAN</a>
  * @see <a href="https://en.wikipedia.org/wiki/OPTICS_algorithm">OPTICS</a>
