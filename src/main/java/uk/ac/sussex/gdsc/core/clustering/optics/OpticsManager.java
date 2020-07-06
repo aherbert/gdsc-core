@@ -1080,28 +1080,8 @@ public class OpticsManager extends CoordinateStore {
     // For now this is disabled.
     // Class<?> clazz = getPreferredMoleculeSpace(true)
 
-    Class<?> clazz = getPreferredMoleculeSpace(false);
+    final Class<?> clazz = getPreferredMoleculeSpace(false);
     float workingGeneratingDistanceE = generatingDistanceE;
-    // Optimise the default selection of the molecule space
-    if (clazz == null) {
-      // 2D OPTICS will benefit from circular processing if the density is high.
-      // This is because we can skip distance computation to molecules outside the circle.
-      // This is roughly pi/4.
-      // Compute the expected number of molecules in the area.
-      if (!is3d()) {
-        // Ensure the distance is valid
-        workingGeneratingDistanceE =
-            getWorkingGeneratingDistance(workingGeneratingDistanceE, minPts);
-
-        final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
-
-        // TODO - JUnit test to show when to use a circle to avoid distance comparisons.
-        // We can miss 1 - pi/4 = 21% of the area.
-        if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER) {
-          clazz = RadialMoleculeSpace.class;
-        }
-      }
-    }
     initialise(workingGeneratingDistanceE, minPts, clazz);
   }
 
