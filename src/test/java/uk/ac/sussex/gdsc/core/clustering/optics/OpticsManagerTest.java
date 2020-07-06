@@ -796,6 +796,53 @@ public class OpticsManagerTest {
         om.createQueue(1).getClass());
   }
 
+  @Test
+  public void testGetPreferredMoleculeSpace() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    Assertions.assertNull(om.getPreferredMoleculeSpace(true));
+    Assertions.assertEquals(GridMoleculeSpace.class, om.getPreferredMoleculeSpace(false));
+    om.addOptions(Option.GRID_PROCESSING);
+    Assertions.assertEquals(GridMoleculeSpace.class, om.getPreferredMoleculeSpace(false));
+    om.addOptions(Option.CIRCULAR_PROCESSING);
+    Assertions.assertEquals(RadialMoleculeSpace.class, om.getPreferredMoleculeSpace(false));
+    om.addOptions(Option.INNER_PROCESSING);
+    Assertions.assertEquals(InnerRadialMoleculeSpace.class, om.getPreferredMoleculeSpace(false));
+    final OpticsManager om2 = new OpticsManager(x, x, x, 1);
+    Assertions.assertEquals(FloatTreeMoleculeSpace.class, om2.getPreferredMoleculeSpace(false));
+  }
+
+  @Test
+  public void testDbscanMoleculeSpace() {
+    final float[] x = {0, 1, 2, 3, 4, 5, 6, 7};
+    final float[] y = {1, 0, 1, 0, 5, 4, 5, 4};
+    final OpticsManager om = new OpticsManager(x, y, 1);
+    final int[] r1 = om.dbscan(3, 2).getClusters(false);
+    om.addOptions(Option.CIRCULAR_PROCESSING);
+    final int[] r2 = om.dbscan(3, 2).getClusters(false);
+    om.addOptions(Option.INNER_PROCESSING);
+    final int[] r3 = om.dbscan(3, 2).getClusters(false);
+    final int max = MathUtils.max(r1);
+    Assertions.assertTrue(max > 1);
+    Assertions.assertTrue(max < x.length);
+    Assertions.assertArrayEquals(r1, r2);
+    Assertions.assertArrayEquals(r1, r3);
+  }
+
+  @Test
+  public void testGetNumberOfSplitSets() {
+    // Too small
+    float[] x = {0};
+    OpticsManager om = new OpticsManager(x, x, 1);
+    Assertions.assertEquals(0, om.getNumberOfSplitSets(10));
+    Assertions.assertEquals(0, om.getNumberOfSplitSets(0));
+    // Big enough for splits
+    x = new float[10];
+    om = new OpticsManager(x, x, 1);
+    Assertions.assertEquals(10, om.getNumberOfSplitSets(10));
+    Assertions.assertTrue(om.getNumberOfSplitSets(0) > 0);
+  }
+
   /**
    * Test the results of Optics using the ELKI framework.
    */

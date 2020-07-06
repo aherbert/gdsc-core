@@ -1147,7 +1147,8 @@ public class OpticsManager extends CoordinateStore {
    * @param allowNull Set to true to return null if no options are set
    * @return the preferred class for the molecule space
    */
-  private Class<?> getPreferredMoleculeSpace(boolean allowNull) {
+  @VisibleForTesting
+  Class<?> getPreferredMoleculeSpace(boolean allowNull) {
     // 3D
     if (is3d()) {
       return FloatTreeMoleculeSpace.class;
