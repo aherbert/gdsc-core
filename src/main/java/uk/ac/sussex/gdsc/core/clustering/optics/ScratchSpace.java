@@ -111,10 +111,7 @@ class ScratchSpace {
       x = Arrays.copyOf(x, length);
       y = Arrays.copyOf(y, length);
     }
-
-    x[size] = xx;
-    y[size] = yy;
-    size++;
+    add(xx, yy);
   }
 
   /**
