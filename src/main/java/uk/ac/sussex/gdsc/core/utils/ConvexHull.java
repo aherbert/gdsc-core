@@ -39,7 +39,7 @@ import uk.ac.sussex.gdsc.core.math.GeometryUtils;
 /**
  * Contains a set of paired coordinates representing the convex hull of a set of points.
  *
- * <p>Functionality of this has been taken from {@link ij.process.FloatPolygon}.
+ * <p>Some functionality of this has been taken from {@link ij.process.FloatPolygon}.
  */
 public final class ConvexHull {
 
