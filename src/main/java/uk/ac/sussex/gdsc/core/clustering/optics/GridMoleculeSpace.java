@@ -303,17 +303,6 @@ class GridMoleculeSpace extends MoleculeSpace {
     return 2 * resolution + 1;
   }
 
-  /**
-   * Gets the number of neighbour blocks.
-   *
-   * @param resolution the resolution
-   * @return the number of neighbour blocks
-   */
-  int getNeighbourBlocks(int resolution) {
-    final int size = getNBlocks(resolution);
-    return size * size;
-  }
-
   @Override
   void findNeighbours(int minPts, Molecule object, float generatingDistance) {
 
