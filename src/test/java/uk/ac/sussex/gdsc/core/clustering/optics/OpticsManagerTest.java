@@ -843,6 +843,17 @@ public class OpticsManagerTest {
     Assertions.assertTrue(om.getNumberOfSplitSets(0) > 0);
   }
 
+  @Test
+  public void testGetOriginalCoords() {
+    final float[] x = {1, 3, 2};
+    final float[] y = {7, 4, 2};
+    final OpticsManager om = new OpticsManager(x.clone(), y.clone(), 1);
+    for (int i = 0; i < x.length; i++) {
+      Assertions.assertEquals(x[i], om.getOriginalX(i));
+      Assertions.assertEquals(y[i], om.getOriginalY(i));
+    }
+  }
+
   /**
    * Test the results of Optics using the ELKI framework.
    */
