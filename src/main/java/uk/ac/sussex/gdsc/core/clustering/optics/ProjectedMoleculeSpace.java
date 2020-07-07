@@ -513,6 +513,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /**
    * Split the data set randomly.
    *
+   * <p>All distances after the split position should be larger.
+   *
    * @param ind Object index
    * @param begin Interval begin
    * @param end Interval end
@@ -528,11 +530,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final float rs = tpro[ind[begin + rand.nextInt(nele)]];
     int minInd = begin;
     int maxInd = end - 1;
-    // permute elements such that all points smaller than the splitting
-    // element are on the right and the others on the left in the array
+    // permute elements such that all points smaller or equal than the splitting
+    // element are on the left (lower part) and the others on the right (upper part) in the array.
+    // Keep a flag to show that the data can be split.
+    boolean noSplit = true;
     while (minInd < maxInd) {
       final float currEle = tpro[ind[minInd]];
       if (currEle > rs) {
+        noSplit = false;
         while (minInd < maxInd && tpro[ind[maxInd]] > rs) {
           maxInd--;
         }
@@ -544,15 +549,28 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       }
       minInd++;
     }
-    // if all elements are the same split in the middle
-    if (minInd == end - 1) {
-      minInd = (begin + end) >>> 1;
+    if (noSplit) {
+      // Either:
+      // 1. All elements are the same -> split in the middle
+      // 2. The splitting element is the maximum. In this case there is no
+      // split. Recursive calls should split the data next time.
+      // If there is no data range then we can split in the middle.
+      if (tpro[ind[begin]] == rs) {
+        return (begin + end - 1) >>> 1;
+      }
+    } else {
+      // Ensure the algorithm did not stop with the index above the split distance
+      while (tpro[ind[minInd]] > rs) {
+        minInd--;
+      }
     }
     return minInd;
   }
 
   /**
    * Split the data set by distances.
+   *
+   * <p>All distances after the split position should be larger.
    *
    * @param ind Object index
    * @param begin Interval begin
@@ -575,14 +593,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       }
     }
 
-    if (rmin != rmax) { // if not all elements are the same
-      final float rs = (float) (rmin + rand.nextDouble() * (rmax - rmin));
-
+    final float rs = rmin + rand.nextFloat() * (rmax - rmin);
+    if (rs != rmax) {
+      // A split is possible
       int minInd = begin;
       int maxInd = end - 1;
 
-      // permute elements such that all points smaller than the splitting
-      // element are on the right and the others on the left in the array
+      // permute elements such that all points smaller or equal than the splitting
+      // element are on the left (lower part) and the others on the right (upper part) in the array.
+      // Keep a flag to show that the data can be split.
       while (minInd < maxInd) {
         final float currEle = tpro[ind[minInd]];
         if (currEle > rs) {
@@ -597,10 +616,21 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         }
         minInd++;
       }
+      // Ensure the algorithm did not stop with the index above the split distance
+      while (tpro[ind[minInd]] > rs) {
+        minInd--;
+      }
       return minInd;
     }
-    // if all elements are the same split in the middle
-    return (begin + end) >>> 1;
+    // Either:
+    // 1. All elements are the same -> split in the middle
+    // 2. The splitting element is the maximum. In this case there is no
+    // split. Recursive calls should split the data next time.
+    // If there is no data range then we can split in the middle.
+    if (rmin == rmax) {
+      return (begin + end - 1) >>> 1;
+    }
+    return end - 1;
   }
 
   /**
