@@ -638,13 +638,13 @@ public class OpticsManagerTest {
 
   @Test
   public void testFastOptics2dVerses3d() {
-    final float[] x = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
+    final float[] x = {0, 1, 2.1f, 3.3f, 4.6f, 20, 20.5f, 21.1f, 21.8f, 22.6f};
     final float[] z = new float[x.length];
     final RandIndex ri = new RandIndex();
     final OpticsManager om2 = new OpticsManager(x, x, 0);
     final OpticsManager om3 = new OpticsManager(x, x, z, 0);
     // Sometimes the random projections create different results so use a fixed seed.
-    final long seed = 12345;
+    final long seed = 678689879807L;
     om2.setRandomSeed(seed);
     om3.setRandomSeed(seed);
     om2.setTracker(AssertionTracker.INSTANCE);
