@@ -121,7 +121,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   private boolean saveApproximateSets;
 
   /** The sample mode. */
-  private SampleMode sampleMode;
+  private SampleMode sampleMode = SampleMode.RANDOM;
 
   /**
    * Set to true to use random vectors for the projections. The default is to uniformly create
@@ -236,17 +236,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // The ELKI framework increase this for the number of dimensions. However I have stuck
     // with the original (as it is less so will be faster).
     // Note: In most computer science contexts log is in base 2.
-    final int numberOfSplitSets = getOrComputeNumberOfSplitSets(numberOfSplits, size);
-    final int localNumberOfProjections = getOrComputeNumberOfProjections(numberOfProjections, size);
 
     // perform O(log N+log dim) splits of the entire point sets projections
     // numberOfSplitSets = (int) (logOProjectionConst * log2(size * dim + 1))
     // perform O(log N+log dim) projections of the point set onto a random line
     // localNumberOfProjections = (int) (logOProjectionConst * log2(size * dim + 1))
+    final int numberOfSplitSets = getOrComputeNumberOfSplitSets(numberOfSplits, size);
+    final int localNumberOfProjections = getOrComputeNumberOfProjections(numberOfProjections, size);
 
-    if (numberOfSplitSets < 1 || localNumberOfProjections < 1) {
-      return; // Nothing to do
-    }
+    // Since size >= 2 numberOfSplitSets & localNumberOfProjections are >= 1
 
     // perform projections of points
     final float[][] projectedPoints = new float[localNumberOfProjections][];
@@ -522,7 +520,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param rand Random generator
    * @return Splitting point
    */
-  public static int splitRandomly(int[] ind, int begin, int end, float[] tpro,
+  static int splitRandomly(int[] ind, int begin, int end, float[] tpro,
       UniformRandomProvider rand) {
     final int nele = end - begin;
 
@@ -563,7 +561,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param rand Random generator
    * @return Splitting point
    */
-  public static int splitByDistance(int[] ind, int begin, int end, float[] tpro,
+  static int splitByDistance(int[] ind, int begin, int end, float[] tpro,
       UniformRandomProvider rand) {
     // pick random splitting point based on distance
     float rmin = tpro[ind[begin]];
@@ -883,7 +881,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // The set will always be a positive size so do not worry about index bounds.
     countDistances[indices[n1]] += n1;
   }
-
 
   @Override
   void findNeighbours(int minPts, Molecule object, float generatingDistance) {
