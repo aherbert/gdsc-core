@@ -38,6 +38,15 @@ import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 @SuppressWarnings({"javadoc"})
 public class ProjectedMoleculeSpaceTest {
   @Test
+  public void testToString() {
+    final float[] x = {0};
+    final OpticsManager om = new OpticsManager(x, x, 1);
+    final UniformRandomProvider rg = UniformRandomProviders.create(123);
+    final ProjectedMoleculeSpace space = new ProjectedMoleculeSpace(om, 0, rg);
+    Assertions.assertTrue(space.toString().contains("ProjectedMoleculeSpace"));
+  }
+
+  @Test
   public void testComputeWithSize1() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
