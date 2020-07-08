@@ -84,8 +84,9 @@ public interface ClusteringResult {
   void scrambleClusters(UniformRandomProvider rng);
 
   /**
-   * Gets the parent ids for each cluster in the list of Ids. If hierarchical clusters are specified
-   * then the child ids are also returned (i.e. all members of the cluster or its children).
+   * Gets the parent Ids for each cluster in the list of cluster Ids. If hierarchical clusters are
+   * specified then the parent Ids for each child cluster are also returned (i.e. all members of the
+   * cluster or its children).
    *
    * @param clusterIds the cluster ids
    * @return the parent ids
