@@ -428,6 +428,54 @@ public class OpticsManagerTest {
   }
 
   @Test
+  public void testCoords2d() {
+    final float[] x = {1, 2};
+    final float[] y = {6, 4};
+    final OpticsManager om = new OpticsManager(x.clone(), y.clone(), 1);
+    Assertions.assertFalse(om.is3d());
+    Assertions.assertEquals(0f, om.getMinimumZ());
+    Assertions.assertEquals(0f, om.getMaximumZ());
+    final float[][] data = om.getData();
+    Assertions.assertEquals(2, data.length);
+    final float[] expectedX = {0, 1};
+    final float[] expectedY = {2, 0};
+    Assertions.assertArrayEquals(expectedX, data[0]);
+    Assertions.assertArrayEquals(expectedY, data[1]);
+    final double[][] ddata = om.getDoubleData();
+    Assertions.assertEquals(2, ddata.length);
+    final double[] dexpectedX = SimpleArrayUtils.toDouble(expectedX);
+    final double[] dexpectedY = SimpleArrayUtils.toDouble(expectedY);
+    Assertions.assertArrayEquals(dexpectedX, ddata[0]);
+    Assertions.assertArrayEquals(dexpectedY, ddata[1]);
+  }
+
+  @Test
+  public void testCoords3d() {
+    final float[] x = {1, 2};
+    final float[] y = {6, 4};
+    final float[] z = {0.5f, 1.5f};
+    final OpticsManager om = new OpticsManager(x.clone(), y.clone(), z, 1);
+    Assertions.assertTrue(om.is3d());
+    Assertions.assertEquals(0.5f, om.getMinimumZ());
+    Assertions.assertEquals(1.5f, om.getMaximumZ());
+    final float[][] data = om.getData();
+    Assertions.assertEquals(3, data.length);
+    final float[] expectedX = {0, 1};
+    final float[] expectedY = {2, 0};
+    Assertions.assertArrayEquals(expectedX, data[0]);
+    Assertions.assertArrayEquals(expectedY, data[1]);
+    Assertions.assertArrayEquals(z, data[2]);
+    final double[][] ddata = om.getDoubleData();
+    Assertions.assertEquals(3, ddata.length);
+    final double[] dexpectedX = SimpleArrayUtils.toDouble(expectedX);
+    final double[] dexpectedY = SimpleArrayUtils.toDouble(expectedY);
+    final double[] dexpectedZ = SimpleArrayUtils.toDouble(z);
+    Assertions.assertArrayEquals(dexpectedX, ddata[0]);
+    Assertions.assertArrayEquals(dexpectedY, ddata[1]);
+    Assertions.assertArrayEquals(dexpectedZ, ddata[2]);
+  }
+
+  @Test
   public void testNumberOfThreads() {
     final int expected = Runtime.getRuntime().availableProcessors();
     final float[] x = {0};

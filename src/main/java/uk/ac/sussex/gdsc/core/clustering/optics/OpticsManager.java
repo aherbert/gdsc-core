@@ -1685,10 +1685,10 @@ public class OpticsManager extends CoordinateStore {
   /**
    * Checks if the coordinates are 3D.
    *
-   * @return true if 3D
+   * @return true if 3D, otherwise 2D
    * @see #getData()
    */
-  boolean is3d() {
+  public boolean is3d() {
     return zcoord != null;
   }
 
@@ -1712,13 +1712,47 @@ public class OpticsManager extends CoordinateStore {
     return ycoord[index] + originy;
   }
 
-  // Note:
-  // Do not support exposing the z coordinate in the same manner as the 2D based
-  // CoordinateStore, e.g.
-  // public float getMinimumZ()
-  // public float getMaximumZ()
-  // public float[][] getData()
-  // public double[][] getDoubleData()
+  /**
+   * Gets the minimum Z.
+   *
+   * @return the minimum Z
+   */
+  public float getMinimumZ() {
+    return minZCoord;
+  }
+
+  /**
+   * Gets the maximum Z.
+   *
+   * @return the maximum Z
+   */
+  public float getMaximumZ() {
+    return maxZCoord;
+  }
+
+  @Override
+  public float[][] getData() {
+    if (is3d()) {
+      return new float[][] {xcoord.clone(), ycoord.clone(), zcoord.clone()};
+    }
+    return super.getData();
+  }
+
+  @Override
+  public double[][] getDoubleData() {
+    if (is3d()) {
+      final double[] x = new double[xcoord.length];
+      final double[] y = new double[xcoord.length];
+      final double[] z = new double[xcoord.length];
+      for (int i = x.length; i-- > 0;) {
+        x[i] = xcoord[i];
+        y[i] = ycoord[i];
+        z[i] = zcoord[i];
+      }
+      return new double[][] {x, y, z};
+    }
+    return super.getDoubleData();
+  }
 
   /**
    * Compute (a sample of) the k-nearest neighbour distance for objects from the data. The plot of
