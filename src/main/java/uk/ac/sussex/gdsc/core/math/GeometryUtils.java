@@ -78,7 +78,8 @@ public final class GeometryUtils {
    *
    * @param x the x
    * @param y the y
-   * @return the area @ If the arrays are not the same length
+   * @return the area
+   * @throws IllegalArgumentException If the arrays are not the same length
    */
   public static double getArea(float[] x, float[] y) {
     if (x.length < MIN_VERTICES) {
@@ -105,7 +106,8 @@ public final class GeometryUtils {
    *
    * @param x the x
    * @param y the y
-   * @return the area @ If the arrays are not the same length
+   * @return the area
+   * @throws IllegalArgumentException If the arrays are not the same length
    */
   public static double getArea(double[] x, double[] y) {
     if (x.length < MIN_VERTICES) {
