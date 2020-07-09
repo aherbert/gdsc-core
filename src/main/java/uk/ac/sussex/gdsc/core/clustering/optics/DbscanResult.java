@@ -33,7 +33,8 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.awt.geom.Rectangle2D;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
-import uk.ac.sussex.gdsc.core.utils.ConvexHull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
@@ -75,7 +76,7 @@ public class DbscanResult implements ClusteringResult {
   /**
    * Convex hulls assigned by computeConvexHulls().
    */
-  private ConvexHull[] hulls;
+  private Hull[] hulls;
 
   /**
    * Bounds assigned by computeConvexHulls().
@@ -205,13 +206,13 @@ public class DbscanResult implements ClusteringResult {
   }
 
   @Override
-  public boolean hasConvexHulls() {
+  public boolean hasHulls() {
     return hulls != null;
   }
 
   @Override
-  public void computeConvexHulls() {
-    if (hasConvexHulls()) {
+  public void computeHulls(Hull.Builder builder) {
+    if (hasHulls()) {
       return;
     }
 
@@ -221,36 +222,34 @@ public class DbscanResult implements ClusteringResult {
 
     // Get the number of clusters
     final int nClusters = MathUtils.max(clusters);
-    hulls = new ConvexHull[nClusters];
+    hulls = new Hull[nClusters];
     bounds = new Rectangle2D[nClusters];
 
     // Descend the hierarchy and compute the hulls, smallest first
     final ScratchSpace scratch = new ScratchSpace(100);
     for (int clusterId = 1; clusterId <= nClusters; clusterId++) {
-      computeConvexHull(clusterId, scratch);
+      computeHull(builder, clusterId, scratch);
     }
   }
 
-  private void computeConvexHull(int clusterId, ScratchSpace scratch) {
+  private void computeHull(Builder builder, int clusterId, ScratchSpace scratch) {
     scratch.clear();
+    builder.clear();
     for (int i = size(); i-- > 0;) {
       if (clusterId == clusters[i]) {
-        scratch.safeAdd(opticsManager.getOriginalX(results[i].parent),
-            opticsManager.getOriginalY(results[i].parent));
+        final float x = opticsManager.getOriginalX(results[i].parent);
+        final float y = opticsManager.getOriginalY(results[i].parent);
+        builder.add(x, y);
+        scratch.safeAdd(x, y);
       }
     }
 
     bounds[clusterId - 1] = scratch.getBounds();
-
-    // Compute the hull
-    final ConvexHull h = scratch.getConvexHull();
-    if (h != null) {
-      hulls[clusterId - 1] = h;
-    }
+    hulls[clusterId - 1] = builder.build();
   }
 
   @Override
-  public ConvexHull getConvexHull(int clusterId) {
+  public Hull getHull(int clusterId) {
     if (hulls == null || clusterId <= 0 || clusterId > hulls.length) {
       return null;
     }

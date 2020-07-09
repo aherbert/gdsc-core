@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
-import uk.ac.sussex.gdsc.core.utils.ConvexHull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
@@ -105,7 +106,7 @@ public class OpticsResult implements ClusteringResult {
   /**
    * Convex hulls assigned by computeConvexHulls().
    */
-  private ConvexHull[] hulls;
+  private Hull[] hulls;
 
   /**
    * Bounds assigned by computeConvexHulls().
@@ -369,22 +370,14 @@ public class OpticsResult implements ClusteringResult {
     }
   }
 
-  /**
-   * Checks for convex hulls.
-   *
-   * @return true, if successful
-   */
   @Override
-  public boolean hasConvexHulls() {
+  public boolean hasHulls() {
     return hulls != null;
   }
 
-  /**
-   * Compute convex hulls for each cluster.
-   */
   @Override
-  public void computeConvexHulls() {
-    if (hasConvexHulls()) {
+  public void computeHulls(Hull.Builder builder) {
+    if (hasHulls()) {
       return;
     }
 
@@ -394,21 +387,21 @@ public class OpticsResult implements ClusteringResult {
 
     // Get the number of clusters
     final int nClusters = getNumberOfClusters();
-    hulls = new ConvexHull[nClusters];
+    hulls = new Hull[nClusters];
     bounds = new Rectangle2D[nClusters];
 
     // Descend the hierarchy and compute the hulls, smallest first
     final ScratchSpace scratch = new ScratchSpace(100);
-    computeConvexHulls(clustering, scratch);
+    computeHulls(builder, clustering, scratch);
   }
 
-  private void computeConvexHulls(List<OpticsCluster> hierarchy, ScratchSpace scratch) {
+  private void computeHulls(Builder builder, List<OpticsCluster> hierarchy, ScratchSpace scratch) {
     if (hierarchy == null) {
       return;
     }
     for (final OpticsCluster c : hierarchy) {
       // Compute the hulls of the children
-      computeConvexHulls(c.children, scratch);
+      computeHulls(builder, c.children, scratch);
 
       // Count the unique points at this level of the hierarchy
       int pointCount = 0;
@@ -421,51 +414,54 @@ public class OpticsResult implements ClusteringResult {
       // Add the hull points in the children
       if (c.children != null) {
         for (final OpticsCluster child : c.children) {
-          final ConvexHull h = getConvexHull(child.clusterId);
+          final Hull h = getHull(child.clusterId);
           if (h == null) {
             // Count all the points since hull computation failed under this cluster
             pointCount += child.length();
           } else {
-            pointCount += h.size();
+            pointCount += h.getNumberOfVertices();
           }
         }
       }
 
       // Ensure we have the scratch space
       scratch.resize(pointCount);
+      builder.clear();
 
       // Extract all the points
       for (int i = c.start; i <= c.end; i++) {
         if (opticsResults[i].clusterId == c.clusterId) {
-          scratch.add(opticsManager.getOriginalX(opticsResults[i].parent),
-              opticsManager.getOriginalY(opticsResults[i].parent));
+          final float x = opticsManager.getOriginalX(opticsResults[i].parent);
+          final float y = opticsManager.getOriginalY(opticsResults[i].parent);
+          builder.add(x, y);
+          scratch.add(x, y);
         }
       }
 
       // Add the hulls from the children
       if (c.children != null) {
         for (final OpticsCluster child : c.children) {
-          final ConvexHull h = getConvexHull(child.clusterId);
+          final Hull h = getHull(child.clusterId);
           if (h == null) {
             // Add all the points since hull computation failed under this cluster
             for (int i = child.start; i <= child.end; i++) {
-              scratch.add(opticsManager.getOriginalX(opticsResults[i].parent),
-                  opticsManager.getOriginalY(opticsResults[i].parent));
+              final float x = opticsManager.getOriginalX(opticsResults[i].parent);
+              final float y = opticsManager.getOriginalY(opticsResults[i].parent);
+              builder.add(x, y);
+              scratch.add(x, y);
             }
           } else {
-            scratch.add(h.x, h.y);
+            // Add the hull points
+            for (final double[] p : h.getVertices()) {
+              builder.add(p);
+              scratch.add((float) p[0], (float) p[1]);
+            }
           }
         }
       }
 
-      // Compute the bounds
       bounds[c.clusterId - 1] = scratch.getBounds();
-
-      // Compute the hull
-      final ConvexHull h = scratch.getConvexHull();
-      if (h != null) {
-        hulls[c.clusterId - 1] = h;
-      }
+      hulls[c.clusterId - 1] = builder.build();
     }
   }
 
@@ -518,15 +514,8 @@ public class OpticsResult implements ClusteringResult {
     return max;
   }
 
-  /**
-   * Gets the convex hull for the cluster. The hull includes any points within child clusters. Hulls
-   * are computed by {@link #computeConvexHulls()}.
-   *
-   * @param clusterId the cluster id
-   * @return the convex hull (or null if not available)
-   */
   @Override
-  public ConvexHull getConvexHull(int clusterId) {
+  public Hull getHull(int clusterId) {
     if (hulls == null || clusterId <= 0 || clusterId > hulls.length) {
       return null;
     }

@@ -30,36 +30,38 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import java.awt.geom.Rectangle2D;
 import org.apache.commons.rng.UniformRandomProvider;
-import uk.ac.sussex.gdsc.core.utils.ConvexHull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull;
 
 /**
  * Contains the clustering result of the DBSCAN/OPTICS algorithm.
  */
 public interface ClusteringResult {
   /**
-   * Checks for convex hulls.
+   * Checks for hulls.
    *
    * @return true, if successful
    */
-  boolean hasConvexHulls();
+  boolean hasHulls();
 
   /**
-   * Compute convex hulls and bounds for each cluster.
+   * Compute hulls and bounds for each cluster.
+   *
+   * @param builder the builder
    */
-  void computeConvexHulls();
+  void computeHulls(Hull.Builder builder);
 
   /**
    * Gets the convex hull for the cluster. The hull includes any points within child clusters. Hulls
-   * are computed by {@link #computeConvexHulls()}.
+   * are computed by {@link #computeHulls(Hull.Builder)}.
    *
    * @param clusterId the cluster id
    * @return the convex hull (or null if not available)
    */
-  ConvexHull getConvexHull(int clusterId);
+  Hull getHull(int clusterId);
 
   /**
    * Gets the bounds for the cluster. The bounds includes any points within child clusters. Bounds
-   * are computed by {@link #computeConvexHulls()}.
+   * are computed by {@link #computeHulls(Hull.Builder)}.
    *
    * @param clusterId the cluster id
    * @return the convex hull (or null if not available)

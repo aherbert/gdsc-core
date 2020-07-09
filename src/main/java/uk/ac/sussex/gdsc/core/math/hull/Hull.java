@@ -29,8 +29,11 @@
 package uk.ac.sussex.gdsc.core.math.hull;
 
 /**
- * Defines the points of a hull. Implementing classes for dimensions higher than 2 should add
- * additional methods to define the hull.
+ * Defines the points of a hull. A hull represents the outer boundary of a collection of points and
+ * can be constructed by passing points to a hull builder.
+ *
+ * <p>Note: Implementing classes for dimensions higher than 2 should add additional methods to
+ * define the hull.
  */
 public interface Hull {
 
