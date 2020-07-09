@@ -56,6 +56,12 @@ public final class ConvexHull2d implements Hull {
       // Do nothing
     }
 
+    /**
+     * {@inheritDoc}.
+     *
+     * <p>This method uses only the first 2 indexes in the input point. Higher dimensions are
+     * ignored.
+     */
     @Override
     public ConvexHull2d.Builder add(double... point) {
       points.add(new Vector2D(point[0], point[1]));

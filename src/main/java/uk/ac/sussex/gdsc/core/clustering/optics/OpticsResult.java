@@ -31,10 +31,12 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
@@ -111,7 +113,7 @@ public class OpticsResult implements ClusteringResult {
   /**
    * Bounds assigned by computeConvexHulls().
    */
-  private Rectangle2D[] bounds;
+  private float[][] bounds;
 
   /** The upper limit for OPTICS Xi cluster extraction. */
   private double upperLimit = Double.POSITIVE_INFINITY;
@@ -388,53 +390,68 @@ public class OpticsResult implements ClusteringResult {
     // Get the number of clusters
     final int nClusters = getNumberOfClusters();
     hulls = new Hull[nClusters];
-    bounds = new Rectangle2D[nClusters];
+    bounds = new float[nClusters][];
+
+    // Special 2D/3D processing
+    IntConsumer indexProcessor;
+    Consumer<double[]> pointProcessor;
+    Supplier<float[]> boundsGenerator;
+    if (opticsManager.is3d()) {
+      final MinMax3d mm = new MinMax3d();
+      final float[] z = opticsManager.getZData();
+      indexProcessor = i -> {
+        final float x = opticsManager.getOriginalX(opticsResults[i].parent);
+        final float y = opticsManager.getOriginalY(opticsResults[i].parent);
+        builder.add(x, y, z[i]);
+        mm.add(x, y, z[i]);
+      };
+      pointProcessor = p -> {
+        builder.add(p);
+        mm.add((float) p[0], (float) p[1], (float) p[2]);
+      };
+      boundsGenerator = () -> {
+        final float[] bounds = mm.getBounds();
+        mm.clear();
+        return bounds;
+      };
+    } else {
+      final MinMax2d mm = new MinMax2d();
+      indexProcessor = i -> {
+        final float x = opticsManager.getOriginalX(opticsResults[i].parent);
+        final float y = opticsManager.getOriginalY(opticsResults[i].parent);
+        builder.add(x, y);
+        mm.add(x, y);
+      };
+      pointProcessor = p -> {
+        builder.add(p);
+        mm.add((float) p[0], (float) p[1]);
+      };
+      boundsGenerator = () -> {
+        final float[] bounds = mm.getBounds();
+        mm.clear();
+        return bounds;
+      };
+    }
 
     // Descend the hierarchy and compute the hulls, smallest first
-    final ScratchSpace scratch = new ScratchSpace(100);
-    computeHulls(builder, clustering, scratch);
+    computeHulls(clustering, indexProcessor, pointProcessor, builder, boundsGenerator);
   }
 
-  private void computeHulls(Builder builder, List<OpticsCluster> hierarchy, ScratchSpace scratch) {
+  private void computeHulls(List<OpticsCluster> hierarchy, IntConsumer indexProcessor,
+      Consumer<double[]> pointProcessor, Builder builder, Supplier<float[]> boundsGenerator) {
     if (hierarchy == null) {
       return;
     }
     for (final OpticsCluster c : hierarchy) {
       // Compute the hulls of the children
-      computeHulls(builder, c.children, scratch);
+      computeHulls(c.children, indexProcessor, pointProcessor, builder, boundsGenerator);
 
-      // Count the unique points at this level of the hierarchy
-      int pointCount = 0;
-      for (int i = c.start; i <= c.end; i++) {
-        if (opticsResults[i].clusterId == c.clusterId) {
-          pointCount++;
-        }
-      }
-
-      // Add the hull points in the children
-      if (c.children != null) {
-        for (final OpticsCluster child : c.children) {
-          final Hull h = getHull(child.clusterId);
-          if (h == null) {
-            // Count all the points since hull computation failed under this cluster
-            pointCount += child.length();
-          } else {
-            pointCount += h.getNumberOfVertices();
-          }
-        }
-      }
-
-      // Ensure we have the scratch space
-      scratch.resize(pointCount);
       builder.clear();
 
-      // Extract all the points
+      // Extract all the points but ignore child clusters as we can reuse the hulls if available.
       for (int i = c.start; i <= c.end; i++) {
         if (opticsResults[i].clusterId == c.clusterId) {
-          final float x = opticsManager.getOriginalX(opticsResults[i].parent);
-          final float y = opticsManager.getOriginalY(opticsResults[i].parent);
-          builder.add(x, y);
-          scratch.add(x, y);
+          indexProcessor.accept(i);
         }
       }
 
@@ -445,23 +462,19 @@ public class OpticsResult implements ClusteringResult {
           if (h == null) {
             // Add all the points since hull computation failed under this cluster
             for (int i = child.start; i <= child.end; i++) {
-              final float x = opticsManager.getOriginalX(opticsResults[i].parent);
-              final float y = opticsManager.getOriginalY(opticsResults[i].parent);
-              builder.add(x, y);
-              scratch.add(x, y);
+              indexProcessor.accept(i);
             }
           } else {
             // Add the hull points
             for (final double[] p : h.getVertices()) {
-              builder.add(p);
-              scratch.add((float) p[0], (float) p[1]);
+              pointProcessor.accept(p);
             }
           }
         }
       }
 
-      bounds[c.clusterId - 1] = scratch.getBounds();
       hulls[c.clusterId - 1] = builder.build();
+      bounds[c.clusterId - 1] = boundsGenerator.get();
     }
   }
 
@@ -523,7 +536,7 @@ public class OpticsResult implements ClusteringResult {
   }
 
   @Override
-  public Rectangle2D getBounds(int clusterId) {
+  public float[] getBounds(int clusterId) {
     if (bounds == null || clusterId <= 0 || clusterId > bounds.length) {
       return null;
     }

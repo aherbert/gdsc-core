@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import java.awt.geom.Rectangle2D;
 import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
 
@@ -55,7 +54,7 @@ public interface ClusteringResult {
    * are computed by {@link #computeHulls(Hull.Builder)}.
    *
    * @param clusterId the cluster id
-   * @return the convex hull (or null if not available)
+   * @return the hull (or null if not available)
    */
   Hull getHull(int clusterId);
 
@@ -63,10 +62,12 @@ public interface ClusteringResult {
    * Gets the bounds for the cluster. The bounds includes any points within child clusters. Bounds
    * are computed by {@link #computeHulls(Hull.Builder)}.
    *
+   * <p>The bounds are packed as {@code [min, max, min, max, ...]} for successive dimensions.
+   *
    * @param clusterId the cluster id
-   * @return the convex hull (or null if not available)
+   * @return the bounds (or null if not available)
    */
-  Rectangle2D getBounds(int clusterId);
+  float[] getBounds(int clusterId);
 
   /**
    * Gets the cluster Id for each parent object.

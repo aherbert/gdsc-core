@@ -30,11 +30,11 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
-import java.awt.geom.Rectangle2D;
+import java.util.function.IntConsumer;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
-import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
@@ -81,7 +81,7 @@ public class DbscanResult implements ClusteringResult {
   /**
    * Bounds assigned by computeConvexHulls().
    */
-  private Rectangle2D[] bounds;
+  private float[][] bounds;
 
   /**
    * Instantiates a new DBSCAN result.
@@ -223,29 +223,54 @@ public class DbscanResult implements ClusteringResult {
     // Get the number of clusters
     final int nClusters = MathUtils.max(clusters);
     hulls = new Hull[nClusters];
-    bounds = new Rectangle2D[nClusters];
+    bounds = new float[nClusters][];
 
-    // Descend the hierarchy and compute the hulls, smallest first
-    final ScratchSpace scratch = new ScratchSpace(100);
-    for (int clusterId = 1; clusterId <= nClusters; clusterId++) {
-      computeHull(builder, clusterId, scratch);
-    }
-  }
-
-  private void computeHull(Builder builder, int clusterId, ScratchSpace scratch) {
-    scratch.clear();
-    builder.clear();
-    for (int i = size(); i-- > 0;) {
-      if (clusterId == clusters[i]) {
+    // Special 2D/3D processing
+    IntConsumer processor;
+    Supplier<float[]> boundsGenerator;
+    if (opticsManager.is3d()) {
+      final MinMax3d mm = new MinMax3d();
+      final float[] z = opticsManager.getZData();
+      processor = i -> {
+        final float x = opticsManager.getOriginalX(results[i].parent);
+        final float y = opticsManager.getOriginalY(results[i].parent);
+        builder.add(x, y, z[i]);
+        mm.add(x, y, z[i]);
+      };
+      boundsGenerator = () -> {
+        final float[] bounds = mm.getBounds();
+        mm.clear();
+        return bounds;
+      };
+    } else {
+      final MinMax2d mm = new MinMax2d();
+      processor = i -> {
         final float x = opticsManager.getOriginalX(results[i].parent);
         final float y = opticsManager.getOriginalY(results[i].parent);
         builder.add(x, y);
-        scratch.safeAdd(x, y);
-      }
+        mm.add(x, y);
+      };
+      boundsGenerator = () -> {
+        final float[] bounds = mm.getBounds();
+        mm.clear();
+        return bounds;
+      };
     }
 
-    bounds[clusterId - 1] = scratch.getBounds();
-    hulls[clusterId - 1] = builder.build();
+    for (int clusterId = 1; clusterId <= nClusters; clusterId++) {
+      builder.clear();
+      computeHull(processor, clusterId);
+      hulls[clusterId - 1] = builder.build();
+      bounds[clusterId - 1] = boundsGenerator.get();
+    }
+  }
+
+  private void computeHull(IntConsumer processor, int clusterId) {
+    for (int i = size(); i-- > 0;) {
+      if (clusterId == clusters[i]) {
+        processor.accept(i);
+      }
+    }
   }
 
   @Override
@@ -257,7 +282,7 @@ public class DbscanResult implements ClusteringResult {
   }
 
   @Override
-  public Rectangle2D getBounds(int clusterId) {
+  public float[] getBounds(int clusterId) {
     if (bounds == null || clusterId <= 0 || clusterId > bounds.length) {
       return null;
     }
