@@ -37,16 +37,48 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"javadoc"})
 public class GeometryUtilsTest {
   @Test
-  public void canComputeArea() {
-    // Area is signed
-    canComputeArea(0.5, true, 0, 0, 1, 0, 1, 1);
-    canComputeArea(-0.5, true, 0, 0, 1, 1, 1, 0);
-    canComputeArea(0.5, false, 0, 0, 1, 1, 1, 0);
+  public void canComputeAreaFloat() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> GeometryUtils.getArea(new float[5], new float[4]));
 
-    canComputeArea(1, true, 0, 0, 1, 0, 1, 1, 0, 1);
+    // Area is signed
+    canComputeAreaFloat(0, true, 0, 0, 1, 0);
+    canComputeAreaFloat(0.5, true, 0, 0, 1, 0, 1, 1);
+    canComputeAreaFloat(-0.5, true, 0, 0, 1, 1, 1, 0);
+    canComputeAreaFloat(0.5, false, 0, 0, 1, 1, 1, 0);
+
+    canComputeAreaFloat(1, true, 0, 0, 1, 0, 1, 1, 0, 1);
   }
 
-  private static void canComputeArea(double exp, boolean signed, double... vertices) {
+  private static void canComputeAreaFloat(double exp, boolean signed, float... vertices) {
+    final float[] x = new float[vertices.length / 2];
+    final float[] y = new float[x.length];
+    for (int i = 0, j = 0; i < vertices.length; i += 2, j++) {
+      x[j] = vertices[i];
+      y[j] = vertices[i + 1];
+    }
+    double obs = GeometryUtils.getArea(x, y);
+    if (!signed) {
+      obs = Math.abs(obs);
+    }
+    Assertions.assertEquals(exp, obs, 1e-10);
+  }
+
+  @Test
+  public void canComputeAreaDouble() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> GeometryUtils.getArea(new double[5], new double[4]));
+
+    // Area is signed
+    canComputeAreaDouble(0, true, 0, 0, 1, 0);
+    canComputeAreaDouble(0.5, true, 0, 0, 1, 0, 1, 1);
+    canComputeAreaDouble(-0.5, true, 0, 0, 1, 1, 1, 0);
+    canComputeAreaDouble(0.5, false, 0, 0, 1, 1, 1, 0);
+
+    canComputeAreaDouble(1, true, 0, 0, 1, 0, 1, 1, 0, 1);
+  }
+
+  private static void canComputeAreaDouble(double exp, boolean signed, double... vertices) {
     final double[] x = new double[vertices.length / 2];
     final double[] y = new double[x.length];
     for (int i = 0, j = 0; i < vertices.length; i += 2, j++) {
@@ -62,15 +94,30 @@ public class GeometryUtilsTest {
 
   @Test
   public void canComputeIntersection() {
+    // no intersection
+    canComputeIntersection(null, 0, 0, 1, 0, 0, 1, 1, 0.5);
+    canComputeIntersection(null, 0, 0, 1, 0, 0.5, 1, 0.5, 0.5);
+    canComputeIntersection(null, 0, 0, 1, 0, 0.5, -1, 0.5, -0.5);
+    canComputeIntersection(null, 0, 0, 1, 0, -0.5, -1, -0.5, 1);
+    canComputeIntersection(null, 0, 0, 1, 0, 1.5, -1, 1.5, 1);
+    // parallel
     canComputeIntersection(null, 0, 0, 1, 0, 0, 1, 1, 1);
+    // intersection
     canComputeIntersection(new double[] {0.5, 0.5}, 0, 0, 1, 1, 1, 0, 0, 1);
     canComputeIntersection(new double[] {0, 0}, 0, 0, 1, 1, 0, 0, 0, 1);
+    // end points touching
+    canComputeIntersection(new double[] {1, 1}, 0, 0, 1, 1, 1, 1, 4, 2);
+    // coincident
+    canComputeIntersection(new double[] {0.5, 0.5}, 0, 0, 1, 1, 0.5, 0.5, 2, 2);
+    canComputeIntersection(new double[] {0.25, 0.25}, 0, 0, 1, 1, -0.25, -0.25, 0.25, 0.25);
   }
 
   private static void canComputeIntersection(double[] exp, double x1, double y1, double x2,
       double y2, double x3, double y3, double x4, double y4) {
     final double[] obs = new double[2];
     final boolean result = GeometryUtils.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, obs);
+    final boolean result2 = GeometryUtils.testIntersect(x1, y1, x2, y2, x3, y3, x4, y4);
+    Assertions.assertEquals(result, result2);
     if (exp == null) {
       Assertions.assertFalse(result);
     } else {

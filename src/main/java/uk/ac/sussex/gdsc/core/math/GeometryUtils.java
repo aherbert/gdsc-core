@@ -126,7 +126,12 @@ public final class GeometryUtils {
   }
 
   /**
-   * Gets the intersection between the line x1,y1 to x2,y2 and x3,y3 to x4,y4.
+   * Gets the intersection between the line segments x1,y1 to x2,y2 and x3,y3 to x4,y4.
+   *
+   * <p>If the line segments have zero length the results are undefined.
+   *
+   * <p>If the line segments are coincident (overlap and are parallel) this will return the end
+   * point of one of the line segments that is inside the other line segment.
    *
    * @param x1 the first vertex x
    * @param y1 the first vertex y
@@ -142,45 +147,109 @@ public final class GeometryUtils {
    */
   public static boolean getIntersection(double x1, double y1, double x2, double y2, double x3,
       double y3, double x4, double y4, double[] intersection) {
-    // http://en.wikipedia.org/wiki/Line-line_intersection
+    // Solved using the equations of Paul Bourke, 1989
+    // http://paulbourke.net/geometry/pointlineplane/
     //@formatter:off
     //
-    //     x1,y1            x4,y4
+    //       P3            P2
     //         **        ++
     //           **    ++
     //             **++ P(x,y)
     //            ++ **
     //          ++     **
     //        ++         **
-    //    x3,y3            **
-    //                       x2,y2
+    //      P1            **
+    //                       P4
     //@formatter:on
+    //
+    // Pa = P1 + ua (P2 - P1)
+    // Pb = P3 + ub (P4 - P3)
+    //
+    // Express for Pa = Pb:
+    //
+    // x1 + ua (x2-x1) = x3 + ub (x4-x3)
+    // y1 + ua (y2-y1) = y3 + ub (y4-y3)
+    //
+    // Solve for ua and ub
 
-    final double x1_s_x2 = x1 - x2;
-    final double x3_s_x4 = x3 - x4;
-    final double y1_s_y2 = y1 - y2;
-    final double y3_s_y4 = y3 - y4;
+    final double denom = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    final double numA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3));
+    final double numB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3));
 
-    // Check if lines are parallel
-    final double d = x1_s_x2 * y3_s_y4 - y1_s_y2 * x3_s_x4;
-    if (d == 0) {
-      if (y1 == y3) {
-        // The lines are the same
-        intersection[0] = x1;
-        intersection[1] = y1;
+    if (denom == 0) {
+      // If the denominator for the equations for ua and ub is 0 then the two lines are parallel.
+      if (numA == 0 && numB == 0) {
+        // If the denominator and numerator for the equations for ua and ub are 0 then the
+        // two lines are coincident.
+        // Find a point of coincidence.
+        // A point is on a line if the distance from both ends is equal to the line length.
+        // d13 + d23 >= length
+        // d14 + d24 >= length
+        // Pick the smallest length
+        final double d13 = Math.hypot(x3 - x1, y3 - y1);
+        final double d23 = Math.hypot(x3 - x2, y3 - y2);
+        final double d14 = Math.hypot(x4 - x1, y4 - y1);
+        final double d24 = Math.hypot(x4 - x2, y4 - y2);
+        if (d13 + d23 < d14 + d24) {
+          intersection[0] = x3;
+          intersection[1] = y3;
+        } else {
+          intersection[0] = x4;
+          intersection[1] = y4;
+        }
         return true;
       }
-    } else {
-      // Find intersection
-      final double x1_m_y2_s_y1_m_x2 = x1 * y2 - y1 * x2;
-      final double x3_m_y4_s_y3_m_x4 = x3 * y4 - y3 * x4;
-      final double px = (x1_m_y2_s_y1_m_x2 * x3_s_x4 - x1_s_x2 * x3_m_y4_s_y3_m_x4) / d;
-      final double py = (x1_m_y2_s_y1_m_x2 * y3_s_y4 - y1_s_y2 * x3_m_y4_s_y3_m_x4) / d;
-      intersection[0] = px;
-      intersection[1] = py;
+      return false;
+    }
+
+    final double uA = numA / denom;
+    final double uB = numB / denom;
+
+    // if the intersection of line segments is required then it is only necessary to test if
+    // ua and ub lie between 0 and 1. If both lie within the range of 0 to 1 then the
+    // intersection point is within both line segments.
+    if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+      intersection[0] = x1 + (uA * (x2 - x1));
+      intersection[1] = y1 + (uA * (y2 - y1));
       return true;
     }
 
     return false;
+  }
+
+  /**
+   * Returns true if the line segments x1,y1 to x2,y2 and x3,y3 to x4,y4 intersect.
+   *
+   * <p>If the line segments have zero length the results are undefined.
+   *
+   * <p>If the line segments are coincident this will return true.
+   *
+   * @param x1 the first vertex x
+   * @param y1 the first vertex y
+   * @param x2 the second vertex x
+   * @param y2 the second vertex y
+   * @param x3 the third vertex x
+   * @param y3 the third vertex y
+   * @param x4 the forth vertex x
+   * @param y4 the forth vertex y
+   * @return true if an intersection was found
+   * @see <a href="http://en.wikipedia.org/wiki/Line-line_intersection">Intersection</a>
+   */
+  public static boolean testIntersect(double x1, double y1, double x2, double y2, double x3,
+      double y3, double x4, double y4) {
+    // Logic as per getIntersection(...)
+    final double denom = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    final double numA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3));
+    final double numB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3));
+
+    if (denom == 0) {
+      // Parallel. Check if coincident.
+      return (numA == 0 && numB == 0);
+    }
+
+    // Check if intersection is within the line segments.
+    final double uA = numA / denom;
+    final double uB = numB / denom;
+    return (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1);
   }
 }
