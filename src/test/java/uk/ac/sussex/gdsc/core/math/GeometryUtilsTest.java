@@ -37,6 +37,19 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"javadoc"})
 public class GeometryUtilsTest {
   @Test
+  public void canComputeTraingleArea() {
+    Assertions.assertEquals(0.5, GeometryUtils.getArea(1, 1, 2, 1, 1, 2));
+    Assertions.assertEquals(2.0, GeometryUtils.getArea(0, 0, 1, 2, 2, 0));
+    Assertions.assertEquals(1.5, GeometryUtils.getArea(0, 0, 1, 2, 2, 1));
+  }
+
+  @Test
+  public void canComputeTraingleAreaWithZero() {
+    Assertions.assertEquals(2.0, GeometryUtils.getArea(1, 2, 2, 0));
+    Assertions.assertEquals(1.5, GeometryUtils.getArea(1, 2, 2, 1));
+  }
+
+  @Test
   public void canComputeAreaFloat() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> GeometryUtils.getArea(new float[5], new float[4]));
