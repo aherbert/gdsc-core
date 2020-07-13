@@ -895,6 +895,13 @@ public class OpticsResult implements ClusteringResult {
     /** The maximum. */
     double maximum;
 
+    /**
+     * Create an instance.
+     *
+     * @param start the start
+     * @param end the end
+     * @param maximum the maximum
+     */
     SteepArea(int start, int end, double maximum) {
       this.start = start;
       this.end = end;
@@ -910,6 +917,13 @@ public class OpticsResult implements ClusteringResult {
     /** The maximum-in-between (mib) value. */
     double mib;
 
+    /**
+     * Create an instance.
+     *
+     * @param start the start
+     * @param end the end
+     * @param maximum the maximum
+     */
     SteepDownArea(int start, int end, double maximum) {
       super(start, end, maximum);
       mib = 0;
@@ -926,6 +940,13 @@ public class OpticsResult implements ClusteringResult {
    */
   @VisibleForTesting
   static class SteepUpArea extends SteepArea {
+    /**
+     * Create an instance.
+     *
+     * @param start the start
+     * @param end the end
+     * @param maximum the maximum
+     */
     SteepUpArea(int start, int end, double maximum) {
       super(start, end, maximum);
     }

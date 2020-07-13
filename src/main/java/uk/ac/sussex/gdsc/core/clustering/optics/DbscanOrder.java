@@ -51,7 +51,7 @@ public class DbscanOrder {
    *
    * @param parent the parent
    * @param clusterId the cluster id
-   * @param numberOfPoints The number of points in within the generating distance
+   * @param numberOfPoints The number of points within the generating distance
    */
   public DbscanOrder(int parent, int clusterId, int numberOfPoints) {
     this.parent = parent;
