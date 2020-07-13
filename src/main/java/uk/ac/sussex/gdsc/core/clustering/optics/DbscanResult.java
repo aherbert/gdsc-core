@@ -306,9 +306,11 @@ public class DbscanResult implements ClusteringResult {
   }
 
   private void getParentsFromSingleCluster(int clusterId, final TIntArrayList parents) {
-    for (int i = size(); i-- > 0;) {
-      if (clusterId == clusters[i]) {
-        parents.add(results[i].parent);
+    if (clusterId > 0) {
+      for (int i = size(); i-- > 0;) {
+        if (clusterId == clusters[i]) {
+          parents.add(results[i].parent);
+        }
       }
     }
   }

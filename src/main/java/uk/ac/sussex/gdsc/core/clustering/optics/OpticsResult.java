@@ -39,6 +39,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
 import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
@@ -692,9 +693,11 @@ public class OpticsResult implements ClusteringResult {
       // Stupid implementation processes each cluster in turn.
       if (clusterIds.length == 1) {
         final int clusterId = clusterIds[0];
-        for (int i = size(); i-- > 0;) {
-          if (clusterId == opticsResults[i].clusterId) {
-            parents.add(opticsResults[i].parent);
+        if (clusterId > 0) {
+          for (int i = size(); i-- > 0;) {
+            if (clusterId == opticsResults[i].clusterId) {
+              parents.add(opticsResults[i].parent);
+            }
           }
         }
       } else {
@@ -883,7 +886,8 @@ public class OpticsResult implements ClusteringResult {
   /**
    * Represent a Steep Area. This is used in the OPTICS algorithm to extract clusters.
    */
-  private static class SteepArea {
+  @VisibleForTesting
+  static class SteepArea {
     /** The start. */
     int start;
     /** The end. */
@@ -901,7 +905,8 @@ public class OpticsResult implements ClusteringResult {
   /**
    * Represent a Steep Down Area. This is used in the OPTICS algorithm to extract clusters.
    */
-  private static class SteepDownArea extends SteepArea {
+  @VisibleForTesting
+  static class SteepDownArea extends SteepArea {
     /** The maximum-in-between (mib) value. */
     double mib;
 
@@ -919,7 +924,8 @@ public class OpticsResult implements ClusteringResult {
   /**
    * Represent a Steep Down Area. This is used in the OPTICS algorithm to extract clusters.
    */
-  private static class SteepUpArea extends SteepArea {
+  @VisibleForTesting
+  static class SteepUpArea extends SteepArea {
     SteepUpArea(int start, int end, double maximum) {
       super(start, end, maximum);
     }
