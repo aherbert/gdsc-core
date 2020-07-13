@@ -36,8 +36,6 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -106,8 +104,8 @@ public class DbscanResultTest {
     Assertions.assertNull(result.getBounds(10));
   }
 
-  @SeededTest
-  public void testScrambleClusters(RandomSeed seed) {
+  @Test
+  public void testScrambleClusters() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om = new OpticsManager(x, y, new float[x.length], 0);
@@ -121,7 +119,7 @@ public class DbscanResultTest {
     final int[] c = result.getClusters();
     Assertions.assertEquals(1.0, RandIndex.randIndex(expected, c));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(56871256342L);
     boolean changed = false;
     for (int i = 0; i < 5; i++) {
       result.scrambleClusters(rng);
