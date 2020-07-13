@@ -1556,8 +1556,8 @@ public class OpticsManagerTest {
       final double expR = r1.get(i).getReachabilityDistance();
       final double obsR = r2.get(i).getReachabilityDistance();
 
-      // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR, obsR,
-      // r1.get(i).coreDistance, expPre, obsPre);
+      //logger.fine(FunctionUtils.getSupplier("[%d] %d %d : %f (%f) = %f (%f) : %s = %d", i, expId,
+      //    obsId, expR, expC, obsR, obsC, expPre, obsPre));
 
       TestAssertions.assertTest(expC, obsC, equality,
           FunctionUtils.getSupplier("%s C %d", title, i));
@@ -2012,14 +2012,14 @@ public class OpticsManagerTest {
   @SpeedTag
   @SeededTest
   public void testOpticsCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+    //Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 10000;
     final OpticsManager om1 = createOpticsManager(size, molecules, rg);
     final OpticsManager om2 = om1.copy(false);
-    om1.addOptions(Option.GRID_PROCESSING);
-    om2.addOptions(Option.CIRCULAR_PROCESSING);
+    om1.addOptions(Option.GRID_PROCESSING, Option.OPTICS_STRICT_ID_ORDER);
+    om2.addOptions(Option.CIRCULAR_PROCESSING, Option.OPTICS_STRICT_ID_ORDER);
 
     float generatingDistanceE = 0;
     final double moleculesInPixel = (double) molecules / (size * size);
@@ -2045,6 +2045,7 @@ public class OpticsManagerTest {
     r2 = om2.optics(generatingDistanceE, minPts);
     long t3 = System.nanoTime();
 
+    // This test fails.
     opticsAreEqual("new", r1, r2);
 
     t3 = t3 - t2;
