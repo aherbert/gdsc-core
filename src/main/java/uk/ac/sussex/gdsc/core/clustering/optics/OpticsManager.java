@@ -126,14 +126,14 @@ public class OpticsManager extends CoordinateStore {
      * Flag to indicate that a circular mask should be used on the 2D grid. This has performance
      * benefits since some distance computations can be avoided.
      *
-     * <p>Note: This option is experimental and can cause slow-down
+     * <p>Note: This option is experimental and can cause slow-down.
      */
     CIRCULAR_PROCESSING,
     /**
      * Flag to indicate that inner-circle processing should be used on the 2D grid. This has
      * performance benefits for DBSCAN since some distance computations can be assumed.
      *
-     * <p>Note: This option is experimental and can cause slow-down
+     * <p>Note: This option is experimental and can cause slow-down.
      */
     INNER_PROCESSING,
     /**
