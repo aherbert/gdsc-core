@@ -745,7 +745,7 @@ public class OpticsResult implements ClusteringResult {
   }
 
   /**
-   * Removes the cluster ids of the cluster all its children from the ids.
+   * Removes the cluster ids of the cluster and all its children from the ids.
    *
    * @param cluster the cluster
    * @param ids the ids
