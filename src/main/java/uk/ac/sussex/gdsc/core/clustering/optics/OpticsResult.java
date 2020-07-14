@@ -611,7 +611,7 @@ public class OpticsResult implements ClusteringResult {
       if (overlap(cluster.start, cluster.end, rangeStart, rangeEnd)) {
         clusters.add(cluster.clusterId);
         if (includeChildren) {
-          addClusterHierarchy(cluster.children, clusters);
+          addClusterHierarchy(cluster.children, clusters, rangeStart, rangeEnd);
         }
         if (single) {
           break;
@@ -634,15 +634,20 @@ public class OpticsResult implements ClusteringResult {
    *
    * @param hierarchy the hierarchy
    * @param clusters the clusters
+   * @param rangeEnd the range start
+   * @param rangeStart the range end
    */
-  private static void addClusterHierarchy(List<OpticsCluster> hierarchy, TIntArrayList clusters) {
+  private static void addClusterHierarchy(List<OpticsCluster> hierarchy, TIntArrayList clusters,
+      int rangeStart, int rangeEnd) {
     if (hierarchy == null) {
       return;
     }
 
-    for (final OpticsCluster c : hierarchy) {
-      addClusterHierarchy(c.children, clusters);
-      clusters.add(c.clusterId);
+    for (final OpticsCluster cluster : hierarchy) {
+      if (overlap(cluster.start, cluster.end, rangeStart, rangeEnd)) {
+        clusters.add(cluster.clusterId);
+        addClusterHierarchy(cluster.children, clusters, rangeStart, rangeEnd);
+      }
     }
   }
 
@@ -731,7 +736,8 @@ public class OpticsResult implements ClusteringResult {
       }
     }
 
-    // Used to maintain the order of the input clusters
+    // Used to maintain the order of the input clusters.
+    // This is not strictly necessary for the interface.
     final TIntArrayList parentsRank = new TIntArrayList();
 
     // Use the hierarchy
