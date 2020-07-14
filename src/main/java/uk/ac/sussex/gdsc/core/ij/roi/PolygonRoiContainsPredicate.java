@@ -64,23 +64,67 @@ public class PolygonRoiContainsPredicate implements CoordinatePredicate {
   }
 
   /**
-   * Returns 'true' if the point (x,y) is inside this polygon. This is a Java version of the
-   * remarkably small C program by W. Randolph Franklin.
+   * Returns 'true' if the point (x,y) is inside this polygon.
+   *
+   * <p>Note: Boundary points may not be inside the polygon. The definition of inside requires that:
+   *
+   * <ul>
+   *
+   * <li>it lies completely inside the boundary or;
+   *
+   * <li>it lies exactly on the boundary and the space immediately adjacent to the point in the
+   * increasing X direction is entirely inside the boundary.
+   *
+   * </ul>
    *
    * @param x the x
    * @param y the y
    * @return true, if successful
-   * @see <a href="https://wrf.ecse.rpi.edu/nikola/pages/software/#pnpoly">PNPOLY</a>
    */
   public boolean polygonContains(double x, double y) {
-    boolean inside = false;
-    for (int i = xpoints.length, j = 0; i-- > 0; j = i) {
-      if (((ypoints[i] > y) != (ypoints[j] > y))
-          && (x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i])
-              + xpoints[i])) {
-        inside = !inside;
+    // This is a Java version of the winding number algorithm wn_PnPoly:
+    // http://geomalgorithms.com/a03-_inclusion.html
+    int wn = 0;
+    // All edges of polygon, each edge is from i to j
+    for (int j = xpoints.length, i = 0; j-- > 0; i = j) {
+      if (ypoints[i] <= y) {
+        // start y <= y
+        if (ypoints[j] > y) {
+          // an upward crossing
+          if (isLeft(xpoints[i], ypoints[i], xpoints[j], ypoints[j], x, y) > 0) {
+            // P left of edge
+            // have a valid up intersect
+            ++wn;
+          }
+        }
+      } else {
+        // start y > y (no test needed)
+        if (ypoints[j] <= y) {
+          // a downward crossing
+          if (isLeft(xpoints[i], ypoints[i], xpoints[j], ypoints[j], x, y) < 0) {
+            // P right of edge
+            // have a valid down intersect
+            --wn;
+          }
+        }
       }
     }
-    return inside;
+    return wn != 0;
+  }
+
+  /**
+   * Tests if a point is Left|On|Right of an infinite line.
+   *
+   * @param x1 the line start x
+   * @param y1 the line start y
+   * @param x2 the line end x
+   * @param y2 the line end y
+   * @param x the point x
+   * @param y the point y
+   * @return >0 for point left of the line through the start to end, =0 for on the line, otherwise
+   *         <0
+   */
+  private static double isLeft(double x1, double y1, double x2, double y2, double x, double y) {
+    return ((x2 - x1) * (y - y1) - (x - x1) * (y2 - y1));
   }
 }
