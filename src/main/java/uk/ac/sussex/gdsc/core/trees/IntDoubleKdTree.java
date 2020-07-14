@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import java.util.function.IntPredicate;
 import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
 /**
@@ -76,6 +77,26 @@ public interface IntDoubleKdTree {
    */
   public boolean nearestNeighbours(double[] location, int count, boolean sorted,
       DoubleDistanceFunction distanceFunction, IntDoubleConsumer results);
+
+  /**
+   * Calculates the nearest {@code count} points to {@code location} that pass the provided filter
+   * and puts the items and the distances in the results. It is assumed that the caller can recreate
+   * the item location from the item.
+   *
+   * <p>The result consumer will be called with the minimum of {@code count} or the current number
+   * of items in the tree. It is recommended that the first result passed to the consumer should be
+   * the neighbour with the highest distance.
+   *
+   * @param location the location
+   * @param count the count
+   * @param sorted if true the results will be sorted (largest distance first)
+   * @param distanceFunction the distance function
+   * @param filter the filter used to select items
+   * @param results the results
+   * @return true if neighbours were found
+   */
+  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+      DoubleDistanceFunction distanceFunction, IntPredicate filter, IntDoubleConsumer results);
 
   /**
    * Calculates the neighbour points within {@code range} to {@code location} and puts the items and

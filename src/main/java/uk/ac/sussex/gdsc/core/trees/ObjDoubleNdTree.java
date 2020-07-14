@@ -19,6 +19,7 @@ package uk.ac.sussex.gdsc.core.trees;
 import java.util.Arrays;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.ObjDoubleConsumer;
+import java.util.function.Predicate;
 import uk.ac.sussex.gdsc.core.trees.heaps.ObjDoubleMinHeap;
 
 /**
@@ -321,7 +322,6 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
     return widest;
   }
 
-  @SuppressWarnings({"unchecked"})
   @Override
   public boolean nearestNeighbours(double[] location, int count, boolean sorted,
       DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<T> results) {
@@ -329,13 +329,37 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
       return false;
     }
 
+    final ObjDoubleMinHeap<T> resultHeap = new ObjDoubleMinHeap<>(count);
+    return nearestNeighboursSearch(location, sorted, distanceFunction,
+        (t, d) -> resultHeap.offer(d, t), resultHeap, results);
+  }
+
+  @Override
+  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+      DoubleDistanceFunction distanceFunction, Predicate<T> filter, ObjDoubleConsumer<T> results) {
+    if (locationCount == 0 || count < 1) {
+      return false;
+    }
+
+    final ObjDoubleMinHeap<T> resultHeap = new ObjDoubleMinHeap<>(count);
+    return nearestNeighboursSearch(location, sorted, distanceFunction, (t, d) -> {
+      if (filter.test(t)) {
+        resultHeap.offer(d, t);
+      }
+    }, resultHeap, results);
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private boolean nearestNeighboursSearch(double[] location, boolean sorted,
+      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<T> partialResults,
+      ObjDoubleMinHeap<T> resultHeap, ObjDoubleConsumer<T> results) {
+
     // Current point in tree
     ObjDoubleNdTree<T> cursor = this;
     // The status of the path taken to the point in the tree
     final StatusStack searchStatus = new StatusStack(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
-    final ObjDoubleMinHeap<T> resultHeap = new ObjDoubleMinHeap<>(count);
 
     while (cursor != null) {
       if (status == Status.NONE) {
@@ -353,7 +377,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
         // At a leaf. Use the data.
         for (int i = 0; i < cursor.locationCount; i++) {
           final double dist = distanceFunction.distance(location, cursor.locations[i]);
-          resultHeap.offer(dist, (T) cursor.data[i]);
+          partialResults.accept((T) cursor.data[i], dist);
         }
         range = resultHeap.getThreshold();
 

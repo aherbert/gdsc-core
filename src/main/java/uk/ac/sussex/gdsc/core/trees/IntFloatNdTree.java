@@ -17,6 +17,7 @@
 package uk.ac.sussex.gdsc.core.trees;
 
 import java.util.Arrays;
+import java.util.function.IntPredicate;
 import java.util.function.IntToDoubleFunction;
 import uk.ac.sussex.gdsc.core.trees.heaps.IntDoubleMinHeap;
 import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
@@ -326,13 +327,36 @@ class IntFloatNdTree implements IntFloatKdTree {
       return false;
     }
 
+    final IntDoubleMinHeap resultHeap = new IntDoubleMinHeap(count);
+    return nearestNeighboursSearch(location, sorted, distanceFunction,
+        (t, d) -> resultHeap.offer(d, t), resultHeap, results);
+  }
+
+  @Override
+  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+      FloatDistanceFunction distanceFunction, IntPredicate filter, IntDoubleConsumer results) {
+    if (locationCount == 0 || count < 1) {
+      return false;
+    }
+
+    final IntDoubleMinHeap resultHeap = new IntDoubleMinHeap(count);
+    return nearestNeighboursSearch(location, sorted, distanceFunction, (t, d) -> {
+      if (filter.test(t)) {
+        resultHeap.offer(d, t);
+      }
+    }, resultHeap, results);
+  }
+
+  private boolean nearestNeighboursSearch(double[] location, boolean sorted,
+      FloatDistanceFunction distanceFunction, IntDoubleConsumer partialResults,
+      IntDoubleMinHeap resultHeap, IntDoubleConsumer results) {
+
     // Current point in tree
     IntFloatNdTree cursor = this;
     // The status of the path taken to the point in the tree
     final StatusStack searchStatus = new StatusStack(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
-    final IntDoubleMinHeap resultHeap = new IntDoubleMinHeap(count);
 
     while (cursor != null) {
       if (status == Status.NONE) {
@@ -350,7 +374,7 @@ class IntFloatNdTree implements IntFloatKdTree {
         // At a leaf. Use the data.
         for (int i = 0; i < cursor.locationCount; i++) {
           final double dist = distanceFunction.distance(location, cursor.locations[i]);
-          resultHeap.offer(dist, cursor.data[i]);
+          partialResults.accept(cursor.data[i], dist);
         }
         range = resultHeap.getThreshold();
 

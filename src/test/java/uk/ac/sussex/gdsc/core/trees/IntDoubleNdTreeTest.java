@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.trees;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.Arrays;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
@@ -65,6 +66,14 @@ public class IntDoubleNdTreeTest {
     Assertions.assertTrue(distances.isEmpty());
 
     boolean result = tree.nearestNeighbours(point, 1, true, distanceFunction, (t, dist) -> {
+      items.add(t);
+      distances.add(dist);
+    });
+    Assertions.assertFalse(result);
+    Assertions.assertTrue(items.isEmpty());
+    Assertions.assertTrue(distances.isEmpty());
+
+    result = tree.nearestNeighbours(point, 1, true, distanceFunction, t -> true, (t, dist) -> {
       items.add(t);
       distances.add(dist);
     });
@@ -150,9 +159,9 @@ public class IntDoubleNdTreeTest {
     // For each point
     for (int i = 0; i < n; i++) {
       final double[] searchPoint = data[i];
-      // Get the sorted distances to neighbours
+      // Get the sorted distances to neighbours. Include extra for the filter test.
       final double[] d2 =
-          PartialSort.bottom(d[i], KdTreeTestUtils.ks[KdTreeTestUtils.ks.length - 1]);
+          PartialSort.bottom(d[i], KdTreeTestUtils.ks[KdTreeTestUtils.ks.length - 1] + 2);
 
       // Check the closest
       items.clear();
@@ -183,6 +192,15 @@ public class IntDoubleNdTreeTest {
       Assertions.assertTrue(items.isEmpty());
       Assertions.assertTrue(distances.isEmpty());
 
+      result =
+          tree.nearestNeighbours(searchPoint, -1, true, distanceFunction, t -> true, (t, dist) -> {
+            items.add(t);
+            distances.add(dist);
+          });
+      Assertions.assertFalse(result);
+      Assertions.assertTrue(items.isEmpty());
+      Assertions.assertTrue(distances.isEmpty());
+
       // Get the knn
       for (final int k : KdTreeTestUtils.ks) {
         items.clear();
@@ -194,8 +212,8 @@ public class IntDoubleNdTreeTest {
         Assertions.assertTrue(result);
         // Neighbours will be in reverse order
         distances.reverse();
-        final double[] observed = distances.toArray();
-        final double[] expected = Arrays.copyOf(d2, Math.min(n, k));
+        double[] observed = distances.toArray();
+        double[] expected = Arrays.copyOf(d2, Math.min(n, k));
 
         Assertions.assertArrayEquals(expected, observed);
 
@@ -216,6 +234,42 @@ public class IntDoubleNdTreeTest {
           Assertions.assertEquals(dist, distances.getQuick(index));
         });
         Assertions.assertTrue(result);
+
+        // Filter some of the close neighbours
+        if (Math.min(n - 2, k) > 5) {
+          final int p1 = items.getQuick(3);
+          final int p2 = items.getQuick(5);
+          final IntPredicate filter = t -> {
+            return t != p1 && t != p2;
+          };
+          items.clear();
+          distances.resetQuick();
+          result =
+              tree.nearestNeighbours(searchPoint, k, true, distanceFunction, filter, (t, dist) -> {
+                items.add(t);
+                distances.add(dist);
+              });
+          Assertions.assertTrue(result);
+          // Neighbours will be in reverse order
+          distances.reverse();
+          observed = distances.toArray();
+          TDoubleArrayList tmp = new TDoubleArrayList(Arrays.copyOf(d2, k + 2));
+          tmp.removeAt(5);
+          tmp.removeAt(3);
+          expected = tmp.toArray();
+
+          Assertions.assertArrayEquals(expected, observed);
+
+          // Get the items
+          items.reverse();
+          // Note: in the event of a distance tie the item returned will be random
+          // Just check the item has the correct distance
+          for (int j = 0; j < observed.length; j++) {
+            ii = items.getQuick(j);
+            e = d[i][ii];
+            Assertions.assertEquals(e, observed[j]);
+          }
+        }
       }
 
       // Get the neighbours within a range
