@@ -769,10 +769,9 @@ public class OpticsResult implements ClusteringResult {
    * Gets the cluster Id for each parent object. This can be set by
    * {@link #extractDbscanClustering(float)} or {@link #extractClusters(double, int)}.
    *
-   * @param core Set to true to get the clusters using only the core points
    * @return the clusters
    */
-  public int[] getTopLevelClusters(boolean core) {
+  public int[] getTopLevelClusters() {
     // Fill in the top level clusters using the OPTICS order
     final int[] clusters = new int[size()];
     for (final OpticsCluster c : clustering) {
