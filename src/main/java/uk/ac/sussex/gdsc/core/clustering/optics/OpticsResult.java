@@ -397,6 +397,7 @@ public class OpticsResult implements ClusteringResult {
     IntConsumer indexProcessor;
     Consumer<double[]> pointProcessor;
     Supplier<float[]> boundsGenerator;
+    int dimensions;
     if (opticsManager.is3d()) {
       final MinMax3d mm = new MinMax3d();
       final float[] z = opticsManager.getZData();
@@ -415,6 +416,7 @@ public class OpticsResult implements ClusteringResult {
         mm.clear();
         return bounds;
       };
+      dimensions = 3;
     } else {
       final MinMax2d mm = new MinMax2d();
       indexProcessor = i -> {
@@ -432,20 +434,23 @@ public class OpticsResult implements ClusteringResult {
         mm.clear();
         return bounds;
       };
+      dimensions = 2;
     }
 
     // Descend the hierarchy and compute the hulls, smallest first
-    computeHulls(clustering, indexProcessor, pointProcessor, builder, boundsGenerator);
+    computeHulls(clustering, indexProcessor, pointProcessor, builder, boundsGenerator, dimensions);
   }
 
   private void computeHulls(List<OpticsCluster> hierarchy, IntConsumer indexProcessor,
-      Consumer<double[]> pointProcessor, Builder builder, Supplier<float[]> boundsGenerator) {
+      Consumer<double[]> pointProcessor, Builder builder, Supplier<float[]> boundsGenerator,
+      int dimensions) {
     if (hierarchy == null) {
       return;
     }
     for (final OpticsCluster c : hierarchy) {
       // Compute the hulls of the children
-      computeHulls(c.children, indexProcessor, pointProcessor, builder, boundsGenerator);
+      computeHulls(c.children, indexProcessor, pointProcessor, builder, boundsGenerator,
+          dimensions);
 
       builder.clear();
 
@@ -460,7 +465,7 @@ public class OpticsResult implements ClusteringResult {
       if (c.children != null) {
         for (final OpticsCluster child : c.children) {
           final Hull h = getHull(child.clusterId);
-          if (h == null) {
+          if (h == null || h.dimensions() != dimensions) {
             // Add all the points since hull computation failed under this cluster
             for (int i = child.start; i <= child.end; i++) {
               indexProcessor.accept(i);
