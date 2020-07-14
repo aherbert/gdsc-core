@@ -686,20 +686,20 @@ public class OpticsManagerTest {
 
   @Test
   public void testFastOptics2dVerses3d() {
-    final float[] x = {0, 1, 2.1f, 3.3f, 4.6f, 20, 20.5f, 21.1f, 21.8f, 22.6f};
+    final float[] x = {0, 1, 2.1f, 3.3f, 1.4f, 20, 20.5f, 21.1f, 21.8f, 22.6f};
     final float[] z = new float[x.length];
     final RandIndex ri = new RandIndex();
     final OpticsManager om2 = new OpticsManager(x, x, 0);
     final OpticsManager om3 = new OpticsManager(x, x, z, 0);
     // Sometimes the random projections create different results so use a fixed seed.
-    final long seed = 678689879807L;
+    final long seed = 67869807L;
     om2.setRandomSeed(seed);
     om3.setRandomSeed(seed);
     om2.setTracker(AssertionTracker.INSTANCE);
     om3.setTracker(AssertionTracker.INSTANCE);
-    final OpticsResult r2 = om2.fastOptics(4, 0, 0, true, false, SampleMode.ALL);
+    final OpticsResult r2 = om2.fastOptics(3, 0, 0, true, false, SampleMode.ALL);
     // Don't choose use random vectors, it will default to this anyway.
-    final OpticsResult r3 = om3.fastOptics(4, 0, 0, false, false, SampleMode.ALL);
+    final OpticsResult r3 = om3.fastOptics(3, 0, 0, false, false, SampleMode.ALL);
     Assertions.assertEquals(1, ri.compute(r2.getClusters(), r3.getClusters()).getRandIndex());
   }
 
