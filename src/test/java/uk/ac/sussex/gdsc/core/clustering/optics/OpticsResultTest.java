@@ -44,6 +44,7 @@ import uk.ac.sussex.gdsc.core.clustering.optics.OpticsResult.SteepUpArea;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull2d;
 import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
@@ -363,7 +364,7 @@ public class OpticsResultTest {
     };
     result.computeHulls(builder);
     final int id = topLevel.get(0).getClusterId();
-    final ConvexHull2d h = (ConvexHull2d) result.getHull(id);
+    final Hull2d h = (Hull2d) result.getHull(id);
     for (int i = 0; i < c1.length; i++) {
       final double[] point = new double[] {x.get(i), y.get(i)};
       // Because this is a convex hull some points not in the cluster
@@ -394,7 +395,7 @@ public class OpticsResultTest {
     result2.computeHulls(builder);
     final int id2 = result2.getClusteringHierarchy().get(0).getClusterId();
     final int[] c2 = result.getTopLevelClusters();
-    final ConvexHull2d h2 = (ConvexHull2d) result2.getHull(id2);
+    final Hull2d h2 = (Hull2d) result2.getHull(id2);
     for (int i = 0; i < c2.length; i++) {
       final double[] point = new double[] {x.get(i), y.get(i)};
       // Because this is a convex hull some points not in the cluster
