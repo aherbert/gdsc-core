@@ -28,8 +28,14 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,6 +44,7 @@ import uk.ac.sussex.gdsc.core.clustering.optics.OpticsResult.SteepUpArea;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
+import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -266,24 +273,280 @@ public class OpticsResultTest {
         result3.getHull(1).getVertices());
   }
 
-  // TODO - Generate a hierarchical clustering with Optics Xi and test:
-  // getNumberOfLevels (must be above 1 for a hierarchy to test other methods)
-  // getClustersFromOrder
-  // getParents
-  // computeHulls
-  //
-  // Do not have to control the optics profile. Just extract it using getOrder and getClustering
-  // check the methods return the correct data.
-  //
   // Test the upper and lower limit by scanning the reachability profile for the range and clipping
   // it. Check the clustering results change.
 
   @Test
   public void testHierarchicalResults() {
+    final UniformRandomProvider rng = RngUtils.create(123L);
+    // Create blobs on an image using uniform random circles.
+    // Put some circles inside others. This should trigger Optics Xi to create
+    // hierarchical clusters.
+    final TFloatArrayList x = new TFloatArrayList();
+    final TFloatArrayList y = new TFloatArrayList();
+    final UnitCircleSampler s = UnitCircleSampler.of(rng);
+    // Two circles, one inside the other
+    addCircle(s, 10, 10, 10, 50, x, y);
+    addCircle(s, 9, 9, 3, 50, x, y);
+    // One isolated circle
+    addCircle(s, 30, 30, 10, 50, x, y);
+    final OpticsManager om = new OpticsManager(x.toArray(), y.toArray(), 0);
+    final OpticsResult result = om.optics(3, 4);
+
+    result.resetClusterIds();
+    Assertions.assertArrayEquals(new int[0], result.getClustersFromOrder(10, 20, true));
+
+    result.extractClusters(0.05);
+
+    Assertions.assertArrayEquals(new int[0], result.getClustersFromOrder(1000, 2000, true));
+    Assertions.assertArrayEquals(new int[0], result.getClustersFromOrder(-10, -2, true));
+
+    // There should be a hierarchy of clusters to test descending the children
+    Assertions.assertTrue(result.getNumberOfLevels() > 1);
+
+    // Check getClustersFromOrder
+    final List<OpticsCluster> allClusters = result.getAllClusters();
+    assertGetClustersFromOrder(allClusters, result, 20, 30, true);
+    assertGetClustersFromOrder(allClusters, result, 20, 30, false);
+    assertGetClustersFromOrder(allClusters, result, 20, 20, false);
+
+    // Check getParents
+    assertGetParents(allClusters, result, new int[] {3});
+    assertGetParents(allClusters, result, new int[] {3, 4, 5});
+    assertGetParents(allClusters, result, new int[] {0, 3, 4, 5, 1000});
+    // Require a top level cluster with children. Just do them all.
+    final TIntArrayList ids = new TIntArrayList();
+    final List<OpticsCluster> topLevel = result.getClusteringHierarchy();
+    topLevel.stream().mapToInt(OpticsCluster::getClusterId).forEach(ids::add);
+    // For the final cluster with children add some of its children.
+    for (int i = topLevel.size(); i-- > 0;) {
+      if (topLevel.get(i).children != null) {
+        ids.add(topLevel.get(i).children.get(0).getClusterId());
+        break;
+      }
+    }
+    assertGetParents(allClusters, result, ids.toArray());
+
+    // Check getTopLevelClusters
+    // Assert that they are top level
+    final int[] c1 = result.getTopLevelClusters();
+    final TIntHashSet top = new TIntHashSet();
+    topLevel.stream().mapToInt(OpticsCluster::getClusterId).forEach(top::add);
+    for (int i = 0; i < c1.length; i++) {
+      if (c1[i] > 0) {
+        Assertions.assertTrue(top.contains(c1[i]));
+      }
+    }
+
+    // Check computation of Hulls.
+    // Make 1 computation fail to hit code coverage.
+    Hull.Builder builder = new Hull.Builder() {
+      final Hull.Builder hb = ConvexHull2d.newBuilder();
+      int count;
+
+      @Override
+      public Hull.Builder clear() {
+        hb.clear();
+        return this;
+      }
+
+      @Override
+      public Hull build() {
+        return count++ == 0 ? null : hb.build();
+      }
+
+      @Override
+      public Hull.Builder add(double... point) {
+        hb.add(point);
+        return this;
+      }
+    };
+    result.computeHulls(builder);
+    final int id = topLevel.get(0).getClusterId();
+    final ConvexHull2d h = (ConvexHull2d) result.getHull(id);
+    for (int i = 0; i < c1.length; i++) {
+      final double[] point = new double[] {x.get(i), y.get(i)};
+      // Because this is a convex hull some points not in the cluster
+      // can still be inside the hull. So only test those in the cluster.
+      if (c1[i] == id) {
+        // Should be inside.
+        boolean inside = h.contains(point);
+        // May be on the boundary.
+        if (!inside) {
+          for (final double[] p : h.getVertices()) {
+            if (p[0] == point[0] && p[1] == point[1]) {
+              inside = true;
+              break;
+            }
+          }
+        }
+        Assertions.assertTrue(inside);
+      }
+    }
+
+    // Check it works for 3D to build a 2D hull.
+    // Clustering will be different as the ordering of neighbour processing
+    // is different for a 2D grid or 3D-tree.
+    final OpticsManager om2 =
+        new OpticsManager(x.toArray(), y.toArray(), new float[x.size()], om.area);
+    final OpticsResult result2 = om2.optics(3, 4);
+    result2.extractClusters(0.05);
+    result2.computeHulls(builder);
+    final int id2 = result2.getClusteringHierarchy().get(0).getClusterId();
+    final int[] c2 = result.getTopLevelClusters();
+    final ConvexHull2d h2 = (ConvexHull2d) result2.getHull(id2);
+    for (int i = 0; i < c2.length; i++) {
+      final double[] point = new double[] {x.get(i), y.get(i)};
+      // Because this is a convex hull some points not in the cluster
+      // can still be inside the hull. So only test those in the cluster.
+      if (c2[i] == id) {
+        // Should be inside.
+        boolean inside = h2.contains(point);
+        // May be on the boundary.
+        if (!inside) {
+          for (final double[] p : h2.getVertices()) {
+            if (p[0] == point[0] && p[1] == point[1]) {
+              inside = true;
+              break;
+            }
+          }
+        }
+        Assertions.assertTrue(inside);
+      }
+    }
+  }
+
+  @Test
+  public void testReachabilityLimits() {
+    final UniformRandomProvider rng = RngUtils.create(123L);
+    // Create blobs on an image using uniform random circles.
+    // Put some circles inside others. This should trigger Optics Xi to create
+    // hierarchical clusters.
+    final TFloatArrayList x = new TFloatArrayList();
+    final TFloatArrayList y = new TFloatArrayList();
+    final UnitCircleSampler s = UnitCircleSampler.of(rng);
+    // Two circles, one inside the other
+    addCircle(s, 10, 10, 10, 50, x, y);
+    addCircle(s, 9, 9, 3, 50, x, y);
+    // One isolated circle
+    addCircle(s, 30, 30, 10, 50, x, y);
+    final OpticsManager om = new OpticsManager(x.toArray(), y.toArray(), 0);
+    final OpticsResult result = om.optics(3, 4);
+
+    result.resetClusterIds();
+    double xi = 0.05;
+    result.extractClusters(xi);
+
+    final double[] reachability = result.getReachabilityDistanceProfile(false);
+    final int[] clusters = result.getClusters();
+
+    result.setUpperLimit(10);
+    Assertions.assertEquals(10, result.getUpperLimit());
+    result.setUpperLimit(-10);
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, result.getUpperLimit());
+    result.setUpperLimit(Double.NaN);
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, result.getUpperLimit());
+    result.setLowerLimit(10);
+    Assertions.assertEquals(10, result.getLowerLimit());
+    result.setLowerLimit(-10);
+    Assertions.assertEquals(-10, result.getLowerLimit());
+    result.setLowerLimit(Double.NaN);
+    Assertions.assertEquals(0, result.getLowerLimit());
+
+    result.extractClusters(xi,
+        OpticsResult.XI_OPTION_LOWER_LIMIT | OpticsResult.XI_OPTION_UPPER_LIMIT);
+    Assertions.assertArrayEquals(clusters, result.getClusters());
+
+    // Find some limits that will effect clustering
+    Percentile p = new Percentile();
+    p.setData(reachability);
+    double lower = p.evaluate(35);
+    double upper = p.evaluate(65);
+    result.setLowerLimit(lower);
+    result.setUpperLimit(upper);
+
+    // Re-run without options -> no change
+    // Re-run with options and the clustering should change
+    result.extractClusters(xi);
+    Assertions.assertArrayEquals(clusters, result.getClusters());
+    result.extractClusters(xi, OpticsResult.XI_OPTION_LOWER_LIMIT);
+    Assertions.assertFalse(Arrays.equals(clusters, result.getClusters()));
+    result.extractClusters(xi, OpticsResult.XI_OPTION_UPPER_LIMIT);
+    Assertions.assertFalse(Arrays.equals(clusters, result.getClusters()));
+    result.extractClusters(xi,
+        OpticsResult.XI_OPTION_LOWER_LIMIT | OpticsResult.XI_OPTION_UPPER_LIMIT);
+    Assertions.assertFalse(Arrays.equals(clusters, result.getClusters()));
+  }
+
+  @Test
+  public void testOpticsXiOptions() {
+    final UniformRandomProvider rng = RngUtils.create(123L);
+    // Create blobs on an image using uniform random circles.
+    // Put some circles inside others. This should trigger Optics Xi to create
+    // hierarchical clusters.
+    final TFloatArrayList x = new TFloatArrayList();
+    final TFloatArrayList y = new TFloatArrayList();
+    final UnitCircleSampler s = UnitCircleSampler.of(rng);
+    // Two circles, one inside the other
+    addCircle(s, 10, 10, 10, 50, x, y);
+    addCircle(s, 9, 9, 3, 50, x, y);
+    // One isolated circle
+    addCircle(s, 30, 30, 10, 50, x, y);
+    final OpticsManager om = new OpticsManager(x.toArray(), y.toArray(), 0);
+    final OpticsResult result = om.optics(3, 4);
+
+    double xi = 0.05;
+    result.extractClusters(xi);
+
+    final int[] clusters = result.getClusters();
+
+    // This just tests the results are different, not the actual change in the clusters.
+
+    result.extractClusters(xi, OpticsResult.XI_OPTION_NO_CORRECT);
+    Assertions.assertFalse(Arrays.equals(clusters, result.getClusters()));
+
+    result.extractClusters(xi, OpticsResult.XI_OPTION_EXCLUDE_LAST_STEEP_UP_IF_SIGNIFICANT);
+    Assertions.assertFalse(Arrays.equals(clusters, result.getClusters()));
   }
 
   private static void assertIdEquals(int[] expected, int[] actual) {
     Arrays.sort(actual);
     Assertions.assertArrayEquals(expected, actual);
+  }
+
+  private static void addCircle(UnitCircleSampler s, float cx, float cy, float r, int n,
+      TFloatArrayList x, TFloatArrayList y) {
+    for (int i = 0; i < n; i++) {
+      final double[] p = s.sample();
+      x.add((float) (cx + p[0] * r));
+      y.add((float) (cy + p[1] * r));
+    }
+  }
+
+  private static void assertGetClustersFromOrder(List<OpticsCluster> allClusters,
+      OpticsResult result, int start, int end, boolean includeChildren) {
+    final int[] co = result.getClustersFromOrder(start, end, includeChildren);
+    final TIntHashSet set = new TIntHashSet();
+    final Predicate<OpticsCluster> p = includeChildren ? c -> true : c -> c.getLevel() == 0;
+    allClusters.stream().filter(p)
+        .filter(c -> (c.start < start) ? c.end >= start - 1 : c.start < end)
+        .mapToInt(OpticsCluster::getClusterId).forEach(set::add);
+    final int[] exp = set.toArray();
+    Arrays.sort(exp);
+    assertIdEquals(exp, co);
+  }
+
+  private static void assertGetParents(List<OpticsCluster> allClusters, OpticsResult result,
+      int[] ids) {
+    final int[] co = result.getParents(ids);
+    final TIntHashSet set = new TIntHashSet();
+    allClusters.stream().filter(c -> ArrayUtils.indexOf(ids, c.getClusterId()) >= 0).forEach(c -> {
+      for (int i = c.start; i <= c.end; i++) {
+        set.add(result.get(i).parent);
+      }
+    });
+    final int[] exp = set.toArray();
+    Arrays.sort(exp);
+    assertIdEquals(exp, co);
   }
 }
