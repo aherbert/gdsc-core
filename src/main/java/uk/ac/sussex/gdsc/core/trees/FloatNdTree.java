@@ -146,7 +146,7 @@ class FloatNdTree implements FloatKdTree {
    */
   @Override
   public void add(float[] location) {
-    add(location, (cursor, p) -> false);
+    addPoint(location, (cursor, p) -> false);
   }
 
   /**
@@ -160,7 +160,7 @@ class FloatNdTree implements FloatKdTree {
   @Override
   public boolean addIfAbsent(float[] location) {
     final BiPredicate<float[], float[]> equality = FloatArrayPredicates.equals(dimensions);
-    return add(location, (cursor, p) -> {
+    return addPoint(location, (cursor, p) -> {
       for (int i = 0; i < cursor.locationCount; i++) {
         if (equality.test(location, cursor.locations[i])) {
           return true;
@@ -178,7 +178,7 @@ class FloatNdTree implements FloatKdTree {
    * @param filter the filter to test if the point is already present at the leaf node
    * @return true if added
    */
-  private boolean add(float[] location, BiPredicate<FloatNdTree, float[]> filter) {
+  private boolean addPoint(float[] location, BiPredicate<FloatNdTree, float[]> filter) {
     // Special case if empty where the bounds can just be initialised.
     if (locationCount == 0) {
       locations[locationCount] = location;

@@ -153,7 +153,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
    */
   @Override
   public void add(double[] location, int value) {
-    add(location, value, (cursor, p) -> false);
+    addPoint(location, value, (cursor, p) -> false);
   }
 
   /**
@@ -167,7 +167,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
   @Override
   public boolean addIfAbsent(double[] location, int value) {
     final BiPredicate<double[], double[]> equality = DoubleArrayPredicates.equals(dimensions);
-    return add(location, value, (cursor, p) -> {
+    return addPoint(location, value, (cursor, p) -> {
       for (int i = 0; i < cursor.locationCount; i++) {
         if (equality.test(location, cursor.locations[i])) {
           return true;
@@ -185,7 +185,8 @@ class IntDoubleNdTree implements IntDoubleKdTree {
    * @param filter the filter to test if the point is already present at the leaf node
    * @return true if added
    */
-  private boolean add(double[] location, int value, BiPredicate<IntDoubleNdTree, double[]> filter) {
+  private boolean addPoint(double[] location, int value,
+      BiPredicate<IntDoubleNdTree, double[]> filter) {
     // Special case if empty where the bounds can just be initialised.
     if (locationCount == 0) {
       locations[locationCount] = location;
