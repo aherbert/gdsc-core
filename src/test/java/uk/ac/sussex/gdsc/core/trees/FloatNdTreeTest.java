@@ -119,7 +119,7 @@ public class FloatNdTreeTest {
     final FloatKdTree tree = KdTrees.newFloatKdTree(2);
     Assertions.assertEquals(2, tree.dimensions());
     for (final float[] location : data) {
-      tree.addPoint(location);
+      tree.add(location);
     }
     Assertions.assertEquals(n, tree.size());
 
@@ -224,7 +224,7 @@ public class FloatNdTreeTest {
     final FloatKdTree tree = KdTrees.newFloatKdTree(2);
     Assertions.assertEquals(2, tree.dimensions());
     for (final float[] location : data) {
-      tree.addPoint(location);
+      tree.add(location);
     }
 
     // Search with a point that is on the left side of the split value but actually closer to the
@@ -270,7 +270,7 @@ public class FloatNdTreeTest {
     final FloatKdTree tree = KdTrees.newFloatKdTree(2);
     Assertions.assertEquals(2, tree.dimensions());
     for (final float[] location : data) {
-      tree.addPoint(location);
+      tree.add(location);
     }
 
     // Search with a point in the tree.

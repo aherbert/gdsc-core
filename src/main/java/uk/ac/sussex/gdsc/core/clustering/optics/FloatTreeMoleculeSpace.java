@@ -78,7 +78,7 @@ class FloatTreeMoleculeSpace extends MoleculeSpace {
         final float z = zcoord[i];
         final Molecule m = new Molecule3d(i, x, y, z);
         setOfObjects[i] = m;
-        tree.addPoint(new float[] {x, y, z}, m);
+        tree.add(new float[] {x, y, z}, m);
         return m;
       };
     } else {
@@ -89,7 +89,7 @@ class FloatTreeMoleculeSpace extends MoleculeSpace {
         final float y = ycoord[i];
         final Molecule m = new Molecule(i, x, y);
         setOfObjects[i] = m;
-        tree.addPoint(new float[] {x, y}, m);
+        tree.add(new float[] {x, y}, m);
         return m;
       };
     }

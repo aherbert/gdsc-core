@@ -272,7 +272,7 @@ public final class RmsmdCalculator {
     // Put all points1 in a KD-Tree
     final DoubleKdTree tree = KdTrees.newDoubleKdTree(points2[0].length);
     for (final double[] p : points2) {
-      tree.addPoint(p);
+      tree.add(p);
     }
 
     double sum = 0;

@@ -238,7 +238,7 @@ public class LoOp {
     distanceFunction = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     for (int i = 0; i < x.length; i++) {
       points[i] = new float[] {x[i], y[i]};
-      tree.addPoint(points[i], i);
+      tree.add(points[i], i);
     }
   }
 
@@ -255,7 +255,7 @@ public class LoOp {
     distanceFunction = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
     for (int i = 0; i < x.length; i++) {
       points[i] = new float[] {x[i], y[i], z[i]};
-      tree.addPoint(points[i], i);
+      tree.add(points[i], i);
     }
   }
 

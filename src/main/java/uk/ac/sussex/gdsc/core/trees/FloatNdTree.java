@@ -138,7 +138,7 @@ class FloatNdTree implements FloatKdTree {
   }
 
   @Override
-  public void addPoint(float[] location) {
+  public void add(float[] location) {
     add(location, (cursor, p) -> false);
   }
 

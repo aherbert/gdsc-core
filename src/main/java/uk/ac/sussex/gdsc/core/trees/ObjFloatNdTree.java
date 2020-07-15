@@ -147,7 +147,7 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
   }
 
   @Override
-  public void addPoint(float[] location, T value) {
+  public void add(float[] location, T value) {
     add(location, value, (cursor, p) -> false);
   }
 

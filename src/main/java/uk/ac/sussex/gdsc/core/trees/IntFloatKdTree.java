@@ -57,7 +57,7 @@ public interface IntFloatKdTree {
    * @param location the location
    * @param value the value
    */
-  public void addPoint(float[] location, int value);
+  public void add(float[] location, int value);
 
   /**
    * Add a point and associated value to the tree if the specified point is not already present.

@@ -147,7 +147,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   }
 
   @Override
-  public void addPoint(double[] location, T value) {
+  public void add(double[] location, T value) {
     add(location, value, (cursor, p) -> false);
   }
 

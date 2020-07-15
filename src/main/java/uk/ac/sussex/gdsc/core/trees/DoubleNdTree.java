@@ -138,7 +138,7 @@ class DoubleNdTree implements DoubleKdTree {
   }
 
   @Override
-  public void addPoint(double[] location) {
+  public void add(double[] location) {
     add(location, (cursor, p) -> false);
   }
 

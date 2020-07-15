@@ -145,7 +145,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
   }
 
   @Override
-  public void addPoint(double[] location, int value) {
+  public void add(double[] location, int value) {
     add(location, value, (cursor, p) -> false);
   }
 

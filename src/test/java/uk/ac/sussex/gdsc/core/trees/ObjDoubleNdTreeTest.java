@@ -143,7 +143,7 @@ public class ObjDoubleNdTreeTest {
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final double[] location : data) {
-      tree.addPoint(location, Integer.valueOf(item++));
+      tree.add(location, Integer.valueOf(item++));
     }
     Assertions.assertEquals(n, tree.size());
 
@@ -326,7 +326,7 @@ public class ObjDoubleNdTreeTest {
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final double[] location : data) {
-      tree.addPoint(location, Integer.valueOf(item++));
+      tree.add(location, Integer.valueOf(item++));
     }
 
     // Search with a point that is on the left side of the split value but actually closer to the
@@ -390,7 +390,7 @@ public class ObjDoubleNdTreeTest {
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final double[] location : data) {
-      tree.addPoint(location, Integer.valueOf(item++));
+      tree.add(location, Integer.valueOf(item++));
     }
 
     // Search with a point in the tree.

@@ -57,7 +57,7 @@ public interface IntDoubleKdTree {
    * @param location the location
    * @param value the value
    */
-  public void addPoint(double[] location, int value);
+  public void add(double[] location, int value);
 
   /**
    * Add a point and associated value to the tree if the specified point is not already present.

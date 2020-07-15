@@ -1804,12 +1804,12 @@ public class OpticsManager extends CoordinateStore {
       if (is3d()) {
         tree = KdTrees.newFloatKdTree(3);
         for (int i = 0; i < size; i++) {
-          tree.addPoint(new float[] {xcoord[i], ycoord[i], zcoord[i]});
+          tree.add(new float[] {xcoord[i], ycoord[i], zcoord[i]});
         }
       } else {
         tree = KdTrees.newFloatKdTree(2);
         for (int i = 0; i < size; i++) {
-          tree.addPoint(new float[] {xcoord[i], ycoord[i]});
+          tree.add(new float[] {xcoord[i], ycoord[i]});
         }
       }
     }
