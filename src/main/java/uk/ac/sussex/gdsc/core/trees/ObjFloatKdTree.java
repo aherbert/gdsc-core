@@ -86,7 +86,7 @@ public interface ObjFloatKdTree<T> {
    * @return true if neighbours were found
    */
   boolean nearestNeighbours(double[] location, int count, boolean sorted,
-      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> results);
+      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> results);
 
   /**
    * Calculates the nearest {@code count} points to {@code location} that pass the provided filter
@@ -106,7 +106,8 @@ public interface ObjFloatKdTree<T> {
    * @return true if neighbours were found
    */
   boolean nearestNeighbours(double[] location, int count, boolean sorted,
-      FloatDistanceFunction distanceFunction, Predicate<T> filter, ObjDoubleConsumer<T> results);
+      FloatDistanceFunction distanceFunction, Predicate<? super T> filter,
+      ObjDoubleConsumer<? super T> results);
 
   /**
    * Calculates the neighbour points within {@code range} to {@code location} and puts the items and
@@ -119,8 +120,8 @@ public interface ObjFloatKdTree<T> {
    * @param results the results
    * @return true if neighbours were found
    */
-  boolean findNeighbours(double[] location, double range,
-      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> results);
+  boolean findNeighbours(double[] location, double range, FloatDistanceFunction distanceFunction,
+      ObjDoubleConsumer<? super T> results);
 
   /**
    * Calculates the nearest point to {@code location} and puts the item and the distance it in the
@@ -144,5 +145,5 @@ public interface ObjFloatKdTree<T> {
    * @return the distance
    */
   double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
-      ObjDoubleConsumer<T> result);
+      ObjDoubleConsumer<? super T> result);
 }

@@ -90,7 +90,7 @@ public class ObjDoubleMinHeap<T> {
    * @return the value
    * @throws IllegalStateException if the size is zero
    */
-  public double remove(ObjDoubleConsumer<T> action) {
+  public double remove(ObjDoubleConsumer<? super T> action) {
     if (size == 0) {
       throw new IllegalStateException();
     }

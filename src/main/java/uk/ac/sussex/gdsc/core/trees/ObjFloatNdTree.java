@@ -385,7 +385,7 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
 
   @Override
   public boolean nearestNeighbours(double[] location, int count, boolean sorted,
-      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> results) {
+      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> results) {
     if (locationCount == 0 || count < 1) {
       return false;
     }
@@ -397,7 +397,8 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
 
   @Override
   public boolean nearestNeighbours(double[] location, int count, boolean sorted,
-      FloatDistanceFunction distanceFunction, Predicate<T> filter, ObjDoubleConsumer<T> results) {
+      FloatDistanceFunction distanceFunction, Predicate<? super T> filter,
+      ObjDoubleConsumer<? super T> results) {
     if (locationCount == 0 || count < 1) {
       return false;
     }
@@ -412,8 +413,8 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
 
   @SuppressWarnings({"unchecked"})
   private boolean nearestNeighboursSearch(double[] location, boolean sorted,
-      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> partialResults,
-      ObjDoubleMinHeap<T> resultHeap, ObjDoubleConsumer<T> results) {
+      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> partialResults,
+      ObjDoubleMinHeap<T> resultHeap, ObjDoubleConsumer<? super T> results) {
 
     // Current point in tree
     ObjFloatNdTree<T> cursor = this;
@@ -488,7 +489,7 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
   @SuppressWarnings({"unchecked"})
   @Override
   public boolean findNeighbours(double[] location, double range,
-      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> results) {
+      FloatDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> results) {
     if (locationCount == 0) {
       return false;
     }
@@ -552,7 +553,7 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
   @SuppressWarnings({"unchecked"})
   @Override
   public double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
-      ObjDoubleConsumer<T> result) {
+      ObjDoubleConsumer<? super T> result) {
     if (locationCount == 0) {
       return 0;
     }

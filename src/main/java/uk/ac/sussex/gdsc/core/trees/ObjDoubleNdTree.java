@@ -385,7 +385,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
 
   @Override
   public boolean nearestNeighbours(double[] location, int count, boolean sorted,
-      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<T> results) {
+      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> results) {
     if (locationCount == 0 || count < 1) {
       return false;
     }
@@ -397,7 +397,8 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
 
   @Override
   public boolean nearestNeighbours(double[] location, int count, boolean sorted,
-      DoubleDistanceFunction distanceFunction, Predicate<T> filter, ObjDoubleConsumer<T> results) {
+      DoubleDistanceFunction distanceFunction, Predicate<? super T> filter,
+      ObjDoubleConsumer<? super T> results) {
     if (locationCount == 0 || count < 1) {
       return false;
     }
@@ -412,8 +413,8 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
 
   @SuppressWarnings({"unchecked"})
   private boolean nearestNeighboursSearch(double[] location, boolean sorted,
-      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<T> partialResults,
-      ObjDoubleMinHeap<T> resultHeap, ObjDoubleConsumer<T> results) {
+      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> partialResults,
+      ObjDoubleMinHeap<T> resultHeap, ObjDoubleConsumer<? super T> results) {
 
     // Current point in tree
     ObjDoubleNdTree<T> cursor = this;
@@ -488,7 +489,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   @SuppressWarnings({"unchecked"})
   @Override
   public boolean findNeighbours(double[] location, double range,
-      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<T> results) {
+      DoubleDistanceFunction distanceFunction, ObjDoubleConsumer<? super T> results) {
     if (locationCount == 0) {
       return false;
     }
@@ -552,7 +553,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   @SuppressWarnings({"unchecked"})
   @Override
   public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
-      ObjDoubleConsumer<T> result) {
+      ObjDoubleConsumer<? super T> result) {
     if (locationCount == 0) {
       return 0;
     }
