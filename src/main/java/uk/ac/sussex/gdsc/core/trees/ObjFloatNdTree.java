@@ -147,6 +147,11 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
     return locationCount;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The location is stored by reference.
+   */
   @Override
   public void add(float[] location, T value) {
     add(location, value, (cursor, p) -> false);
@@ -157,6 +162,8 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
    *
    * <p>Location equality uses the {@code ==} operator on each coordinate, thus {@code -0.0} and
    * {@code 0.0} are considered equal.
+   *
+   * <p>The location is stored by reference.
    */
   @Override
   public boolean addIfAbsent(float[] location, T value) {

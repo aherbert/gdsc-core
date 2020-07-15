@@ -146,6 +146,11 @@ class IntDoubleNdTree implements IntDoubleKdTree {
     return locationCount;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The location is stored by reference.
+   */
   @Override
   public void add(double[] location, int value) {
     add(location, value, (cursor, p) -> false);
@@ -156,6 +161,8 @@ class IntDoubleNdTree implements IntDoubleKdTree {
    *
    * <p>Location equality uses the {@code ==} operator on each coordinate, thus {@code -0.0} and
    * {@code 0.0} are considered equal.
+   *
+   * <p>The location is stored by reference.
    */
   @Override
   public boolean addIfAbsent(double[] location, int value) {
