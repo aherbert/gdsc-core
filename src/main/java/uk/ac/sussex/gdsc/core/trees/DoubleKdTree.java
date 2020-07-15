@@ -41,21 +41,21 @@ public interface DoubleKdTree {
    *
    * @return the dimensions
    */
-  public int dimensions();
+  int dimensions();
 
   /**
    * Get the number of items in the tree.
    *
    * @return the size
    */
-  public int size();
+  int size();
 
   /**
    * Add a point to the tree.
    *
    * @param location the location
    */
-  public void add(double[] location);
+  void add(double[] location);
 
   /**
    * Add a point to the tree if the specified point is not already present.
@@ -63,7 +63,7 @@ public interface DoubleKdTree {
    * @param location the location
    * @return true if the point was added
    */
-  public boolean addIfAbsent(double[] location);
+  boolean addIfAbsent(double[] location);
 
   /**
    * Calculates the nearest {@code count} points to {@code location} and puts the distances in the
@@ -80,7 +80,7 @@ public interface DoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+  boolean nearestNeighbours(double[] location, int count, boolean sorted,
       DoubleDistanceFunction distanceFunction, DoubleConsumer results);
 
   /**
@@ -93,7 +93,7 @@ public interface DoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean findNeighbours(double[] location, double range,
+  boolean findNeighbours(double[] location, double range,
       DoubleDistanceFunction distanceFunction, DoubleConsumer results);
 
   /**
@@ -116,6 +116,6 @@ public interface DoubleKdTree {
    * @param result the result (can be null)
    * @return the distance
    */
-  public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
+  double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
       DoubleConsumer result);
 }

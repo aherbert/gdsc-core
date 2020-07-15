@@ -44,14 +44,14 @@ public interface IntDoubleKdTree {
    *
    * @return the dimensions
    */
-  public int dimensions();
+  int dimensions();
 
   /**
    * Get the number of items in the tree.
    *
    * @return the size
    */
-  public int size();
+  int size();
 
   /**
    * Add a point and associated value to the tree.
@@ -59,7 +59,7 @@ public interface IntDoubleKdTree {
    * @param location the location
    * @param value the value
    */
-  public void add(double[] location, int value);
+  void add(double[] location, int value);
 
   /**
    * Add a point and associated value to the tree if the specified point is not already present.
@@ -68,7 +68,7 @@ public interface IntDoubleKdTree {
    * @param value the value
    * @return true if the point was added
    */
-  public boolean addIfAbsent(double[] location, int value);
+  boolean addIfAbsent(double[] location, int value);
 
   /**
    * Calculates the nearest {@code count} points to {@code location} and puts the items and the
@@ -86,7 +86,7 @@ public interface IntDoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+  boolean nearestNeighbours(double[] location, int count, boolean sorted,
       DoubleDistanceFunction distanceFunction, IntDoubleConsumer results);
 
   /**
@@ -106,7 +106,7 @@ public interface IntDoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+  boolean nearestNeighbours(double[] location, int count, boolean sorted,
       DoubleDistanceFunction distanceFunction, IntPredicate filter, IntDoubleConsumer results);
 
   /**
@@ -120,7 +120,7 @@ public interface IntDoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean findNeighbours(double[] location, double range,
+  boolean findNeighbours(double[] location, double range,
       DoubleDistanceFunction distanceFunction, IntDoubleConsumer results);
 
   /**
@@ -144,6 +144,6 @@ public interface IntDoubleKdTree {
    * @param result the result (can be null)
    * @return the distance
    */
-  public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
+  double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
       IntDoubleConsumer result);
 }

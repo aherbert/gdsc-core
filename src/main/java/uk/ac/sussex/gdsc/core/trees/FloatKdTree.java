@@ -41,21 +41,21 @@ public interface FloatKdTree {
    *
    * @return the dimensions
    */
-  public int dimensions();
+  int dimensions();
 
   /**
    * Get the number of items in the tree.
    *
    * @return the size
    */
-  public int size();
+  int size();
 
   /**
    * Add a point to the tree.
    *
    * @param location the location
    */
-  public void add(float[] location);
+  void add(float[] location);
 
   /**
    * Add a point to the tree if the specified point is not already present.
@@ -63,7 +63,7 @@ public interface FloatKdTree {
    * @param location the location
    * @return true if the point was added
    */
-  public boolean addIfAbsent(float[] location);
+  boolean addIfAbsent(float[] location);
 
   /**
    * Calculates the nearest {@code count} points to {@code location} and puts the distances in the
@@ -80,7 +80,7 @@ public interface FloatKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+  boolean nearestNeighbours(double[] location, int count, boolean sorted,
       FloatDistanceFunction distanceFunction, DoubleConsumer results);
 
   /**
@@ -93,7 +93,7 @@ public interface FloatKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean findNeighbours(double[] location, double range,
+  boolean findNeighbours(double[] location, double range,
       FloatDistanceFunction distanceFunction, DoubleConsumer results);
 
   /**
@@ -116,6 +116,6 @@ public interface FloatKdTree {
    * @param result the result (can be null)
    * @return the distance
    */
-  public double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
+  double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
       DoubleConsumer result);
 }

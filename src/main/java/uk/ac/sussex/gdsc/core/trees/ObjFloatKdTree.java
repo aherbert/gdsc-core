@@ -43,14 +43,14 @@ public interface ObjFloatKdTree<T> {
    *
    * @return the dimensions
    */
-  public int dimensions();
+  int dimensions();
 
   /**
    * Get the number of items in the tree.
    *
    * @return the size
    */
-  public int size();
+  int size();
 
   /**
    * Add a point and associated value to the tree.
@@ -58,7 +58,7 @@ public interface ObjFloatKdTree<T> {
    * @param location the location
    * @param value the value
    */
-  public void add(float[] location, T value);
+  void add(float[] location, T value);
 
   /**
    * Add a point and associated value to the tree if the specified point is not already present.
@@ -67,7 +67,7 @@ public interface ObjFloatKdTree<T> {
    * @param value the value
    * @return true if the point was added
    */
-  public boolean addIfAbsent(float[] location, T value);
+  boolean addIfAbsent(float[] location, T value);
 
   /**
    * Calculates the nearest {@code count} points to {@code location} and puts the items and the
@@ -85,7 +85,7 @@ public interface ObjFloatKdTree<T> {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+  boolean nearestNeighbours(double[] location, int count, boolean sorted,
       FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> results);
 
   /**
@@ -105,7 +105,7 @@ public interface ObjFloatKdTree<T> {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean nearestNeighbours(double[] location, int count, boolean sorted,
+  boolean nearestNeighbours(double[] location, int count, boolean sorted,
       FloatDistanceFunction distanceFunction, Predicate<T> filter, ObjDoubleConsumer<T> results);
 
   /**
@@ -119,7 +119,7 @@ public interface ObjFloatKdTree<T> {
    * @param results the results
    * @return true if neighbours were found
    */
-  public boolean findNeighbours(double[] location, double range,
+  boolean findNeighbours(double[] location, double range,
       FloatDistanceFunction distanceFunction, ObjDoubleConsumer<T> results);
 
   /**
@@ -143,6 +143,6 @@ public interface ObjFloatKdTree<T> {
    * @param result the result (can be null)
    * @return the distance
    */
-  public double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
+  double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
       ObjDoubleConsumer<T> result);
 }
