@@ -32,6 +32,7 @@ package uk.ac.sussex.gdsc.core.trees;
  * Interface for a distance between a point and either a point or a hyperrectangle.
  *
  * @see <A href="https://en.wikipedia.org/wiki/Hyperrectangle">Hyperrectangle</a>
+ * @since 2.0
  */
 public interface FloatDistanceFunction {
   /**

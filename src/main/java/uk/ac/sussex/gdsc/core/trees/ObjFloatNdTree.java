@@ -31,6 +31,7 @@ import uk.ac.sussex.gdsc.core.trees.heaps.ObjDoubleMinHeap;
  * have any structural modification during the search (i.e. concurrent additions).
  *
  * @param <T> the type of the item
+ * @since 2.0
  */
 final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
   /** The bucket size. */

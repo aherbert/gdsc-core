@@ -21,6 +21,8 @@ import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
 /**
  * A minimum heap for tracking up to N smallest items with an associated {@code int} item.
+ *
+ * @since 2.0
  */
 public class IntDoubleMinHeap {
   /** The values. */

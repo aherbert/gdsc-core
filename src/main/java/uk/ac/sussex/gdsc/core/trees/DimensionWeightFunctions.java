@@ -32,6 +32,8 @@ import java.util.function.IntToDoubleFunction;
 
 /**
  * Provide implementations for dimension weighting.
+ *
+ * @since 2.0
  */
 enum DimensionWeightFunctions implements IntToDoubleFunction {
   /**

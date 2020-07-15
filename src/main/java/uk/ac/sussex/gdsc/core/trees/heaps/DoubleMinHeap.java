@@ -20,6 +20,8 @@ import java.util.Arrays;
 
 /**
  * A minimum heap for tracking up to N smallest values.
+ *
+ * @since 2.0
  */
 public class DoubleMinHeap {
   /** The values. */

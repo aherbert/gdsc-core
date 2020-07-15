@@ -35,6 +35,8 @@ import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
  * A KD-tree that stores an {@code int} item with each {@code float}-valued location.
  *
  * <p>This is the primitive type specialization of {@link ObjFloatKdTree} for {@code int}.
+ *
+ * @since 2.0
  */
 public interface IntFloatKdTree {
   /**

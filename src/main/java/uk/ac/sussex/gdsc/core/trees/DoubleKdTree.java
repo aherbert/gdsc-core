@@ -32,6 +32,8 @@ import java.util.function.DoubleConsumer;
 
 /**
  * A KD-tree of {@code double}-valued locations.
+ *
+ * @since 2.0
  */
 public interface DoubleKdTree {
   /**
