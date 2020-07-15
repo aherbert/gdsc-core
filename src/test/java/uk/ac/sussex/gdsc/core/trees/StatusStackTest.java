@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 public class StatusStackTest {
   @Test
   public void testStack() {
-    StatusStack stack = new StatusStack(3);
+    final StatusStack stack = new StatusStack(3);
     stack.push(Status.ALLVISITED);
     stack.push(Status.RIGHTVISITED);
     stack.push(Status.LEFTVISITED);

@@ -92,25 +92,25 @@ public class IntDoubleNdTreeTest {
 
   @Test
   public void testComputeKnnWithSmallTree() {
-    double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
+    final double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
     assertComputeKnn(data);
   }
 
   @Test
   public void testComputeKnnWithSingleTree() {
-    double[][] data = new double[][] {{0, 0}};
+    final double[][] data = new double[][] {{0, 0}};
     assertComputeKnn(data);
   }
 
   @Test
   public void testComputeKnnWithSingularity() {
-    LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
-    double[] point1 = new double[2];
+    final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
+    final double[] point1 = new double[2];
     // Create some data.
     // Make the first split on a singularity.
     IntStream.range(0, BUCKET_SIZE).forEach(i -> list.add(point1));
     IntStream.range(0, BUCKET_SIZE + 2).mapToObj(i -> new double[] {0, i}).forEach(list::add);
-    double[][] data = list.toArray(new double[0][]);
+    final double[][] data = list.toArray(new double[0][]);
     assertComputeKnn(data);
   }
 
@@ -253,7 +253,7 @@ public class IntDoubleNdTreeTest {
           // Neighbours will be in reverse order
           distances.reverse();
           observed = distances.toArray();
-          TDoubleArrayList tmp = new TDoubleArrayList(Arrays.copyOf(d2, k + 2));
+          final TDoubleArrayList tmp = new TDoubleArrayList(Arrays.copyOf(d2, k + 2));
           tmp.removeAt(5);
           tmp.removeAt(3);
           expected = tmp.toArray();
@@ -304,9 +304,9 @@ public class IntDoubleNdTreeTest {
    */
   @Test
   public void testSingularityWithDistanceAboveRange() {
-    LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
-    double[] point1 = {0, 0};
-    double[] point2 = {5, 4};
+    final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
+    final double[] point1 = {0, 0};
+    final double[] point2 = {5, 4};
     // Create some data.
     list.add(point1);
     list.add(point2);
@@ -316,7 +316,7 @@ public class IntDoubleNdTreeTest {
       list.add(point1);
       list.add(point2);
     });
-    double[][] data = list.toArray(new double[0][]);
+    final double[][] data = list.toArray(new double[0][]);
 
     final TIntArrayList items = new TIntArrayList();
     final TDoubleArrayList distances = new TDoubleArrayList();
@@ -332,7 +332,7 @@ public class IntDoubleNdTreeTest {
 
     // Search with a point that is on the left side of the split value but actually closer to the
     // other point data.
-    double[] p1 = {2, 4};
+    final double[] p1 = {2, 4};
     items.clear();
     distances.resetQuick();
     boolean result = tree.findNeighbours(p1, 9, distanceFunction, (t, dist) -> {
@@ -341,15 +341,15 @@ public class IntDoubleNdTreeTest {
     });
     Assertions.assertTrue(result);
     Assertions.assertEquals(BUCKET_SIZE, items.size());
-    for (int i : items.toArray()) {
+    for (final int i : items.toArray()) {
       Assertions.assertEquals(point2, data[i]);
     }
-    for (double d : distances.toArray()) {
+    for (final double d : distances.toArray()) {
       Assertions.assertEquals(9, d);
     }
 
     // For nearest neighbours we use a NaN point so the distance is invalid
-    double[] p2 = {2, Double.NaN};
+    final double[] p2 = {2, Double.NaN};
     items.clear();
     distances.resetQuick();
     result = tree.nearestNeighbours(p2, BUCKET_SIZE, false, distanceFunction, (t, dist) -> {
@@ -360,7 +360,7 @@ public class IntDoubleNdTreeTest {
     Assertions.assertTrue(items.isEmpty());
     Assertions.assertTrue(distances.isEmpty());
 
-    double d = tree.nearestNeighbour(p2, distanceFunction, (t, dist) -> {
+    final double d = tree.nearestNeighbour(p2, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
     });
@@ -371,16 +371,16 @@ public class IntDoubleNdTreeTest {
 
   @Test
   public void testComputeKnnWithNaN() {
-    LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 2);
-    double[] point1 = {0, 0};
-    double[] point2 = {Double.NaN, Double.NaN};
+    final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 2);
+    final double[] point1 = {0, 0};
+    final double[] point2 = {Double.NaN, Double.NaN};
     // Create some data.
     list.add(point1);
     list.add(point2);
     // This should split once and have to handle the NaN data
     IntStream.range(1, BUCKET_SIZE).mapToObj(i -> new double[] {0, i}).forEach(list::add);
 
-    double[][] data = list.toArray(new double[0][]);
+    final double[][] data = list.toArray(new double[0][]);
 
     final TIntArrayList items = new TIntArrayList();
     final TDoubleArrayList distances = new TDoubleArrayList();
@@ -395,7 +395,7 @@ public class IntDoubleNdTreeTest {
     }
 
     // Search with a point in the tree.
-    double[] p1 = {0, 4};
+    final double[] p1 = {0, 4};
     items.clear();
     distances.resetQuick();
     boolean result = tree.findNeighbours(p1, 1, distanceFunction, (t, dist) -> {
@@ -418,7 +418,7 @@ public class IntDoubleNdTreeTest {
 
     items.clear();
     distances.resetQuick();
-    double d = tree.nearestNeighbour(p1, distanceFunction, (t, dist) -> {
+    final double d = tree.nearestNeighbour(p1, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
     });
@@ -427,5 +427,30 @@ public class IntDoubleNdTreeTest {
     Assertions.assertEquals(1, distances.size());
     Assertions.assertEquals(5, items.getQuick(0));
     Assertions.assertEquals(0, distances.getQuick(0));
+  }
+
+  @Test
+  public void testAddIfAbsent() {
+    assertAddIfAbsent(2);
+    assertAddIfAbsent(3);
+    assertAddIfAbsent(4);
+  }
+
+  private static void assertAddIfAbsent(int dim) {
+    final IntDoubleKdTree tree = KdTrees.newIntDoubleKdTree(dim);
+    final int n = dim - 1;
+    for (int i = 0; i < 30; i++) {
+      final double[] point = new double[dim];
+      point[n] = i;
+      Assertions.assertTrue(tree.addIfAbsent(point, 0));
+      Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
+      Assertions.assertFalse(tree.addIfAbsent(point.clone(), 0),
+          () -> "Point added. dim=" + dim);
+      Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
+    }
+    // -0.0 and 0.0 are equal
+    final double[] point = new double[dim];
+    point[n] = -0f;
+    Assertions.assertFalse(tree.addIfAbsent(point, 0));
   }
 }

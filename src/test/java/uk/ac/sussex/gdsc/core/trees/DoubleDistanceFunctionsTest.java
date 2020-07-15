@@ -35,11 +35,11 @@ import org.junit.jupiter.api.Test;
 public class DoubleDistanceFunctionsTest {
   @Test
   public void testSquareEuclideanDistance() {
-    DoubleDistanceFunction twod = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
-    DoubleDistanceFunction threed = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D;
-    DoubleDistanceFunction nd = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND;
-    double[] p1 = {1, 2, 3};
-    double[] p2 = {4, 6, 8};
+    final DoubleDistanceFunction twod = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
+    final DoubleDistanceFunction threed = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+    final DoubleDistanceFunction nd = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND;
+    final double[] p1 = {1, 2, 3};
+    final double[] p2 = {4, 6, 8};
     Assertions.assertEquals(25.0, twod.distance(p1, p2));
     Assertions.assertEquals(50.0, threed.distance(p1, p2));
     Assertions.assertEquals(50.0, nd.distance(p1, p2));
@@ -47,14 +47,14 @@ public class DoubleDistanceFunctionsTest {
 
   @Test
   public void testSquareEuclideanDistanceToRectangle() {
-    DoubleDistanceFunction twod = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
-    DoubleDistanceFunction threed = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D;
-    DoubleDistanceFunction nd = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND;
-    double[] p1 = {1, 2, 3};
-    double[] p2 = {4, 6, 8};
+    final DoubleDistanceFunction twod = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
+    final DoubleDistanceFunction threed = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+    final DoubleDistanceFunction nd = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_ND;
+    final double[] p1 = {1, 2, 3};
+    final double[] p2 = {4, 6, 8};
 
     // Inside
-    double[] point = {3, 4, 5};
+    final double[] point = {3, 4, 5};
     Assertions.assertEquals(0.0, twod.distanceToRectangle(point, p1, p2));
     Assertions.assertEquals(0.0, threed.distanceToRectangle(point, p1, p2));
     Assertions.assertEquals(0.0, nd.distanceToRectangle(point, p1, p2));

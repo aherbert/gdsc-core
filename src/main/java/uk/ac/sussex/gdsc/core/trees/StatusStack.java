@@ -39,7 +39,7 @@ class StatusStack {
    *
    * <p>Warning: this is indexed starting at 1.
    */
-  private int[] values;
+  private final int[] values;
 
   /** The size. */
   private int size;

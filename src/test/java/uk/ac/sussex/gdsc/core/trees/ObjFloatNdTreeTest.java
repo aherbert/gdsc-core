@@ -91,25 +91,25 @@ public class ObjFloatNdTreeTest {
 
   @Test
   public void testComputeKnnWithSmallTree() {
-    float[][] data = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
+    final float[][] data = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
     assertComputeKnn(data);
   }
 
   @Test
   public void testComputeKnnWithSingleTree() {
-    float[][] data = new float[][] {{0, 0}};
+    final float[][] data = new float[][] {{0, 0}};
     assertComputeKnn(data);
   }
 
   @Test
   public void testComputeKnnWithSingularity() {
-    LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 3);
-    float[] point1 = new float[2];
+    final LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 3);
+    final float[] point1 = new float[2];
     // Create some data.
     // Make the first split on a singularity.
     IntStream.range(0, BUCKET_SIZE).forEach(i -> list.add(point1));
     IntStream.range(0, BUCKET_SIZE + 2).mapToObj(i -> new float[] {0, i}).forEach(list::add);
-    float[][] data = list.toArray(new float[0][]);
+    final float[][] data = list.toArray(new float[0][]);
     assertComputeKnn(data);
   }
 
@@ -255,7 +255,7 @@ public class ObjFloatNdTreeTest {
           // Neighbours will be in reverse order
           distances.reverse();
           observed = distances.toArray();
-          TDoubleArrayList tmp = new TDoubleArrayList(Arrays.copyOf(d2, k + 2));
+          final TDoubleArrayList tmp = new TDoubleArrayList(Arrays.copyOf(d2, k + 2));
           tmp.removeAt(5);
           tmp.removeAt(3);
           expected = tmp.toArray();
@@ -306,9 +306,9 @@ public class ObjFloatNdTreeTest {
    */
   @Test
   public void testSingularityWithDistanceAboveRange() {
-    LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 3);
-    float[] point1 = {0, 0};
-    float[] point2 = {5, 4};
+    final LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 3);
+    final float[] point1 = {0, 0};
+    final float[] point2 = {5, 4};
     // Create some data.
     list.add(point1);
     list.add(point2);
@@ -318,7 +318,7 @@ public class ObjFloatNdTreeTest {
       list.add(point1);
       list.add(point2);
     });
-    float[][] data = list.toArray(new float[0][]);
+    final float[][] data = list.toArray(new float[0][]);
 
     final LocalList<Integer> items = new LocalList<>();
     final TDoubleArrayList distances = new TDoubleArrayList();
@@ -334,7 +334,7 @@ public class ObjFloatNdTreeTest {
 
     // Search with a point that is on the left side of the split value but actually closer to the
     // other point data.
-    double[] p1 = {2, 4};
+    final double[] p1 = {2, 4};
     items.clear();
     distances.resetQuick();
     boolean result = tree.findNeighbours(p1, 9, distanceFunction, (t, dist) -> {
@@ -343,15 +343,15 @@ public class ObjFloatNdTreeTest {
     });
     Assertions.assertTrue(result);
     Assertions.assertEquals(BUCKET_SIZE, items.size());
-    for (int i : items) {
+    for (final int i : items) {
       Assertions.assertEquals(point2, data[i]);
     }
-    for (double d : distances.toArray()) {
+    for (final double d : distances.toArray()) {
       Assertions.assertEquals(9, d);
     }
 
     // For nearest neighbours we use a NaN point so the distance is invalid
-    double[] p2 = {2, Double.NaN};
+    final double[] p2 = {2, Double.NaN};
     items.clear();
     distances.resetQuick();
     result = tree.nearestNeighbours(p2, BUCKET_SIZE, false, distanceFunction, (t, dist) -> {
@@ -362,7 +362,7 @@ public class ObjFloatNdTreeTest {
     Assertions.assertTrue(items.isEmpty());
     Assertions.assertTrue(distances.isEmpty());
 
-    double d = tree.nearestNeighbour(p2, distanceFunction, (t, dist) -> {
+    final double d = tree.nearestNeighbour(p2, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
     });
@@ -373,16 +373,16 @@ public class ObjFloatNdTreeTest {
 
   @Test
   public void testComputeKnnWithNaN() {
-    LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 2);
-    float[] point1 = {0, 0};
-    float[] point2 = {Float.NaN, Float.NaN};
+    final LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 2);
+    final float[] point1 = {0, 0};
+    final float[] point2 = {Float.NaN, Float.NaN};
     // Create some data.
     list.add(point1);
     list.add(point2);
     // This should split once and have to handle the NaN data
     IntStream.range(1, BUCKET_SIZE).mapToObj(i -> new float[] {0, i}).forEach(list::add);
 
-    float[][] data = list.toArray(new float[0][]);
+    final float[][] data = list.toArray(new float[0][]);
 
     final LocalList<Integer> items = new LocalList<>();
     final TDoubleArrayList distances = new TDoubleArrayList();
@@ -397,7 +397,7 @@ public class ObjFloatNdTreeTest {
     }
 
     // Search with a point in the tree.
-    double[] p1 = {0, 4};
+    final double[] p1 = {0, 4};
     items.clear();
     distances.resetQuick();
     boolean result = tree.findNeighbours(p1, 1, distanceFunction, (t, dist) -> {
@@ -420,7 +420,7 @@ public class ObjFloatNdTreeTest {
 
     items.clear();
     distances.resetQuick();
-    double d = tree.nearestNeighbour(p1, distanceFunction, (t, dist) -> {
+    final double d = tree.nearestNeighbour(p1, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
     });
@@ -429,5 +429,30 @@ public class ObjFloatNdTreeTest {
     Assertions.assertEquals(1, distances.size());
     Assertions.assertEquals(5, items.unsafeGet(0));
     Assertions.assertEquals(0, distances.getQuick(0));
+  }
+
+  @Test
+  public void testAddIfAbsent() {
+    assertAddIfAbsent(2);
+    assertAddIfAbsent(3);
+    assertAddIfAbsent(4);
+  }
+
+  private static void assertAddIfAbsent(int dim) {
+    final ObjFloatKdTree<Integer> tree = KdTrees.newObjFloatKdTree(dim);
+    final int n = dim - 1;
+    for (int i = 0; i < 30; i++) {
+      final float[] point = new float[dim];
+      point[n] = i;
+      Assertions.assertTrue(tree.addIfAbsent(point, null));
+      Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
+      Assertions.assertFalse(tree.addIfAbsent(point.clone(), null),
+          () -> "Point added. dim=" + dim);
+      Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
+    }
+    // -0.0 and 0.0 are equal
+    final float[] point = new float[dim];
+    point[n] = -0f;
+    Assertions.assertFalse(tree.addIfAbsent(point, null));
   }
 }

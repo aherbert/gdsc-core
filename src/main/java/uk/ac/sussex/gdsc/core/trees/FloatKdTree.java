@@ -49,11 +49,19 @@ public interface FloatKdTree {
   public int size();
 
   /**
-   * Add a point and associated value to the tree.
+   * Add a point to the tree.
    *
    * @param location the location
    */
   public void addPoint(float[] location);
+
+  /**
+   * Add a point to the tree if the specified point is not already present.
+   *
+   * @param location the location
+   * @return true if the point was added
+   */
+  public boolean addIfAbsent(float[] location);
 
   /**
    * Calculates the nearest {@code count} points to {@code location} and puts the distances in the

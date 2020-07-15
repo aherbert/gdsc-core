@@ -17,6 +17,7 @@
 package uk.ac.sussex.gdsc.core.trees;
 
 import java.util.Arrays;
+import java.util.function.BiPredicate;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntToDoubleFunction;
 import uk.ac.sussex.gdsc.core.trees.heaps.DoubleMinHeap;
@@ -138,12 +139,43 @@ class FloatNdTree implements FloatKdTree {
 
   @Override
   public void addPoint(float[] location) {
+    add(location, (cursor, p) -> false);
+  }
+
+  /**
+   * {@inheritDoc}.
+   *
+   * <p>Location equality uses the {@code ==} operator on each coordinate, thus {@code -0.0} and
+   * {@code 0.0} are considered equal.
+   */
+  @Override
+  public boolean addIfAbsent(float[] location) {
+    final BiPredicate<float[], float[]> equality = FloatArrayPredicates.equals(dimensions);
+    return add(location, (cursor, p) -> {
+      for (int i = 0; i < cursor.locationCount; i++) {
+        if (equality.test(location, cursor.locations[i])) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
+  /**
+   * Adds the point if not already present at the leaf node.
+   *
+   * @param location the location
+   * @param value the value
+   * @param filter the filter to test if the point is already present at the leaf node
+   * @return true if added
+   */
+  private boolean add(float[] location, BiPredicate<FloatNdTree, float[]> filter) {
     // Special case if empty where the bounds can just be initialised.
     if (locationCount == 0) {
       locations[locationCount] = location;
       locationCount = 1;
       initialiseBounds(location);
-      return;
+      return true;
     }
 
     FloatNdTree cursor = this;
@@ -153,7 +185,13 @@ class FloatNdTree implements FloatKdTree {
       cursor = updateAndDescend(cursor, location);
     }
 
-    // At a leaf. Check if enough room.
+    // At a leaf. Check if present.
+    if (filter.test(cursor, location)) {
+      // Remove location counts added for the duplicate
+      ascendAndDecrement(cursor);
+      return false;
+    }
+    // Check if enough room.
     if (cursor.locationCount == cursor.locations.length) {
       // Split the leaf
       cursor.splitDimension = cursor.findWidestAxis();
@@ -234,6 +272,7 @@ class FloatNdTree implements FloatKdTree {
     cursor.locations[cursor.locationCount] = location;
     cursor.locationCount++;
     cursor.extendBounds(location);
+    return true;
   }
 
   /**
@@ -248,6 +287,19 @@ class FloatNdTree implements FloatKdTree {
     current.locationCount++;
     current.extendBounds(location);
     return location[current.splitDimension] > current.splitValue ? current.right : current.left;
+  }
+
+  /**
+   * Ascend from the current tree node through the tree and decrement the location count of each
+   * node.
+   *
+   * @param current the current position
+   */
+  private static void ascendAndDecrement(FloatNdTree current) {
+    while (current.parent != null) {
+      current = current.parent;
+      current.locationCount--;
+    }
   }
 
   /**

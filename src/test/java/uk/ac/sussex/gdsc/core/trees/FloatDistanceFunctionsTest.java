@@ -35,11 +35,11 @@ import org.junit.jupiter.api.Test;
 public class FloatDistanceFunctionsTest {
   @Test
   public void testSquareEuclideanDistance() {
-    FloatDistanceFunction twod = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
-    FloatDistanceFunction threed = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
-    FloatDistanceFunction nd = FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND;
-    double[] p1 = {1, 2, 3};
-    float[] p2 = {4, 6, 8};
+    final FloatDistanceFunction twod = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
+    final FloatDistanceFunction threed = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+    final FloatDistanceFunction nd = FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND;
+    final double[] p1 = {1, 2, 3};
+    final float[] p2 = {4, 6, 8};
     Assertions.assertEquals(25.0, twod.distance(p1, p2));
     Assertions.assertEquals(50.0, threed.distance(p1, p2));
     Assertions.assertEquals(50.0, nd.distance(p1, p2));
@@ -47,14 +47,14 @@ public class FloatDistanceFunctionsTest {
 
   @Test
   public void testSquareEuclideanDistanceToRectangle() {
-    FloatDistanceFunction twod = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
-    FloatDistanceFunction threed = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
-    FloatDistanceFunction nd = FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND;
-    float[] p1 = {1, 2, 3};
-    float[] p2 = {4, 6, 8};
+    final FloatDistanceFunction twod = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
+    final FloatDistanceFunction threed = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
+    final FloatDistanceFunction nd = FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND;
+    final float[] p1 = {1, 2, 3};
+    final float[] p2 = {4, 6, 8};
 
     // Inside
-    double[] point = {3, 4, 5};
+    final double[] point = {3, 4, 5};
     Assertions.assertEquals(0.0, twod.distanceToRectangle(point, p1, p2));
     Assertions.assertEquals(0.0, threed.distanceToRectangle(point, p1, p2));
     Assertions.assertEquals(0.0, nd.distanceToRectangle(point, p1, p2));

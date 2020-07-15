@@ -31,9 +31,9 @@ package uk.ac.sussex.gdsc.core.trees;
 /**
  * Constants representing the status of a node during the running of a search.
  *
- * <p>This is deliberately not an enum to minimise memory overhead when storing an array
- * of the status. An enum would be a class instance and may be larger than 32-bits per
- * value depending on the JVM platform.
+ * <p>This is deliberately not an enum to minimise memory overhead when storing an array of the
+ * status. An enum would be a class instance and may be larger than 32-bits per value depending on
+ * the JVM platform.
  */
 final class Status {
   /** Status indicating that neither child has been visited. */

@@ -69,25 +69,25 @@ public class DoubleNdTreeTest {
 
   @Test
   public void testComputeKnnWithSmallTree() {
-    double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
+    final double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
     assertComputeKnn(data);
   }
 
   @Test
   public void testComputeKnnWithSingleTree() {
-    double[][] data = new double[][] {{0, 0}};
+    final double[][] data = new double[][] {{0, 0}};
     assertComputeKnn(data);
   }
 
   @Test
   public void testComputeKnnWithSingularity() {
-    LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
-    double[] point1 = new double[2];
+    final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
+    final double[] point1 = new double[2];
     // Create some data.
     // Make the first split on a singularity.
     IntStream.range(0, BUCKET_SIZE).forEach(i -> list.add(point1));
     IntStream.range(0, BUCKET_SIZE + 2).mapToObj(i -> new double[] {0, i}).forEach(list::add);
-    double[][] data = list.toArray(new double[0][]);
+    final double[][] data = list.toArray(new double[0][]);
     assertComputeKnn(data);
   }
 
@@ -200,9 +200,9 @@ public class DoubleNdTreeTest {
    */
   @Test
   public void testSingularityWithDistanceAboveRange() {
-    LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
-    double[] point1 = {0, 0};
-    double[] point2 = {5, 4};
+    final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
+    final double[] point1 = {0, 0};
+    final double[] point2 = {5, 4};
     // Create some data.
     list.add(point1);
     list.add(point2);
@@ -212,7 +212,7 @@ public class DoubleNdTreeTest {
       list.add(point1);
       list.add(point2);
     });
-    double[][] data = list.toArray(new double[0][]);
+    final double[][] data = list.toArray(new double[0][]);
 
     final TDoubleArrayList distances = new TDoubleArrayList();
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
@@ -226,39 +226,39 @@ public class DoubleNdTreeTest {
 
     // Search with a point that is on the left side of the split value but actually closer to the
     // other point data.
-    double[] p1 = {2, 4};
+    final double[] p1 = {2, 4};
     distances.resetQuick();
     boolean result = tree.findNeighbours(p1, 9, distanceFunction, distances::add);
     Assertions.assertTrue(result);
     Assertions.assertEquals(BUCKET_SIZE, distances.size());
-    for (double d : distances.toArray()) {
+    for (final double d : distances.toArray()) {
       Assertions.assertEquals(9, d);
     }
 
     // For nearest neighbours we use a NaN point so the distance is invalid
-    double[] p2 = {2, Double.NaN};
+    final double[] p2 = {2, Double.NaN};
     distances.resetQuick();
     result = tree.nearestNeighbours(p2, BUCKET_SIZE, false, distanceFunction, distances::add);
     Assertions.assertFalse(result);
     Assertions.assertTrue(distances.isEmpty());
 
-    double d = tree.nearestNeighbour(p2, distanceFunction, distances::add);
+    final double d = tree.nearestNeighbour(p2, distanceFunction, distances::add);
     Assertions.assertEquals(Double.NaN, d);
     Assertions.assertTrue(distances.isEmpty());
   }
 
   @Test
   public void testComputeKnnWithNaN() {
-    LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 2);
-    double[] point1 = {0, 0};
-    double[] point2 = {Double.NaN, Double.NaN};
+    final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 2);
+    final double[] point1 = {0, 0};
+    final double[] point2 = {Double.NaN, Double.NaN};
     // Create some data.
     list.add(point1);
     list.add(point2);
     // This should split once and have to handle the NaN data
     IntStream.range(1, BUCKET_SIZE).mapToObj(i -> new double[] {0, i}).forEach(list::add);
 
-    double[][] data = list.toArray(new double[0][]);
+    final double[][] data = list.toArray(new double[0][]);
 
     final TDoubleArrayList distances = new TDoubleArrayList();
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
@@ -271,7 +271,7 @@ public class DoubleNdTreeTest {
     }
 
     // Search with a point in the tree.
-    double[] p1 = {0, 4};
+    final double[] p1 = {0, 4};
     distances.resetQuick();
     boolean result = tree.findNeighbours(p1, 1, distanceFunction, distances::add);
     Assertions.assertTrue(result);
@@ -284,9 +284,34 @@ public class DoubleNdTreeTest {
     Assertions.assertEquals(3, distances.size());
 
     distances.resetQuick();
-    double d = tree.nearestNeighbour(p1, distanceFunction, distances::add);
+    final double d = tree.nearestNeighbour(p1, distanceFunction, distances::add);
     Assertions.assertEquals(0.0, d);
     Assertions.assertEquals(1, distances.size());
     Assertions.assertEquals(0, distances.getQuick(0));
+  }
+
+  @Test
+  public void testAddIfAbsent() {
+    assertAddIfAbsent(2);
+    assertAddIfAbsent(3);
+    assertAddIfAbsent(4);
+  }
+
+  private static void assertAddIfAbsent(int dim) {
+    final DoubleKdTree tree = KdTrees.newDoubleKdTree(dim);
+    final int n = dim - 1;
+    for (int i = 0; i < 30; i++) {
+      final double[] point = new double[dim];
+      point[n] = i;
+      Assertions.assertTrue(tree.addIfAbsent(point));
+      Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
+      Assertions.assertFalse(tree.addIfAbsent(point.clone()),
+          () -> "Point added. dim=" + dim);
+      Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
+    }
+    // -0.0 and 0.0 are equal
+    final double[] point = new double[dim];
+    point[n] = -0f;
+    Assertions.assertFalse(tree.addIfAbsent(point));
   }
 }

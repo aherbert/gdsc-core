@@ -60,6 +60,15 @@ public interface ObjDoubleKdTree<T> {
   public void addPoint(double[] location, T value);
 
   /**
+   * Add a point and associated value to the tree if the specified point is not already present.
+   *
+   * @param location the location
+   * @param value the value
+   * @return true if the point was added
+   */
+  public boolean addIfAbsent(double[] location, T value);
+
+  /**
    * Calculates the nearest {@code count} points to {@code location} and puts the items and the
    * distances in the results. It is assumed that the caller can recreate the item location from the
    * item.
