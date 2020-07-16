@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import java.util.function.BiConsumer;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 
@@ -146,4 +147,13 @@ public interface ObjFloatKdTree<T> {
    */
   double nearestNeighbour(double[] location, FloatDistanceFunction distanceFunction,
       ObjDoubleConsumer<? super T> result);
+
+  /**
+   * Performs the given action for each item in the tree until all elements have been processed or
+   * the action throws an exception. The iteration order is unspecified. Exceptions thrown by the
+   * action are relayed to the caller.
+   *
+   * @param action the action to be performed for each element
+   */
+  void forEach(BiConsumer<float[], ? super T> action);
 }

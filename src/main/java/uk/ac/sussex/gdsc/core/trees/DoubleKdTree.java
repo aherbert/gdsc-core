@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -118,4 +119,13 @@ public interface DoubleKdTree {
    */
   double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
       DoubleConsumer result);
+
+  /**
+   * Performs the given action for each item in the tree until all elements have been processed or
+   * the action throws an exception. The iteration order is unspecified. Exceptions thrown by the
+   * action are relayed to the caller.
+   *
+   * @param action the action to be performed for each element
+   */
+  void forEach(Consumer<double[]> action);
 }

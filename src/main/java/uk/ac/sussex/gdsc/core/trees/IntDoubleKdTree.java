@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.trees;
 
 import java.util.function.IntPredicate;
+import java.util.function.ObjIntConsumer;
 import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
 /**
@@ -146,4 +147,13 @@ public interface IntDoubleKdTree {
    */
   double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
       IntDoubleConsumer result);
+
+  /**
+   * Performs the given action for each item in the tree until all elements have been processed or
+   * the action throws an exception. The iteration order is unspecified. Exceptions thrown by the
+   * action are relayed to the caller.
+   *
+   * @param action the action to be performed for each element
+   */
+  void forEach(ObjIntConsumer<double[]> action);
 }

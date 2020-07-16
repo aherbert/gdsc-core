@@ -40,6 +40,7 @@ import uk.ac.sussex.gdsc.core.utils.PartialSort;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
 public class DoubleNdTreeTest {
@@ -313,5 +314,24 @@ public class DoubleNdTreeTest {
     final double[] point = new double[dim];
     point[n] = -0f;
     Assertions.assertFalse(tree.addIfAbsent(point));
+  }
+
+  @Test
+  public void testForEach() {
+    final DoubleKdTree tree = KdTrees.newDoubleKdTree(2);
+    final IndexSupplier msg = new IndexSupplier(1, "item ", "");
+    for (int size : new int[] {0, 1, 4, 16, 64, 256}) {
+      for (int i = tree.size(); i < size; i++) {
+        tree.add(new double[] {i, 0});
+      }
+      final int[] count = new int[size];
+      tree.forEach(p -> {
+        final int item  = (int) p[0];
+        count[item]++;
+      });
+      for (int i = 0; i < size; i++) {
+        Assertions.assertEquals(1, count[i], msg.set(0, i));
+      }
+    }
   }
 }

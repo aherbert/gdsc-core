@@ -18,6 +18,7 @@ package uk.ac.sussex.gdsc.core.trees;
 
 import java.util.Arrays;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntToDoubleFunction;
 import uk.ac.sussex.gdsc.core.trees.heaps.DoubleMinHeap;
@@ -571,5 +572,23 @@ class FloatNdTree implements FloatKdTree {
       result.accept(range);
     }
     return range;
+  }
+
+  @Override
+  public void forEach(Consumer<float[]> action) {
+    forEach(this, action);
+  }
+
+  private void forEach(FloatNdTree cursor, Consumer<float[]> action) {
+    if (cursor.locations != null) {
+      // Leaf node
+      for (int i = 0; i < cursor.locationCount; i++) {
+        action.accept(cursor.locations[i]);
+      }
+    } else {
+      // Stem node
+      forEach(cursor.left, action);
+      forEach(cursor.right, action);
+    }
   }
 }

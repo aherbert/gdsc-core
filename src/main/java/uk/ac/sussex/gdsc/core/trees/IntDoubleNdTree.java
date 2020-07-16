@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.function.BiPredicate;
 import java.util.function.IntPredicate;
 import java.util.function.IntToDoubleFunction;
+import java.util.function.ObjIntConsumer;
 import uk.ac.sussex.gdsc.core.trees.heaps.IntDoubleMinHeap;
 import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
 
@@ -617,5 +618,23 @@ class IntDoubleNdTree implements IntDoubleKdTree {
       result.accept(item, range);
     }
     return range;
+  }
+
+  @Override
+  public void forEach(ObjIntConsumer<double[]> action) {
+    forEach(this, action);
+  }
+
+  private void forEach(IntDoubleNdTree cursor, ObjIntConsumer<double[]> action) {
+    if (cursor.locations != null) {
+      // Leaf node
+      for (int i = 0; i < cursor.locationCount; i++) {
+        action.accept(cursor.locations[i], cursor.data[i]);
+      }
+    } else {
+      // Stem node
+      forEach(cursor.left, action);
+      forEach(cursor.right, action);
+    }
   }
 }

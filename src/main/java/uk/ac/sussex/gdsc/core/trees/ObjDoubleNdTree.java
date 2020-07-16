@@ -17,6 +17,7 @@
 package uk.ac.sussex.gdsc.core.trees;
 
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.ObjDoubleConsumer;
@@ -622,5 +623,24 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
       result.accept((T) item, range);
     }
     return range;
+  }
+
+  @Override
+  public void forEach(BiConsumer<double[], ? super T> action) {
+    forEach(this, action);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void forEach(ObjDoubleNdTree<T> cursor, BiConsumer<double[], ? super T> action) {
+    if (cursor.locations != null) {
+      // Leaf node
+      for (int i = 0; i < cursor.locationCount; i++) {
+        action.accept(cursor.locations[i], (T) cursor.data[i]);
+      }
+    } else {
+      // Stem node
+      forEach(cursor.left, action);
+      forEach(cursor.right, action);
+    }
   }
 }
