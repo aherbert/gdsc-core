@@ -63,12 +63,33 @@ public class Hull2d implements Hull {
    * @param y the y coordinates
    * @return the convex hull
    * @throws NullPointerException if the inputs are null
-   * @throws IllegalArgumentException if the array lengths are different or zero length
+   * @throws IllegalArgumentException if the array lengths are different or zero
    */
   public static Hull2d create(double[] x, double[] y) {
     ValidationUtils.checkArgument(x.length == y.length, "Lengths do not match: %d != %d", x.length,
         y.length);
     ValidationUtils.checkStrictlyPositive(x.length, "coordinates length");
+    return new Hull2d(x, y);
+  }
+
+  /**
+   * Create a new hull from the given coordinates. Only the first two values from each coordinate
+   * are used.
+   *
+   * @param coords the coordinates
+   * @return the convex hull
+   * @throws NullPointerException if the inputs are null
+   * @throws IllegalArgumentException if the array length is zero
+   * @throws IndexOutOfBoundsException if the coordinates lengths are not at least 2
+   */
+  public static Hull2d create(double[][] coords) {
+    ValidationUtils.checkStrictlyPositive(coords.length, "coordinates length");
+    final double[] x = new double[coords.length];
+    final double[] y = new double[coords.length];
+    for (int i = 0; i < x.length; i++) {
+      x[i] = coords[i][0];
+      y[i] = coords[i][1];
+    }
     return new Hull2d(x, y);
   }
 
