@@ -131,6 +131,12 @@ public class Hull2d implements Hull {
    * <li>it lies exactly on the boundary and the space immediately adjacent to the point in the
    * increasing X direction is entirely inside the boundary.
    *
+   * <li>it lies exactly on a horizontal boundary segment and the space immediately adjacent to the
+   * point in the increasing Y direction is inside the boundary.
+   *
+   * <li>it lies exactly on a horizontal boundary segment and the space immediately adjacent to the
+   * point in the increasing Y direction is inside the boundary.
+   *
    * </ul>
    *
    * @param point the point
