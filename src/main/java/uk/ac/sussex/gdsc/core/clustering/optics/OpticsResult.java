@@ -380,10 +380,6 @@ public class OpticsResult implements ClusteringResult {
 
   @Override
   public void computeHulls(Hull.Builder builder) {
-    if (hasHulls()) {
-      return;
-    }
-
     if (clustering == null) {
       return;
     }

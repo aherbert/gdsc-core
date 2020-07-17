@@ -45,6 +45,9 @@ public interface ClusteringResult {
   /**
    * Compute hulls and bounds for each cluster.
    *
+   * <p>This may recompute the existing hulls. A check can be made for existing hulls using
+   * {@link #hasHulls()}.
+   *
    * @param builder the builder
    */
   void computeHulls(Hull.Builder builder);

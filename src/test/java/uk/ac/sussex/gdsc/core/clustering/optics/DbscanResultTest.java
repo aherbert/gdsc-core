@@ -94,9 +94,10 @@ public class DbscanResultTest {
     final float[] b1 = result.getBounds(1);
     Assertions.assertNotNull(h1);
     Assertions.assertNotNull(b1);
+    // Do not ignore request to build new hulls
     result.computeHulls(ConvexHull2d.newBuilder());
-    Assertions.assertSame(h1, result.getHull(1));
-    Assertions.assertSame(b1, result.getBounds(1));
+    Assertions.assertNotSame(h1, result.getHull(1));
+    Assertions.assertNotSame(b1, result.getBounds(1));
 
     Assertions.assertNull(result.getHull(0));
     Assertions.assertNull(result.getBounds(0));

@@ -212,10 +212,6 @@ public class DbscanResult implements ClusteringResult {
 
   @Override
   public void computeHulls(Hull.Builder builder) {
-    if (hasHulls()) {
-      return;
-    }
-
     if (clusters == null) {
       return;
     }
