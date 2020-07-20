@@ -54,8 +54,9 @@ import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
-import uk.ac.sussex.gdsc.core.utils.rng.Pcg32;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.SplittableUniformRandomProvider;
+import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 
 /**
  * Store molecules and allows generation of random projections.
@@ -286,7 +287,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // The splits do not have to be that random and the sets will be randomly sized between 1
     // and minSplitSize. Use a special generator that can be used to create non-overlapping
     // sequences.
-    final Pcg32 rng = Pcg32.xshrs(rand.nextLong());
+    final SplittableUniformRandomProvider rng =
+        UniformRandomProviders.createSplittable(rand.nextLong());
 
     final List<Split> syncSplitSets = Collections.synchronizedList(splitSets);
     final Ticker ticker2 = Ticker.createStarted(tracker, numberOfSplitSets, true);
