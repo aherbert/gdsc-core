@@ -193,7 +193,7 @@ public final class KnnConcaveHull2d {
         // Find the nearest neighbours
         knn.clear();
         tree.nearestNeighbours(points[current], k, false,
-            DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D, active::isEnabled, (t, d) -> knn.add(t));
+            DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D, active::isEnabled, knn::add);
         knn.sortByAngle(points, current, previousAngle);
 
         final int index = select(points, first, current, knn, hull);
@@ -205,7 +205,8 @@ public final class KnnConcaveHull2d {
 
         // Modification from the Moreira and Santos method.
         // Ordering by angle may not handle colinear points with the same angle. So we
-        // exclude any remaining candidates with the same angle.
+        // sort using the distance (descending) for the same angle and then exclude any
+        // remaining candidates with the same angle.
         current = knn.getIndex(index);
         final double angle = knn.getAngle(index);
         for (int i = index + 1; i < knn.size(); i++) {
@@ -384,24 +385,29 @@ public final class KnnConcaveHull2d {
     private static final double FROM_RADIANS = 1.0 / (2 * Math.PI);
 
     /**
-     * Store the index and angle.
+     * Store the index, and distance and angle relative to the current hull point.
      */
     static final class IndexAngle {
       /** The index. */
       int index;
+      /** The distance. */
+      double distance;
       /** The angle. */
       double angle;
 
       /**
-       * Compare the two angles.
+       * Compare the two angles. Ties are resolved using the largest distance.
        *
        * @param o1 the first object
        * @param o2 the second object
-       * @return -1 if the first object has a higher angle, 0 if the same, else 1
+       * @return -1 if the first object has a higher angle (or same angle and higher distance), 1
+       *         if lower (or same angle and lower distance), else 0 if the same
        */
       static int compare(IndexAngle o1, IndexAngle o2) {
         // highest first
-        return Double.compare(o2.angle, o1.angle);
+        final int result = Double.compare(o2.angle, o1.angle);
+        // Resolve ties with the distance
+        return result == 0 ? Double.compare(o2.distance, o1.distance) : result;
       }
     }
 
@@ -433,12 +439,15 @@ public final class KnnConcaveHull2d {
     }
 
     /**
-     * Adds the index. No bounds checks are made against capacity.
+     * Adds the index and distance. No bounds checks are made against capacity.
      *
      * @param index the index
+     * @param distance the distance
      */
-    void add(int index) {
-      data[size++].index = index;
+    void add(int index, double distance) {
+      data[size].index = index;
+      data[size].distance = distance;
+      size++;
     }
 
     /**
@@ -469,7 +478,9 @@ public final class KnnConcaveHull2d {
     }
 
     /**
-     * Sort the current candidates (neighbours) in descending order of right-hand turn.
+     * Sort the current candidates (neighbours) in descending order of right-hand turn. Ties are
+     * handled using the largest distance. Thus in the case of colinear points the furthest point is
+     * chosen.
      *
      * @param points the points
      * @param current the current point

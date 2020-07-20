@@ -75,11 +75,12 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void testAngleList() {
+  public void testAngleListSortByAngle() {
     final double[][] points = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0.5, 0.5}};
     AngleList knn = new AngleList(4);
     for (int i = 0; i < 4; i++) {
-      knn.add(i);
+      // Ignore distance
+      knn.add(i, 0.0);
       Assertions.assertEquals(i + 1, knn.size());
     }
     Assertions.assertEquals(4, knn.size());
@@ -92,6 +93,23 @@ public class KnnConcaveHull2dTest {
     Assertions.assertArrayEquals(new int[] {3, 0, 1, 2}, toArray(knn));
     knn.sortByAngle(points, current, AngleList.angle(points[current], points[3]));
     Assertions.assertArrayEquals(new int[] {0, 1, 2, 3}, toArray(knn));
+    knn.clear();
+    Assertions.assertEquals(0, knn.size());
+  }
+
+  @Test
+  public void testAngleListSortByDistance() {
+    final double[][] points = {{1, 0}, {2, 0}, {3, 0}, {0, 0}};
+    AngleList knn = new AngleList(4);
+    for (int i = 0; i < 3; i++) {
+      // Add distance
+      knn.add(i, points[i][0]);
+      Assertions.assertEquals(i + 1, knn.size());
+    }
+    Assertions.assertEquals(3, knn.size());
+    final int current = 3;
+    knn.sortByAngle(points, current, AngleList.angle(points[current], points[3]));
+    Assertions.assertArrayEquals(new int[] {2, 1, 0}, toArray(knn));
     knn.clear();
     Assertions.assertEquals(0, knn.size());
   }
