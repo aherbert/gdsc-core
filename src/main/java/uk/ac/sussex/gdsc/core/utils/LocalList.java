@@ -393,7 +393,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <h1>Warning</h1>
    *
    * <p>This method directly reads from the underlying storage and allows access to indices outside
-   * the list size but with the current capacity. It is possible to obtain stale data from the
+   * the list size but within the current capacity. It is possible to obtain stale data from the
    * underlying storage.
    *
    * @param index the index
@@ -413,7 +413,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <h1>Warning</h1>
    *
    * <p>This method directly writes to the underlying storage and allows access to indices outside
-   * the list size but with the current capacity. It is possible to create stale references in the
+   * the list size but within the current capacity. It is possible to create stale references in the
    * underlying storage that are not memory-managed by the list (i.e. set to {@code null} when
    * removed).
    *
@@ -441,7 +441,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * <h1>Warning</h1>
    *
-   * <p>This method may throw an exception when {@link #add(Object)} would increase the capacity.
+   * <p>This method will throw an exception when {@link #add(Object)} would increase the capacity.
    * Use {@link #add(Object)} in-place of {@link #push(Object)} for an expandable LIFO stack.
    *
    * @param element the element
