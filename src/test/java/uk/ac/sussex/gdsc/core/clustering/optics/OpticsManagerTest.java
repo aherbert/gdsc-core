@@ -677,14 +677,22 @@ public class OpticsManagerTest {
     final OpticsManager om2 = new OpticsManager(x, x, 0);
     final OpticsManager om3 = new OpticsManager(x, x, z, 0);
     // Sometimes the random projections create different results so use a fixed seed.
-    final long seed = 6769807L;
+    final long seed = 42L;
     om2.setRandomSeed(seed);
     om3.setRandomSeed(seed);
     om2.setTracker(AssertionTracker.INSTANCE);
     om3.setTracker(AssertionTracker.INSTANCE);
-    final OpticsResult r2 = om2.fastOptics(3, 0, 0, true, false, SampleMode.ALL);
+    int numberOfSplits = 200;
+    int numberOfProjections = 200;
+    final OpticsResult r2 =
+        om2.fastOptics(3, numberOfSplits, numberOfProjections, true, false, SampleMode.ALL);
     // Don't choose use random vectors, it will default to this anyway.
-    final OpticsResult r3 = om3.fastOptics(3, 0, 0, false, false, SampleMode.ALL);
+    final OpticsResult r3 =
+        om3.fastOptics(3, numberOfSplits, numberOfProjections, false, false, SampleMode.ALL);
+    final float generatingDistance = 3;
+    // Ensure the generating distance matches. Otherwise it will auto-compute from the area/volume.
+    r2.extractDbscanClustering(generatingDistance);
+    r3.extractDbscanClustering(generatingDistance);
     Assertions.assertEquals(1, ri.compute(r2.getClusters(), r3.getClusters()).getRandIndex());
   }
 
