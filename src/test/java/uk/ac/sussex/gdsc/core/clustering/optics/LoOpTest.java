@@ -29,24 +29,27 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class LoOpTest {
   @Test
-  public void testNumberOfThreads() {
-    final int expected = Runtime.getRuntime().availableProcessors();
+  public void testExecutorService() {
     final float[] x = {0};
     final LoOp loop = new LoOp(x, x);
-    Assertions.assertEquals(expected, loop.getNumberOfThreads());
-    loop.setNumberOfThreads(3);
-    Assertions.assertEquals(3, loop.getNumberOfThreads());
-    loop.setNumberOfThreads(-3);
-    Assertions.assertEquals(1, loop.getNumberOfThreads());
+    Assertions.assertNull(loop.getExecutorService());
+    // Can set null
+    loop.setExecutorService(null);
+    final ExecutorService es = Executors.newSingleThreadExecutor();
+    loop.setExecutorService(es);
+    Assertions.assertSame(es, loop.getExecutorService());
+    es.shutdown();
+    Assertions.assertNull(loop.getExecutorService());
   }
 
-  @Test
   public void testLoop2d() throws InterruptedException, ExecutionException {
     final float[] x = {0, 0, 0, 0, 5};
     final LoOp loop = new LoOp(x, x);

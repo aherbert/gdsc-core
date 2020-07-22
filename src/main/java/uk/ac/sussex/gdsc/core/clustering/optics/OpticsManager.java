@@ -32,7 +32,6 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.IntConsumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.logging.Level;
@@ -76,9 +75,6 @@ public class OpticsManager extends CoordinateStore {
 
   /** The class to compute local outlier probability. */
   private LoOp loopObject;
-
-  /** The number of threads. */
-  private int numberOfThreads;
 
   /** The seed for random algorithms. */
   private long seed;
@@ -319,8 +315,7 @@ public class OpticsManager extends CoordinateStore {
    * Used in the OPTICS algorithm to store the next seed in a priority queue.
    */
   @VisibleForTesting
-  static class OpticsMoleculePriorityQueue extends MoleculeList
-      implements OpticsPriorityQueue {
+  static class OpticsMoleculePriorityQueue extends MoleculeList implements OpticsPriorityQueue {
 
     /** The next index. */
     int nextIndex;
@@ -443,8 +438,7 @@ public class OpticsManager extends CoordinateStore {
    * <p>If distances are equal then IDs are used to sort the objects in reverse order.
    */
   @VisibleForTesting
-  static class OpticsMoleculePriorityQueueReverseIdOrdered
-      extends OpticsMoleculePriorityQueue {
+  static class OpticsMoleculePriorityQueueReverseIdOrdered extends OpticsMoleculePriorityQueue {
 
     /**
      * Instantiates a new optics molecule priority queue reverse id ordered.
@@ -473,8 +467,7 @@ public class OpticsManager extends CoordinateStore {
    * <p>This class is based on uk.ac.sussex.gdsc.core.trees.heaps.ObjDoubleMinHeap.
    */
   @VisibleForTesting
-  static class OpticsMoleculeBinaryHeap extends MoleculeList
-      implements OpticsPriorityQueue {
+  static class OpticsMoleculeBinaryHeap extends MoleculeList implements OpticsPriorityQueue {
 
     /**
      * Instantiates a new optics molecule binary heap.
@@ -924,7 +917,6 @@ public class OpticsManager extends CoordinateStore {
     super(source, deepCopy);
     // Copy properties
     options = EnumSet.copyOf(source.options);
-    numberOfThreads = source.numberOfThreads;
     seed = source.seed;
     distanceFunction = source.distanceFunction;
     zcoord = source.zcoord;
@@ -1958,9 +1950,8 @@ public class OpticsManager extends CoordinateStore {
     if (tracker != null) {
       tracker.log(
           "Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, randomVectors=%b, "
-              + "approxSets=%b, sampleMode=%s, threads=%d",
-          minPts, numSplits, numProjections, useRandomVectors, saveApproximateSets, sampleMode,
-          getNumberOfThreads());
+              + "approxSets=%b, sampleMode=%s",
+          minPts, numSplits, numProjections, useRandomVectors, saveApproximateSets, sampleMode);
     }
 
     // Compute projections and find neighbours
@@ -2158,38 +2149,6 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
-   * Gets the number of threads to use for multi-threaded algorithms (FastOPTICS).
-   *
-   * <p>Note: This is initialised to the number of processors available to the JVM.
-   *
-   * @return the number of threads
-   */
-  public int getNumberOfThreads() {
-    if (numberOfThreads == 0) {
-      numberOfThreads = Runtime.getRuntime().availableProcessors();
-    }
-    return numberOfThreads;
-  }
-
-  /**
-   * Sets the number of threads to use for multi-threaded algorithms (FastOPTICS).
-   *
-   * <p>Multi-threaded algorithms use an {@link ExecutorService} if the number of threads is above
-   * 1. The service can be shutdown using {@link #shutdownExecutorService()}.
-   *
-   * <p>Note: Changing the number of threads will shutdown a previously created service.
-   *
-   * @param numberOfThreads the new number of threads
-   */
-  public void setNumberOfThreads(int numberOfThreads) {
-    final int newNumberOfThreads = Math.max(1, numberOfThreads);
-    if (newNumberOfThreads != numberOfThreads) {
-      shutdownExecutorService();
-    }
-    this.numberOfThreads = newNumberOfThreads;
-  }
-
-  /**
    * Gets (or creates) the random generator used for FastOPTICS.
    *
    * @return the random generator
@@ -2301,7 +2260,7 @@ public class OpticsManager extends CoordinateStore {
     if (loopObject == null) {
       loopObject = is3d() ? new LoOp(xcoord, ycoord, zcoord) : new LoOp(xcoord, ycoord);
     }
-    loopObject.setNumberOfThreads(getNumberOfThreads());
+    loopObject.setExecutorService(getExecutorService());
 
     try {
       final double[] scores = loopObject.run(safeNumberOfNeighbours, lambda);
@@ -2347,31 +2306,24 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
-   * Shutdown the executor service. This is created for multi-threaded algorithms (FastOPTICS) when
-   * the number of threads is above 1.
+   * Sets the executor service used by multi-threaded algorithms (FastOPTICS and LoOP).
    *
-   * <p>Calling this has no effect if the executor service is not present or already shutdown.
+   * @param executorService the new executor service
    */
-  public void shutdownExecutorService() {
-    if (executorService != null) {
-      executorService.shutdown();
-      executorService = null;
-    }
+  public void setExecutorService(ExecutorService executorService) {
+    this.executorService = executorService;
   }
 
   /**
-   * Gets the executor service. This is null if the number of threads is 1 or below. It reuses the
-   * same executor service if previously created.
+   * Gets the executor service. This is null if the service has not been set or a previous service
+   * has been shutdown.
    *
    * @return the executor service
    */
-  @VisibleForTesting
-  ExecutorService getExecutorService() {
-    if (numberOfThreads <= 1) {
-      return null;
-    }
-    if (executorService == null || executorService.isShutdown()) {
-      executorService = Executors.newFixedThreadPool(numberOfThreads);
+  public ExecutorService getExecutorService() {
+    ExecutorService service = executorService;
+    if (service != null && service.isShutdown()) {
+      service = executorService = null;
     }
     return executorService;
   }

@@ -70,6 +70,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -476,18 +477,6 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testNumberOfThreads() {
-    final int expected = Runtime.getRuntime().availableProcessors();
-    final float[] x = {0};
-    final OpticsManager om = new OpticsManager(x, x, 1);
-    Assertions.assertEquals(expected, om.getNumberOfThreads());
-    om.setNumberOfThreads(3);
-    Assertions.assertEquals(3, om.getNumberOfThreads());
-    om.setNumberOfThreads(-3);
-    Assertions.assertEquals(1, om.getNumberOfThreads());
-  }
-
-  @Test
   public void testRandomSeed() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
@@ -509,21 +498,17 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testGetExecutorService() {
+  public void testExecutorService() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     Assertions.assertNull(om.getExecutorService());
-    om.setNumberOfThreads(3);
-    Assertions.assertNotNull(om.getExecutorService());
-    Assertions.assertFalse(om.getExecutorService().isShutdown());
-    om.shutdownExecutorService();
-    final ExecutorService es = om.getExecutorService();
-    Assertions.assertNotNull(es);
-    Assertions.assertFalse(om.getExecutorService().isShutdown());
+    // Can set null
+    om.setExecutorService(null);
+    final ExecutorService es = Executors.newSingleThreadExecutor();
+    om.setExecutorService(es);
+    Assertions.assertSame(es, om.getExecutorService());
     es.shutdown();
-    Assertions.assertNotNull(om.getExecutorService());
-    Assertions.assertFalse(om.getExecutorService().isShutdown());
-    om.shutdownExecutorService();
+    Assertions.assertNull(om.getExecutorService());
   }
 
   @Test
@@ -692,7 +677,7 @@ public class OpticsManagerTest {
     final OpticsManager om2 = new OpticsManager(x, x, 0);
     final OpticsManager om3 = new OpticsManager(x, x, z, 0);
     // Sometimes the random projections create different results so use a fixed seed.
-    final long seed = 67869807L;
+    final long seed = 6769807L;
     om2.setRandomSeed(seed);
     om3.setRandomSeed(seed);
     om2.setTracker(AssertionTracker.INSTANCE);
@@ -1556,8 +1541,8 @@ public class OpticsManagerTest {
       final double expR = r1.get(i).getReachabilityDistance();
       final double obsR = r2.get(i).getReachabilityDistance();
 
-      //logger.fine(FunctionUtils.getSupplier("[%d] %d %d : %f (%f) = %f (%f) : %s = %d", i, expId,
-      //    obsId, expR, expC, obsR, obsC, expPre, obsPre));
+      // logger.fine(FunctionUtils.getSupplier("[%d] %d %d : %f (%f) = %f (%f) : %s = %d", i, expId,
+      // obsId, expR, expC, obsR, obsC, expPre, obsPre));
 
       TestAssertions.assertTest(expC, obsC, equality,
           FunctionUtils.getSupplier("%s C %d", title, i));
@@ -2012,7 +1997,7 @@ public class OpticsManagerTest {
   @SpeedTag
   @SeededTest
   public void testOpticsCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
-    //Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+    // Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 10000;
@@ -2788,63 +2773,68 @@ public class OpticsManagerTest {
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-2, 1e-5);
-    for (final int n : new int[] {100, 500}) {
-      final OpticsManager om = createOpticsManager(size, n, rg);
-      om.setTracker(tracker);
-      om.setNumberOfThreads(1);
+    final ExecutorService es = Executors.newSingleThreadExecutor();
+    try {
+      for (final int n : new int[] {100, 500}) {
+        final OpticsManager om = createOpticsManager(size, n, rg);
+        om.setTracker(tracker);
+        om.setExecutorService(es);
 
-      // Use ELKI to provide the expected results
-      final double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
+        // Use ELKI to provide the expected results
+        final double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
 
-      for (final int minPts : minPoints) {
-        // Reset starting Id to 1
-        final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
-        ListParameterization params = new ListParameterization();
-        params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
-        final Database db =
-            ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
-        db.initialize();
-        final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-        Assertions.assertEquals(n, rel.size(), "Database size does not match.");
+        for (final int minPts : minPoints) {
+          // Reset starting Id to 1
+          final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
+          ListParameterization params = new ListParameterization();
+          params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+          final Database db =
+              ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+          db.initialize();
+          final Relation<?> rel = db.getRelation(TypeUtil.ANY);
+          Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
-        final double lambda = 1;
+          final double lambda = 1;
 
-        // Use max range
-        long t1 = System.nanoTime();
-        final float[] r1 = om.loop(minPts, lambda, false);
-        t1 = System.nanoTime() - t1;
+          // Use max range
+          long t1 = System.nanoTime();
+          final float[] r1 = om.loop(minPts, lambda, false);
+          t1 = System.nanoTime() - t1;
 
-        // Test verses the ELKI frame work
-        params = new ListParameterization();
-        params.addParameter(LoOP.Parameterizer.KCOMP_ID, minPts);
-        params.addParameter(LoOP.Parameterizer.KREACH_ID, minPts);
-        params.addParameter(LoOP.Parameterizer.LAMBDA_ID, lambda);
-        params.addParameter(LoOP.Parameterizer.COMPARISON_DISTANCE_FUNCTION_ID,
-            EuclideanDistanceFunction.STATIC);
-        final Class<LoOP<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(LoOP.class);
-        final LoOP<DoubleVector> loop = params.tryInstantiate(clz);
-        long t2 = System.nanoTime();
-        final OutlierResult or = loop.run(db);
-        t2 = System.nanoTime() - t2;
+          // Test verses the ELKI frame work
+          params = new ListParameterization();
+          params.addParameter(LoOP.Parameterizer.KCOMP_ID, minPts);
+          params.addParameter(LoOP.Parameterizer.KREACH_ID, minPts);
+          params.addParameter(LoOP.Parameterizer.LAMBDA_ID, lambda);
+          params.addParameter(LoOP.Parameterizer.COMPARISON_DISTANCE_FUNCTION_ID,
+              EuclideanDistanceFunction.STATIC);
+          final Class<LoOP<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(LoOP.class);
+          final LoOP<DoubleVector> loop = params.tryInstantiate(clz);
+          long t2 = System.nanoTime();
+          final OutlierResult or = loop.run(db);
+          t2 = System.nanoTime() - t2;
 
-        // Check
-        // TestLog.debug(logger,"LoOP %d vs %d (ELKI) %f", t1, t2, (double)t2 / t1);
-        int index = 0;
-        final DoubleRelation scores = or.getScores();
-        for (final DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), index++) {
-          final int expId = asInteger(it);
-          final int obsId = index;
+          // Check
+          // TestLog.debug(logger,"LoOP %d vs %d (ELKI) %f", t1, t2, (double)t2 / t1);
+          int index = 0;
+          final DoubleRelation scores = or.getScores();
+          for (final DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), index++) {
+            final int expId = asInteger(it);
+            final int obsId = index;
 
-          final double expL = scores.doubleValue(it);
-          final double obsL = r1[index];
+            final double expL = scores.doubleValue(it);
+            final double obsL = r1[index];
 
-          // TestLog.debug(logger,"%s %d %d : %f = %f", prefix, expId, obsId, expL, obsL);
+            // TestLog.debug(logger,"%s %d %d : %f = %f", prefix, expId, obsId, expL, obsL);
 
-          Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", index));
-          TestAssertions.assertTest(expL, obsL, equality,
-              FunctionUtils.getSupplier("[%d] LoOP", index));
+            Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", index));
+            TestAssertions.assertTest(expL, obsL, equality,
+                FunctionUtils.getSupplier("[%d] LoOP", index));
+          }
         }
       }
+    } finally {
+      es.shutdown();
     }
   }
 

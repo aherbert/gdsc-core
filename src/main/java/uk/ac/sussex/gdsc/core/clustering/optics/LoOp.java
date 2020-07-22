@@ -56,8 +56,8 @@ import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
  */
 public class LoOp {
 
-  /** The number of threads. */
-  private int numberOfThreads;
+  /** The executor service. */
+  private ExecutorService executorService;
 
   /**
    * The KD tree used to store the points for an efficient neighbour search.
@@ -276,8 +276,13 @@ public class LoOp {
     final int neighbourCount = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
     // Multi-thread
-    final int threadCount = getNumberOfThreads();
-    final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    final int threadCount = Runtime.getRuntime().availableProcessors();
+    ExecutorService executor = getExecutorService();
+    boolean shutdown = false;
+    if (executor == null) {
+      executor = Executors.newSingleThreadExecutor();
+      shutdown = true;
+    }
     final LocalList<Future<?>> futures = new LocalList<>(threadCount);
     final int nPerThread = (int) Math.ceil((double) size / threadCount);
 
@@ -324,7 +329,9 @@ public class LoOp {
     }
     wait(futures);
 
-    executor.shutdown();
+    if (shutdown) {
+      executor.shutdown();
+    }
 
     return plofs;
   }
@@ -345,29 +352,25 @@ public class LoOp {
   }
 
   /**
-   * Gets the number of threads to use for multi-threaded algorithm.
+   * Sets the executor service used for multi-threading.
    *
-   * <p>Note: This is initialised to the number of processors available to the JVM.
-   *
-   * @return the number of threads
+   * @param executorService the new executor service
    */
-  public int getNumberOfThreads() {
-    if (numberOfThreads == 0) {
-      numberOfThreads = Runtime.getRuntime().availableProcessors();
-    }
-    return numberOfThreads;
+  public void setExecutorService(ExecutorService executorService) {
+    this.executorService = executorService;
   }
 
   /**
-   * Sets the number of threads to use for multi-threaded algorithm.
+   * Gets the executor service. This is null if the service has not been set or a previous service
+   * has been shutdown.
    *
-   * @param numberOfThreads the new number of threads
+   * @return the executor service
    */
-  public void setNumberOfThreads(int numberOfThreads) {
-    if (numberOfThreads > 0) {
-      this.numberOfThreads = numberOfThreads;
-    } else {
-      this.numberOfThreads = 1;
+  public ExecutorService getExecutorService() {
+    ExecutorService service = executorService;
+    if (service != null && service.isShutdown()) {
+      service = executorService = null;
     }
+    return executorService;
   }
 }
