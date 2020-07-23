@@ -43,6 +43,11 @@ public final class MathUtils {
   private static final double ERF_LIMIT = 6.183574750897915;
 
   /**
+   * 1 / log(2).
+   */
+  private static final double ONE_BY_LOG2 = 1.0 / Math.log(2.0);
+
+  /**
    * No public construction.
    */
   private MathUtils() {}
@@ -1307,6 +1312,27 @@ public final class MathUtils {
       return Integer.MIN_VALUE;
     }
     return 31 - Integer.numberOfLeadingZeros(value);
+  }
+
+  /**
+   * Return the log<sub>2</sub> of value. Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the argument is NaN or less than zero, then the result is NaN.
+   *
+   * <li>If the argument is positive infinity, then the result is positive infinity.
+   *
+   * <li>If the argument is positive zero or negative zero, then the result is negative infinity.
+   *
+   * </ul>
+   *
+   * @param value the value (must be positive)
+   * @return log<sub>2</sub>(x)
+   * @see Math#log(double)
+   */
+  public static double log2(double value) {
+    return Math.log(value) * ONE_BY_LOG2;
   }
 
   /**

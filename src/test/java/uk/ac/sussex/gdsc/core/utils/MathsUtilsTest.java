@@ -99,12 +99,27 @@ public class MathsUtilsTest {
   }
 
   @Test
-  public void canComputeLog2() {
+  public void canComputeApproximateLog2() {
     Assertions.assertEquals(Integer.MIN_VALUE, MathUtils.log2(0));
     Assertions.assertEquals(0, MathUtils.log2(1));
     Assertions.assertEquals(1, MathUtils.log2(2));
     Assertions.assertEquals(2, MathUtils.log2(4));
     Assertions.assertEquals(8, MathUtils.log2(256));
+  }
+
+  @Test
+  public void canComputeLog2() {
+    Assertions.assertEquals(Double.NaN, MathUtils.log2(Double.NaN));
+    Assertions.assertEquals(Double.NEGATIVE_INFINITY, MathUtils.log2(-0.0));
+    Assertions.assertEquals(Double.NEGATIVE_INFINITY, MathUtils.log2(0.0));
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, MathUtils.log2(Double.POSITIVE_INFINITY));
+    Assertions.assertEquals(0.0, MathUtils.log2(1.0));
+    Assertions.assertEquals(1.0, MathUtils.log2(2.0));
+    Assertions.assertEquals(2.0, MathUtils.log2(4.0));
+    Assertions.assertEquals(8.0, MathUtils.log2(256.0));
+    for (final double d : new double[] {1.23, 4.56, 99}) {
+      Assertions.assertEquals(d, MathUtils.log2(Math.pow(2.0, d)));
+    }
   }
 
   @Test
