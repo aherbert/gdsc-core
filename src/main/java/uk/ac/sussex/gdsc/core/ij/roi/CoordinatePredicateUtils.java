@@ -59,6 +59,8 @@ public final class CoordinatePredicateUtils {
       return new PolygonRoiContainsPredicate(roi);
     }
 
+    // All values supported by Roi.isArea have been covered.
+    // We should not get here.
     return null;
   }
 
@@ -69,6 +71,6 @@ public final class CoordinatePredicateUtils {
    * @return true, if is not an area
    */
   private static boolean isNotArea(Roi roi) {
-    return roi == null || !roi.isArea() || !(roi.getFloatWidth() > 0 && roi.getFloatHeight() > 0);
+    return roi == null || !roi.isArea() || !(roi.getFloatWidth() * roi.getFloatHeight() != 0.0);
   }
 }
