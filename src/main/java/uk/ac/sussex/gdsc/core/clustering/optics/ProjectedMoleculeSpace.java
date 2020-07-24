@@ -28,13 +28,16 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import gnu.trove.set.hash.TIntHashSet;
+import com.google.common.util.concurrent.AtomicDoubleArray;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -49,6 +52,7 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -71,16 +75,112 @@ import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
  */
 class ProjectedMoleculeSpace extends MoleculeSpace {
 
+  //////////////////////////////////////////////////////////////////////////////
+  // Implementation notes
+  //
+  // This implementation is different from the original FOPTICS (Fast Optics) paper.
+  //
+  // FOPTICS partitions the data points using random projections from ND space onto a
+  // 1D line. A random point on the line is used as a cut and the two parts are
+  // partitioned again using a new projection. This repeats until the sets are less
+  // than a minimum splitting size. When a set is below the min split size FOPTICS
+  // specifies that neighbours of each point are picked by choosing a point up to
+  // dPts away from the point on the line. dPts is the input to the algorithm. This
+  // must occur when the set size (|S|) is > 2 * dPts. Thus min split size must be
+  // at least 2 * dPts, although the paper does not provide a recommended size, or
+  // minimum number of splits before forming a final set. FOPTICS collects all the
+  // neighbours of each point in a combined set. The average distance to the
+  // neighbours (Davg) is an estimate of the inverse density around the point.
+  // This may use all the points in the set or it may rank the distances and use
+  // a fraction of the distance as specified by an f-value. E.g f=1.0 for all points
+  // in the set, f=0.5 for the closest 50%, etc.
+  //
+  // The paper states that two points may only be merged during clustering if the
+  // minimum of the Davg for each point is above the distance between them. This
+  // appears to apply only to clustering and not to OPTICS which does not cluster
+  // points but produces a reachability profile. For the OPTICS algorithm the
+  // core distance of a point is set as Davg and the neighbours are those identified
+  // in random selections from all the split sets.
+  //
+  // Differences:
+  //
+  // - Splitting occurs using a minimum points parameter. The data is split until
+  // it is <= minPoints. An alternative option splits the data until is within
+  // a tolerance of the minimum points (+/- 67%).
+  //
+  // - Selection of neighbours has a few options. There is no dPts parameter.
+  // a) The ELKI version orders the points by a projection, picks the median and
+  // adds all other points as the neighbours of the median. The median is added as a
+  // neighbour to the other points.
+  // b) All points in the set are randomly ordered. The 2 adjacent points are
+  // added as neighbours to each point using a circular loop.
+  // c) All points in the set are added as neighbours to all other points.
+  //
+  // - Computation of Davg is different. Instead of computing the distance to
+  // distinct neighbours, the distances are computed to neighbours including repeats.
+  // The effect is that close points which will have a high recurrence as neighbours
+  // are all counted; low probability far away neighbours have a reduced effect on
+  // the average. This effectively reduces the average distance by oversampling
+  // closer points.
+  //
+  // Thus is this version the split sets are smaller than those of FOPTICS, the sets
+  // are used differently to compute the neighbours, and distances are computed to
+  // duplicates of neighbours. There is no f-value (fraction of neighbours) used to
+  // compute Davg. This would require collation of the sets first, computation of
+  // distances to distinct neighbours and then the fraction average of the sorted
+  // distances.
+  //
+  // I have tried variations of the ELKI Fast OPTICS used here on 2D and 3D data:
+  //
+  // - Computation of Davg using distinct neighbours. With an f-value between 0.1
+  // and 1.0 the correlation between the Davg and this method that counts duplicates
+  // has an r^2 value of 0.6 - 0.9, and the slope of the correlation varies from 0.9
+  // to 2.5. Thus the Davg is related and does provide an approximation of the
+  // inverse density of a point.
+  //
+  // - Setting the core distance not to Davg but to the more rigid core distance
+  // specified in OPTICS as the distance to the N-th closest point with
+  // N = min points. In this case the core distance for high density points is much
+  // lower. This results in a reachability profile with low points closer to that
+  // output by the standard OPTICS algorithm. With the Davg method used here the
+  // core distances for dense points can be much higher. This can lead to clusters
+  // being less obvious on the reachability profile.
+  //
+  // - Only allowing the neighbours of a point to include points that are within
+  // the merge distance: D(A, B) < min(Davg(A), Davg(B)). Note that when this option
+  // is used if the core distance is Davg then the reachability distance of all
+  // neighbours is the same and the OPTICS order does not distinguish neighbours.
+  // Thus this option should be used when a different
+  // method is used to set the core distance (e.g. distance to N-th closest point)
+  // to allow the core distance to be less than the distance to some neighbours
+  // which can then be distinguished be reachability distance.
+  //
+  // In summary there does not appear to be a variant combination of options from
+  // the ELKI implementation or the FOPTICS paper that improves the OPTICS
+  // reachability profile. This may be due to the fact that this is low
+  // dimensionality data. Thus projections can result in point sets of points that
+  // are far apart as this requires only that a projection vector is orthogonal to
+  // the Euclidean line between two points. This has lower probability as the
+  // number of dimensions increases with the same fixed number of points.
+  // Given that it is simple to use KNN index structures to implement OPTICS in low
+  // dimensions for efficient neighbour search the advantages of FOPTICS are less
+  // obvious, but the disadvantages of identifying far away neighbours are evident
+  // in the output OPTICS order, spanning tree and the hierarchical clustering. In
+  // particular it is possible for a noise point to have neighbours in two distinct
+  // clusters and then join those clusters in the spanning tree. Use of a fixed
+  // distance threshold (in OPTICS) for neighbours prevents long linkages occurring.
+  //
+  // Thus this implementation is left to closely align with the ELKI variant and can
+  // be used to explore data when a specific neighbour search distance is not known.
+  // When a neighbour search distance can be set based on knowledge of the input
+  // data then using the standard OPTICS algorithm produces better results.
+  //////////////////////////////////////////////////////////////////////////////
+
   /**
    * Default constant used to compute number of projections as well as number of splits of point
    * set. E.G. constant *log N*d.
    */
   private static final int LOG_O_PROJECTION_CONSTANT = 20;
-
-  /**
-   * 1. / log(2)
-   */
-  public static final double ONE_BY_LOG2 = 1. / Math.log(2.);
 
   /**
    * Sets used for neighbourhood computation should be about minSplitSize.
@@ -281,9 +381,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       tracker.log("Splitting data ...");
     }
 
-    // split entire point set, reuse projections by shuffling them
-    final int[] proind = SimpleArrayUtils.natural(localNumberOfProjections);
-
     // The splits do not have to be that random and the sets will be randomly sized between 1
     // and minSplitSize. Use a special generator that can be used to create non-overlapping
     // sequences.
@@ -294,17 +391,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final Ticker ticker2 = Ticker.createStarted(tracker, numberOfSplitSets, true);
     for (int i = 0; i < numberOfSplitSets; i++) {
       // shuffle projections
-      RandomUtils.shuffle(proind, rand);
-      final float[][] shuffledProjectedPoints = new float[localNumberOfProjections][];
-      for (int j = 0; j < localNumberOfProjections; j++) {
-        shuffledProjectedPoints[j] = projectedPoints[proind[j]];
-      }
+      final float[][] shuffledProjectedPoints = projectedPoints.clone();
+      RandomUtils.shuffle(projectedPoints, rand);
 
+      final UniformRandomProvider rng2 = rng.split();
       tasks.add(() -> {
         final LocalList<int[]> sets = new LocalList<>();
         // New random generator using the split
         splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.natural(size), 0, size, 0,
-            rng.split(), minSplitSize);
+            rng2, minSplitSize);
         syncSplitSets.add(new Split(sets));
         ticker2.tick();
       });
@@ -331,7 +426,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (size < MIN_NEIGHBOURS_SIZE) {
       return 0;
     }
-    return (numberOfSplits > 0) ? numberOfSplits : (int) (LOG_O_PROJECTION_CONSTANT * log2(size));
+    return (numberOfSplits > 0) ? numberOfSplits
+        : (int) (LOG_O_PROJECTION_CONSTANT * MathUtils.log2(size));
   }
 
   /**
@@ -344,16 +440,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   public static int getOrComputeNumberOfProjections(int numberOfProjections, int size) {
     return getOrComputeNumberOfSplitSets(numberOfProjections, size);
-  }
-
-  /**
-   * Compute the base 2 logarithm.
-   *
-   * @param x X
-   * @return Logarithm base 2.
-   */
-  private static double log2(double x) {
-    return Math.log(x) * ONE_BY_LOG2;
   }
 
   /**
@@ -473,6 +559,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (saveApproximateSets && nele > minSplitSize * (1 - SIZE_TOLERANCE)
         && nele < minSplitSize * (1 + SIZE_TOLERANCE)) {
       saveSet(splitSets, ind, begin, end, rand, tpro);
+      // No further splits
+      return;
     }
 
     // compute splitting element
@@ -482,16 +570,17 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       // picking a point randomly(picking index of point)
       // outcome is similar
 
-      // int minInd = splitByDistance(ind, begin, end, tpro, rand)
+      // final int minInd = splitByDistance(ind, begin, end, tpro, rand);
       final int minInd = splitRandomly(ind, begin, end, tpro, rand);
 
       // split set recursively
       // position used for splitting the projected points into two
       // sets used for recursive splitting
       final int splitpos = minInd + 1;
-      splitupNoSort(splitSets, projectedPoints, ind, begin, splitpos, dim + 1, rand, minSplitSize);
-      splitupNoSort(splitSets, projectedPoints, ind, splitpos, end, dim + 1, rand, minSplitSize);
-    } else if (!saveApproximateSets) {
+      splitupNoSort(splitSets, projectedPoints, ind, begin, splitpos, depth + 1, rand,
+          minSplitSize);
+      splitupNoSort(splitSets, projectedPoints, ind, splitpos, end, depth + 1, rand, minSplitSize);
+    } else {
       // If it wasn't saved as an approximate set then make sure it is saved as it is less than
       // minSplitSize
       saveSet(splitSets, ind, begin, end, rand, tpro);
@@ -583,7 +672,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   static int splitByDistance(int[] ind, int begin, int end, float[] tpro,
       UniformRandomProvider rand) {
-    // pick random splitting point based on distance
+    // find min and max distance
     float rmin = tpro[ind[begin]];
     float rmax = rmin;
     for (int it = begin + 1; it < end; it++) {
@@ -595,7 +684,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       }
     }
 
+    // pick random splitting point based on distance
     final float rs = rmin + rand.nextFloat() * (rmax - rmin);
+    // Ensure the split is random between 25-75% of the data
+    // final float rs = rmin + (0.25f + rand.nextFloat() / 2) * (rmax - rmin);
     if (rs != rmax) {
       // A split is possible
       int minInd = begin;
@@ -686,36 +778,37 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       tracker.log("Computing density and neighbourhoods ...");
     }
 
-    final double[] sumDistances = new double[size];
-    final int[] countDistances = new int[size];
-    final TIntHashSet[] neighbours = new TIntHashSet[size];
+    // These must be thread-safe
+    final AtomicDoubleArray sumDistances = new AtomicDoubleArray(size);
+    final AtomicIntegerArray countDistances = new AtomicIntegerArray(size);
+    @SuppressWarnings("unchecked")
+    final Set<Integer>[] neighbours = new Set[size];
+    final Integer[] keys = new Integer[size];
     for (int it = size; it-- > 0;) {
-      neighbours[it] = new TIntHashSet();
+      neighbours[it] = ConcurrentHashMap.newKeySet();
+      keys[it] = Integer.valueOf(it);
     }
 
     // Multi-thread the hash set operations for speed.
-    // We can do this if each split uses each index only once.
     final LocalList<Future<?>> futures =
-        (executorService != null && n > 1 && !saveApproximateSets) ? new LocalList<>() : null;
+        (executorService != null && n > 1) ? new LocalList<>() : null;
 
     final Ticker ticker = Ticker.createStarted(tracker, n, futures != null);
+    final int numberOfProcessors = Runtime.getRuntime().availableProcessors();
     for (int i = 0; i < n; i++) {
       final Split split = splitSets.unsafeGet(i);
       if (futures == null) {
-        sampleNeighbours(sumDistances, countDistances, neighbours, split.sets, 0,
+        sampleNeighbours(keys, sumDistances, countDistances, neighbours, split.sets, 0,
             split.sets.size());
       } else {
-        // If the indices are unique within each split set then we can multi-thread the
-        // sampling of neighbours (since each index in the cumulative arrays will only
-        // be accessed concurrently by a single splitting task).
-        // Use the number of threads from OPTICS manager to get an idea of the task size.
-        final int taskSize =
-            (int) Math.ceil((double) split.sets.size() / opticsManager.getNumberOfThreads());
+        final int taskSize = (int) Math.ceil((double) split.sets.size() / numberOfProcessors);
         for (int j = 0; j < split.sets.size(); j += taskSize) {
           final int from = j;
-          final int to = Math.min(from + taskSize, split.sets.size());
-          futures.add(executorService.submit(() -> sampleNeighbours(sumDistances, countDistances,
-              neighbours, split.sets, from, to)));
+          // Overflow safe range limit
+          final int to =
+              from + taskSize - split.sets.size() > 0 ? split.sets.size() : from + taskSize;
+          futures.add(executorService.submit(() -> sampleNeighbours(keys, sumDistances,
+              countDistances, neighbours, split.sets, from, to)));
         }
         ConcurrencyUtils.waitForCompletionUnchecked(futures, ProjectedMoleculeSpace::logException);
         futures.clear();
@@ -728,9 +821,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // Convert to simple arrays
     allNeighbours = new int[size][];
     for (int it = size; it-- > 0;) {
-      setOfObjects[it].coreDistance = getCoreDistance(sumDistances[it], countDistances[it]);
+      setOfObjects[it].coreDistance = getCoreDistance(sumDistances.get(it), countDistances.get(it));
 
-      allNeighbours[it] = neighbours[it].toArray();
+      allNeighbours[it] = neighbours[it].stream().mapToInt(Integer::intValue).toArray();
       neighbours[it] = null; // Allow garbage collection
     }
 
@@ -748,6 +841,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * Sample neighbours for each set in the split sets between the from index (inclusive) and to
    * index (exclusive).
    *
+   * @param keys the keys array using a natural sequence of integer objects (used to avoid auto
+   *        boxing of integers)
    * @param sumDistances the neighbour sum of distances
    * @param countDistances the neighbour count of distances
    * @param neighbours the neighbour hash sets
@@ -755,22 +850,25 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param from the from index
    * @param to the to index
    */
-  private void sampleNeighbours(double[] sumDistances, int[] countDistances,
-      TIntHashSet[] neighbours, LocalList<int[]> sets, int from, int to) {
+  @VisibleForTesting
+  void sampleNeighbours(Integer[] keys, AtomicDoubleArray sumDistances,
+      AtomicIntegerArray countDistances, Set<Integer>[] neighbours, LocalList<int[]> sets, int from,
+      int to) {
     switch (sampleMode) {
       case RANDOM:
         for (int i = from; i < to; i++) {
-          sampleNeighboursRandom(sumDistances, countDistances, neighbours, sets.unsafeGet(i));
+          sampleNeighboursRandom(keys, sumDistances, countDistances, neighbours, sets.unsafeGet(i));
         }
         break;
       case MEDIAN:
         for (int i = from; i < to; i++) {
-          sampleNeighboursUsingMedian(sumDistances, countDistances, neighbours, sets.unsafeGet(i));
+          sampleNeighboursUsingMedian(keys, sumDistances, countDistances, neighbours,
+              sets.unsafeGet(i));
         }
         break;
       case ALL:
         for (int i = from; i < to; i++) {
-          sampleNeighboursAll(sumDistances, countDistances, neighbours, sets.unsafeGet(i));
+          sampleNeighboursAll(keys, sumDistances, countDistances, neighbours, sets.unsafeGet(i));
         }
         break;
       default:
@@ -782,19 +880,21 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * Sample neighbours using median. The distance of each point is computed to the median which is
    * added as a neighbour. The median point has all the other points added as a neighbours.
    *
+   * @param keys the keys array using a natural sequence of integer objects (used to avoid auto
+   *        boxing of integers)
    * @param sumDistances the neighbour sum of distances
    * @param countDistances the neighbour count of distances
    * @param neighbours the neighbour hash sets
    * @param indices the indices of objects in the set
    */
-  private void sampleNeighboursUsingMedian(double[] sumDistances, int[] countDistances,
-      TIntHashSet[] neighbours, int[] indices) {
+  private void sampleNeighboursUsingMedian(Integer[] keys, AtomicDoubleArray sumDistances,
+      AtomicIntegerArray countDistances, Set<Integer>[] neighbours, int[] indices) {
     final int len = indices.length;
     final int indoff = len >> 1;
     final int v = indices[indoff];
     final int delta = len - 1;
     distanceComputations.addAndGet(delta);
-    countDistances[v] += delta;
+    countDistances.getAndAdd(v, delta);
     final Molecule midpoint = setOfObjects[v];
     final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     for (int j = len; j-- > 0;) {
@@ -803,12 +903,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         continue;
       }
       final double dist = Math.sqrt(distanceFunction.applyAsDouble(midpoint, setOfObjects[it]));
-      sumDistances[v] += dist;
-      sumDistances[it] += dist;
-      countDistances[it]++;
+      sumDistances.addAndGet(v, dist);
+      sumDistances.addAndGet(it, dist);
+      countDistances.getAndIncrement(it);
 
-      neighbours[it].add(v);
-      neighbours[v].add(it);
+      neighbours[it].add(keys[v]);
+      neighbours[v].add(keys[it]);
     }
   }
 
@@ -820,13 +920,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    *
    * <p>This method works for sets of size 2 and above.
    *
+   * @param keys the keys array using a natural sequence of integer objects (used to avoid auto
+   *        boxing of integers)
    * @param sumDistances the neighbour sum of distances
    * @param countDistances the neighbour count of distances
    * @param neighbours the neighbour hash sets
    * @param indices the indices of objects in the set
    */
-  private void sampleNeighboursRandom(double[] sumDistances, int[] countDistances,
-      TIntHashSet[] neighbours, int[] indices) {
+  private void sampleNeighboursRandom(Integer[] keys, AtomicDoubleArray sumDistances,
+      AtomicIntegerArray countDistances, Set<Integer>[] neighbours, int[] indices) {
     final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     if (indices.length == MIN_NEIGHBOURS_SIZE) {
       distanceComputations.incrementAndGet();
@@ -838,13 +940,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       final double dist =
           Math.sqrt(distanceFunction.applyAsDouble(setOfObjects[a], setOfObjects[b]));
 
-      sumDistances[a] += dist;
-      sumDistances[b] += dist;
-      countDistances[a]++;
-      countDistances[b]++;
+      sumDistances.addAndGet(a, dist);
+      sumDistances.addAndGet(b, dist);
+      countDistances.getAndIncrement(a);
+      countDistances.getAndIncrement(b);
 
-      neighbours[a].add(b);
-      neighbours[b].add(a);
+      neighbours[a].add(keys[b]);
+      neighbours[b].add(keys[a]);
     } else {
       distanceComputations.addAndGet(indices.length);
 
@@ -860,12 +962,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         final double dist =
             Math.sqrt(distanceFunction.applyAsDouble(setOfObjects[a], setOfObjects[b]));
 
-        sumDistances[a] += dist;
-        sumDistances[b] += dist;
-        countDistances[a] += 2; // Each object will have 2 due to mirroring.
+        sumDistances.addAndGet(a, dist);
+        sumDistances.addAndGet(b, dist);
+        // Each object will have 2 due to circular loop.
+        countDistances.addAndGet(a, 2);
 
-        neighbours[a].add(b);
-        neighbours[b].add(a);
+        neighbours[a].add(keys[b]);
+        neighbours[b].add(keys[a]);
       }
     }
   }
@@ -873,13 +976,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /**
    * Sample neighbours all-vs-all.
    *
+   * @param keys the keys array using a natural sequence of integer objects (used to avoid auto
+   *        boxing of integers)
    * @param sumDistances the neighbour sum of distances
    * @param countDistances the neighbour count of distances
    * @param neighbours the neighbour hash sets
    * @param indices the indices of objects in the set
    */
-  private void sampleNeighboursAll(double[] sumDistances, int[] countDistances,
-      TIntHashSet[] neighbours, int[] indices) {
+  private void sampleNeighboursAll(Integer[] keys, AtomicDoubleArray sumDistances,
+      AtomicIntegerArray countDistances, Set<Integer>[] neighbours, int[] indices) {
     final int n = indices.length;
     final int n1 = n - 1;
 
@@ -889,10 +994,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final ToDoubleBiFunction<Molecule, Molecule> distanceFunction = opticsManager.distanceFunction;
     for (int i = 0; i < n1; i++) {
       final int a = indices[i];
-      countDistances[a] += n1;
       double sum = 0;
       final Molecule ma = setOfObjects[a];
-      final TIntHashSet na = neighbours[a];
+      final Set<Integer> na = neighbours[a];
 
       for (int j = i + 1; j < n; j++) {
         final int b = indices[j];
@@ -900,18 +1004,18 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         final double dist = Math.sqrt(distanceFunction.applyAsDouble(ma, setOfObjects[b]));
 
         sum += dist;
-        sumDistances[b] += dist;
+        sumDistances.addAndGet(b, dist);
 
-        na.add(b);
-        neighbours[b].add(a);
+        na.add(keys[b]);
+        neighbours[b].add(keys[a]);
       }
 
-      sumDistances[a] += sum;
+      sumDistances.addAndGet(a, sum);
+      countDistances.addAndGet(a, n1);
     }
 
     // For the last index that was skipped in the outer loop.
-    // The set will always be a positive size so do not worry about index bounds.
-    countDistances[indices[n1]] += n1;
+    countDistances.addAndGet(indices[n1], n1);
   }
 
   @Override
