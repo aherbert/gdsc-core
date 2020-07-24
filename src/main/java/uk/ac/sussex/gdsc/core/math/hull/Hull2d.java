@@ -37,7 +37,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *
  * @since 2.0
  */
-public class Hull2d implements Hull {
+public final class Hull2d implements Hull {
 
   /** The x coordinates. */
   private final double[] x;
