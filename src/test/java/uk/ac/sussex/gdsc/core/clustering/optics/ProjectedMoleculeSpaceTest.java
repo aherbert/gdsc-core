@@ -28,11 +28,16 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import com.google.common.util.concurrent.AtomicDoubleArray;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.core.source64.SplitMix64;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 
 @SuppressWarnings({"javadoc"})
@@ -192,6 +197,123 @@ public class ProjectedMoleculeSpaceTest {
       }
     });
     Assertions.assertEquals(2, index);
+  }
+
+  @Test
+  public void testSampleNeighboursUsingMedian() {
+    final float[] x = {0, 1, 2, 3, 4, 5};
+    final float[] y = new float[x.length];
+    final OpticsManager om = new OpticsManager(x, y, 10);
+    // @formatter:off
+    assertSampleNeighbours(om, SampleMode.MEDIAN, new int[] {1, 2, 4},
+        new double[] {0, 1, 3, 0, 2, 0},
+        new int[] {0, 1, 2, 0, 1, 0},
+        new int[][] {{},
+                     {2},
+                     {1, 4},
+                     {},
+                     {2},
+                     {}});
+    // @formatter:on
+  }
+
+  @Test
+  public void testSampleNeighboursUsingRandomWithMinNeighbours() {
+    final float[] x = {0, 1, 2, 3, 4, 5};
+    final float[] y = new float[x.length];
+    final OpticsManager om = new OpticsManager(x, y, 10);
+    // @formatter:off
+    assertSampleNeighbours(om, SampleMode.RANDOM, new int[] {1, 4},
+        new double[] {0, 3, 0, 0, 3, 0},
+        new int[] {0, 1, 0, 0, 1, 0},
+        new int[][] {{},
+                     {4},
+                     {},
+                     {},
+                     {1},
+                     {}});
+    // @formatter:on
+  }
+
+  @Test
+  public void testSampleNeighboursUsingRandom() {
+    final float[] x = {0, 1, 2, 3, 4, 5};
+    final float[] y = new float[x.length];
+    final OpticsManager om = new OpticsManager(x, y, 10);
+    // @formatter:off
+    assertSampleNeighbours(om, SampleMode.RANDOM, new int[] {1, 2, 4},
+        new double[] {0, 4, 3, 0, 5, 0},
+        new int[] {0, 2, 2, 0, 2, 0},
+        new int[][] {{},
+                     {2, 4},
+                     {1, 4},
+                     {},
+                     {1, 2},
+                     {}});
+    // @formatter:on
+  }
+
+  @Test
+  public void testSampleNeighboursUsingAll() {
+    final float[] x = {0, 1, 2, 3, 4, 5};
+    final float[] y = new float[x.length];
+    final OpticsManager om = new OpticsManager(x, y, 10);
+    // @formatter:off
+    assertSampleNeighbours(om, SampleMode.ALL, new int[] {1, 2, 3, 4},
+        new double[] {0, 6, 4, 4, 6, 0},
+        new int[] {0, 3, 3, 3, 3, 0},
+        new int[][] {{},
+                     {2, 3, 4},
+                     {1, 3, 4},
+                     {1, 2, 4},
+                     {1, 2, 3},
+                     {}});
+    // @formatter:on
+  }
+
+  private static void assertSampleNeighbours(OpticsManager om, SampleMode sampleMode, int[] indices,
+      double[] expectedDistances, int[] expectedCount, int[][] expectedNeighbours) {
+    final UniformRandomProvider rg = UniformRandomProviders.create(123);
+    final ProjectedMoleculeSpace space = new ProjectedMoleculeSpace(om, 0, rg);
+    space.generate();
+    space.setSampleMode(sampleMode);
+    final LocalList<int[]> sets = new LocalList<>();
+    sets.add(indices);
+    final int size = om.getSize();
+    final AtomicDoubleArray sumDistances = new AtomicDoubleArray(size);
+    final AtomicIntegerArray countDistances = new AtomicIntegerArray(size);
+    @SuppressWarnings("unchecked")
+    final Set<Integer>[] neighbours = new Set[size];
+    final Integer[] keys = new Integer[size];
+    for (int it = size; it-- > 0;) {
+      neighbours[it] = new TreeSet<>();
+      keys[it] = Integer.valueOf(it);
+    }
+    space.sampleNeighbours(keys, sumDistances, countDistances, neighbours, sets, 0, 1);
+    Assertions.assertArrayEquals(expectedDistances, toArray(sumDistances));
+    Assertions.assertArrayEquals(expectedCount, toArray(countDistances));
+    for (int i = 0; i < size; i++) {
+      final int[] actual = neighbours[i].stream().mapToInt(Integer::intValue).toArray();
+      Arrays.sort(actual);
+      Assertions.assertArrayEquals(expectedNeighbours[i], actual);
+    }
+  }
+
+
+  private static double[] toArray(AtomicDoubleArray data) {
+    final double[] d = new double[data.length()];
+    for (int i = 0; i < d.length; i++) {
+      d[i] = data.get(i);
+    }
+    return d;
+  }
+
+  private static int[] toArray(AtomicIntegerArray data) {
+    final int[] d = new int[data.length()];
+    for (int i = 0; i < d.length; i++) {
+      d[i] = data.get(i);
+    }
+    return d;
   }
 
   @Test

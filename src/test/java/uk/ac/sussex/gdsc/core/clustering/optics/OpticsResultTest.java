@@ -44,12 +44,87 @@ import uk.ac.sussex.gdsc.core.clustering.optics.OpticsResult.SteepUpArea;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
+import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.math.hull.Hull2d;
 import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
 public class OpticsResultTest {
+  /**
+   * An interface for a fake Hull.
+   */
+  interface FakeHull extends Hull {
+    boolean contains(double[] point);
+  }
+
+  /**
+   * A special hull builder that will fail on the first hull. Used to test building a hull from the
+   * points in a child cluster when the hull for the child cluster is null.
+   */
+  static class FailingHull2dBuilder implements Builder {
+    final Hull.Builder hb = ConvexHull2d.newBuilder();
+    int count;
+
+    @Override
+    public Hull.Builder clear() {
+      hb.clear();
+      return this;
+    }
+
+    @Override
+    public Hull build() {
+      return count++ == 0 ? null : hb.build();
+    }
+
+    @Override
+    public Hull.Builder add(double... point) {
+      hb.add(point);
+      return this;
+    }
+  }
+
+  /**
+   * A special hull builder that will fail on the first hull. Used to test building a hull from the
+   * points in a child cluster when the hull for the child cluster is null.
+   */
+  static class FailingHull3dBuilder extends FailingHull2dBuilder {
+    @Override
+    public FakeHull build() {
+      if (count++ == 0) {
+        return null;
+      }
+      final Hull2d hull = (Hull2d) hb.build();
+      // Fake that this is a 3D hull. Works like a 2D hull with zero for the z dimension.
+      return new FakeHull() {
+        @Override
+        public int dimensions() {
+          return 3;
+        }
+
+        @Override
+        public int getNumberOfVertices() {
+          return hull.getNumberOfVertices();
+        }
+
+        @Override
+        public double[][] getVertices() {
+          final double[][] fake = new double[getNumberOfVertices()][];
+          final double[][] real = hull.getVertices();
+          for (int i = 0; i < real.length; i++) {
+            fake[i] = Arrays.copyOf(real[i], 3);
+          }
+          return fake;
+        }
+
+        @Override
+        public boolean contains(double[] point) {
+          return hull.contains(point);
+        }
+      };
+    }
+  }
+
   @Test
   public void testSteepDownArea() {
     final int start = 13;
@@ -342,28 +417,7 @@ public class OpticsResultTest {
 
     // Check computation of Hulls.
     // Make 1 computation fail to hit code coverage.
-    Hull.Builder builder = new Hull.Builder() {
-      final Hull.Builder hb = ConvexHull2d.newBuilder();
-      int count;
-
-      @Override
-      public Hull.Builder clear() {
-        hb.clear();
-        return this;
-      }
-
-      @Override
-      public Hull build() {
-        return count++ == 0 ? null : hb.build();
-      }
-
-      @Override
-      public Hull.Builder add(double... point) {
-        hb.add(point);
-        return this;
-      }
-    };
-    result.computeHulls(builder);
+    result.computeHulls(new FailingHull2dBuilder());
     final int id = topLevel.get(0).getClusterId();
     final Hull2d h = (Hull2d) result.getHull(id);
     for (int i = 0; i < c1.length; i++) {
@@ -393,10 +447,10 @@ public class OpticsResultTest {
         new OpticsManager(x.toArray(), y.toArray(), new float[x.size()], om.area);
     final OpticsResult result2 = om2.optics(3, 4);
     result2.extractClusters(0.05);
-    result2.computeHulls(builder);
+    result2.computeHulls(new FailingHull3dBuilder());
     final int id2 = result2.getClusteringHierarchy().get(0).getClusterId();
     final int[] c2 = result.getTopLevelClusters();
-    final Hull2d h2 = (Hull2d) result2.getHull(id2);
+    final FakeHull h2 = (FakeHull) result2.getHull(id2);
     for (int i = 0; i < c2.length; i++) {
       final double[] point = new double[] {x.get(i), y.get(i)};
       // Because this is a convex hull some points not in the cluster
@@ -412,8 +466,8 @@ public class OpticsResultTest {
               break;
             }
           }
+          Assertions.assertTrue(inside);
         }
-        Assertions.assertTrue(inside);
       }
     }
   }
