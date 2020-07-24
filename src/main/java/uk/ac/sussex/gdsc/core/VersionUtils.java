@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Show the version information contained in the source jar manifest.
@@ -63,13 +64,13 @@ public final class VersionUtils {
       buildNumber = attributes.getValue("Implementation-Build");
     }
 
-    if (versionNumber == null || versionNumber.length() == 0) {
+    if (StringUtils.isEmpty(versionNumber)) {
       versionNumber = UNKNOWN;
     }
-    if (buildDate == null || buildDate.length() == 0) {
+    if (StringUtils.isEmpty(buildDate)) {
       buildDate = UNKNOWN;
     }
-    if (buildNumber == null || buildNumber.length() == 0) {
+    if (StringUtils.isEmpty(buildNumber)) {
       buildNumber = UNKNOWN;
     }
   }
@@ -126,6 +127,16 @@ public final class VersionUtils {
    * @return The major version (or 0 if unknown)
    */
   public static int getMajorVersion() {
+    return getMajorVersion(versionNumber);
+  }
+
+  /**
+   * Get the major version.
+   *
+   * @param versionNumber the version number text
+   * @return The major version (or 0 if unknown)
+   */
+  static int getMajorVersion(String versionNumber) {
     final Pattern p = Pattern.compile("^\\d+");
     final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
@@ -140,6 +151,16 @@ public final class VersionUtils {
    * @return The minor version (or 0 if unknown)
    */
   public static int getMinorVersion() {
+    return getMinorVersion(versionNumber);
+  }
+
+  /**
+   * Get the minor version.
+   *
+   * @param versionNumber the version number text
+   * @return The minor version (or 0 if unknown)
+   */
+  static int getMinorVersion(String versionNumber) {
     final Pattern p = Pattern.compile("^\\d+\\.(\\d+)");
     final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
@@ -154,6 +175,16 @@ public final class VersionUtils {
    * @return The patch version (or 0 if unknown)
    */
   public static int getPatchVersion() {
+    return getPatchVersion(versionNumber);
+  }
+
+  /**
+   * Get the patch version.
+   *
+   * @param versionNumber the version number text
+   * @return The patch version (or 0 if unknown)
+   */
+  static int getPatchVersion(String versionNumber) {
     final Pattern p = Pattern.compile("^\\d+\\.\\d+\\.(\\d+)");
     final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
@@ -168,6 +199,16 @@ public final class VersionUtils {
    * @return Major.Minor.Patch
    */
   public static String getMajorMinorPatch() {
+    return getMajorMinorPatch(versionNumber);
+  }
+
+  /**
+   * Get a string with the major, minor and patch versions.
+   *
+   * @param versionNumber the version number text
+   * @return Major.Minor.Patch
+   */
+  static String getMajorMinorPatch(String versionNumber) {
     final Pattern p = Pattern.compile("^\\d+\\.\\d+\\.\\d+");
     final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
