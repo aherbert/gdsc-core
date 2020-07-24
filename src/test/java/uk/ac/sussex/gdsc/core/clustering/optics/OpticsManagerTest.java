@@ -114,6 +114,7 @@ import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 @SuppressWarnings({"javadoc"})
 public class OpticsManagerTest {
   private static Logger logger;
+  private static ExecutorService executor;
 
   @BeforeAll
   static void beforeAll() {
@@ -132,11 +133,15 @@ public class OpticsManagerTest {
     }
 
     logger = Logger.getLogger(OpticsManagerTest.class.getName());
+
+    executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   }
 
   @AfterAll
   static void afterAll() {
     logger = null;
+    executor.shutdown();
+    executor = null;
   }
 
   int size = 256;
@@ -996,6 +1001,7 @@ public class OpticsManagerTest {
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
+      om.setExecutorService(executor);
       // Needed to match the ELKI framework
       om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER, Option.CACHE);
 
@@ -1288,6 +1294,7 @@ public class OpticsManagerTest {
     for (final int n : new int[] {2000}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
+      om.setExecutorService(executor);
       // Needed to match the ELKI framework
       om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
 
