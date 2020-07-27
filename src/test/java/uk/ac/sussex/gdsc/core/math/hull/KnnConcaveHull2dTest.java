@@ -31,34 +31,12 @@ package uk.ac.sussex.gdsc.core.math.hull;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.core.math.hull.KnnConcaveHull2d.ActiveList;
 import uk.ac.sussex.gdsc.core.math.hull.KnnConcaveHull2d.AngleList;
 import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
 public class KnnConcaveHull2dTest {
-  @Test
-  public void testActiveList() {
-    final int n = 5;
-    final ActiveList active = new ActiveList(n);
-    Assertions.assertEquals(0, active.size());
-    for (int i = 0; i < n; i++) {
-      Assertions.assertFalse(active.isEnabled(i));
-    }
-    active.enableAll();
-    for (int i = 0; i < n; i++) {
-      Assertions.assertTrue(active.isEnabled(i));
-    }
-    Assertions.assertEquals(n, active.size());
-    int index = 2;
-    active.disable(index);
-    Assertions.assertEquals(n - 1, active.size());
-    Assertions.assertFalse(active.isEnabled(index));
-    active.enable(index);
-    Assertions.assertEquals(n, active.size());
-    Assertions.assertTrue(active.isEnabled(index));
-  }
 
   @Test
   public void testClockwiseTurns() {
