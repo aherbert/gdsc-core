@@ -42,11 +42,11 @@ public class MathContextRounder implements Rounder {
    * Instantiates a new math context rounder.
    *
    * @param mathContext the math context
-   * @throws IllegalArgumentException if the mathContext is null
+   * @throws NullPointerException if the mathContext is null
    */
   public MathContextRounder(MathContext mathContext) {
     if (mathContext == null) {
-      throw new IllegalArgumentException("MathContext must not be null");
+      throw new NullPointerException("MathContext must not be null");
     }
     this.mathContext = mathContext;
   }
