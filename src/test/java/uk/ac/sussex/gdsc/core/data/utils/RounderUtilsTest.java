@@ -28,22 +28,21 @@
 
 package uk.ac.sussex.gdsc.core.data.utils;
 
-/**
- * Create a {@link Rounder} implementation.
- */
-public final class RounderUtils {
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-  /** No construction. */
-  private RounderUtils() {}
+@SuppressWarnings({"javadoc"})
+public class RounderUtilsTest {
 
-  /**
-   * Creates the rounder. If the precision is less than 1 then an instance will be created that does
-   * not perform rounding.
-   *
-   * @param precision the precision
-   * @return the rounder
-   */
-  public static Rounder create(int precision) {
-    return (precision > 0) ? new MathContextRounder(precision) : NonRounder.INSTANCE;
+  @Test
+  public void testCreate() {
+    Assertions.assertSame(NonRounder.INSTANCE, RounderUtils.create(0));
+    Assertions.assertSame(NonRounder.INSTANCE, RounderUtils.create(-99));
+    final Rounder r = RounderUtils.create(3);
+    Assertions.assertTrue(r instanceof MathContextRounder);
+    Assertions.assertEquals(1.23, r.round(1.2345));
+    Assertions.assertEquals(String.valueOf("1.23"), r.toString(1.2345));
+    Assertions.assertEquals(4.57f, r.round(4.5678f));
+    Assertions.assertEquals(String.valueOf("4.57"), r.toString(4.5678f));
   }
 }
