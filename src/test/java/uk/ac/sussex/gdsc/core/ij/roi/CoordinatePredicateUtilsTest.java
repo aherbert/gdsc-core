@@ -53,6 +53,15 @@ public class CoordinatePredicateUtilsTest {
         new PolygonRoi(new int[] {0, 0}, new int[] {0, 0}, 2, Roi.POLYGON)));
     final ShapeRoi roi = new ShapeRoi(new Roi(0, 0, 1, 1)).and(new ShapeRoi(new Roi(3, 3, 1, 1)));
     Assertions.assertNull(CoordinatePredicateUtils.createContainsPredicate(roi));
+    // Bad ROI type
+    @SuppressWarnings("serial")
+    final Roi badRoi = new Roi(0, 1, 2, 3) {
+      @Override
+      public int getType() {
+        return -99;
+      }
+    };
+    Assertions.assertNull(CoordinatePredicateUtils.createContainsPredicate(badRoi));
   }
 
   @Test
