@@ -28,30 +28,26 @@
 
 package uk.ac.sussex.gdsc.core.data.utils;
 
-/**
- * Class to implement the {@link Rounder} interface that does not perform rounding.
- */
-public class NonRounder implements Rounder {
-  /** An instance. */
-  public static final NonRounder INSTANCE = new NonRounder();
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.Assertions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
-  @Override
-  public double round(double value) {
-    return value;
-  }
+@SuppressWarnings({"javadoc"})
+public class NonRounderTest {
 
-  @Override
-  public float round(float value) {
-    return value;
-  }
-
-  @Override
-  public String toString(double value) {
-    return Double.toString(value);
-  }
-
-  @Override
-  public String toString(float value) {
-    return Float.toString(value);
+  @SeededTest
+  public void testNonRounder(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final Rounder r = NonRounder.INSTANCE;
+    for (int i = 0; i < 10; i++) {
+      final double d = rng.nextDouble();
+      Assertions.assertEquals(d, r.round(d));
+      Assertions.assertEquals(String.valueOf(d), r.toString(d));
+      final float f = rng.nextFloat();
+      Assertions.assertEquals(f, r.round(f));
+      Assertions.assertEquals(String.valueOf(f), r.toString(f));
+    }
   }
 }
