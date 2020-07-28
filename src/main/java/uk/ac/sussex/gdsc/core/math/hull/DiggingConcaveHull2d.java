@@ -339,19 +339,6 @@ public final class DiggingConcaveHull2d {
      */
     private static void insertAfter(List<IntVector2D> hull, int id, IntVector2D point) {
       final ListIterator<IntVector2D> itr = hull.listIterator();
-
-      // System.out.printf("insert %d: %d%n", hull.size(), point.id);
-      // while (itr.hasNext()) {
-      // final IntVector2D item = itr.next();
-      // if (item.id == id) {
-      // itr.add(point);
-      // System.out.printf("after %d%n", hull.size());
-      // return;
-      // }
-      // }
-      // System.out.printf("missing %d%n", id);
-      // throw new RuntimeException();
-
       // This assumes the hull will contain the specified id
       while (itr.next().id != id) {
         // Advancing to the correct point
