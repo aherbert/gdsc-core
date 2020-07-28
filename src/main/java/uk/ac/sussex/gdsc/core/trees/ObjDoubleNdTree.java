@@ -551,10 +551,16 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
     return found;
   }
 
-  @SuppressWarnings({"unchecked"})
   @Override
   public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
       ObjDoubleConsumer<? super T> result) {
+    return nearestNeighbour(location, distanceFunction, t -> true, result);
+  }
+
+  @SuppressWarnings({"unchecked"})
+  @Override
+  public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
+      Predicate<? super T> filter, ObjDoubleConsumer<? super T> result) {
     if (locationCount == 0) {
       return 0;
     }
@@ -582,7 +588,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
         // At a leaf. Use the data.
         for (int i = 0; i < cursor.locationCount; i++) {
           final double dist = distanceFunction.distance(location, cursor.locations[i]);
-          if (dist <= range) {
+          if (dist <= range && filter.test((T) cursor.data[i])) {
             range = dist;
             item = cursor.data[i];
             found = true;

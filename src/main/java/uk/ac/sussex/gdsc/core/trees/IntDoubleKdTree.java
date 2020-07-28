@@ -149,6 +149,31 @@ public interface IntDoubleKdTree {
       IntDoubleConsumer result);
 
   /**
+   * Calculates the nearest point to {@code location} that passes the provided filter and puts the
+   * item and the distance it in the result. It is assumed that the caller can recreate the item
+   * location from the item. The minimum distance is returned.
+   *
+   * <p>Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the tree is empty the distance is zero.
+   *
+   * <li>If the distance to all points is NaN then the distance is NaN and the result consumer will
+   * not be called.
+   *
+   * </ul>
+   *
+   * @param location the location
+   * @param distanceFunction the distance function
+   * @param filter the filter used to select items
+   * @param result the result (can be null)
+   * @return the distance
+   */
+  double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
+      IntPredicate filter, IntDoubleConsumer result);
+
+  /**
    * Performs the given action for each item in the tree until all elements have been processed or
    * the action throws an exception. The iteration order is unspecified. Exceptions thrown by the
    * action are relayed to the caller.

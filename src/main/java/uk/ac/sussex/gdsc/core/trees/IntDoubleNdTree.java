@@ -550,6 +550,12 @@ class IntDoubleNdTree implements IntDoubleKdTree {
   @Override
   public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
       IntDoubleConsumer result) {
+    return nearestNeighbour(location, distanceFunction, t -> true, result);
+  }
+
+  @Override
+  public double nearestNeighbour(double[] location, DoubleDistanceFunction distanceFunction,
+      IntPredicate filter, IntDoubleConsumer result) {
     if (locationCount == 0) {
       return 0;
     }
@@ -577,7 +583,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
         // At a leaf. Use the data.
         for (int i = 0; i < cursor.locationCount; i++) {
           final double dist = distanceFunction.distance(location, cursor.locations[i]);
-          if (dist <= range) {
+          if (dist <= range && filter.test(cursor.data[i])) {
             range = dist;
             item = cursor.data[i];
             found = true;

@@ -202,6 +202,16 @@ public class IntDoubleNdTreeTest {
       Assertions.assertTrue(items.isEmpty());
       Assertions.assertTrue(distances.isEmpty());
 
+      // Nearest neighbour ignores a failing predicate
+      final double distance =
+          tree.nearestNeighbour(searchPoint, distanceFunction, t -> false, (t, dist) -> {
+            items.add(t);
+            distances.add(dist);
+          });
+      Assertions.assertTrue(Double.isNaN(distance));
+      Assertions.assertTrue(items.isEmpty());
+      Assertions.assertTrue(distances.isEmpty());
+
       // Get the knn
       for (final int k : KdTreeTestUtils.ks) {
         items.clear();
@@ -296,6 +306,21 @@ public class IntDoubleNdTreeTest {
           Assertions.assertEquals(e, distances.getQuick(j));
           Assertions.assertTrue(e <= range);
         }
+      }
+
+      // Second closest
+      if (tree.size() > 1) {
+        items.clear();
+        final double dA = tree.nearestNeighbour(searchPoint, distanceFunction, (t, dist) -> {
+          items.add(t);
+        });
+        final int ignore = items.get(0);
+        final double dB =
+            tree.nearestNeighbour(searchPoint, distanceFunction, t -> t != ignore, (t, dist) -> {
+              items.add(t);
+            });
+        Assertions.assertNotEquals(ignore, items.get(1));
+        Assertions.assertTrue(dB >= dA);
       }
     }
   }
@@ -445,8 +470,7 @@ public class IntDoubleNdTreeTest {
       point[n] = i;
       Assertions.assertTrue(tree.addIfAbsent(point, 0));
       Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
-      Assertions.assertFalse(tree.addIfAbsent(point.clone(), 0),
-          () -> "Point added. dim=" + dim);
+      Assertions.assertFalse(tree.addIfAbsent(point.clone(), 0), () -> "Point added. dim=" + dim);
       Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
     }
     // -0.0 and 0.0 are equal
@@ -465,7 +489,7 @@ public class IntDoubleNdTreeTest {
       }
       final int[] count = new int[size];
       tree.forEach((p, t) -> {
-        final int item  = (int) p[0];
+        final int item = (int) p[0];
         Assertions.assertEquals(item, t);
         count[item]++;
       });

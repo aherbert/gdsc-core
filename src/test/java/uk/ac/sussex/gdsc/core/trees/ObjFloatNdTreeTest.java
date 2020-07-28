@@ -204,6 +204,16 @@ public class ObjFloatNdTreeTest {
       Assertions.assertTrue(items.isEmpty());
       Assertions.assertTrue(distances.isEmpty());
 
+      // Nearest neighbour ignores a failing predicate
+      final double distance =
+          tree.nearestNeighbour(searchPoint, distanceFunction, t -> false, (t, dist) -> {
+            items.add(t);
+            distances.add(dist);
+          });
+      Assertions.assertTrue(Double.isNaN(distance));
+      Assertions.assertTrue(items.isEmpty());
+      Assertions.assertTrue(distances.isEmpty());
+
       // Get the knn
       for (final int k : KdTreeTestUtils.ks) {
         items.clear();
@@ -298,6 +308,21 @@ public class ObjFloatNdTreeTest {
           Assertions.assertEquals(e, distances.getQuick(j));
           Assertions.assertTrue(e <= range);
         }
+      }
+
+      // Second closest
+      if (tree.size() > 1) {
+        items.clear();
+        final double dA = tree.nearestNeighbour(searchPoint, distanceFunction, (t, dist) -> {
+          items.add(t);
+        });
+        final int ignore = items.get(0);
+        final double dB =
+            tree.nearestNeighbour(searchPoint, distanceFunction, t -> t != ignore, (t, dist) -> {
+              items.add(t);
+            });
+        Assertions.assertNotEquals(ignore, items.get(1));
+        Assertions.assertTrue(dB >= dA);
       }
     }
   }
@@ -467,7 +492,7 @@ public class ObjFloatNdTreeTest {
       }
       final int[] count = new int[size];
       tree.forEach((p, t) -> {
-        final int item  = (int) p[0];
+        final int item = (int) p[0];
         Assertions.assertEquals(item, t.intValue());
         count[item]++;
       });
