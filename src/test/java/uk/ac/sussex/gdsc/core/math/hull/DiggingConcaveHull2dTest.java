@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.math.hull;
 
 import gnu.trove.list.array.TDoubleArrayList;
-import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.math.GeometryUtils;
@@ -260,7 +259,7 @@ public class DiggingConcaveHull2dTest {
   /**
    * Test that polygons are simple (non-self intersecting).
    */
-  //@Test
+  @Test
   public void canCreateSimplePolygon() {
     // Simple square.
     // 2 internal points.
@@ -275,7 +274,7 @@ public class DiggingConcaveHull2dTest {
     // 0,0 - 2,1 - 4,1 - 10,0 - 10,10 - 0,10
     final double[] x = new double[] {0, 10, 10, 0, 2, 4};
     final double[] y = new double[] {0, 0, 10, 10, 1, 1};
-    final Hull2d hull = DiggingConcaveHull2d.create(2.0, x, y);
+    final Hull2d hull = DiggingConcaveHull2d.create(1.0, x, y);
     Assertions.assertNotNull(hull);
     final double[][] vertices = hull.getVertices();
     for (int i = 0, j = vertices.length - 1; i < vertices.length; j = i, i++) {

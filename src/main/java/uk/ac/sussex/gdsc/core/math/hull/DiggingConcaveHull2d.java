@@ -131,6 +131,17 @@ public final class DiggingConcaveHull2d {
     }
 
     /**
+     * Compute the Euclidean distance squared between the points.
+     *
+     * @param point1 the first point
+     * @param point2 the second point
+     * @return the Euclidean distance
+     */
+    private static double distanceSquared(double[] point1, double[] point2) {
+      return DISTANCE_FUNCTION.distance(point1, point2);
+    }
+
+    /**
      * {@inheritDoc}.
      *
      * <p>This method uses only the first 2 indexes in the input point. Higher dimensions are
@@ -271,6 +282,36 @@ public final class DiggingConcaveHull2d {
           assert hull.peek(1) == edge.end;
           final double[] p = getPoint(points, k.index);
 
+          // Additional checks:
+          // 1. k should not be closer to neighbour edges of (e1, e2) than (e1, e2)
+          // Note: If the hull is size 3 then e0 == e3 with no effect.
+          final double[] e0 = getPoint(points, hull.peek(-1));
+          final double[] e3 = getPoint(points, hull.peek(2));
+          if (k.distance > distanceSquared(p, e0) || k.distance > distanceSquared(p, e3)) {
+            continue;
+          }
+
+          // Further checks not in the original Park & Oh method.
+          // 2. Angle subtended to neighbour edges must not be bigger.
+          // This ensures no digging when a neighbour could have a better digging
+          // point from a neighbour edge.
+          // Note: This may eliminate a point from digging due to a neighbour edge angle
+          // that was vice versa eliminated for the neighbour edge due to distance.
+          // @formatter:off
+          //
+          // e0             e3
+          //   \     p     /
+          //    \  /   \  /
+          //     e1-----e2
+          //
+          // @formatter:on
+          if (angle(e1, p, e2) < Math.min(angle(e0, p, e1), angle(e2, p, e3))) {
+            continue;
+          }
+
+          // 3. New edges must not intersect existing hull.
+          // Q. Is this check needed when using the obtuse angle check?
+
           // Insert point into hull and remove from internal points
           hull.insertAfter(k.index);
           active.disable(k.index);
@@ -289,6 +330,39 @@ public final class DiggingConcaveHull2d {
       // Reset hull start point
       hull.advanceTo(hullStartIndex);
       return createHull(points, hull);
+    }
+
+    /**
+     * Compute the cosine (dot) angle between the points.
+     *
+     * @param p1 the point 1
+     * @param p2 the point 2
+     * @param p3 the point 3
+     * @return the dot angle
+     */
+    private static double angle(double[] p1, double[] p2, double[] p3) {
+      // v1•v2 = |v1||v2| cos(angle)
+      // Normalised vectors
+      final double[] v1 = unitVector(p1, p2);
+      final double[] v2 = unitVector(p3, p2);
+      final double dx = v1[0] - v2[0];
+      final double dy = v1[1] - v2[1];
+      // return cos(angle)
+      return dx * dx + dy * dy;
+    }
+
+    /**
+     * Create a normalised vector from point 1 to 2. Assumes the points are not identical.
+     *
+     * @param p1 the point 1
+     * @param p2 the point 2
+     * @return the unit vector
+     */
+    private static double[] unitVector(double[] p1, double[] p2) {
+      final double dx = p1[0] - p2[0];
+      final double dy = p1[1] - p2[1];
+      final double length = Math.sqrt(dx * dx + dy * dy);
+      return new double[] {dx / length, dy / length};
     }
 
     /**
