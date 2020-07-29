@@ -30,10 +30,8 @@ package uk.ac.sussex.gdsc.core.math.hull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Queue;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
@@ -173,7 +171,7 @@ public final class DiggingConcaveHull2d {
       final IntVector2D[] points = new IntVector2D[size];
       tree.forEach((p, t) -> points[t] = new IntVector2D(p, t));
       // Create initial convex hull. This includes colinear points.
-      final List<IntVector2D> hull = createConvexHull(Arrays.asList(points));
+      final CircularList hull = createConvexHull(Arrays.asList(points));
       if (hull == null) {
         // Error creating the hull
         return null;
@@ -185,10 +183,10 @@ public final class DiggingConcaveHull2d {
      * Creates the convex hull.
      *
      * @param points the points
-     * @return the hull points
+     * @return the indices of the hull points
      */
     @SuppressWarnings("unchecked")
-    private static List<IntVector2D> createConvexHull(List<? extends Vector2D> points) {
+    private static CircularList createConvexHull(List<? extends Vector2D> points) {
       // Include colinear points in the hull
       final MonotoneChain chain = new MonotoneChain(true, DEFAULT_TOLERANCE);
       ConvexHull2D hull = null;
@@ -208,13 +206,14 @@ public final class DiggingConcaveHull2d {
 
       // Assumes the MonotoneChain uses the points by reference.
       // Thus we can identify the original input point using the stored ID.
-      final LinkedList<IntVector2D> list = new LinkedList<>();
-      for (int i = 0; i < size; i++) {
-        list.add((IntVector2D) v[i]);
+      final CircularList list = new CircularList(((IntVector2D) v[0]).id);
+      for (int i = 1; i < size; i++) {
+        list.insertAfter(((IntVector2D) v[i]).id);
       }
+      // Ensure current position is the first point in the hull
+      list.next();
       return list;
     }
-
 
     /**
      * Compute the concave hull using the digging algorithm. Must be called with a valid convex
@@ -222,23 +221,24 @@ public final class DiggingConcaveHull2d {
      *
      * @param tree the tree
      * @param points the points
-     * @param hull the initial convex hull
+     * @param hull the indices of the convex hull
      * @param threshold the edge distance to decision distance threshold for digging
      * @return the hull
      */
-    private static Hull2d concaveHull(IntDoubleKdTree tree, IntVector2D[] points,
-        List<IntVector2D> hull, double threshold) {
+    private static Hull2d concaveHull(IntDoubleKdTree tree, IntVector2D[] points, CircularList hull,
+        double threshold) {
       // Process each edge in the hull. Check if the edge can be replaced by two edges
       // to an internal point (digging into the hull). Replacing an edge (e1,e2) with
       // two more edges (e1, p) and (p, e2) involves inserting a point after the first
       // edge point. The existing edge is thus processed and the new edges are added to
       // the end of the list ot process. Thus newly added edges are processed after existing
       // hull edges.
-      // The hull is a list of points. The list is optimised for insertion, e.g. LinkedList.
+      // The hull is a list of points. The list is optimised for insertion and is circular to allow
+      // finding edges before and after the current edge, e.g. a circular linked list.
       // The edges to test are put into a FIFO queue. Each item references the points of
       // the edge by ID. If replaced the ID of the first edge point is found in the hull list
       // and the point inserted after.
-      final Queue<Edge> queue = createEdgeQueue(hull);
+      final Queue<Edge> queue = createEdgeQueue(points, hull);
       final ActiveList active = createActiveList(points.length, hull);
 
       // Cache the nearest neighbour of the second edge point.
@@ -247,6 +247,7 @@ public final class DiggingConcaveHull2d {
       final Neighbour n1 = new Neighbour();
       final Neighbour n2 = new Neighbour();
       int n1EdgeIndex = -1;
+      final int hullStartIndex = hull.current();
 
       // Process while we have internal points and remaining edges
       while (active.size() != 0 && queue.size() != 0) {
@@ -260,15 +261,20 @@ public final class DiggingConcaveHull2d {
         }
         tree.nearestNeighbour(e2, DISTANCE_FUNCTION, active::isEnabled, n2::set);
 
-        // Decision distance of closest neighbour
+        // Closest neighbour:
         final Neighbour k = n1.distance < n2.distance ? n1 : n2;
+
+        // Decision distance
         final double dd = Math.sqrt(k.distance);
         if (edge.distance / dd > threshold) {
+          hull.advanceTo(edge.start);
+          assert hull.peek(1) == edge.end;
+          final double[] p = getPoint(points, k.index);
+
           // Insert point into hull and remove from internal points
-          insertAfter(hull, edge.start, points[k.index]);
+          hull.insertAfter(k.index);
           active.disable(k.index);
           // Add new edges to the queue
-          final double[] p = getPoint(points, k.index);
           queue.add(new Edge(edge.start, k.index, distance(e1, p)));
           queue.add(new Edge(k.index, edge.end, distance(p, e2)));
           // Clear cache
@@ -280,28 +286,28 @@ public final class DiggingConcaveHull2d {
         }
       }
 
-      return createHull(hull);
+      // Reset hull start point
+      hull.advanceTo(hullStartIndex);
+      return createHull(points, hull);
     }
 
     /**
      * Creates the queue of hull edges to check.
      *
-     * @param hull the hull points
+     * @param points the points
+     * @param hull the indices of the convex hull
      * @return the queue
      */
-    private static Queue<Edge> createEdgeQueue(List<IntVector2D> hull) {
+    private static Queue<Edge> createEdgeQueue(IntVector2D[] points, CircularList hull) {
       final Queue<Edge> queue = new LinkedList<>();
-      final Iterator<IntVector2D> itr = hull.iterator();
-      // Assume at least one point in the hull
-      IntVector2D prev = itr.next();
-      while (itr.hasNext()) {
-        final IntVector2D next = itr.next();
-        queue.add(new Edge(prev.id, next.id, distance(prev.toArray(), next.toArray())));
+      // Assume at least two points in the hull
+      final int head = hull.current();
+      int prev = head;
+      do {
+        final int next = hull.next();
+        queue.add(new Edge(prev, next, distance(points[prev].toArray(), points[next].toArray())));
         prev = next;
-      }
-      // Circular wrap
-      final IntVector2D next = hull.get(0);
-      queue.add(new Edge(prev.id, next.id, distance(prev.toArray(), next.toArray())));
+      } while (prev != head);
       return queue;
     }
 
@@ -312,10 +318,10 @@ public final class DiggingConcaveHull2d {
      * @param hull the hull
      * @return the active list
      */
-    private static ActiveList createActiveList(int size, List<IntVector2D> hull) {
+    private static ActiveList createActiveList(int size, CircularList hull) {
       final ActiveList active = new ActiveList(size);
       active.enableAll();
-      hull.forEach(v -> active.disable(v.id));
+      hull.forEach(v -> active.disable(v));
       return active;
     }
 
@@ -331,37 +337,23 @@ public final class DiggingConcaveHull2d {
     }
 
     /**
-     * Insert the point into the hull after the point with the specified ID.
-     *
-     * @param hull the hull
-     * @param id the id
-     * @param point the point to insert
-     */
-    private static void insertAfter(List<IntVector2D> hull, int id, IntVector2D point) {
-      final ListIterator<IntVector2D> itr = hull.listIterator();
-      // This assumes the hull will contain the specified id
-      while (itr.next().id != id) {
-        // Advancing to the correct point
-      }
-      itr.add(point);
-    }
-
-    /**
      * Creates the hull from the point indexes. This ignores the final point if it is the same as
      * the first point.
      *
      * @param points the points
+     * @param hull the indices of the convex hull
      * @return the hull
      */
-    private static Hull2d createHull(List<IntVector2D> points) {
-      final double[] x = new double[points.size()];
-      final double[] y = new double[points.size()];
-      int i = 0;
-      for (IntVector2D p : points) {
-        x[i] = p.getX();
-        y[i] = p.getY();
-        i++;
-      }
+    private static Hull2d createHull(IntVector2D[] points, CircularList hull) {
+      final double[] x = new double[hull.size()];
+      final double[] y = new double[hull.size()];
+      final int[] i = {0};
+      hull.forEach(index -> {
+        final IntVector2D p = points[index];
+        x[i[0]] = p.getX();
+        y[i[0]] = p.getY();
+        i[0]++;
+      });
       return Hull2d.create(x, y);
     }
   }
