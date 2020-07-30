@@ -233,7 +233,7 @@ public class DiggingConcaveHull2dTest {
       yy.add(p[1]);
     }
     // Require a high threshold to prevent digging in to the circle.
-    final Hull2d hull = DiggingConcaveHull2d.create(5.0, xx.toArray(), yy.toArray(), xx.size());
+    final Hull2d hull = DiggingConcaveHull2d.create(2.0, xx.toArray(), yy.toArray(), xx.size());
     Assertions.assertNotNull(hull);
     // Deltas are high as the concave hull may be much smaller than the enclosing circle
     // with a longer perimeter

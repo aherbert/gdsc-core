@@ -305,7 +305,7 @@ public final class DiggingConcaveHull2d {
           //     e1-----e2
           //
           // @formatter:on
-          if (angle(e1, p, e2) < Math.min(angle(e0, p, e1), angle(e2, p, e3))) {
+          if (cosAngle(e1, p, e2) > Math.min(cosAngle(e0, p, e1), cosAngle(e2, p, e3))) {
             continue;
           }
 
@@ -333,22 +333,26 @@ public final class DiggingConcaveHull2d {
     }
 
     /**
-     * Compute the cosine (dot) angle between the points.
+     * Compute the cosine of the angle between the points. A lower cosine corresponds to a higher
+     * angle:
+     *
+     * <pre>
+     * v1•v2 = |v1||v2| cos(angle)
+     * cos(angle) = v1•v2 / |v1||v2|
+     * </pre>
      *
      * @param p1 the point 1
      * @param p2 the point 2
      * @param p3 the point 3
-     * @return the dot angle
+     * @return the absolute of the cosine angle
      */
-    private static double angle(double[] p1, double[] p2, double[] p3) {
+    private static double cosAngle(double[] p1, double[] p2, double[] p3) {
       // v1•v2 = |v1||v2| cos(angle)
       // Normalised vectors
       final double[] v1 = unitVector(p1, p2);
       final double[] v2 = unitVector(p3, p2);
-      final double dx = v1[0] - v2[0];
-      final double dy = v1[1] - v2[1];
       // return cos(angle)
-      return dx * dx + dy * dy;
+      return v1[0] * v2[0] + v1[1] * v2[1];
     }
 
     /**
