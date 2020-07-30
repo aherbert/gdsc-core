@@ -140,9 +140,11 @@ public final class TextUtils {
    * Get the correct pleural form for the count. E.g.
    *
    * <pre>
+   * {@code
    * TextUtils.pleural(0, "mouse", "mice") => "mice"
    * TextUtils.pleural(1, "mouse", "mice") => "mouse"
    * TextUtils.pleural(2, "mouse", "mice") => "mice"
+   * }
    * </pre>
    *
    * @param count the count

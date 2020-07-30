@@ -41,8 +41,8 @@ public final class RegressionUtils {
 
   /**
    * Gets the F statistic for two nested regression models. That is, model 1 has p1 parameters, and
-   * model 2 has p2 parameters, where p1 < p2, and for any choice of parameters in model 1, the same
-   * regression curve can be achieved by some choice of the parameters of model 2.
+   * model 2 has p2 parameters, where {@code p1 < p2}, and for any choice of parameters in model 1,
+   * the same regression curve can be achieved by some choice of the parameters of model 2.
    *
    * <pre>
    * F = ((rss1 - rss2) / (p2 - p1)) / (rss2 / (n - p2))
@@ -81,8 +81,8 @@ public final class RegressionUtils {
    * href="http://www.cas.lancs.ac.uk/glossary_v1.1/hyptest.html#pvalue">p-value</a>, associated
    * with a <a href="https://en.wikipedia.org/wiki/F-test#Regression_problems">F-Test for goodness
    * of fit</a> comparing two nested regression models. That is, model 1 has p1 parameters, and
-   * model 2 has p2 parameters, where p1 < p2, and for any choice of parameters in model 1, the same
-   * regression curve can be achieved by some choice of the parameters of model 2.
+   * model 2 has p2 parameters, where {@code p1 < p2}, and for any choice of parameters in model 1,
+   * the same regression curve can be achieved by some choice of the parameters of model 2.
    *
    * <pre>
    * F = ((rss1 - rss2) / (p2 - p1)) / (rss2 / (n - p2))

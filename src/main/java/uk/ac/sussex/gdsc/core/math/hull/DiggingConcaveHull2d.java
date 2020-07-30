@@ -61,8 +61,8 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * the edge is removed and replaced by two edges from the previous edge vertices to the internal
  * point.
  *
- * <blockquote>Park and Oh (2012) <br/> A New Concave Hull Algorithm and Concaveness Measure for
- * n-dimensional Datasets. <br/>Journal of Information Science and Engineering
+ * <blockquote>Park and Oh (2012) <br>A New Concave Hull Algorithm and Concaveness Measure for
+ * n-dimensional Datasets. <br>Journal of Information Science and Engineering
  * 28:587-600.</blockquote>
  *
  * @since 2.0
@@ -385,7 +385,8 @@ public final class DiggingConcaveHull2d {
         final int next = hull.next();
         queue.add(new Edge(prev, next, distance(points[prev].toArray(), points[next].toArray())));
         prev = next;
-      } while (prev != head);
+      }
+      while (prev != head);
       return queue;
     }
 

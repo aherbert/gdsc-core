@@ -158,7 +158,8 @@ public final class RngStreams {
         final int b = upper;
         do {
           consumer.accept(nextInt(r, o, b));
-        } while (++pos < last);
+        }
+        while (++pos < last);
       }
     }
 
@@ -181,7 +182,8 @@ public final class RngStreams {
         int result;
         do {
           result = rng.nextInt();
-        } while (result < lower || result >= upper);
+        }
+        while (result < lower || result >= upper);
         return result;
       }
       return rng.nextInt();
@@ -269,7 +271,8 @@ public final class RngStreams {
         final long b = upper;
         do {
           consumer.accept(nextLong(r, o, b));
-        } while (++pos < last);
+        }
+        while (++pos < last);
       }
     }
 
@@ -292,7 +295,8 @@ public final class RngStreams {
         long result;
         do {
           result = rng.nextLong();
-        } while (result < lower || result >= upper);
+        }
+        while (result < lower || result >= upper);
         return result;
       }
       return rng.nextLong();
@@ -380,7 +384,8 @@ public final class RngStreams {
         final double b = upper;
         do {
           consumer.accept(nextDouble(r, o, b));
-        } while (++pos < last);
+        }
+        while (++pos < last);
       }
     }
 
@@ -493,7 +498,8 @@ public final class RngStreams {
         final SplittableIntSupplier r = generator;
         do {
           consumer.accept(r.getAsInt());
-        } while (++pos < last);
+        }
+        while (++pos < last);
       }
     }
   }
@@ -568,7 +574,8 @@ public final class RngStreams {
         final SplittableDoubleSupplier r = generator;
         do {
           consumer.accept(r.getAsDouble());
-        } while (++pos < last);
+        }
+        while (++pos < last);
       }
     }
   }
@@ -597,10 +604,13 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of pseudorandom {@code int} values from the generator
    * and/or one split from it.
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #ints(SplittableUniformRandomProvider, long) ints(rng, Long.MAX_VALUE)}.
+   *
    * @param rng the random generator
    * @return a stream of pseudorandom {@code int} values
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #ints(SplittableUniformRandomProvider, long) ints(rng, Long.MAX_VALUE)}.
    */
   public static IntStream ints(SplittableUniformRandomProvider rng) {
     return StreamSupport
@@ -639,6 +649,12 @@ public final class RngStreams {
    * int} values from the generator and/or one split from it; each value conforms to the given
    * origin (inclusive) and bound (exclusive).
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #ints(SplittableUniformRandomProvider, long, int, int) ints(rng, Long.MAX_VALUE,
+   * randomNumberOrigin, randomNumberBound)}.
+   *
    * @param rng the random generator
    * @param randomNumberOrigin the origin (inclusive) of each random value
    * @param randomNumberBound the bound (exclusive) of each random value
@@ -646,9 +662,6 @@ public final class RngStreams {
    *         bound (exclusive)
    * @throws IllegalArgumentException if {@code randomNumberOrigin} is greater than or equal to
    *         {@code randomNumberBound}
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #ints(SplittableUniformRandomProvider, long, int, int) ints(rng,
-   *           Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
    */
   public static IntStream ints(SplittableUniformRandomProvider rng, int randomNumberOrigin,
       int randomNumberBound) {
@@ -680,10 +693,13 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of {@code int} values from the generator and/or one
    * split from it.
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to {@link #ints(SplittableIntSupplier, long)
+   * ints(generator, Long.MAX_VALUE)}.
+   *
    * @param generator the generator
    * @return a stream of {@code int} values
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #ints(SplittableIntSupplier, long) ints(generator, Long.MAX_VALUE)}.
    */
   public static IntStream ints(SplittableIntSupplier generator) {
     return StreamSupport.intStream(new IntsSpliterator(generator, 0L, Long.MAX_VALUE), false);
@@ -710,10 +726,13 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of pseudorandom {@code
    * long} values from the generator and/or one split from it.
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #longs(SplittableUniformRandomProvider, long) longs(rng, Long.MAX_VALUE)}.
+   *
    * @param rng the random generator
    * @return a stream of pseudorandom {@code long} values
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #longs(SplittableUniformRandomProvider, long) longs(rng, Long.MAX_VALUE)}.
    */
   public static LongStream longs(SplittableUniformRandomProvider rng) {
     return StreamSupport
@@ -752,6 +771,12 @@ public final class RngStreams {
    * long} values from the generator and/or one split from it; each value conforms to the given
    * origin (inclusive) and bound (exclusive).
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #longs(SplittableUniformRandomProvider, long, long, long) longs(rng, Long.MAX_VALUE,
+   * randomNumberOrigin, randomNumberBound)}.
+   *
    * @param rng the random generator
    * @param randomNumberOrigin the origin (inclusive) of each random value
    * @param randomNumberBound the bound (exclusive) of each random value
@@ -759,9 +784,6 @@ public final class RngStreams {
    *         and bound (exclusive)
    * @throws IllegalArgumentException if {@code randomNumberOrigin} is greater than or equal to
    *         {@code randomNumberBound}
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #longs(SplittableUniformRandomProvider, long, long, long) longs(rng,
-   *           Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
    */
   public static LongStream longs(SplittableUniformRandomProvider rng, long randomNumberOrigin,
       long randomNumberBound) {
@@ -796,10 +818,13 @@ public final class RngStreams {
    * double} values from the generator and/or one split from it; each value is between zero
    * (inclusive) and one (exclusive).
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #doubles(SplittableUniformRandomProvider, long) doubles(rng, Long.MAX_VALUE)}.
+   *
    * @param rng the random generator
    * @return a stream of pseudorandom {@code double} values
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #doubles(SplittableUniformRandomProvider, long) doubles(rng, Long.MAX_VALUE)}.
    */
   public static DoubleStream doubles(SplittableUniformRandomProvider rng) {
     return StreamSupport.doubleStream(
@@ -839,6 +864,12 @@ public final class RngStreams {
    * double} values from the generator and/or one split from it; each value conforms to the given
    * origin (inclusive) and bound (exclusive).
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #doubles(SplittableUniformRandomProvider, long, double, double) doubles(rng,
+   * Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
+   *
    * @param rng the random generator
    * @param randomNumberOrigin the origin (inclusive) of each random value
    * @param randomNumberBound the bound (exclusive) of each random value
@@ -846,9 +877,6 @@ public final class RngStreams {
    *         and bound (exclusive)
    * @throws IllegalArgumentException if {@code randomNumberOrigin} is greater than or equal to
    *         {@code randomNumberBound}
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #doubles(SplittableUniformRandomProvider, long, double, double) doubles(rng,
-   *           Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)}.
    */
   public static DoubleStream doubles(SplittableUniformRandomProvider rng, double randomNumberOrigin,
       double randomNumberBound) {
@@ -880,10 +908,13 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of {@code double} values from the generator and/or one
    * split from it.
    *
+   * <h2>Note</h2>
+   *
+   * <p>This method is implemented to be equivalent to
+   * {@link #doubles(SplittableDoubleSupplier, long) doubles(generator, Long.MAX_VALUE)}.
+   *
    * @param generator the generator
    * @return a stream of {@code double} values
-   * @implNote This method is implemented to be equivalent to
-   *           {@link #doubles(SplittableDoubleSupplier, long) doubles(generator, Long.MAX_VALUE)}.
    */
   public static DoubleStream doubles(SplittableDoubleSupplier generator) {
     return StreamSupport.doubleStream(new DoublesSpliterator(generator, 0L, Long.MAX_VALUE), false);

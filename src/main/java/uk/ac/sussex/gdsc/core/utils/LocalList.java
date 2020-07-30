@@ -533,6 +533,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * }
    * </pre>
    *
+   * @param <T> the runtime type of the array to contain the collection
    * @param a the array into which the elements of this list are to be stored, if it is big enough;
    *        otherwise, a new array of the same runtime type is allocated for this purpose.
    * @param fromIndex index of first element to be copied

@@ -43,8 +43,8 @@ import uk.ac.sussex.gdsc.core.trees.KdTrees;
  * neighbour with the largest right hand turn from the current hull edge that does not intersect the
  * existing hull.
  *
- * <blockquote>Moreira and Santos (2007) <br/> Concave hull: A k-nearest neighbours approach for the
- * computation of the region occupied by a set of points. <br/> Conference: GRAPP 2007, Proceedings
+ * <blockquote>Moreira and Santos (2007) <br>Concave hull: A k-nearest neighbours approach for the
+ * computation of the region occupied by a set of points. <br>Conference: GRAPP 2007, Proceedings
  * of the Second International Conference on Computer Graphics Theory and Applications, Barcelona,
  * Spain.</blockquote>
  *

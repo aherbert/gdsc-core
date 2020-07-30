@@ -28,8 +28,10 @@ import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
  * distribution</a>.
  *
  * <p>This sampler is only valid if the alpha (scale) parameter is {@code >= 1}. Uses the method
- * from <blockquote>Marsaglia and Tsang, <i>A Simple Method for Generating Gamma Variables.</i> ACM
- * Transactions on Mathematical Software, Volume 26 Issue 3, September, 2000. </blockquote></p>
+ * from:
+ *
+ * <blockquote>Marsaglia and Tsang, <i>A Simple Method for Generating Gamma Variables.</i> ACM
+ * Transactions on Mathematical Software, Volume 26 Issue 3, September, 2000. </blockquote>
  *
  * <p>Sampling uses:</p>
  *

@@ -245,9 +245,11 @@ public class Resequencer {
    * of distinct identifiers in the set. Matched identifiers will be preserved, for example:
    *
    * <pre>
+   * {@code
    * [0,1,1,2]    => [0,1,1,2]
    * [1,1,0,2]    => [0,0,1,2]
    * [-8,-8,4,16] => [0,0,1,2]
+   * }
    * </pre>
    *
    * <p>This method can be used to compact identifiers into a minimum representation that can be
@@ -269,9 +271,11 @@ public class Resequencer {
    * of distinct identifiers in the set. Matched identifiers will be preserved, for example:
    *
    * <pre>
+   * {@code
    * [0,1,1,2]    => [0,1,1,2]
    * [1,1,0,2]    => [0,0,1,2]
    * [-8,-8,4,16] => [0,0,1,2]
+   * }
    * </pre>
    *
    * <p>This method can be used to compact identifiers into a minimum representation that can be

@@ -52,7 +52,9 @@ public final class Mixers {
    * Perform an inversion of a xor right-shift.
    *
    * <pre>
+   * {@code
    * value = x ^ (x >>> shift)
+   * }
    * </pre>
    *
    * <p>The shift value is not checked that it lies in the interval {@code [1, 63]}. If outside this
@@ -121,8 +123,10 @@ public final class Mixers {
    * Perform an inversion of a xor left-shift.
    *
    * <pre>
+   * {@code
    * value = x ^ (x << shift)
-   * </pre>
+     * }
+     * </pre>
    *
    * <p>The shift value is not checked that it lies in the interval {@code [1, 63]}. If outside this
    * interval the results are undefined.

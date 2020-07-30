@@ -689,7 +689,7 @@ public final class ImageJUtils {
    * <pre>
    * <code>
    * int size = 10;
-   * for (int i = 0; i < size; i++) {
+   * for (int i = 0; i &lt; size; i++) {
    *   showSlowProgress(i, size);
    *   // .. do something that updates the progress bar from 0 to 1.
    *   // This will be shown as the fast progress.
@@ -723,7 +723,7 @@ public final class ImageJUtils {
    * <pre>
    * <code>
    * int size = 10;
-   * for (int i = 0; i < size; i++) {
+   * for (int i = 0; i &lt; size; i++) {
    *   showSlowProgress(i, size);
    *   // .. do something that updates the progress bar from 0 to 1.
    *   // This will be shown as the fast progress.

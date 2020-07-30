@@ -54,6 +54,7 @@ public final class EnumList<E extends Enum<E>> implements Iterable<E> {
   /**
    * Creates a new Enum helper for the given enumeration.
    *
+   * @param <E> the enum element type
    * @param elementType the element type
    * @return the Enum helper
    */
@@ -65,6 +66,7 @@ public final class EnumList<E extends Enum<E>> implements Iterable<E> {
   /**
    * Creates a new Enum helper for the enumeration of {@code element}.
    *
+   * @param <E> the enum element type
    * @param element the element
    * @return the Enum helper
    */

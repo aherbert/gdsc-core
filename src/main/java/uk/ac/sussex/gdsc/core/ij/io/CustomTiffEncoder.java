@@ -155,8 +155,8 @@ public class CustomTiffEncoder {
   /**
    * Saves the image as a TIFF file. The OutputStream is not closed.
    *
-   * <p>The fi.pixels field must contain the image data. If fi.nImages>1 then fi.pixels must be a 2D
-   * array.
+   * <p>The fi.pixels field must contain the image data. If fi.nImages &gt; 1 then fi.pixels must be
+   * a 2D array.
    *
    * <p>The fi.offset field is ignored.
    *
