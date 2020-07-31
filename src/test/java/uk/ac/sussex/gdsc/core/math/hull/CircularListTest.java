@@ -54,6 +54,14 @@ public class CircularListTest {
     Assertions.assertEquals(value, list.current());
     Assertions.assertTrue(list.advanceTo(value));
     Assertions.assertEquals(value, list.current());
+    data.clear();
+    final TIntArrayList data2 = new TIntArrayList(1);
+    list.forEach((i, j) -> {
+      data.add(i);
+      data2.add(j);
+    });
+    Assertions.assertArrayEquals(new int[] {value}, data.toArray());
+    Assertions.assertArrayEquals(new int[] {value}, data2.toArray());
   }
 
   @Test
@@ -83,6 +91,14 @@ public class CircularListTest {
     data.clear();
     list.forEach(data::add);
     Assertions.assertArrayEquals(new int[] {value1, value2}, data.toArray());
+    data.clear();
+    final TIntArrayList data2 = new TIntArrayList(2);
+    list.forEach((i, j) -> {
+      data.add(i);
+      data2.add(j);
+    });
+    Assertions.assertArrayEquals(new int[] {value1, value2}, data.toArray());
+    Assertions.assertArrayEquals(new int[] {value2, value1}, data2.toArray());
   }
 
   @Test
@@ -118,5 +134,13 @@ public class CircularListTest {
     data.clear();
     list.forEach(data::add);
     Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toArray());
+    data.clear();
+    final TIntArrayList data2 = new TIntArrayList(3);
+    list.forEach((i, j) -> {
+      data.add(i);
+      data2.add(j);
+    });
+    Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toArray());
+    Assertions.assertArrayEquals(new int[] {value2, value3, value1}, data2.toArray());
   }
 }

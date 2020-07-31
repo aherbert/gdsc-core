@@ -32,6 +32,8 @@ import java.util.function.IntConsumer;
 
 /**
  * A class to maintain a circular list of {@code int} values. This list can never be empty.
+ *
+ * @since 2.0
  */
 final class CircularList {
   /**
@@ -53,6 +55,25 @@ final class CircularList {
     Node(int value) {
       this.value = value;
     }
+  }
+
+  /**
+   * Represents an operation that accepts a two {@code int}-valued arguments and returns no result.
+   * This is the primitive type specialization of {@link java.util.function.BiConsumer} for
+   * {@code int}. Unlike most other functional interfaces, {@code IntIntConsumer} is expected to
+   * operate via side-effects.
+   *
+   * @see java.util.function.BiConsumer BiConsumer
+   */
+  @FunctionalInterface
+  interface IntIntConsumer {
+    /**
+     * Performs this operation on the given argument.
+     *
+     * @param value1 the first input argument
+     * @param value2 the second input argument
+     */
+    void accept(int value1, int value2);
   }
 
   /** The current node. */
@@ -180,6 +201,22 @@ final class CircularList {
     Node node = head;
     do {
       action.accept(node.value);
+      node = node.next;
+    } while (node != head);
+  }
+
+  /**
+   * Perform the action for each value and its successor in the list starting from the current
+   * value (i.e. current and next).
+   *
+   * @param action the action
+   */
+  void forEach(IntIntConsumer action) {
+    // List is never empty so current is not null.
+    final Node head = current;
+    Node node = head;
+    do {
+      action.accept(node.value, node.next.value);
       node = node.next;
     } while (node != head);
   }
