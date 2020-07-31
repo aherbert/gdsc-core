@@ -85,6 +85,16 @@ final class ActiveList {
   }
 
   /**
+   * Checks if the index is disabled.
+   *
+   * @param index the index
+   * @return true if disabled
+   */
+  boolean isDisabled(int index) {
+    return !enabled[index];
+  }
+
+  /**
    * Get the count of active indexes.
    *
    * @return the count

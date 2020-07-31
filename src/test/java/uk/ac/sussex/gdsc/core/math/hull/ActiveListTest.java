@@ -40,18 +40,22 @@ public class ActiveListTest {
     Assertions.assertEquals(0, active.size());
     for (int i = 0; i < n; i++) {
       Assertions.assertFalse(active.isEnabled(i));
+      Assertions.assertTrue(active.isDisabled(i));
     }
     active.enableAll();
     for (int i = 0; i < n; i++) {
       Assertions.assertTrue(active.isEnabled(i));
+      Assertions.assertFalse(active.isDisabled(i));
     }
     Assertions.assertEquals(n, active.size());
     int index = 2;
     active.disable(index);
     Assertions.assertEquals(n - 1, active.size());
     Assertions.assertFalse(active.isEnabled(index));
+    Assertions.assertTrue(active.isDisabled(index));
     active.enable(index);
     Assertions.assertEquals(n, active.size());
     Assertions.assertTrue(active.isEnabled(index));
+    Assertions.assertFalse(active.isDisabled(index));
   }
 }
