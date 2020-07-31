@@ -79,6 +79,9 @@ final class CircularList {
   /** The current node. */
   private Node current;
 
+  /** The saved node. */
+  private Node mark;
+
   /** The size. */
   private int size;
 
@@ -91,6 +94,7 @@ final class CircularList {
     current = new Node(value);
     current.next = current.prev = current;
     size = 1;
+    mark();
   }
 
   /**
@@ -182,6 +186,22 @@ final class CircularList {
   }
 
   /**
+   * Mark the current position in the list. A subsequent call to {@link #reset()} will return to
+   * this position.
+   */
+  void mark() {
+    mark = current;
+  }
+
+  /**
+   * Reset the list to the position set by the last call to {@link #mark()}. If {@link #mark()} has
+   * not been called then the position will be the initial position in the list.
+   */
+  void reset() {
+    current = mark;
+  }
+
+  /**
    * Gets the size.
    *
    * @return the size
@@ -206,8 +226,8 @@ final class CircularList {
   }
 
   /**
-   * Perform the action for each value and its successor in the list starting from the current
-   * value (i.e. current and next).
+   * Perform the action for each value and its successor in the list starting from the current value
+   * (i.e. current and next).
    *
    * @param action the action
    */

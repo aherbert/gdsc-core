@@ -62,6 +62,12 @@ public class CircularListTest {
     });
     Assertions.assertArrayEquals(new int[] {value}, data.toArray());
     Assertions.assertArrayEquals(new int[] {value}, data2.toArray());
+
+    list.reset();
+    Assertions.assertEquals(value, list.current());
+    list.mark();
+    list.reset();
+    Assertions.assertEquals(value, list.current());
   }
 
   @Test
@@ -99,6 +105,18 @@ public class CircularListTest {
     });
     Assertions.assertArrayEquals(new int[] {value1, value2}, data.toArray());
     Assertions.assertArrayEquals(new int[] {value2, value1}, data2.toArray());
+
+    list.reset();
+    Assertions.assertEquals(value1, list.current());
+    list.mark();
+    list.reset();
+    Assertions.assertEquals(value1, list.current());
+    list.next();
+    list.mark();
+    list.next();
+    Assertions.assertEquals(value1, list.current());
+    list.reset();
+    Assertions.assertEquals(value2, list.current());
   }
 
   @Test
@@ -142,5 +160,17 @@ public class CircularListTest {
     });
     Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toArray());
     Assertions.assertArrayEquals(new int[] {value2, value3, value1}, data2.toArray());
+
+    list.reset();
+    Assertions.assertEquals(value1, list.current());
+    list.mark();
+    list.reset();
+    Assertions.assertEquals(value1, list.current());
+    list.next();
+    list.mark();
+    list.next();
+    Assertions.assertEquals(value3, list.current());
+    list.reset();
+    Assertions.assertEquals(value2, list.current());
   }
 }
