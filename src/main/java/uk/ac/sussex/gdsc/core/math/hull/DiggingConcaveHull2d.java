@@ -33,10 +33,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.ToIntFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
+import uk.ac.sussex.gdsc.core.math.GeometryUtils;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunction;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
 import uk.ac.sussex.gdsc.core.trees.IntDoubleKdTree;
@@ -259,6 +261,8 @@ public final class DiggingConcaveHull2d {
       final Neighbour n2 = new Neighbour();
       int n1EdgeIndex = -1;
       final int hullStartIndex = hull.current();
+      final double[] com = new double[2];
+      final double[] angle = new double[1];
 
       // Process while we have internal points and remaining edges
       while (active.size() != 0 && queue.size() != 0) {
@@ -266,6 +270,26 @@ public final class DiggingConcaveHull2d {
         final Edge edge = queue.remove();
         final double[] e1 = getPoint(points, edge.start);
         final double[] e2 = getPoint(points, edge.end);
+
+        // Using of the closest point as the candidate may create a triangle where
+        // another point is inside:
+        //
+        // @formatter:off
+        //  e1 ---------------------- e2
+        //   \         p2
+        //    \
+        //     p
+        // @formatter:on
+        //
+        // Here p2 is not as close. Constructing the edges e1,p and p,e2 will result in
+        // p2 being outside the hull.
+        //
+        // Modify the method to find the candidate with the largest angle between e1-p-e2.
+        // This search is not suited to the KD-tree. Thus we find the closest neighbours
+        // then search for points within the triangle created to find the point with the largest
+        // angle to become the new candidate. This is a compromise for speed as computing the
+        // angle to all possible candidates is too expensive.
+
         // Reuse cache if possible
         if (n1EdgeIndex != edge.start) {
           tree.nearestNeighbour(e1, DISTANCE_FUNCTION, active::isEnabled, n1::set);
@@ -276,23 +300,67 @@ public final class DiggingConcaveHull2d {
         final Neighbour k = n1.distance < n2.distance ? n1 : n2;
 
         // Decision distance
-        final double dd = Math.sqrt(k.distance);
+        double dd = Math.sqrt(k.distance);
         if (edge.distance / dd > threshold) {
           hull.advanceTo(edge.start);
-          assert hull.peek(1) == edge.end;
           final double[] p = getPoint(points, k.index);
 
           // Additional checks:
-          // 1. k should not be closer to neighbour edges of (e1, e2) than (e1, e2)
+          // * k should not be closer to neighbour edges of (e1, e2) than (e1, e2)
+          // This check is not used as it conflicts with the use of the widest angle.
+          // A neighbour edge may be further away but have a wider angle:
+          // @formatter:off
+          //  e0 ----- e1
+          //            \
+          //             \
+          //              e2 - p
+          //              |
+          //              |
+          //              e4
+          // @formatter:on
+          // It is also unclear what distance to use to measure closeness.
+          // Choosing the widest angle makes the most visually pleasing concave hull
+          // as it minimises concavity.
+
           // Note: If the hull is size 3 then e0 == e3 with no effect.
-          final double[] e0 = getPoint(points, hull.peek(-1));
-          final double[] e3 = getPoint(points, hull.peek(2));
-          if (k.distance > distanceSquared(p, e0) || k.distance > distanceSquared(p, e3)) {
+          // final double[] e0 = getPoint(points, hull.peek(-1));
+          // final double[] e3 = getPoint(points, hull.peek(2));
+          // if (k.distance > distanceSquared(p, e0) || k.distance > distanceSquared(p, e3)) {
+          // continue;
+          // }
+
+          // * Ensure no other points are within the triangle e1-p-e2.
+          // Find the search centre using the centre-of-mass.
+          com[0] = (p[0] + e1[0] + e2[0]) / 3;
+          com[1] = (p[1] + e1[1] + e2[1]) / 3;
+
+          // Find the search radius using the maximum distance to the vertices.
+          final double search = Math.max(Math.max(distanceSquared(com, p), distanceSquared(p, e1)),
+              distanceSquared(p, e2));
+
+          // Find any other candidate with a larger angle.
+          angle[0] = cosAngle(e1, p, e2);
+          tree.findNeighbours(com, search, DISTANCE_FUNCTION, (t, d) -> {
+            if (active.isEnabled(t)) {
+              // Compute angle. For cosine(angle) lower is wider.
+              final double cosAng = cosAngle(e1, points[t].toArray(), e2);
+              if (cosAng < angle[0]) {
+                k.set(t, d);
+                angle[0] = cosAng;
+              }
+            }
+          });
+
+          // Check the decision distance again
+          dd = Math.sqrt(k.distance);
+          if (edge.distance / dd <= threshold) {
             continue;
           }
 
-          // Further checks not in the original Park & Oh method.
-          // 2. Angle subtended to neighbour edges must not be bigger.
+          // Additional checks not deemed useful:
+          // - k should not be closer to any other edges of the hull
+
+          // * Angle subtended to neighbour edges must not be bigger.
           // This ensures no digging when a neighbour could have a better digging
           // point from a neighbour edge.
           // Note: This may eliminate a point from digging due to a neighbour edge angle
@@ -305,12 +373,27 @@ public final class DiggingConcaveHull2d {
           //     e1-----e2
           //
           // @formatter:on
+          final double[] e0 = getPoint(points, hull.peek(-1));
+          final double[] e3 = getPoint(points, hull.peek(2));
           if (cosAngle(e1, p, e2) > Math.min(cosAngle(e0, p, e1), cosAngle(e2, p, e3))) {
             continue;
           }
 
-          // 3. New edges must not intersect existing hull.
-          // Q. Is this check needed when using the obtuse angle check?
+          // * New edges must not intersect existing hull.
+          // This is important when the number of remaining points is low. The point may
+          // be far away and joining it will intersect the current hull.
+          hull.mark();
+          // Start at e1. Move previous until at e2. Test all edges verses (p,e2)
+          if (intersects(p, e2, points, hull, edge.end, CircularList::previous)) {
+            continue;
+          }
+          hull.reset();
+          // Start at e2. Move next until at e1. Test all edges verses (e1,p)
+          hull.next();
+          if (intersects(e1, p, points, hull, edge.start, CircularList::next)) {
+            continue;
+          }
+          hull.reset();
 
           // Insert point into hull and remove from internal points
           hull.insertAfter(k.index);
@@ -370,6 +453,43 @@ public final class DiggingConcaveHull2d {
     }
 
     /**
+     * Advance along the hull from the current position until the next point is the specified end
+     * position. For each hull edge test if it intersects with the line between the given points.
+     *
+     * @param p1 the start of the line
+     * @param p2 the end of the line
+     * @param points the points
+     * @param hull the indices of the convex hull
+     * @param end the end hull point
+     * @param advance the method to advance to the next hull point
+     * @return true if the line intersects
+     */
+    private static boolean intersects(double[] p1, double[] p2, IntVector2D[] points,
+        CircularList hull, int end, ToIntFunction<CircularList> advance) {
+      final double x1 = p1[0];
+      final double y1 = p1[1];
+      final double x2 = p2[0];
+      final double y2 = p2[1];
+      int e1 = hull.current();
+      int e2 = advance.applyAsInt(hull);
+      double x4 = points[e1].getX();
+      double y4 = points[e1].getY();
+      while (e2 != end) {
+        double x3 = x4;
+        double y3 = y4;
+        x4 = points[e2].getX();
+        y4 = points[e2].getY();
+        if (GeometryUtils.testIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
+          return true;
+        }
+        // Advance
+        e1 = e2;
+        e2 = advance.applyAsInt(hull);
+      }
+      return false;
+    }
+
+    /**
      * Creates the queue of hull edges to check.
      *
      * @param points the points
@@ -385,8 +505,7 @@ public final class DiggingConcaveHull2d {
         final int next = hull.next();
         queue.add(new Edge(prev, next, distance(points[prev].toArray(), points[next].toArray())));
         prev = next;
-      }
-      while (prev != head);
+      } while (prev != head);
       return queue;
     }
 
