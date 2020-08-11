@@ -158,8 +158,7 @@ public final class RngStreams {
         final int b = upper;
         do {
           consumer.accept(nextInt(r, o, b));
-        }
-        while (++pos < last);
+        } while (++pos < last);
       }
     }
 
@@ -182,8 +181,7 @@ public final class RngStreams {
         int result;
         do {
           result = rng.nextInt();
-        }
-        while (result < lower || result >= upper);
+        } while (result < lower || result >= upper);
         return result;
       }
       return rng.nextInt();
@@ -271,8 +269,7 @@ public final class RngStreams {
         final long b = upper;
         do {
           consumer.accept(nextLong(r, o, b));
-        }
-        while (++pos < last);
+        } while (++pos < last);
       }
     }
 
@@ -295,8 +292,7 @@ public final class RngStreams {
         long result;
         do {
           result = rng.nextLong();
-        }
-        while (result < lower || result >= upper);
+        } while (result < lower || result >= upper);
         return result;
       }
       return rng.nextLong();
@@ -384,8 +380,7 @@ public final class RngStreams {
         final double b = upper;
         do {
           consumer.accept(nextDouble(r, o, b));
-        }
-        while (++pos < last);
+        } while (++pos < last);
       }
     }
 
@@ -498,8 +493,7 @@ public final class RngStreams {
         final SplittableIntSupplier r = generator;
         do {
           consumer.accept(r.getAsInt());
-        }
-        while (++pos < last);
+        } while (++pos < last);
       }
     }
   }
@@ -574,8 +568,7 @@ public final class RngStreams {
         final SplittableDoubleSupplier r = generator;
         do {
           consumer.accept(r.getAsDouble());
-        }
-        while (++pos < last);
+        } while (++pos < last);
       }
     }
   }

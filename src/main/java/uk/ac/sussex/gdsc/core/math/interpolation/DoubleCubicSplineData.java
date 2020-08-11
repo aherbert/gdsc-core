@@ -417,7 +417,7 @@ public class DoubleCubicSplineData implements Serializable {
    *     for (int c = 0; c &lt; N; c++) {
    *       coefficient[i++] = z ^ a * y ^ b * x ^ c;
    *     }
-   *   }  
+   *   }
    * }
    * </pre>
    *
