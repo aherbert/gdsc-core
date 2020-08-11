@@ -95,7 +95,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <gdsc.parent.dir>${basedir}</gdsc.parent.dir>
 
     <!-- Dependency versions -->
-    <elki.version>0.7.1</elki.version>
+    <elki.version>0.7.5</elki.version>
 
     <!-- Other maven plugin versions -->
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
