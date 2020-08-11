@@ -2264,7 +2264,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetPixelSizeThrows() throws IOException {
+  public void testGetPixelSizeThrows() {
     // Create 2 IFDs with a pixel type that is not supported.
     final long dummyEstimatedSize = 999;
     final int height = 15;
