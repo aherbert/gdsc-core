@@ -916,7 +916,7 @@ public class OpticsManagerTest {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
       // Needed to match the ELKI framework
-      om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+      om.addOptions(Option.OPTICS_STRICT_ID_ORDER);
 
       final SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
       space.createDoubleDistances();
@@ -936,11 +936,11 @@ public class OpticsManagerTest {
         Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
         // Debug: Print the core distance for each point
-        // for (int i = 0; i < n; i++)
-        // {
+        // for (int i = 0; i < n; i++) {
         // double[] dd = d[i].clone();
         // Arrays.sort(dd);
-        // TestLog.info(logger,"%d Core %f, next %f", i, dd[minPts - 1], dd[minPts]);
+        // logger.info(FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1],
+        // dd[minPts]));
         // }
 
         // Use max range
@@ -971,9 +971,8 @@ public class OpticsManagerTest {
           final double expR = order.getReachability(it);
           final double obsR = r1.get(index).getReachabilityDistance();
 
-          // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR,
-          // obsR,
-          // r1.get(i).coreDistance, expPre, obsPre);
+          // logger.fine(FunctionUtils.getSupplier("[%d] %d %d : %f = %f (%f) : %s = %d", i, expId,
+          // obsId, expR, obsR, r1.get(i).coreDistance, expPre, obsPre));
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", index));
           Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("[%d] Pre", index));
@@ -1003,7 +1002,7 @@ public class OpticsManagerTest {
       om.setTracker(tracker);
       om.setExecutorService(executor);
       // Needed to match the ELKI framework
-      om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER, Option.CACHE);
+      om.addOptions(Option.OPTICS_STRICT_ID_ORDER, Option.CACHE);
 
       final SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
       space.createDoubleDistances();
@@ -1023,11 +1022,11 @@ public class OpticsManagerTest {
         Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
         // Debug: Print the core distance for each point
-        // for (int i = 0; i < n; i++)
-        // {
+        // for (int i = 0; i < n; i++) {
         // double[] dd = d[i].clone();
         // Arrays.sort(dd);
-        // TestLog.info(logger,"%d Core %f, next %f", i, dd[minPts - 1], dd[minPts]);
+        // logger.info(FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1],
+        // dd[minPts]));
         // }
 
         final OpticsResult r1 = om.fastOptics(minPts);
@@ -1057,9 +1056,8 @@ public class OpticsManagerTest {
           final double expR = order.getReachability(it);
           final double obsR = r1.get(index).getReachabilityDistance();
 
-          // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR,
-          // obsR,
-          // r1.get(i).coreDistance, expPre, obsPre);
+          // logger.fine(FunctionUtils.getSupplier("[%d] %d %d : %f = %f (%f) : %s = %d", i, expId,
+          // obsId, expR, obsR, r1.get(i).coreDistance, expPre, obsPre);
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("Id %d", index));
           Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("Pre %d", index));
@@ -1076,7 +1074,7 @@ public class OpticsManagerTest {
   public void canComputeOpticsXi(RandomSeed seed) {
     // This does not fail but logs warnings
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(123); // seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
@@ -1084,7 +1082,7 @@ public class OpticsManagerTest {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
       // Needed to match the ELKI framework
-      om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+      om.addOptions(Option.OPTICS_STRICT_ID_ORDER);
 
       // Compute the all-vs-all distance for checking the answer
       final SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
@@ -1105,11 +1103,11 @@ public class OpticsManagerTest {
         Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
         // Debug: Print the core distance for each point
-        // for (int i = 0; i < n; i++)
-        // {
+        // for (int i = 0; i < n; i++) {
         // double[] dd = d[i].clone();
         // Arrays.sort(dd);
-        // TestLog.info(logger,"%d Core %f, next %f", i, dd[minPts - 1], dd[minPts]);
+        // logger.info(FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1],
+        // dd[minPts]));
         // }
 
         // Use max range
@@ -1131,8 +1129,8 @@ public class OpticsManagerTest {
             clustering.getAllClusters();
         int clusterId = 0;
         for (final de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters) {
-          // TestLog.debug(logger,"%d-%d", c.getModel().getStartIndex(),
-          // c.getModel().getEndIndex());
+          // logger.info(FunctionUtils.getSupplier("%d-%d", c.getModel().getStartIndex(),
+          // c.getModel().getEndIndex()));
 
           // Add the cluster Id to the expClusters
           clusterId++;
@@ -1143,10 +1141,16 @@ public class OpticsManagerTest {
 
         // check the clusters match
         r1.extractClusters(xi);
+        // r1.getAllClusters().forEach(c -> {
+        // logger.info(FunctionUtils.getSupplier("%d-%d", c.start, c.end));
+        // });
         final int[] obsClusters = r1.getClusters();
 
-        // for (int i = 0; i < n; i++)
-        // TestLog.info(logger,"%d = %d %d", i, expClusters[i], obsClusters[i]);
+        // final int[] order = r1.getOrder();
+        // for (int i = 0; i < n; i++) {
+        // logger.info(FunctionUtils.getSupplier("%d = %d %d (%d)", i, expClusters[i],
+        // obsClusters[i], order[i]));
+        // }
 
         Assertions.assertEquals(1, RandIndex.randIndex(expClusters, obsClusters));
       }
@@ -1175,10 +1179,10 @@ public class OpticsManagerTest {
 
         Assertions.assertTrue(o1.size() >= o2.size());
 
-        // TestLog.debug(logger,"%d : %d", n, minPts);
+        // logger.fine(FunctionUtils.getSupplier("%d : %d", n, minPts));
         for (final OpticsCluster cluster : o2) {
           Assertions.assertTrue(cluster.getLevel() == 0);
-          // TestLog.debug(logger,cluster);
+          // logger.fine(FunctionUtils.getSupplier(cluster));
         }
       }
     }
@@ -1199,7 +1203,7 @@ public class OpticsManagerTest {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
       // Needed to match the ELKI framework
-      om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+      om.addOptions(Option.OPTICS_STRICT_ID_ORDER);
 
       // Use ELKI to provide the expected results
       final double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
@@ -1262,7 +1266,8 @@ public class OpticsManagerTest {
           final int[] obsClusters = r1.getClusters();
 
           // for (int i = 0; i < n; i++)
-          // TestLog.debug(logger,"%d = %d %d", i, expClusters[i], obsClusters[i]);
+          // logger.fine(FunctionUtils.getSupplier("%d = %d %d", i, expClusters[i],
+          // obsClusters[i]));
 
           // Should be similar
           ri.compute(expClusters, obsClusters);
@@ -1296,7 +1301,7 @@ public class OpticsManagerTest {
       om.setTracker(tracker);
       om.setExecutorService(executor);
       // Needed to match the ELKI framework
-      om.addOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+      om.addOptions(Option.OPTICS_STRICT_ID_ORDER);
 
       // Use ELKI to provide the expected results
       final double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
@@ -1658,24 +1663,21 @@ public class OpticsManagerTest {
 
     // Use to speed time the algorithm when making changes
     // long time2 = 0;
-    // for (int i = 10; i-- > 0;)
-    // {
+    // for (int i = 10; i-- > 0;) {
     // long time = System.nanoTime();
-    // for (int n : N)
-    // {
+    // for (int n : N) {
     // OpticsManager om = createOpticsManager(size, n, rg);
     //
-    // for (int minPts : new int[] { 10, 20 })
-    // {
+    // for (int minPts : new int[] { 10, 20 }) {
     // om.optics(0, minPts);
     // }
     // }
     // time = System.nanoTime() - time;
-    // TestLog.info(logger,"Time = %d", time);
+    // logger.info(FunctionUtils.getSupplier("Time = %d", time));
     // if (i < 5)
     // time2 += time;
     // }
-    // TestLog.info(logger,"Time = %d", time2);
+    // logger.info(FunctionUtils.getSupplier("Time = %d", time2));
   }
 
   @SeededTest
@@ -1710,7 +1712,8 @@ public class OpticsManagerTest {
         e[i] = (float) Math
             .sqrt(PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d2[i], n, k + 1)[0]);
       }
-      // TestLog.debug(logger,"e=%s, o=%s", Arrays.toString(e), Arrays.toString(o));
+      // logger.fine(FunctionUtils.getSupplier("e=%s, o=%s", Arrays.toString(e),
+      // Arrays.toString(o)));
       Assertions.assertArrayEquals(e, o);
     }
   }
@@ -1797,7 +1800,7 @@ public class OpticsManagerTest {
 
       for (final float radius : new float[] {0.01f}) {
         om.optics(radius, minPts);
-        // TestLog.debug(logger,"Optics %d @ %.1f,%d", n, radius, minPts);
+        // logger.fine(FunctionUtils.getSupplier("Optics %d @ %.1f,%d", n, radius, minPts));
       }
     }
   }
@@ -1897,9 +1900,8 @@ public class OpticsManagerTest {
     final int[] c1 = r1.getClusters(true);
     final int[] c2 = r2.getClusters(true);
 
-    // for (int i = 0; i < c1.length; i++)
-    // {
-    // TestLog.info(logger,"[%d] %d == %d", i, c1[i], c2[i]);
+    // for (int i = 0; i < c1.length; i++) {
+    // logger.info(FunctionUtils.getSupplier("[%d] %d == %d", i, c1[i], c2[i]));
     // }
 
     Assertions.assertArrayEquals(c1, c2);
@@ -2830,7 +2832,8 @@ public class OpticsManagerTest {
           t2 = System.nanoTime() - t2;
 
           // Check
-          // TestLog.debug(logger,"LoOP %d vs %d (ELKI) %f", t1, t2, (double)t2 / t1);
+          // logger.fine(FunctionUtils.getSupplier("LoOP %d vs %d (ELKI) %f", t1, t2, (double)t2 /
+          // t1));
           int index = 0;
           final DoubleRelation scores = or.getScores();
           for (final DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), index++) {
@@ -2840,7 +2843,8 @@ public class OpticsManagerTest {
             final double expL = scores.doubleValue(it);
             final double obsL = r1[index];
 
-            // TestLog.debug(logger,"%s %d %d : %f = %f", prefix, expId, obsId, expL, obsL);
+            // logger.fine(FunctionUtils.getSupplier("%s %d %d : %f = %f", prefix, expId, obsId,
+            // expL, obsL));
 
             Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", index));
             TestAssertions.assertTest(expL, obsL, equality,

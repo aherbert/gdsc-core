@@ -1062,11 +1062,11 @@ public class OpticsResult implements ClusteringResult {
         final double startValue = reachability[index];
         mib = 0;
         final int startSteep = index;
-        int endSteep = index + 1;
-        for (index++; valid(index, size); index++) {
+        int endSteep = index;
+        for (index++; valid(index + 1, size); index++) {
           // Continue down the steep area
           if (steepDown(index, reachability, ixi)) {
-            endSteep = index + 1;
+            endSteep = index;
             continue;
           }
           // Stop looking if not going downward or after minPoints of non steep area
@@ -1094,38 +1094,30 @@ public class OpticsResult implements ClusteringResult {
 
         // Update mib values with current mib and filter
         updateFilterSdaSet(mib, setOfSteepDownAreas, ixi);
-        SteepUpArea sua;
         final int startSteep = index;
-        int endSteep = index + 1;
+        int endSteep = index;
         mib = reachability[index];
         double endSuccessor = getNextReachability(index, size, reachability);
-        if (endSuccessor == Double.POSITIVE_INFINITY) {
-          endSteep--;
+        while (endSuccessor != Double.POSITIVE_INFINITY && valid(index + 1, size)) {
           index++;
-        } else {
-          for (index++; valid(index, size); index++) {
-            if (steepUp(index, reachability, ixi)) {
-              // The last reachable point must have a reachability equal or below the upper limit
-              if (useUpperLimit && reachability[index] > ul) {
-                // Not allowed so end
-                break;
-              }
-
-              endSteep = index + 1;
-              mib = reachability[index];
-              endSuccessor = getNextReachability(index, size, reachability);
-              if (endSuccessor == Double.POSITIVE_INFINITY) {
-                endSteep--;
-                break;
-              }
-
-              // Stop looking if not going upward or after minPoints of non steep area
-            } else if (!steepUp(index, reachability, 1) || index - endSteep > getMinPoints()) {
+          if (steepUp(index, reachability, ixi)) {
+            // The last reachable point must have a reachability equal or below the upper limit
+            if (useUpperLimit && reachability[index] > ul) {
+              // Not allowed so end
               break;
             }
+
+            endSteep = index;
+            mib = reachability[index];
+            endSuccessor = getNextReachability(index, size, reachability);
+          } else if (!steepUp(index, reachability, 1) || index - endSteep > getMinPoints()) {
+            break;
           }
         }
-        sua = new SteepUpArea(startSteep, endSteep, endSuccessor);
+        if (endSuccessor == Double.POSITIVE_INFINITY) {
+          index++;
+        }
+        final SteepUpArea sua = new SteepUpArea(startSteep, endSteep, endSuccessor);
 
         // Note: mib currently holds the value at the end-of-steep-up
         final double threshold = mib * ixi;
@@ -1145,21 +1137,13 @@ public class OpticsResult implements ClusteringResult {
           int cstart = sda.start;
           int cend = sua.end;
 
-          // Credit to ELKI
-          // NOT in original OPTICS article: never include infinity-reachable
-          // points at the end of the cluster.
-          if (!noCorrect) {
-            while (cend > cstart && reachability[cend] == Double.POSITIVE_INFINITY) {
-              cend--;
-            }
-          }
-
           // Condition 4
           // Case b
           if (sda.maximum * ixi >= sua.maximum) {
             while (cstart < cend && reachability[cstart + 1] > sua.maximum) {
               cstart++;
             }
+            // Case c
           } else if (sua.maximum * ixi >= sda.maximum) {
             while (cend > cstart && reachability[cend - 1] > sda.maximum) {
               cend--;
@@ -1183,7 +1167,7 @@ public class OpticsResult implements ClusteringResult {
 
           // This is the R-code but I do not know why. It's not in the original paper.
           // Ensure the last steep up point is not included if it's xi significant
-          if (excludeLastSteepUp && steepUp(index - 1, reachability, ixi)) {
+          if (excludeLastSteepUp && steepUp(cend, reachability, ixi)) {
             cend--;
           }
 
@@ -1204,7 +1188,7 @@ public class OpticsResult implements ClusteringResult {
             final boolean[] remove = new boolean[setOfClusters.size()];
             for (int ii = 0; ii < setOfClusters.size(); ii++) {
               final OpticsCluster child = setOfClusters.unsafeGet(ii);
-              if (cstart <= child.start && child.end <= cend) {
+              if (clusterContains(cstart, cend, child)) {
                 if (lowestId > child.clusterId) {
                   lowestId = child.clusterId;
                 }
@@ -1235,7 +1219,7 @@ public class OpticsResult implements ClusteringResult {
             final boolean[] remove = new boolean[setOfClusters.size()];
             for (int ii = 0; ii < setOfClusters.size(); ii++) {
               final OpticsCluster child = setOfClusters.unsafeGet(ii);
-              if (cstart <= child.start && child.end <= cend) {
+              if (clusterContains(cstart, cend, child)) {
                 cluster.addChildCluster(child);
                 remove[ii] = true;
               }
@@ -1301,15 +1285,15 @@ public class OpticsResult implements ClusteringResult {
    * Check for a steep down region. Determines if the reachability distance at the current index is
    * (xi) significantly higher than the next index.
    *
+   * <p>This should not be called when index is the final valid index in the array, i.e. there must
+   * be a valid position at {@code index + 1}.
+   *
    * @param index the index
    * @param reachability the reachability
    * @param ixi the ixi
    * @return true, if successful
    */
   private static boolean steepDown(int index, double[] reachability, double ixi) {
-    if (!valid(index + 1, reachability.length)) {
-      return false;
-    }
     if (reachability[index + 1] == Double.POSITIVE_INFINITY) {
       return false;
     }
@@ -1356,6 +1340,18 @@ public class OpticsResult implements ClusteringResult {
       }
     }
     return false;
+  }
+
+  /**
+   * Return true if the cluster contains the child cluster.
+   *
+   * @param cstart the cluster start (inclusive)
+   * @param cend the cluster end (inclusive)
+   * @param child the child
+   * @return true if the child is within the cluster
+   */
+  private static boolean clusterContains(int cstart, int cend, final OpticsCluster child) {
+    return cstart <= child.start && child.end <= cend;
   }
 
   /**

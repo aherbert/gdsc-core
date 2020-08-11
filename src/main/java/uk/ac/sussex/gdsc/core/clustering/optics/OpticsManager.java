@@ -145,6 +145,8 @@ public class OpticsManager extends CoordinateStore {
      * <p>Omitting this flag defaults to sorting objects using their reachability distance. If the
      * reachability distance is the same then the order will be dependent on the type of priority
      * queue, i.e. is non-deterministic.
+     *
+     * <p>Note: This option matches the implementation in the ELKI framework version 0.7.5.
      */
     OPTICS_STRICT_ID_ORDER,
     /**
@@ -155,7 +157,7 @@ public class OpticsManager extends CoordinateStore {
      * reachability distance is the same then the order will be dependent on the type of priority
      * queue, i.e. is non-deterministic.
      *
-     * <p>Note: This option matches the implementation in the ELKI framework.
+     * <p>Note: This option matches the implementation in the ELKI framework version 0.7.1.
      */
     OPTICS_STRICT_REVERSE_ID_ORDER,
     /**
