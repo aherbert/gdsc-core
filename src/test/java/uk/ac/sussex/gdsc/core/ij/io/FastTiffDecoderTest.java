@@ -665,7 +665,7 @@ public class FastTiffDecoderTest {
         FastTiffDecoder.getName(FastTiffDecoder.RESOLUTION_UNIT));
     Assertions.assertEquals("Software", FastTiffDecoder.getName(FastTiffDecoder.SOFTWARE));
     Assertions.assertEquals("DateTime", FastTiffDecoder.getName(FastTiffDecoder.DATE_TIME));
-    Assertions.assertEquals("Artest", FastTiffDecoder.getName(FastTiffDecoder.ARTEST));
+    Assertions.assertEquals("Artist", FastTiffDecoder.getName(FastTiffDecoder.ARTIST));
     Assertions.assertEquals("HostComputer", FastTiffDecoder.getName(FastTiffDecoder.HOST_COMPUTER));
     Assertions.assertEquals("PlanarConfiguration",
         FastTiffDecoder.getName(FastTiffDecoder.PLANAR_CONFIGURATION));
@@ -1843,7 +1843,7 @@ public class FastTiffDecoderTest {
     writer.writeEntry(FastTiffDecoder.HOST_COMPUTER, FastTiffDecoder.SHORT, b3.length,
         writer.getMetaDataOffset());
     writer.addMetadata(b3);
-    writer.writeEntry(FastTiffDecoder.ARTEST, FastTiffDecoder.SHORT, b4.length,
+    writer.writeEntry(FastTiffDecoder.ARTIST, FastTiffDecoder.SHORT, b4.length,
         writer.getMetaDataOffset());
     writer.addMetadata(b4);
     writer.endIfd(true);
@@ -1866,7 +1866,7 @@ public class FastTiffDecoderTest {
     writer.addMetadata(new byte[1]);
     writer.endIfd(false);
     writer.beginIfd(1);
-    writer.writeEntry(FastTiffDecoder.ARTEST, FastTiffDecoder.SHORT, b4.length,
+    writer.writeEntry(FastTiffDecoder.ARTIST, FastTiffDecoder.SHORT, b4.length,
         writer.getMetaDataOffset());
     writer.addMetadata(b4);
     writer.endIfd(true);

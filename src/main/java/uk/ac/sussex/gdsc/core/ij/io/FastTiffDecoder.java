@@ -117,8 +117,8 @@ public abstract class FastTiffDecoder {
   /** TIFF tag DATE_TIME. */
   public static final int DATE_TIME = 306;
 
-  /** TIFF tag ARTEST. */
-  public static final int ARTEST = 315;
+  /** TIFF tag ARTIST. */
+  public static final int ARTIST = 315;
 
   /** TIFF tag HOST_COMPUTER. */
   public static final int HOST_COMPUTER = 316;
@@ -852,7 +852,7 @@ public abstract class FastTiffDecoder {
       case RESOLUTION_UNIT: return "ResolutionUnit";
       case SOFTWARE: return "Software";
       case DATE_TIME: return "DateTime";
-      case ARTEST: return "Artest";
+      case ARTIST: return "Artist";
       case HOST_COMPUTER: return "HostComputer";
       case PLANAR_CONFIGURATION: return "PlanarConfiguration";
       case COMPRESSION: return "Compression";
@@ -1110,7 +1110,7 @@ public abstract class FastTiffDecoder {
         case SOFTWARE:
         case DATE_TIME:
         case HOST_COMPUTER:
-        case ARTEST:
+        case ARTIST:
           if (ifdCount == 1) {
             final byte[] bytes = getString(count, lvalue);
             final String s = bytes == null ? null : new String(bytes);
