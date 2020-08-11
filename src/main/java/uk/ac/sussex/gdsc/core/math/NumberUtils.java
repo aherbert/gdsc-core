@@ -288,11 +288,11 @@ public final class NumberUtils {
 
   /**
    * Compute the units of least precision (ulps) between the two numbers. For convenience the result
-   * is clipped to {@value Long#MAX_VALUE} so that large differences are positive.
+   * is clipped to {@link Long#MAX_VALUE} so that large differences are positive.
    *
    * <p>The magnitude of the result is meaningless if one but not both numbers are infinite or nan;
    * or both are infinite or nan but not the same. In this case the method returns
-   * {@value Long#MAX_VALUE}. If the numbers are the same inf/nan the result is 0.
+   * {@link Long#MAX_VALUE}. If the numbers are the same inf/nan the result is 0.
    *
    * @param a first number
    * @param b second number
