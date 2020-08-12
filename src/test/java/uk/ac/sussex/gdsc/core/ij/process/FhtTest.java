@@ -39,7 +39,7 @@ import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 
 @SuppressWarnings({"javadoc"})
-public class Fht2Test {
+public class FhtTest {
   @Test
   public void canCheckPowerOf2() {
     Assertions.assertFalse(Fht.isPowerOf2(1), "1");
