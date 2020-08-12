@@ -28,10 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.ij.process;
 
+import ij.ImageStack;
 import ij.plugin.filter.EDM;
 import ij.process.ByteProcessor;
 import ij.process.FHT;
 import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -52,6 +54,18 @@ public class FhtTest {
       Assertions.assertFalse(Fht.isPowerOf2(value + 1), Integer.toString(value + 1));
       value *= 2;
     }
+  }
+
+  @Test
+  public void testConstructor() {
+    final ImageProcessor ip = new FloatProcessor(4, 3);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new Fht(ip, false));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new Fht(new float[9], 3, false));
+    final ByteProcessor bp = new ByteProcessor(4, 4);
+    final int index = 7;
+    bp.set(index, 42);
+    Fht fht = new Fht(bp, false);
+    Assertions.assertEquals(42, fht.getf(index));
   }
 
   @Test
@@ -159,13 +173,76 @@ public class FhtTest {
     final FloatProcessor fp1 =
         new FloatProcessor(size, size, SimpleArrayUtils.newArray(size * size, 0, 1f));
     final FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
+    final FloatProcessor fp3 = (FloatProcessor) fp1.duplicate();
 
     final FHT fht1 = new FHT(fp1);
     final Fht fht2 = new Fht(fp2);
 
     fht1.swapQuadrants();
     fht2.swapQuadrants();
+    Fht.swapQuadrants(fp3);
 
-    Assertions.assertArrayEquals((float[]) fp1.getPixels(), (float[]) fp2.getPixels());
+    Assertions.assertArrayEquals((float[]) fht1.getPixels(), (float[]) fht2.getPixels());
+    Assertions.assertArrayEquals((float[]) fht1.getPixels(), (float[]) fp3.getPixels());
+
+    final FloatProcessor fp4 = new FloatProcessor(4, 3);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> Fht.swapQuadrants(fp4));
+    final FloatProcessor fp5 = new FloatProcessor(3, 4);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> Fht.swapQuadrants(fp5));
+    final FloatProcessor fp6 = new FloatProcessor(3, 3);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> Fht.swapQuadrants(fp6));
+  }
+
+  @Test
+  public void canGetComplexTransform() {
+    final int size = 16;
+    final FloatProcessor fp1 = createProcessor(size, 5, 7, 4, 6);
+    final FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
+
+    final FHT fht1 = new FHT(fp1);
+    final Fht fht2 = new Fht(fp2);
+
+    Assertions.assertThrows(IllegalArgumentException.class, () -> fht2.getComplexTransform());
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> fht2.getComplexTransformProcessors());
+
+    fht1.transform();
+    fht2.transform();
+
+    ImageStack stack1 = fht1.getComplexTransform();
+    ImageStack stack2 = fht2.getComplexTransform();
+
+    Assertions.assertArrayEquals(stack1.getImageArray(), stack2.getImageArray());
+
+    FloatProcessor[] processors = fht2.getComplexTransformProcessors();
+
+    for (int i = 0; i < 2; i++) {
+      Assertions.assertArrayEquals((float[]) stack1.getPixels(i + 1),
+          (float[]) processors[i].getPixels());
+    }
+  }
+
+  @Test
+  public void canCopy() {
+    final int size = 16;
+    final FloatProcessor fp = createProcessor(size, 5, 7, 4, 6);
+    final Fht fht1 = new Fht(fp);
+    final Fht fht2 = fht1.getCopy();
+    Assertions.assertArrayEquals((float[]) fht1.getPixels(), (float[]) fht2.getPixels());
+  }
+
+  @Test
+  public void testToString() {
+    final int size = 4;
+    final FloatProcessor fp = new FloatProcessor(size, size);
+    final Fht fht = new Fht(fp);
+    String text = fht.toString();
+    Assertions.assertTrue(text.contains(Integer.toString(size)));
+    Assertions.assertTrue(text.contains(Boolean.FALSE.toString()));
+    Assertions.assertFalse(text.contains(Boolean.TRUE.toString()));
+    fht.transform();
+    text = fht.toString();
+    Assertions.assertFalse(text.contains(Boolean.FALSE.toString()));
+    Assertions.assertTrue(text.contains(Boolean.TRUE.toString()));
   }
 }

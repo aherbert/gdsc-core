@@ -149,9 +149,9 @@ public class Fht extends FloatProcessor {
   }
 
   private void initializeTables(int maxN) {
-    if (maxN > 0x40000000) {
-      throw new IllegalArgumentException("Too large for FHT:  " + maxN + " >2^30");
-    }
+    // Assume that maxN <= 2^30.
+    // The constructor checks the input is a power of size 2 and square. Since this is stored
+    // in a single array the size must be less than sqrt(2^31 - 1).
     makeSinCosTables(maxN);
     makeBitReverseTable(maxN);
     tempArr = new float[maxN];
@@ -437,37 +437,7 @@ public class Fht extends FloatProcessor {
   }
 
   /**
-   * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor so the power spectrum origin
-   * is at the center of the image.
-   *
-   * <pre>
-   *    2 1
-   *    3 4
-   * </pre>
-   *
-   * @param ip the image
-   */
-  public void swapQuadrants(ImageProcessor ip) {
-    ImageProcessor t1;
-    ImageProcessor t2;
-    final int size = ip.getWidth() / 2;
-    ip.setRoi(size, 0, size, size);
-    t1 = ip.crop();
-    ip.setRoi(0, size, size, size);
-    t2 = ip.crop();
-    ip.insert(t1, 0, size);
-    ip.insert(t2, size, 0);
-    ip.setRoi(0, 0, size, size);
-    t1 = ip.crop();
-    ip.setRoi(size, size, size, size);
-    t2 = ip.crop();
-    ip.insert(t1, size, size);
-    ip.insert(t2, 0, 0);
-    ip.resetRoi();
-  }
-
-  /**
-   * Swap quadrants 1 and 3 and 2 and 4 of image so the power spectrum origin is at the center of
+   * Swap quadrants 1 and 3 and 2 and 4 of image so the power spectrum origin is at the centre of
    * the image.
    *
    * <pre>
@@ -482,14 +452,14 @@ public class Fht extends FloatProcessor {
 
   /**
    * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor so the power spectrum origin
-   * is at the center of the image.
+   * is at the centre of the image.
    *
    * <pre>
    *   2 1
    *   3 4
    * </pre>
    *
-   * @param ip The processor (must be an even square, i.e. width==height and width is even)
+   * @param ip The processor (must be an even rectangle, i.e. width and height are even)
    * @throws IllegalArgumentException If not even dimensions
    */
   public static void swapQuadrants(FloatProcessor ip) {
@@ -498,7 +468,8 @@ public class Fht extends FloatProcessor {
 
     final int ny = ip.getHeight();
     final int nx = ip.getWidth();
-    if ((ny & 1) == 1 || (nx & 1) == 1) {
+    // Bitwise OR to combine bits and then check for odd
+    if (((nx | ny) & 1) == 1) {
       throw new IllegalArgumentException("Require even dimensions");
     }
 
@@ -511,9 +482,9 @@ public class Fht extends FloatProcessor {
     //@formatter:off
     // We swap: 0 <=> nx_2, 0 <=> ny_2
     // 1 <=> 3
-    Fht.swap(a, a, nx, nxOver2,    0,    0, nyOver2, nxOver2, nyOver2, tmp);
+    Fht.swap(a, a, nx, nxOver2,    0,       0, nyOver2, nxOver2, nyOver2, tmp);
     // 2 <=> 4
-    Fht.swap(a, a, nx,    0,    0, nxOver2, nyOver2, nxOver2, nyOver2, tmp);
+    Fht.swap(a, a, nx,       0,    0, nxOver2, nyOver2, nxOver2, nyOver2, tmp);
     //@formatter:on
   }
 
