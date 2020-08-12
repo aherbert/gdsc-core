@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.ij.process;
 
 import ij.process.LUT;
 import java.awt.Color;
-import uk.ac.sussex.gdsc.core.data.DataException;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
@@ -652,11 +651,18 @@ public final class LutHelper {
     return index;
   }
 
+  /**
+   * Create the LUT from RGB values. There must be 256 values in the input arrays.
+   *
+   * @param reds the reds
+   * @param greens the greens
+   * @param blues the blues
+   * @param values the values
+   * @param includeBlack if true set the first index to black
+   * @return the lut
+   */
   private static LUT fromRgbValues(byte[] reds, byte[] greens, byte[] blues, int[][] values,
       boolean includeBlack) {
-    if (values.length != LUT_TABLE_8BIT_SIZE) {
-      throw new DataException("The LUT colours must have 256 values");
-    }
     for (int i = (includeBlack) ? 1 : 0; i < 256; i++) {
       final int[] rgb = values[i];
       reds[i] = (byte) (rgb[0] & 255);
@@ -723,9 +729,11 @@ public final class LutHelper {
     }
 
     // Bug fix
-    // ij.plugin.LutLoader used numberOfColours / 256.0
-    // This made all the colours from 128-255 the same for 2 colour interpolation as i1==i2
-    final double scale = (double) (numberOfColours - 1) / total;
+    // ij.plugin.LutLoader used (numberOfColours / 256.0).
+    // This made all the colours from 128-255 the same for 2 colour interpolation as i1==i2.
+    // Here we interpolate linearly from min index to max index so that the full colour
+    // is only used at the first/last index.
+    final double scale = (double) (numberOfColours - 1) / (total - 1);
     for (int i = 0; i < total; i++, index++) {
       final int i1 = (int) (i * scale);
       int i2 = i1 + 1;
