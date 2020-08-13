@@ -564,7 +564,7 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary of N is ignored as potential
+   * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
    * maxima.
    *
    * @param data The input data (packed in YX order)
@@ -615,7 +615,7 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary is ignored as potential maxima.
+   * Compute the local-maxima within a 2n+1 block. An inner boundary is ignored as potential maxima.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1033,9 +1033,9 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1).
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=0; i&lt;maxx; i+=n+1) x (j=0, j&lt;maxy; j+=n+1)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1089,10 +1089,11 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner
+   * border boundary is ignored as potential maxima.
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n)
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=border; i&lt;maxx-border; i+=n+1) x (j=border,
+   * j&lt;maxy-border; j+=n+1)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1114,8 +1115,8 @@ public class NonMaximumSuppression {
       return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
-    // The final index in each dimension (where an incomplete block is found).
-    // This equals maxx/maxy if the number of blocks fits exactly.
+    // The final index in each dimension (where a block may overlap the upper border).
+    // This equals (maxx-border) or (maxy-border) if the blocks fit exactly within the border.
     final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
     final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
@@ -1126,8 +1127,8 @@ public class NonMaximumSuppression {
       for (int x = border; x < maxx - border; x += n1) {
 
         // Find the sweep size in each direction
-        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
-        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
+        final int xsize = Math.min(n1, maxx - x);
+        int ysize = Math.min(n1, maxy - y);
 
         int index = y * maxx + x;
         int maxIndex = index;
@@ -1142,6 +1143,12 @@ public class NonMaximumSuppression {
             index++;
           }
           index += maxx - xsize;
+        }
+
+        // Ignore maxima not inside the border
+        if ((x == xfinal && maxIndex % maxx >= maxx - border)
+            || (y == yfinal && maxIndex / maxx >= maxy - border)) {
+          continue;
         }
 
         maxima[block++] = maxIndex;
@@ -1235,9 +1242,9 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1).
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=0; i&lt;maxx; i+=n+1) x (j=0, j&lt;maxy; j+=n+1)
    *
    * <p>If multiple indices within the block have the same value then all are returned.
    *
@@ -1296,10 +1303,11 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner
+   * border boundary is ignored as potential maxima.
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n).
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=border; i&lt;maxx-border; i+=n+1) x (j=border,
+   * j&lt;maxy-border; j+=n+1)
    *
    * <p>If multiple indices within the block have the same value then all are returned.
    *
@@ -1324,8 +1332,8 @@ public class NonMaximumSuppression {
       return new int[0][0];
     }
 
-    // The final index in each dimension (where an incomplete block is found).
-    // This equals maxx/maxy if the number of blocks fits exactly.
+    // The final index in each dimension (where a block may overlap the upper border).
+    // This equals (maxx-border) or (maxy-border) if the blocks fit exactly within the border.
     final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
     final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
@@ -1336,8 +1344,8 @@ public class NonMaximumSuppression {
     for (int y = border; y < maxy - border; y += n1) {
       for (int x = border; x < maxx - border; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
-        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
+        final int xsize = Math.min(n1, maxx - x);
+        int ysize = Math.min(n1, maxy - y);
 
         int index = y * maxx + x;
         float max = floatMin();
@@ -1354,6 +1362,14 @@ public class NonMaximumSuppression {
             index++;
           }
           index += maxx - xsize;
+        }
+
+        // Ignore maxima not inside the border
+        if (x == xfinal) {
+          list.removeIf(i -> i % maxx >= maxx - border);
+        }
+        if (y == yfinal) {
+          list.removeIf(i -> i / maxx >= maxy - border);
         }
 
         maxima[block++] = list.toArray();
@@ -1850,7 +1866,7 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary of N is ignored as potential
+   * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
    * maxima.
    *
    * @param data The input data (packed in YX order)
@@ -1901,7 +1917,7 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary is ignored as potential maxima.
+   * Compute the local-maxima within a 2n+1 block. An inner boundary is ignored as potential maxima.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2320,9 +2336,9 @@ public class NonMaximumSuppression {
 
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1).
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=0; i&lt;maxx; i+=n+1) x (j=0, j&lt;maxy; j+=n+1)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2376,10 +2392,11 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner
+   * border boundary is ignored as potential maxima.
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n)
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=border; i&lt;maxx-border; i+=n+1) x (j=border,
+   * j&lt;maxy-border; j+=n+1)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2401,8 +2418,8 @@ public class NonMaximumSuppression {
       return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
-    // The final index in each dimension (where an incomplete block is found).
-    // This equals maxx/maxy if the number of blocks fits exactly.
+    // The final index in each dimension (where a block may overlap the upper border).
+    // This equals (maxx-border) or (maxy-border) if the blocks fit exactly within the border.
     final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
     final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
@@ -2413,8 +2430,8 @@ public class NonMaximumSuppression {
       for (int x = border; x < maxx - border; x += n1) {
 
         // Find the sweep size in each direction
-        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
-        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
+        final int xsize = Math.min(n1, maxx - x);
+        int ysize = Math.min(n1, maxy - y);
 
         int index = y * maxx + x;
         int maxIndex = index;
@@ -2429,6 +2446,12 @@ public class NonMaximumSuppression {
             index++;
           }
           index += maxx - xsize;
+        }
+
+        // Ignore maxima not inside the border
+        if ((x == xfinal && maxIndex % maxx >= maxx - border)
+            || (y == yfinal && maxIndex / maxx >= maxy - border)) {
+          continue;
         }
 
         maxima[block++] = maxIndex;
@@ -2522,9 +2545,9 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1).
    *
-   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=0; i&lt;maxx; i+=n+1) x (j=0, j&lt;maxy; j+=n+1)
    *
    * <p>If multiple indices within the block have the same value then all are returned.
    *
@@ -2611,8 +2634,8 @@ public class NonMaximumSuppression {
       return new int[0][0];
     }
 
-    // The final index in each dimension (where an incomplete block is found).
-    // This equals maxx/maxy if the number of blocks fits exactly.
+    // The final index in each dimension (where a block may overlap the upper border).
+    // This equals (maxx-border) or (maxy-border) if the blocks fit exactly within the border.
     final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
     final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
@@ -2623,8 +2646,8 @@ public class NonMaximumSuppression {
     for (int y = border; y < maxy - border; y += n1) {
       for (int x = border; x < maxx - border; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
-        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
+        final int xsize = Math.min(n1, maxx - x);
+        int ysize = Math.min(n1, maxy - y);
 
         int index = y * maxx + x;
         int max = intMin();
@@ -2641,6 +2664,14 @@ public class NonMaximumSuppression {
             index++;
           }
           index += maxx - xsize;
+        }
+
+        // Ignore maxima not inside the border
+        if (x == xfinal) {
+          list.removeIf(i -> i % maxx >= maxx - border);
+        }
+        if (y == yfinal) {
+          list.removeIf(i -> i / maxx >= maxy - border);
         }
 
         maxima[block++] = list.toArray();

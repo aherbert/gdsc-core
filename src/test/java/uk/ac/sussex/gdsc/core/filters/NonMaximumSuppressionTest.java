@@ -28,11 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.filters;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.PointRoi;
 import ij.process.FloatProcessor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -41,12 +43,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.filters.NonMaximumSuppression.FloatScanCandidate;
+import uk.ac.sussex.gdsc.core.filters.NonMaximumSuppression.IntScanCandidate;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
+import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.HexUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -78,10 +84,129 @@ public class NonMaximumSuppressionTest {
   int[] smallPrimes = new int[] {17};
   int[] boxSizes = new int[] {9, 5, 3, 2, 1};
   // int[] boxSizes = new int[] { 2, 3, 5, 9, 15 };
-
   // int[] boxSizes = new int[] { 1 };
 
+  int[] borderSizes = new int[] {9, 5, 3, 2, 1, 0};
+
+  final int[] sizes2x2 = {2, 3, 6, 9};
+  final int[] modulus2x2 = {3, 5, Integer.MAX_VALUE};
+
+  /**
+   * Flatten the data to a single array and sort.
+   *
+   * @param data the data
+   * @return the sorted data
+   */
+  private static int[] flattenAndSort(int[][] data) {
+    return Arrays.stream(data).flatMapToInt(Arrays::stream).sorted().toArray();
+  }
+
+  @Test
+  public void testCopy() {
+    final boolean[] flags = {true, false};
+    for (final boolean f1 : flags) {
+      for (final boolean f2 : flags) {
+        final NonMaximumSuppression nms = new NonMaximumSuppression();
+        nms.setDataBuffer(f1);
+        nms.setNeighbourCheck(f2);
+        final NonMaximumSuppression nms2 = nms.copy();
+        Assertions.assertEquals(f1, nms2.isBufferData());
+        Assertions.assertEquals(f2, nms2.isNeighbourCheck());
+      }
+    }
+  }
+
+  @Test
+  public void testGetResultBuffer() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    Assertions.assertTrue(nms.isBufferData());
+    IntFixedList f1 = nms.getResultsBuffer(10);
+    Assertions.assertTrue(f1.capacity() >= 10);
+    Assertions.assertEquals(0, f1.size());
+    IntFixedList f2 = nms.getResultsBuffer(10);
+    Assertions.assertSame(f1, f2);
+    f1.add(42);
+    f2 = nms.getResultsBuffer(10);
+    Assertions.assertEquals(0, f2.size());
+    f1 = nms.getResultsBuffer(20);
+    Assertions.assertTrue(f1.capacity() >= 20);
+    Assertions.assertEquals(0, f1.size());
+    f2 = nms.getResultsBuffer(10);
+    Assertions.assertSame(f1, f2);
+
+    nms.setDataBuffer(false);
+    f2 = nms.getResultsBuffer(10);
+    Assertions.assertNotSame(f1, f2);
+    Assertions.assertTrue(f2.capacity() >= 10);
+    Assertions.assertEquals(0, f2.size());
+  }
+
+  @Test
+  public void testGetFlagBuffer() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    Assertions.assertTrue(nms.isBufferData());
+    boolean[] f1 = nms.getFlagBuffer(10);
+    Assertions.assertTrue(f1.length >= 10);
+    boolean[] f2 = nms.getFlagBuffer(10);
+    Assertions.assertSame(f1, f2);
+    f1[3] = true;
+    f2 = nms.getFlagBuffer(10);
+    Assertions.assertFalse(f2[3]);
+    f1 = nms.getFlagBuffer(20);
+    Assertions.assertTrue(f1.length >= 20);
+    f2 = nms.getFlagBuffer(10);
+    Assertions.assertSame(f1, f2);
+
+    nms.setDataBuffer(false);
+    f2 = nms.getFlagBuffer(10);
+    Assertions.assertNotSame(f1, f2);
+    Assertions.assertTrue(f2.length >= 10);
+  }
+
+  @Test
+  public void testTruncateIntArray() {
+    final int[] data = {0, 1, 2};
+    for (int length = 0; length <= data.length; length++) {
+      Assertions.assertArrayEquals(Arrays.copyOf(data, length),
+          NonMaximumSuppression.truncate(data, length));
+    }
+  }
+
+  @Test
+  public void testTruncateIntIntArray() {
+    final int[][] data = {{0, 1, 2}, {3}, {4, 5}};
+    for (int length = 0; length <= data.length; length++) {
+      Assertions.assertArrayEquals(Arrays.copyOf(data, length),
+          NonMaximumSuppression.truncate(data, length));
+    }
+  }
+
   // XXX: Copy from here..
+  @Test
+  public void floatTestScanCandidate() {
+    final FloatScanCandidate candidates = new FloatScanCandidate();
+    final float[] data = {0, 1, 2, 3, 4, 4, 5};
+    final int[] scan1 = null;
+    final int[] scan2 = null;
+    final int[] scan3 = null;
+    final int[] scan4 = null;
+    candidates.add(data, 1, scan1);
+    Assertions.assertEquals(1, candidates.size());
+    Assertions.assertEquals(1, candidates.getMaxIndex(0));
+    Assertions.assertSame(scan1, candidates.getScan(0));
+    candidates.add(data, 4, scan2);
+    candidates.add(data, 5, scan3);
+    Assertions.assertEquals(2, candidates.size());
+    Assertions.assertEquals(4, candidates.getMaxIndex(0));
+    Assertions.assertEquals(5, candidates.getMaxIndex(1));
+    Assertions.assertSame(scan2, candidates.getScan(0));
+    Assertions.assertSame(scan3, candidates.getScan(1));
+    candidates.add(data, 6, scan4);
+    Assertions.assertEquals(1, candidates.size());
+    Assertions.assertEquals(6, candidates.getMaxIndex(0));
+    Assertions.assertSame(scan4, candidates.getScan(0));
+  }
+
   @SeededTest
   public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -187,38 +312,152 @@ public class NonMaximumSuppressionTest {
         .getSupplier("%s: Indices do not match: [%dx%d] @ %d", name, width, height, boxSize));
   }
 
-  private static void floatCompareIndices(int width, int height, float[] data, int boxSize,
-      int[] indices1, int[] indices2) {
-    logger.info(FunctionUtils.getSupplier("float [%dx%d@%d] i1 = %d; int i2 =  %d", width, height,
-        boxSize, indices1.length, indices2.length));
-    int i1 = 0;
-    int i2 = 0;
-    boolean match = true;
-    while (i1 < indices1.length || i2 < indices2.length) {
-      final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
-      final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+  @SeededTest
+  public void floatBlockFindInternalAndMaxFindInternalReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-      if (i == j) {
-        logger.info(FunctionUtils.getSupplier("float   [%d,%d] = [%d,%d]", i % width, i / width,
-            j % width, j / width));
-        i1++;
-        i2++;
-      } else if (i < j) {
-        logger.info(FunctionUtils.getSupplier("float   [%d,%d] : -", i % width, i / width));
-        i1++;
-        match = false;
-      } else if (i > j) {
-        logger.info(FunctionUtils.getSupplier("float   - : [%d,%d]", j % width, j / width));
-        i2++;
-        match = false;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          for (final int border : borderSizes) {
+            floatCompareBlockFindInternalToMaxFindInternal(rg, nms, width, height, boxSize, border);
+          }
+        }
       }
     }
-    if (match) {
+  }
+
+  @SeededTest
+  public void floatBlockFindInternalReturnSameResultWithNeighbourCheck(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          for (final int border : borderSizes) {
+            floatCompareBlockFindInternalWithNeighbourCheck(rg, nms, width, height, boxSize,
+                border);
+          }
+        }
+      }
+    }
+  }
+
+  private static void floatCompareBlockFindInternalWithNeighbourCheck(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height, int boxSize, int border) {
+    // Random data
+    final float[] data = floatCreateData(rg, width, height);
+    nms.setNeighbourCheck(false);
+    final int[] blockIndices1 = nms.blockFindNxNInternal(data, width, height, boxSize, border);
+    nms.setNeighbourCheck(true);
+    final int[] blockIndices2 = nms.blockFindNxNInternal(data, width, height, boxSize, border);
+
+    Assertions.assertArrayEquals(blockIndices1, blockIndices2,
+        FunctionUtils.getSupplier("Indices do not match: [%dx%d] @ %d", width, height, boxSize));
+  }
+
+  @Test
+  public void
+      floatBlockFindInternalAndMaxFindInternalReturnSameResultOnPatternDataWithNeighbourCheck() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setNeighbourCheck(true);
+
+    for (final int width : smallPrimes) {
+      for (final int height : smallPrimes) {
+        for (final int boxSize : boxSizes) {
+          for (final int border : borderSizes) {
+            floatCompareBlockFindInternalToMaxFindInternalWithPatternData(nms, width, height,
+                boxSize, border);
+          }
+        }
+      }
+    }
+  }
+
+  private void floatCompareBlockFindInternalToMaxFindInternalWithPatternData(
+      NonMaximumSuppression nms, int width, int height, int boxSize, int border) {
+    // This fails when N=2. Pattern data is problematic given the block find algorithm processes the
+    // pixels in a different order from a linear run across the yx order data. So when the pattern
+    // produces a max pixel within the range of all candidates on the top row of the block, the
+    // block algorithm will output a maxima from a subsequent row. Standard processing will just
+    // move further along the row (beyond the block boundary) to find the next maxima.
+    if (boxSize <= 2) {
       return;
     }
-    // Show image
-    floatShowImage(width, height, data, indices1, "i1");
-    floatShowImage(width, height, data, indices2, "i2");
+
+    // Pattern data
+    floatCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        floatCreatePatternData(width, height, 1, 0, 0, 0), "Pattern1000");
+    floatCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        floatCreatePatternData(width, height, 1, 0, 1, 0), "Pattern1010");
+    floatCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        floatCreatePatternData(width, height, 1, 0, 0, 1), "Pattern1001");
+    floatCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        floatCreatePatternData(width, height, 1, 1, 1, 0), "Pattern1110");
+  }
+
+  private void floatCompareBlockFindInternalToMaxFindInternal(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height, int boxSize, int border) {
+    floatCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        floatCreateData(rg, width, height), "Random");
+
+    // Empty data
+    floatCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        new float[width * height], "Empty");
+  }
+
+  private void floatCompareBlockFindInternalToMaxFindInternal(NonMaximumSuppression nms, int width,
+      int height, int boxSize, int border, float[] data, String name) {
+    final int[] blockIndices = nms.blockFindNxNInternal(data, width, height, boxSize, border);
+    final int[] maxIndices = nms.maxFindInternal(data, width, height, boxSize, border);
+
+    Arrays.sort(blockIndices);
+    Arrays.sort(maxIndices);
+
+    if (debug) {
+      floatCompareIndices(width, height, data, boxSize, blockIndices, maxIndices);
+    }
+
+    Assertions.assertArrayEquals(maxIndices, blockIndices, FunctionUtils.getSupplier(
+        "%s: Indices do not match: [%dx%d] @ %d (%d)", name, width, height, boxSize, border));
+  }
+
+  private static void floatCompareIndices(int width, int height, float[] data, int boxSize,
+      int[] indices1, int[] indices2) {
+    if (logger.isLoggable(Level.INFO)) {
+      final StringBuilder sb = new StringBuilder();
+      try (Formatter formatter = new Formatter(sb)) {
+        formatter.format("float [%dx%d@%d] i1 = %d; int i2 =  %d%n", width, height, boxSize,
+            indices1.length, indices2.length);
+        int i1 = 0;
+        int i2 = 0;
+        while (i1 < indices1.length || i2 < indices2.length) {
+          final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
+          final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+
+          if (i == j) {
+            formatter.format("float   [%d,%d] = [%d,%d]%n", i % width, i / width, j % width,
+                j / width);
+            i1++;
+            i2++;
+          } else if (i < j) {
+            formatter.format("float   [%d,%d] : -%n", i % width, i / width);
+            i1++;
+          } else if (i > j) {
+            formatter.format("float   - : [%d,%d]%n", j % width, j / width);
+            i2++;
+          }
+        }
+      }
+      logger.info(sb.toString());
+    }
+    if (!Arrays.equals(indices1, indices2)) {
+      // Show image
+      floatShowImage(width, height, data, indices1, "i1");
+      floatShowImage(width, height, data, indices2, "i2");
+    }
   }
 
   private static void floatShowImage(int width, int height, float[] data, int[] indices,
@@ -237,6 +476,88 @@ public class NonMaximumSuppressionTest {
     for (int i = 7; i-- > 0;) {
       imp.getWindow().getCanvas().zoomIn(0, 0);
     }
+    IJ.save(imp, "/tmp/" + title + ".tif");
+  }
+
+  @Test
+  public void floatFindBlockMaximaNxNInternalWithNoBlocks() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final float[] data = new float[12];
+    Assertions.assertArrayEquals(new int[0], nms.findBlockMaximaNxNInternal(data, 12, 1, 2, 10));
+    Assertions.assertArrayEquals(new int[0], nms.findBlockMaximaNxNInternal(data, 1, 12, 2, 10));
+  }
+
+  @Test
+  public void floatFindBlockMaximaCandidatesNxNInternalWithNoBlocks() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final float[] data = new float[12];
+    Assertions.assertArrayEquals(new int[0][0],
+        nms.findBlockMaximaCandidatesNxNInternal(data, 12, 1, 2, 10));
+    Assertions.assertArrayEquals(new int[0][0],
+        nms.findBlockMaximaCandidatesNxNInternal(data, 1, 12, 2, 10));
+  }
+
+  @SeededTest
+  public void floatFindBlockMaxima(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final float[] data = floatCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.findBlockMaxima2x2(data, width, height),
+        nms.findBlockMaxima(data, width, height, 1));
+    Assertions.assertArrayEquals(nms.findBlockMaximaNxN(data, width, height, 2),
+        nms.findBlockMaxima(data, width, height, 2));
+  }
+
+  @SeededTest
+  public void floatFindBlockMaximaCandidates(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final float[] data = floatCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.findBlockMaximaCandidates2x2(data, width, height),
+        nms.findBlockMaximaCandidates(data, width, height, 1));
+    Assertions.assertArrayEquals(nms.findBlockMaximaCandidatesNxN(data, width, height, 2),
+        nms.findBlockMaximaCandidates(data, width, height, 2));
+  }
+
+  @SeededTest
+  public void floatBlockFind(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final float[] data = floatCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.blockFind3x3(data, width, height),
+        nms.blockFind(data, width, height, 1));
+    Assertions.assertArrayEquals(nms.blockFindNxN(data, width, height, 2),
+        nms.blockFind(data, width, height, 2));
+  }
+
+  @SeededTest
+  public void floatBlockFindInternal(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final float[] data = floatCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.blockFind3x3Internal(data, width, height, 1),
+        nms.blockFindInternal(data, width, height, 1, 1));
+    Assertions.assertArrayEquals(nms.blockFindNxNInternal(data, width, height, 2, 1),
+        nms.blockFindInternal(data, width, height, 2, 1));
+  }
+
+  @SeededTest
+  public void floatBlockFind3x3InternalWithNoBorder(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 5;
+    final float[] data = floatCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.blockFind3x3(data, width, height),
+        nms.blockFind3x3Internal(data, width, height, 0));
   }
 
   @SeededTest
@@ -258,15 +579,19 @@ public class NonMaximumSuppressionTest {
           nms.setNeighbourCheck(b);
           final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
           final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
+          final int[] blockIndices = nms.blockFind(data, width, height, 1);
 
           Arrays.sort(blockNxNIndices);
           Arrays.sort(block3x3Indices);
+          Arrays.sort(blockIndices);
 
           if (debug) {
             floatCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
           }
 
           Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
+          Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
               FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
         }
       }
@@ -292,9 +617,11 @@ public class NonMaximumSuppressionTest {
           nms.setNeighbourCheck(b);
           final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
           final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
+          final int[] blockIndices = nms.blockFindInternal(data, width, height, 1, 1);
 
           Arrays.sort(blockNxNIndices);
           Arrays.sort(block3x3Indices);
+          Arrays.sort(blockIndices);
 
           if (debug) {
             floatCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
@@ -302,6 +629,37 @@ public class NonMaximumSuppressionTest {
 
           Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
               FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
+          Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
+        }
+      }
+    }
+  }
+
+  @SeededTest
+  public void floatFindBlockMaximaCandidatesNxNAndFindBlockMaximaCandidates2x2ReturnSameResult(
+      RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : sizes2x2) {
+      for (final int height : sizes2x2) {
+        for (final int mod : modulus2x2) {
+          final float[] data = floatCreateRepeatData(rg, width, height, mod);
+
+          final int[][] blockNxNIndices = nms.findBlockMaximaCandidatesNxN(data, width, height, 1);
+          final int[][] block2x2Indices = nms.findBlockMaximaCandidates2x2(data, width, height);
+          final int[][] blockIndices = nms.findBlockMaximaCandidates(data, width, height, 1);
+
+          flattenAndSort(blockNxNIndices);
+          flattenAndSort(block2x2Indices);
+          flattenAndSort(blockIndices);
+
+          Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d]", width, height));
+          Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d]", width, height));
         }
       }
     }
@@ -899,18 +1257,34 @@ public class NonMaximumSuppressionTest {
 
     final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
     final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+    final int[] blockIndices = nms.findBlockMaxima(data, width, height, 1);
 
     Arrays.sort(blockNxNIndices);
     Arrays.sort(block2x2Indices);
+    Arrays.sort(blockIndices);
 
     Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
         FunctionUtils.getSupplier("Block vs 2x2 do not match: [%dx%d]", width, height));
+    Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
+        FunctionUtils.getSupplier("Block vs default do not match: [%dx%d]", width, height));
   }
 
   private static float[] floatCreateData(UniformRandomProvider rg, int width, int height) {
     final float[] data = new float[width * height];
     for (int i = data.length; i-- > 0;) {
       data[i] = i;
+    }
+
+    RandomUtils.shuffle(data, rg);
+
+    return data;
+  }
+
+  private static float[] floatCreateRepeatData(UniformRandomProvider rg, int width, int height,
+      int modulus) {
+    final float[] data = new float[width * height];
+    for (int i = data.length; i-- > 0;) {
+      data[i] = i % modulus;
     }
 
     RandomUtils.shuffle(data, rg);
@@ -939,6 +1313,31 @@ public class NonMaximumSuppressionTest {
   }
 
   // XXX: Copy methods up to here for 'int' versions
+  @Test
+  public void intTestScanCandidate() {
+    final IntScanCandidate candidates = new IntScanCandidate();
+    final int[] data = {0, 1, 2, 3, 4, 4, 5};
+    final int[] scan1 = null;
+    final int[] scan2 = null;
+    final int[] scan3 = null;
+    final int[] scan4 = null;
+    candidates.add(data, 1, scan1);
+    Assertions.assertEquals(1, candidates.size());
+    Assertions.assertEquals(1, candidates.getMaxIndex(0));
+    Assertions.assertSame(scan1, candidates.getScan(0));
+    candidates.add(data, 4, scan2);
+    candidates.add(data, 5, scan3);
+    Assertions.assertEquals(2, candidates.size());
+    Assertions.assertEquals(4, candidates.getMaxIndex(0));
+    Assertions.assertEquals(5, candidates.getMaxIndex(1));
+    Assertions.assertSame(scan2, candidates.getScan(0));
+    Assertions.assertSame(scan3, candidates.getScan(1));
+    candidates.add(data, 6, scan4);
+    Assertions.assertEquals(1, candidates.size());
+    Assertions.assertEquals(6, candidates.getMaxIndex(0));
+    Assertions.assertSame(scan4, candidates.getScan(0));
+  }
+
   @SeededTest
   public void intBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -1044,38 +1443,151 @@ public class NonMaximumSuppressionTest {
         .getSupplier("%s: Indices do not match: [%dx%d] @ %d", name, width, height, boxSize));
   }
 
-  private static void intCompareIndices(int width, int height, int[] data, int boxSize,
-      int[] indices1, int[] indices2) {
-    logger.info(FunctionUtils.getSupplier("int [%dx%d@%d] i1 = %d; int i2 =  %d", width, height,
-        boxSize, indices1.length, indices2.length));
-    int i1 = 0;
-    int i2 = 0;
-    boolean match = true;
-    while (i1 < indices1.length || i2 < indices2.length) {
-      final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
-      final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+  @SeededTest
+  public void intBlockFindInternalAndMaxFindInternalReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-      if (i == j) {
-        logger.info(FunctionUtils.getSupplier("int   [%d,%d] = [%d,%d]", i % width, i / width,
-            j % width, j / width));
-        i1++;
-        i2++;
-      } else if (i < j) {
-        logger.info(FunctionUtils.getSupplier("int   [%d,%d] : -", i % width, i / width));
-        i1++;
-        match = false;
-      } else if (i > j) {
-        logger.info(FunctionUtils.getSupplier("int   - : [%d,%d]", j % width, j / width));
-        i2++;
-        match = false;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          for (final int border : borderSizes) {
+            intCompareBlockFindInternalToMaxFindInternal(rg, nms, width, height, boxSize, border);
+          }
+        }
       }
     }
-    if (match) {
+  }
+
+  @SeededTest
+  public void intBlockFindInternalReturnSameResultWithNeighbourCheck(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          for (final int border : borderSizes) {
+            intCompareBlockFindInternalWithNeighbourCheck(rg, nms, width, height, boxSize, border);
+          }
+        }
+      }
+    }
+  }
+
+  private static void intCompareBlockFindInternalWithNeighbourCheck(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height, int boxSize, int border) {
+    // Random data
+    final int[] data = intCreateData(rg, width, height);
+    nms.setNeighbourCheck(false);
+    final int[] blockIndices1 = nms.blockFindNxNInternal(data, width, height, boxSize, border);
+    nms.setNeighbourCheck(true);
+    final int[] blockIndices2 = nms.blockFindNxNInternal(data, width, height, boxSize, border);
+
+    Assertions.assertArrayEquals(blockIndices1, blockIndices2,
+        FunctionUtils.getSupplier("Indices do not match: [%dx%d] @ %d", width, height, boxSize));
+  }
+
+  @Test
+  public void
+      intBlockFindInternalAndMaxFindInternalReturnSameResultOnPatternDataWithNeighbourCheck() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setNeighbourCheck(true);
+
+    for (final int width : smallPrimes) {
+      for (final int height : smallPrimes) {
+        for (final int boxSize : boxSizes) {
+          for (final int border : borderSizes) {
+            intCompareBlockFindInternalToMaxFindInternalWithPatternData(nms, width, height, boxSize,
+                border);
+          }
+        }
+      }
+    }
+  }
+
+  private void intCompareBlockFindInternalToMaxFindInternalWithPatternData(
+      NonMaximumSuppression nms, int width, int height, int boxSize, int border) {
+    // This fails when N=2. Pattern data is problematic given the block find algorithm processes the
+    // pixels in a different order from a linear run across the yx order data. So when the pattern
+    // produces a max pixel within the range of all candidates on the top row of the block, the
+    // block algorithm will output a maxima from a subsequent row. Standard processing will just
+    // move further along the row (beyond the block boundary) to find the next maxima.
+    if (boxSize <= 2) {
       return;
     }
-    // Show image
-    intShowImage(width, height, data, indices1, "i1");
-    intShowImage(width, height, data, indices2, "i2");
+
+    // Pattern data
+    intCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        intCreatePatternData(width, height, 1, 0, 0, 0), "Pattern1000");
+    intCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        intCreatePatternData(width, height, 1, 0, 1, 0), "Pattern1010");
+    intCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        intCreatePatternData(width, height, 1, 0, 0, 1), "Pattern1001");
+    intCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        intCreatePatternData(width, height, 1, 1, 1, 0), "Pattern1110");
+  }
+
+  private void intCompareBlockFindInternalToMaxFindInternal(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height, int boxSize, int border) {
+    intCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        intCreateData(rg, width, height), "Random");
+
+    // Empty data
+    intCompareBlockFindInternalToMaxFindInternal(nms, width, height, boxSize, border,
+        new int[width * height], "Empty");
+  }
+
+  private void intCompareBlockFindInternalToMaxFindInternal(NonMaximumSuppression nms, int width,
+      int height, int boxSize, int border, int[] data, String name) {
+    final int[] blockIndices = nms.blockFindNxNInternal(data, width, height, boxSize, border);
+    final int[] maxIndices = nms.maxFindInternal(data, width, height, boxSize, border);
+
+    Arrays.sort(blockIndices);
+    Arrays.sort(maxIndices);
+
+    if (debug) {
+      intCompareIndices(width, height, data, boxSize, blockIndices, maxIndices);
+    }
+
+    Assertions.assertArrayEquals(maxIndices, blockIndices, FunctionUtils.getSupplier(
+        "%s: Indices do not match: [%dx%d] @ %d (%d)", name, width, height, boxSize, border));
+  }
+
+  private static void intCompareIndices(int width, int height, int[] data, int boxSize,
+      int[] indices1, int[] indices2) {
+    if (logger.isLoggable(Level.INFO)) {
+      final StringBuilder sb = new StringBuilder();
+      try (Formatter formatter = new Formatter(sb)) {
+        formatter.format("int [%dx%d@%d] i1 = %d; int i2 =  %d%n", width, height, boxSize,
+            indices1.length, indices2.length);
+        int i1 = 0;
+        int i2 = 0;
+        while (i1 < indices1.length || i2 < indices2.length) {
+          final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
+          final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+
+          if (i == j) {
+            formatter.format("int   [%d,%d] = [%d,%d]%n", i % width, i / width, j % width,
+                j / width);
+            i1++;
+            i2++;
+          } else if (i < j) {
+            formatter.format("int   [%d,%d] : -%n", i % width, i / width);
+            i1++;
+          } else if (i > j) {
+            formatter.format("int   - : [%d,%d]%n", j % width, j / width);
+            i2++;
+          }
+        }
+      }
+      logger.info(sb.toString());
+    }
+    if (!Arrays.equals(indices1, indices2)) {
+      // Show image
+      intShowImage(width, height, data, indices1, "i1");
+      intShowImage(width, height, data, indices2, "i2");
+    }
   }
 
   private static void intShowImage(int width, int height, int[] data, int[] indices, String title) {
@@ -1093,6 +1605,87 @@ public class NonMaximumSuppressionTest {
     for (int i = 7; i-- > 0;) {
       imp.getWindow().getCanvas().zoomIn(0, 0);
     }
+  }
+
+  @Test
+  public void intFindBlockMaximaNxNInternalWithNoBlocks() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int[] data = new int[12];
+    Assertions.assertArrayEquals(new int[0], nms.findBlockMaximaNxNInternal(data, 12, 1, 2, 10));
+    Assertions.assertArrayEquals(new int[0], nms.findBlockMaximaNxNInternal(data, 1, 12, 2, 10));
+  }
+
+  @Test
+  public void intFindBlockMaximaCandidatesNxNInternalWithNoBlocks() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int[] data = new int[12];
+    Assertions.assertArrayEquals(new int[0][0],
+        nms.findBlockMaximaCandidatesNxNInternal(data, 12, 1, 2, 10));
+    Assertions.assertArrayEquals(new int[0][0],
+        nms.findBlockMaximaCandidatesNxNInternal(data, 1, 12, 2, 10));
+  }
+
+  @SeededTest
+  public void intFindBlockMaxima(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final int[] data = intCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.findBlockMaxima2x2(data, width, height),
+        nms.findBlockMaxima(data, width, height, 1));
+    Assertions.assertArrayEquals(nms.findBlockMaximaNxN(data, width, height, 2),
+        nms.findBlockMaxima(data, width, height, 2));
+  }
+
+  @SeededTest
+  public void intFindBlockMaximaCandidates(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final int[] data = intCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.findBlockMaximaCandidates2x2(data, width, height),
+        nms.findBlockMaximaCandidates(data, width, height, 1));
+    Assertions.assertArrayEquals(nms.findBlockMaximaCandidatesNxN(data, width, height, 2),
+        nms.findBlockMaximaCandidates(data, width, height, 2));
+  }
+
+  @SeededTest
+  public void intBlockFind(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final int[] data = intCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.blockFind3x3(data, width, height),
+        nms.blockFind(data, width, height, 1));
+    Assertions.assertArrayEquals(nms.blockFindNxN(data, width, height, 2),
+        nms.blockFind(data, width, height, 2));
+  }
+
+  @SeededTest
+  public void intBlockFindInternal(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 15;
+    final int[] data = intCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.blockFind3x3Internal(data, width, height, 1),
+        nms.blockFindInternal(data, width, height, 1, 1));
+    Assertions.assertArrayEquals(nms.blockFindNxNInternal(data, width, height, 2, 1),
+        nms.blockFindInternal(data, width, height, 2, 1));
+  }
+
+  @SeededTest
+  public void intBlockFind3x3InternalWithNoBorder(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    final int width = 10;
+    final int height = 5;
+    final int[] data = intCreateData(rg, width, height);
+    Assertions.assertArrayEquals(nms.blockFind3x3(data, width, height),
+        nms.blockFind3x3Internal(data, width, height, 0));
   }
 
   @SeededTest
@@ -1114,15 +1707,19 @@ public class NonMaximumSuppressionTest {
           nms.setNeighbourCheck(b);
           final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
           final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
+          final int[] blockIndices = nms.blockFind(data, width, height, 1);
 
           Arrays.sort(blockNxNIndices);
           Arrays.sort(block3x3Indices);
+          Arrays.sort(blockIndices);
 
           if (debug) {
             intCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
           }
 
           Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
+          Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
               FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
         }
       }
@@ -1148,9 +1745,11 @@ public class NonMaximumSuppressionTest {
           nms.setNeighbourCheck(b);
           final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
           final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
+          final int[] blockIndices = nms.blockFindInternal(data, width, height, 1, 1);
 
           Arrays.sort(blockNxNIndices);
           Arrays.sort(block3x3Indices);
+          Arrays.sort(blockIndices);
 
           if (debug) {
             intCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
@@ -1158,6 +1757,37 @@ public class NonMaximumSuppressionTest {
 
           Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
               FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
+          Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
+        }
+      }
+    }
+  }
+
+  @SeededTest
+  public void intFindBlockMaximaCandidatesNxNAndFindBlockMaximaCandidates2x2ReturnSameResult(
+      RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : sizes2x2) {
+      for (final int height : sizes2x2) {
+        for (final int mod : modulus2x2) {
+          final int[] data = intCreateRepeatData(rg, width, height, mod);
+
+          final int[][] blockNxNIndices = nms.findBlockMaximaCandidatesNxN(data, width, height, 1);
+          final int[][] block2x2Indices = nms.findBlockMaximaCandidates2x2(data, width, height);
+          final int[][] blockIndices = nms.findBlockMaximaCandidates(data, width, height, 1);
+
+          flattenAndSort(blockNxNIndices);
+          flattenAndSort(block2x2Indices);
+          flattenAndSort(blockIndices);
+
+          Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d]", width, height));
+          Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d]", width, height));
         }
       }
     }
@@ -1755,18 +2385,34 @@ public class NonMaximumSuppressionTest {
 
     final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
     final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+    final int[] blockIndices = nms.findBlockMaxima(data, width, height, 1);
 
     Arrays.sort(blockNxNIndices);
     Arrays.sort(block2x2Indices);
+    Arrays.sort(blockIndices);
 
     Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
         FunctionUtils.getSupplier("Block vs 2x2 do not match: [%dx%d]", width, height));
+    Assertions.assertArrayEquals(blockNxNIndices, blockIndices,
+        FunctionUtils.getSupplier("Block vs default do not match: [%dx%d]", width, height));
   }
 
   private static int[] intCreateData(UniformRandomProvider rg, int width, int height) {
     final int[] data = new int[width * height];
     for (int i = data.length; i-- > 0;) {
       data[i] = i;
+    }
+
+    RandomUtils.shuffle(data, rg);
+
+    return data;
+  }
+
+  private static int[] intCreateRepeatData(UniformRandomProvider rg, int width, int height,
+      int modulus) {
+    final int[] data = new int[width * height];
+    for (int i = data.length; i-- > 0;) {
+      data[i] = i % modulus;
     }
 
     RandomUtils.shuffle(data, rg);
