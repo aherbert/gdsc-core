@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.function.IntPredicate;
+
 /**
  * Contains a list of fixed capacity. This is a simple wrapper around an array providing get/set
  * index methods and dynamic addition of data to the end of the array up to the capacity.
@@ -128,6 +130,25 @@ public class IntFixedList {
   }
 
   /**
+   * Removes the value at the given index.
+   *
+   * @param index the index
+   * @return the value
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public int remove(int index) {
+    if (index >= size) {
+      throw new IndexOutOfBoundsException("Index " + index + " not valid for size " + size);
+    }
+    // Implicit IndexOutOfBounds for index < 0
+    final int previous = data[index];
+    // Shift left all elements after the remove index
+    size--;
+    System.arraycopy(data, index + 1, data, index, size - index);
+    return previous;
+  }
+
+  /**
    * Convert the current values to an array.
    *
    * @return the int[] array
@@ -153,5 +174,72 @@ public class IntFixedList {
    */
   public void copy(int[] dest, int destPos) {
     System.arraycopy(data, 0, dest, destPos, size);
+  }
+
+  /**
+   * Remove any items from the list that are identified by the filter. Functions as if testing all
+   * items:
+   *
+   * <pre>
+   * int newSize = 0;
+   * for (int i = 0; i < size; i++) {
+   *   if (filter.test((E) data[i])) {
+   *     // remove
+   *     continue;
+   *   }
+   *   data[newSize++] = data[i];
+   * }
+   * size = newSize;
+   * </pre>
+   *
+   * @param filter the filter
+   * @return true if the size was modified by the filter
+   */
+  public boolean removeIf(IntPredicate filter) {
+    int index = 0;
+    final int[] elements = data;
+    final int length = size;
+
+    // Find first item to filter.
+    for (; index < length; index++) {
+      if (filter.test(elements[index])) {
+        break;
+      }
+    }
+    if (index == length) {
+      // Nothing to remove
+      return false;
+    }
+
+    // The list has changed.
+    // Do a single sweep across the remaining data copying elements if they are not filtered.
+    // Note: The filter may throw and leave the list without a new size.
+    // (E.g. is the filter is a collection that does not allow null).
+    // So we set the new size in a finally block.
+    int newSize = index;
+    try {
+      // We know the current index is identified by the filter so advance 1
+      index++;
+
+      // Scan the rest
+      for (; index < length; index++) {
+        final int e = elements[index];
+        if (filter.test(e)) {
+          continue;
+        }
+        elements[newSize++] = e;
+      }
+    } finally {
+      // Ensure the length is correct
+      if (index != length) {
+        // Did not get to the end of the list (e.g. the filter may throw) so copy it verbatim.
+        final int len = length - index;
+        System.arraycopy(data, index, data, newSize, len);
+        newSize += len;
+      }
+      size = newSize;
+    }
+    // The list was modified
+    return true;
   }
 }
