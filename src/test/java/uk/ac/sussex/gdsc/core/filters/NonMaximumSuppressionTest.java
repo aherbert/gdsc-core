@@ -1268,7 +1268,7 @@ public class NonMaximumSuppressionTest {
         FunctionUtils.getSupplier("Block vs default do not match: [%dx%d]", width, height));
   }
 
-  private static float[] floatCreateData(UniformRandomProvider rg, int width, int height) {
+  static float[] floatCreateData(UniformRandomProvider rg, int width, int height) {
     final float[] data = new float[width * height];
     for (int i = data.length; i-- > 0;) {
       data[i] = i;
@@ -2396,7 +2396,7 @@ public class NonMaximumSuppressionTest {
         FunctionUtils.getSupplier("Block vs default do not match: [%dx%d]", width, height));
   }
 
-  private static int[] intCreateData(UniformRandomProvider rg, int width, int height) {
+  static int[] intCreateData(UniformRandomProvider rg, int width, int height) {
     final int[] data = new int[width * height];
     for (int i = data.length; i-- > 0;) {
       data[i] = i;

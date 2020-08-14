@@ -32,7 +32,7 @@ import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 
 /**
- * Computes the local maxima. Allows filtering of the maxima using simple height and width checks. .
+ * Computes the local maxima. Allows filtering of the maxima using simple height and width checks.
  *
  * <p>Note: The neighbour check within the block find algorithm does not match that in the
  * NonMaximumSuppression class.
@@ -182,11 +182,6 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     return (int) (0.5 + (maximum - background) * 0.5);
   }
 
-  /**
-   * Create a copy.
-   *
-   * @return the copy
-   */
   @Override
   public FilteredNonMaximumSuppression copy() {
     return new FilteredNonMaximumSuppression(this);
@@ -198,7 +193,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   // ----------------------------------------------------
 
   /**
-   * Compute the local-maxima within a 2n+1 block.
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above
@@ -276,7 +271,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -370,8 +365,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
-   * maxima.
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above
@@ -428,14 +422,14 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. An inner boundary is ignored as potential maxima.
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above
@@ -526,20 +520,18 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block.
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above
    * background) or the minimum peak-width at half maximum in any dimension are ignored.
-   *
-   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -591,14 +583,11 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
-   * maxima.
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above
    * background) or the minimum peak-width at half maximum in any dimension are ignored.
-   *
-   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -627,7 +616,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       for (final int[] blockMaxima : blockMaximaCandidates) {
         for (final int index : blockMaxima) {
           if (data[index] >= heightThreshold
-              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)
+              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, border, n1, index)
               && isAboveMinimumWidth(data, maxx, maxy, index, floatBackground)) {
             maximaFlag[index] = true;
             maxima[maximaCount++] = index;
@@ -641,7 +630,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       maxima = blockMaxima; // Re-use storage space
 
       for (final int index : blockMaxima) {
-        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, 0, n1, index)
+        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, border, n1, index)
             && isAboveMinimumWidth(data, maxx, maxy, index, floatBackground)) {
           maxima[maximaCount++] = index;
         }
@@ -652,7 +641,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 3x3 block.
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 3x3 neighbourhood. Maxima below the minimum height (above
@@ -720,7 +709,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
             final int maxIndex = candidates.getMaxIndex(i);
             final int[] scan = candidates.getScan(i);
 
-            final boolean isMaxima = data[maxIndex] >= heightThreshold
+            final boolean isMaxima = newData[maxIndex] >= heightThreshold
                 // Only check ABC using the existing maxima flag
                 // since the scan blocks for D have not yet been processed
                 && ((scan == d) ? isMaxima3x3(newData, maxIndex, scan)
@@ -758,7 +747,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           }
 
           // Check the remaining region
-          if (data[maxIndex] >= heightThreshold && isMaxima3x3(newData, maxIndex, scan)
+          if (newData[maxIndex] >= heightThreshold && isMaxima3x3(newData, maxIndex, scan)
               && isAboveMinimumWidth(newData, newx, newy, maxIndex, floatBackground)) {
             // Remap the maxima
             final int xx = maxIndex % newx;
@@ -774,9 +763,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 3x3 block. An inner boundary of 1 is ignored as potential
-   * maxima on the top and left, and a boundary of 1 or 2 on the right or bottom (depending if the
-   * image is even/odd dimensions).
+   * {@inheritDoc}
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 3x3 neighbourhood. Maxima below the minimum height (above
@@ -971,7 +958,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -1122,7 +1109,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -1220,7 +1207,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -1321,7 +1308,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       for (final int[] blockMaxima : blockMaximaCandidates) {
         for (final int index : blockMaxima) {
           if (data[index] >= heightThreshold
-              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)
+              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, border, n1, index)
               && isAboveMinimumWidth(data, maxx, maxy, index, intBackground)) {
             maximaFlag[index] = true;
             maxima[maximaCount++] = index;
@@ -1335,7 +1322,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       maxima = blockMaxima; // Re-use storage space
 
       for (final int index : blockMaxima) {
-        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, 0, n1, index)
+        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, border, n1, index)
             && isAboveMinimumWidth(data, maxx, maxy, index, intBackground)) {
           maxima[maximaCount++] = index;
         }
@@ -1414,7 +1401,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
             final int maxIndex = candidates.getMaxIndex(i);
             final int[] scan = candidates.getScan(i);
 
-            final boolean isMaxima = data[maxIndex] >= heightThreshold
+            final boolean isMaxima = newData[maxIndex] >= heightThreshold
                 // Only check ABC using the existing maxima flag
                 // since the scan blocks for D have not yet been processed
                 && ((scan == d) ? isMaxima3x3(newData, maxIndex, scan)
@@ -1452,7 +1439,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           }
 
           // Check the remaining region
-          if (data[maxIndex] >= heightThreshold && isMaxima3x3(newData, maxIndex, scan)
+          if (newData[maxIndex] >= heightThreshold && isMaxima3x3(newData, maxIndex, scan)
               && isAboveMinimumWidth(newData, newx, newy, maxIndex, intBackground)) {
             // Remap the maxima
             final int xx = maxIndex % newx;
