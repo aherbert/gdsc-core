@@ -67,20 +67,73 @@ public class FloatAreaStatisticsTest {
     logger = null;
   }
 
-  boolean[] rolling = new boolean[] {true, false};
+  boolean[] rollingSums = new boolean[] {true, false};
   int[] boxSizes = new int[] {15, 9, 5, 3, 2, 1};
   int maxx = 97;
   int maxy = 101;
 
   DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6);
 
+  @Test
+  public void canComputeNoAreaResult() {
+    final float[] data = {0, 1, 2};
+    final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 3, 1);
+    final double[] expected = {0, Double.NaN, Double.NaN};
+    Assertions.assertArrayEquals(expected, a.getStatistics(-1, 0, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, -1, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(10, 0, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, 10, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, 0, -1));
+    Assertions.assertArrayEquals(expected, a.getStatistics(-1, 0, 0, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, -1, 0, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(10, 0, 0, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, 10, 0, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, 0, -1, 0));
+    Assertions.assertArrayEquals(expected, a.getStatistics(0, 0, 0, -1));
+    Assertions.assertArrayEquals(expected, a.getStatistics(new Rectangle(0, 0, 0, 1)));
+    Assertions.assertArrayEquals(expected, a.getStatistics(new Rectangle(0, 0, 1, 0)));
+    Assertions.assertArrayEquals(expected, a.getStatistics(new Rectangle(10, 0, 1, 1)));
+    Assertions.assertArrayEquals(expected, a.getStatistics(new Rectangle(0, 10, 1, 1)));
+    Assertions.assertArrayEquals(expected, a.getStatistics(new Rectangle(-10, 0, 1, 1)));
+    Assertions.assertArrayEquals(expected, a.getStatistics(new Rectangle(0, -10, 1, 1)));
+  }
+
+  @Test
+  public void canComputeSinglePointStatistics() {
+    final float[] data = {0, 1, 2};
+    final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 3, 1);
+    Assertions.assertArrayEquals(new double[] {1, 0, 0}, a.getSingleResult(0, 0));
+    Assertions.assertArrayEquals(new double[] {1, 1, 0}, a.getSingleResult(1, 0));
+    Assertions.assertArrayEquals(new double[] {1, 2, 0}, a.getSingleResult(2, 0));
+    Assertions.assertArrayEquals(new double[] {1, 0, 0}, a.getStatistics(0, 0, 0));
+    Assertions.assertArrayEquals(new double[] {1, 1, 0}, a.getStatistics(1, 0, 0));
+    Assertions.assertArrayEquals(new double[] {1, 2, 0}, a.getStatistics(2, 0, 0));
+    Assertions.assertArrayEquals(new double[] {1, 0, 0}, a.getStatistics(0, 0, 0, 0));
+    Assertions.assertArrayEquals(new double[] {1, 1, 0}, a.getStatistics(1, 0, 0, 0));
+    Assertions.assertArrayEquals(new double[] {1, 2, 0}, a.getStatistics(2, 0, 0, 0));
+    // Hit case of nx or ny not equals to zero
+    Assertions.assertArrayEquals(new double[] {3, 3, 1}, a.getStatistics(1, 0, 1, 0));
+    Assertions.assertArrayEquals(new double[] {1, 1, 0}, a.getStatistics(1, 0, 0, 1));
+  }
+
+  @Test
+  public void canComputeNoResidualsStatistics() {
+    final float[] data = {2, 2, 2};
+    final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 3, 1);
+    Assertions.assertArrayEquals(new double[] {1, 2, 0}, a.getStatistics(0, 0, 0));
+    Assertions.assertArrayEquals(new double[] {2, 4, 0}, a.getStatistics(0, 0, 1));
+    Assertions.assertArrayEquals(new double[] {3, 6, 0}, a.getStatistics(0, 0, 2));
+    Assertions.assertArrayEquals(new double[] {3, 6, 0}, a.getStatistics(1, 0, 1));
+  }
+
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
     final float[] data = createData(RngUtils.create(seed.getSeed()));
     final Statistics s = Statistics.create(data);
-    final FloatAreaStatistics a = new FloatAreaStatistics(data, maxx, maxy);
-    for (final boolean rng : rolling) {
-      a.setRollingSums(rng);
+    final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, maxx, maxy);
+    for (final boolean rolling : rollingSums) {
+      a.setRollingSums(rolling);
+      Assertions.assertEquals(rolling, a.isRollingSums());
       double[] obs = a.getStatistics(0, 0, maxy);
       Assertions.assertEquals(s.getN(), obs[AreaStatistics.INDEX_COUNT]);
       TestAssertions.assertTest(s.getSum(), obs[AreaStatistics.INDEX_SUM], equality);
@@ -97,9 +150,9 @@ public class FloatAreaStatisticsTest {
   public void canComputeNxNRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
-    final FloatAreaStatistics a1 = new FloatAreaStatistics(data, maxx, maxy);
+    final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a1.setRollingSums(true);
-    final FloatAreaStatistics a2 = new FloatAreaStatistics(data, maxx, maxy);
+    final FloatAreaStatistics a2 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a2.setRollingSums(false);
 
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
@@ -133,9 +186,9 @@ public class FloatAreaStatisticsTest {
   public void canComputeNxMRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
-    final FloatAreaStatistics a1 = new FloatAreaStatistics(data, maxx, maxy);
+    final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a1.setRollingSums(true);
-    final FloatAreaStatistics a2 = new FloatAreaStatistics(data, maxx, maxy);
+    final FloatAreaStatistics a2 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a2.setRollingSums(false);
 
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
@@ -171,9 +224,9 @@ public class FloatAreaStatisticsTest {
   public void canComputeRectangleRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
-    final FloatAreaStatistics a1 = new FloatAreaStatistics(data, maxx, maxy);
+    final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a1.setRollingSums(true);
-    final FloatAreaStatistics a2 = new FloatAreaStatistics(data, maxx, maxy);
+    final FloatAreaStatistics a2 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a2.setRollingSums(false);
 
     final int width = 10;
@@ -209,12 +262,12 @@ public class FloatAreaStatisticsTest {
   @Test
   public void canComputeStatisticsWithinClippedBounds() {
     final float[] data = new float[] {1, 2, 3, 4};
-    final FloatAreaStatistics a = new FloatAreaStatistics(data, 2, 2);
+    final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 2, 2);
     final Statistics stats = Statistics.create(data);
     final int c = stats.getN();
     final double u = stats.getSum();
     final double s = stats.getStandardDeviation();
-    for (final boolean rng : rolling) {
+    for (final boolean rng : rollingSums) {
       a.setRollingSums(rng);
       for (final int size : boxSizes) {
         double[] obs = a.getStatistics(0, 0, size);
@@ -265,7 +318,7 @@ public class FloatAreaStatisticsTest {
     @Override
     public Object run(Object data) {
       final float[] d = (float[]) data;
-      final FloatAreaStatistics a = new FloatAreaStatistics(d, maxx, maxy);
+      final FloatAreaStatistics a = FloatAreaStatistics.wrap(d, maxx, maxy);
       a.setRollingSums(rolling);
       for (int i = 0; i < sample.length; i += 2) {
         a.getStatistics(sample[i], sample[i + 1], size);
