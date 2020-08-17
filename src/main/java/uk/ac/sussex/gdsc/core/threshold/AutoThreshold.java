@@ -616,11 +616,11 @@ public class AutoThreshold {
    */
   public static int mean(int[] data) {
     int threshold = -1;
-    double tot = 0;
-    double sum = 0;
+    long tot = 0;
+    long sum = 0;
     for (int i = 0; i < data.length; i++) {
       tot += data[i];
-      sum += (i * data[i]);
+      sum += ((long) i * (long) data[i]);
     }
     if (tot == 0) {
       return 0;
