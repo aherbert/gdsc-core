@@ -86,6 +86,9 @@ public class Histogram {
    * @return The histogram
    */
   public static Histogram buildHistogram(int[] data) {
+    if (data == null || data.length == 0) {
+      return new Histogram(new int[1]);
+    }
     final int[] limits = MathUtils.limits(data);
     // Limits will be [0,0] if data is null or empty so the rest of the code is OK
     final int min = limits[0];
