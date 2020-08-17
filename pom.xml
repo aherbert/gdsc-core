@@ -183,6 +183,11 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <artifactId>commons-text</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>sc.fiji</groupId>
+      <artifactId>Auto_Threshold</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

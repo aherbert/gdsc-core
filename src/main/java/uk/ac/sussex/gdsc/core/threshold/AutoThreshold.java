@@ -196,7 +196,7 @@ public class AutoThreshold {
    * Original IJ implementation for compatibility.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int ijDefault(int[] data) {
     final int maxValue = data.length - 1;
@@ -243,7 +243,7 @@ public class AutoThreshold {
    * efficiently) by Johannes Schindelin Jan 31, 2011
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int huang(int[] data) {
     // find first and last non-empty bin
@@ -256,7 +256,7 @@ public class AutoThreshold {
       // do nothing
     }
     if (first == last) {
-      return 0;
+      return -1;
     }
 
     // calculate the cumulative density and the weighted cumulative density
@@ -308,7 +308,6 @@ public class AutoThreshold {
    */
   protected static boolean bimodalTest(double[] data) {
     final int len = data.length;
-    boolean flag = false;
     int modes = 0;
 
     for (int k = 1; k < len - 1; k++) {
@@ -319,10 +318,7 @@ public class AutoThreshold {
         }
       }
     }
-    if (modes == 2) {
-      flag = true;
-    }
-    return flag;
+    return modes == 2;
   }
 
   /**
@@ -338,7 +334,7 @@ public class AutoThreshold {
    * for this method.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int intermodes(int[] data) {
     final double[] iHisto = new double[data.length];
@@ -396,7 +392,7 @@ public class AutoThreshold {
    * is equal to G. It does this by initialising G to the lowest sensible value and iterating:
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int isoData(int[] data) {
     // L = the average grey value of pixels with intensities < G
@@ -452,7 +448,7 @@ public class AutoThreshold {
    * http://citeseer.ist.psu.edu/sezgin04survey.html.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int li(int[] data) {
     // Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
@@ -531,7 +527,7 @@ public class AutoThreshold {
    * Histogram" Graphical Models and Image Processing, 29(3): 273-285.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int maxEntropy(int[] data) {
     // M. Emre Celebi
@@ -616,7 +612,7 @@ public class AutoThreshold {
    * <p>The threshold is the mean of the greyscale data.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int mean(int[] data) {
     int threshold = -1;
@@ -676,7 +672,7 @@ public class AutoThreshold {
    *
    * @param data the data
    * @param stdDevMultiplier the std dev multiplier
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public int meanPlusStdDev(int[] data, double stdDevMultiplier) {
     // The threshold is the mean of the greyscale data plus a multiplier of the image standard
@@ -737,7 +733,7 @@ public class AutoThreshold {
    * and the original Matlab code.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int minErrorI(int[] data) {
     // Initial estimate for the threshold is found with the MEAN
@@ -809,7 +805,7 @@ public class AutoThreshold {
    * Matlab code.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int minimum(int[] data) {
     if (data.length < 3) {
@@ -823,7 +819,6 @@ public class AutoThreshold {
     // Images with histograms having extremely unequal peaks or a broad and
     // ﬂat valley are unsuitable for this method.
     int iter = 0;
-    int threshold = -1;
     int max = -1;
     double[] histogram = new double[data.length];
 
@@ -864,10 +859,10 @@ public class AutoThreshold {
     // The threshold is the minimum between the two peaks. modified for 16 bits
     for (int i = 1; i < max; i++) {
       if (histogram[i - 1] > histogram[i] && histogram[i + 1] >= histogram[i]) {
-        threshold = i;
+        return i;
       }
     }
-    return threshold;
+    return -1;
   }
 
   /**
@@ -878,7 +873,7 @@ public class AutoThreshold {
    * http://sourceforge.net/projects/fourier-ipal. http://www.lsus.edu/faculty/~ecelebi/fourier.htm.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int moments(int[] data) {
     double total = 0;
@@ -937,7 +932,7 @@ public class AutoThreshold {
    * to ImageJ plugin by G.Landini.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int otsu(int[] data) {
     final int length = data.length;
@@ -956,7 +951,7 @@ public class AutoThreshold {
 
     // k = the current threshold
     // kstar = optimal threshold
-    int kstar = 0;
+    int kstar = -1;
     // The maximum Between Class Variance
     double bcvMax = 0;
     // The total intensity for all histogram points <=k
@@ -1036,7 +1031,7 @@ public class AutoThreshold {
    * and the original Matlab code.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int percentile(int[] data) {
     final double total = partialSum(data, data.length - 1);
@@ -1093,7 +1088,7 @@ public class AutoThreshold {
    * 273-285. Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int renyiEntropy(int[] data) {
 
@@ -1294,7 +1289,7 @@ public class AutoThreshold {
    * from E Celebi's fourier_0.8 routines.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int shanbhag(int[] data) {
 
@@ -1381,7 +1376,7 @@ public class AutoThreshold {
    * <p>Modified from Johannes Schindelin plugin.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int triangle(int[] data) {
     // find min and max
@@ -1493,7 +1488,7 @@ public class AutoThreshold {
    * <p>Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
    *
    * @param data the data
-   * @return the threshold
+   * @return the threshold (or -1 if not found)
    */
   public static int yen(int[] data) {
     final double[] normHisto = new double[data.length]; /* normalized histogram */
@@ -1545,9 +1540,13 @@ public class AutoThreshold {
    * <p>This method is faster than calling the required static thresholding method as the histogram
    * is cropped to the min-max range before processing.
    *
+   * <p>Note: Unlike the individual threshold methods this method will not return -1 if not found.
+   * This ensures the index is within the range of the histogram.
+   *
    * @param methodName the method name
    * @param data the data
-   * @return the threshold
+   * @return the threshold (may be 0 if not found)
+   * @see #getThreshold(Method, int[])
    */
   public static int getThreshold(String methodName, int[] data) {
     return getThreshold(getMethod(methodName), data);
@@ -1559,9 +1558,12 @@ public class AutoThreshold {
    * <p>This method is faster than calling the required static thresholding method as the histogram
    * is cropped to the min-max range before processing.
    *
+   * <p>Note: Unlike the individual threshold methods this method will not return -1 if not found.
+   * This ensures the index is within the range of the histogram.
+   *
    * @param method the method
    * @param data the data
-   * @return the threshold
+   * @return the threshold (may be 0 if not found)
    */
   public static int getThreshold(Method method, int[] data) {
     if (method == Method.NONE || data == null) {
