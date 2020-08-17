@@ -48,19 +48,6 @@ public class Histogram {
   public final int maxBin;
 
   /**
-   * Instantiates a new histogram.
-   *
-   * @param histogram the histogram
-   * @param minBin the min bin
-   * @param maxBin the max bin
-   */
-  protected Histogram(int[] histogram, int minBin, int maxBin) {
-    this.histogramCounts = histogram;
-    this.minBin = minBin;
-    this.maxBin = maxBin;
-  }
-
-  /**
    * Create a new histogram object with the specified histogram. Bin values are assumed to be an
    * integer series starting from 0.
    *

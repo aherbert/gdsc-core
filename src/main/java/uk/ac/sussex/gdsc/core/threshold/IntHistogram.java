@@ -41,19 +41,6 @@ public class IntHistogram extends Histogram {
   /**
    * Instantiates a new int histogram.
    *
-   * @param histogramCounts the histogram counts
-   * @param minBin the min bin
-   * @param maxBin the max bin
-   * @param offset the offset
-   */
-  protected IntHistogram(int[] histogramCounts, int minBin, int maxBin, double offset) {
-    super(histogramCounts, minBin, maxBin);
-    this.offset = offset;
-  }
-
-  /**
-   * Instantiates a new int histogram.
-   *
    * @param source the source
    */
   protected IntHistogram(IntHistogram source) {
