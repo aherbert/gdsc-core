@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.threshold;
 
 import java.util.Arrays;
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Contains a histogram.
@@ -144,12 +145,15 @@ public class FloatHistogram extends Histogram {
    * @param size the size
    * @return the new histogram
    * @see uk.ac.sussex.gdsc.core.threshold.Histogram#compact(int)
+   * @throws IllegalArgumentException if {@code size <= 1}
    */
   @Override
   public Histogram compact(int size) {
     if (minBin == maxBin) {
       return this;
     }
+    ValidationUtils.checkArgument(size > 1, "size must be above 1: %d", size);
+
     final float min = getValue(minBin);
     final float max = getValue(maxBin);
 
@@ -163,10 +167,12 @@ public class FloatHistogram extends Histogram {
     final float binSize = (max - min) / sizeMinus1;
     final int[] newH = new int[size];
     for (int i = 0; i < histogramCounts.length; i++) {
+      // Both positive:
+      // (getValue(i) - min)
+      // binSize
+      // Thus bin will not be negative. Check for overflow of the size.
       final int bin = (int) ((getValue(i) - min) / binSize + 0.5);
-      if (bin < 0) {
-        newH[0] += histogramCounts[i];
-      } else if (bin >= size) {
+      if (bin >= size) {
         newH[sizeMinus1] += histogramCounts[i];
       } else {
         newH[bin] += histogramCounts[i];
