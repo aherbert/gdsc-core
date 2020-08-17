@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.threshold;
 
 import fiji.threshold.Auto_Threshold;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -49,13 +50,66 @@ public class AutoThresholdTest {
     assertThreshold(new int[] {1, 1, 4, 16, 7, 3, 1, 0, 1, 0, 1});
   }
 
+  @Test
+  public void canGetMethods() {
+    final String[] methodNames = AutoThreshold.getMethods();
+    Assertions.assertNotSame(methodNames, AutoThreshold.getMethods());
+    Assertions.assertArrayEquals(methodNames, AutoThreshold.getMethods(false));
+    Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod("something else"));
+    Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod(-1, false));
+    Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod(Integer.MAX_VALUE, false));
+    final EnumSet<Method> set = EnumSet.noneOf(Method.class);
+    for (int i = 0; i < methodNames.length; i++) {
+      final Method m = AutoThreshold.getMethod(i, false);
+      Assertions.assertEquals(methodNames[i], m.toString());
+      Assertions.assertEquals(m, AutoThreshold.getMethod(m.toString()));
+      set.add(m);
+    }
+    Assertions.assertEquals(methodNames.length, set.size());
+    Assertions.assertTrue(set.contains(Method.NONE));
+  }
+
+  @Test
+  public void canGetMethodsWithoutNone() {
+    final String[] methodNames = AutoThreshold.getMethods(true);
+    Assertions.assertNotSame(methodNames, AutoThreshold.getMethods());
+    Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod("something else"));
+    Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod(-1, true));
+    Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod(Integer.MAX_VALUE, true));
+    final EnumSet<Method> set = EnumSet.noneOf(Method.class);
+    for (int i = 0; i < methodNames.length; i++) {
+      final Method m = AutoThreshold.getMethod(i, true);
+      Assertions.assertEquals(methodNames[i], m.toString());
+      set.add(m);
+    }
+    Assertions.assertEquals(methodNames.length, set.size());
+    Assertions.assertFalse(set.contains(Method.NONE));
+  }
+
+  @Test
+  public void canChangeStdDevMultiplier() {
+    final int[] data = new int[] {1, 1, 4, 16, 7, 3, 1, 1, 1, 1, 1};
+    final AutoThreshold thresholder = new AutoThreshold();
+    final double multiplier = AutoThreshold.getStdDevMultiplier();
+    try {
+      for (final double m : new double[] {2, 3, 4}) {
+        AutoThreshold.setStdDevMultiplier(m);
+        Assertions.assertEquals(m, AutoThreshold.getStdDevMultiplier());
+        Assertions.assertEquals(thresholder.meanPlusStdDev(data, m),
+            AutoThreshold.meanPlusStdDev(data));
+      }
+    } finally {
+      AutoThreshold.setStdDevMultiplier(multiplier);
+    }
+  }
+
   private static void assertThreshold(int[] histogram) {
     final int pad = 10;
-    int[] h1 = Arrays.copyOf(histogram, histogram.length + pad);
-    int[] h2 = new int[h1.length];
+    final int[] h1 = Arrays.copyOf(histogram, histogram.length + pad);
+    final int[] h2 = new int[h1.length];
     System.arraycopy(histogram, 0, h2, pad, histogram.length);
-    for (Method method : methods) {
-      int expected = getThreshold(method, histogram);
+    for (final Method method : methods) {
+      final int expected = getThreshold(method, histogram);
       int actual = AutoThreshold.getThreshold(method, histogram);
       assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(histogram));
       actual = AutoThreshold.getThreshold(method.toString(), histogram);
