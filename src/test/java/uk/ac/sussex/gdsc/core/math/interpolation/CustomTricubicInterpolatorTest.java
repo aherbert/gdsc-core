@@ -1566,9 +1566,6 @@ public class CustomTricubicInterpolatorTest {
 
   @SeededTest
   public void searchSplineImprovesFunctionValue(RandomSeed seed) {
-    // Skip this as it is for testing the binary search works
-    Assumptions.assumeTrue(false);
-
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
@@ -1603,7 +1600,7 @@ public class CustomTricubicInterpolatorTest {
           @SuppressWarnings("null")
           final double d =
               MathUtils.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-          logger.info(FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g",
+          logger.finer(FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g",
               ii, cx, cy, cz, i, Arrays.toString(optimum), d,
               DoubleEquality.relativeError(last[3], optimum[3])));
           Assertions.assertTrue(optimum[3] >= last[3]);
