@@ -42,7 +42,7 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
 // slice 1, fixed upper border of montage,
 // 1.3 2009/Apr/11 fixed Stack option with 'Try all' method
 // 1.4 2009/Apr/11 fixed 'ignore black' and 'ignore white' for stack histograms
-// 1.5 2009/Apr/12 Mean method, MinimumErrorIterative method , enahanced Triangle
+// 1.5 2009/Apr/12 Mean method, MinimumErrorIterative method , enhanced Triangle
 // 1.6 2009/Apr/14 Reverted IsoData to a copy of IJ's code as the other version does not always
 // return the same value as IJ
 // 1.7 2009/Apr/14 small fixes, restore histogram in Triangle if reversed
@@ -55,12 +55,23 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
 // without applying the mask, Yen and Isodata with 16 bits offset images, histogram bracketing to
 // speed up
 // 1.13 2011/Apr/13 Revised the way 16bit thresholds are shown
-// 1.14 2011/Apr/14 IsoData issues a warning if threhsold not found
+// 1.14 2011/Apr/14 IsoData issues a warning if threshold not found
+//
+// Changes incorporated after the initial version based on 1.14:
+//
+// 1.15 2013/Feb/19 Added 'break' in the minimum method for cases where there is a constant
+// histogram after the 2nd peak
+// 1.16 2016/Jul/13 Fixed temporary array in Minimum method
+// 1.17 2017/May/22 Updated Otsu's method to be more overflow safe. This is not updated with
+// with Emre Celebi's code (Fourier library) as per Auto_Threshold.
+// Fixed a 16 bit overflow in the Mean method computation
 
 /**
  * Provides thresholding methods based on a histogram.
  *
  * <p>The methods have been extracted from the Auto_Threshold ImageJ plugin of G. Landini.
+ *
+ * @see <a href="https://imagej.net/Auto_Threshold">Auto Threshold</a>
  */
 public class AutoThreshold {
 
@@ -241,7 +252,9 @@ public class AutoThreshold {
    * Implements Huang's fuzzy thresholding method. Uses Shannon's entropy function (one can also use
    * Yager's entropy function) Huang L.-K. and Wang M.-J.J. (1995) "Image Thresholding by Minimizing
    * the Measures of Fuzziness" Pattern Recognition, 28(1): 41-51. Reimplemented (to handle 16-bit
-   * efficiently) by Johannes Schindelin Jan 31, 2011
+   * efficiently) by Johannes Schindelin Jan 31, 2011.
+   *
+   * <p>Note: This method does not match the version built in to ImageJ.
    *
    * @param data the data
    * @return the threshold (or -1 if not found)
@@ -936,34 +949,40 @@ public class AutoThreshold {
 
     // Initialize values:
     // The total intensity of the image
-    int sum = 0;
+    long sum = 0;
     // np = total number of points
-    int np = 0;
+    long np = 0;
     double ssx = 0;
     for (int k = 0; k < length; k++) {
-      ssx += k * k * data[k];
-      sum += k * data[k]; // Total histogram intensity
-      np += data[k]; // Total number of data points
+      final long value = data[k];
+      ssx += value * k * k;
+      sum += value * k; // Total histogram intensity
+      np += value; // Total number of data points
+    }
+
+    if (np == 0) {
+      return -1;
     }
 
     // k = the current threshold
     // kstar = optimal threshold
     int kstar = -1;
+    // The count of the number of optimal thresholds
+    int kstarCount = 0;
     // The maximum Between Class Variance
     double bcvMax = 0;
     // The total intensity for all histogram points <=k
-    int sumK = 0;
+    long sumK = 0;
     // n1 = # points with intensity <=k.
     // Start with the entry for zero intensity
-    int n1 = data[0];
-    // The count of the number of optimal thresholds
-    int kstarCount = 0;
+    long n1 = data[0];
 
     // Look at each possible threshold value,
     // calculate the between-class variance, and decide if it's a max
     for (int k = 1; k < length - 1; k++) { // No need to check endpoints k = 0 or k = L-1
-      sumK += k * data[k];
-      n1 += data[k];
+      final long value = data[k];
+      sumK += value * k;
+      n1 += value;
 
       // The float casting here is to avoid compiler warning about loss of precision and
       // will prevent overflow in the case of large saturated images.
@@ -1004,10 +1023,6 @@ public class AutoThreshold {
     if (logger.isLoggable(Level.FINER) && np > 0) {
       // Calculate global variance
       final double sx = sum;
-      ssx = 0;
-      for (int k = 1; k < length; k++) {
-        ssx += k * k * data[k];
-      }
       final double bcv = (ssx - sx * sx / np) / np;
 
       final int kstarCopy = kstar;
