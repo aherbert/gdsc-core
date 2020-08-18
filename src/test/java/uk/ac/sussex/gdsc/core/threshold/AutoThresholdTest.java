@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 
 @SuppressWarnings({"javadoc"})
@@ -161,7 +162,8 @@ public class AutoThresholdTest {
   @Test
   public void testOtsu() {
     // Test no denominator for BCV
-    Assertions.assertEquals(0, AutoThreshold.otsu(new int[3]));
+    final int threshold = AutoThreshold.otsu(new int[] {5, 4, 3, 2, 1});
+    Assertions.assertEquals(threshold + 2, AutoThreshold.otsu(new int[] {0, 0, 5, 4, 3, 2, 1, 0}));
     // Test multiple thresholds for maximum BCV returns the average
     Assertions.assertEquals(6,
         AutoThreshold.otsu(new int[] {10, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 10}));
@@ -169,7 +171,6 @@ public class AutoThresholdTest {
     final Logger logger = Logger.getLogger(AutoThreshold.class.getName());
     final Level level = logger.getLevel();
     logger.setLevel(Level.FINER);
-    Assertions.assertEquals(0, AutoThreshold.otsu(new int[3]));
     Assertions.assertEquals(1, AutoThreshold.otsu(new int[] {5, 4, 3, 2, 1}));
     logger.setLevel(level);
   }
@@ -205,20 +206,24 @@ public class AutoThresholdTest {
 
   private static void assertThreshold(int[] histogram) {
     final int pad = 10;
-    final int[] h1 = Arrays.copyOf(histogram, histogram.length + pad);
-    final int[] h2 = new int[h1.length];
-    System.arraycopy(histogram, 0, h2, pad, histogram.length);
-    for (final Method method : methods) {
-      final int expected = getThreshold(method, histogram);
-      int actual = AutoThreshold.getThreshold(method, histogram);
-      assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(histogram));
-      actual = AutoThreshold.getThreshold(method.toString(), histogram);
-      assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(histogram));
-      // Zero-pad
-      actual = AutoThreshold.getThreshold(method, h1);
-      assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(h1));
-      actual = AutoThreshold.getThreshold(method, h2);
-      assertThresholdValue(expected, pad, actual, () -> method + " " + Arrays.toString(h2));
+    final int[] data = histogram.clone();
+    for (int i = 0; i < 2; i++) {
+      final int[] h1 = Arrays.copyOf(data, data.length + pad);
+      final int[] h2 = new int[h1.length];
+      System.arraycopy(data, 0, h2, pad, data.length);
+      for (final Method method : methods) {
+        final int expected = getThreshold(method, data);
+        int actual = AutoThreshold.getThreshold(method, data);
+        assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(data));
+        actual = AutoThreshold.getThreshold(method.toString(), data);
+        assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(data));
+        // Zero-pad
+        actual = AutoThreshold.getThreshold(method, h1);
+        assertThresholdValue(expected, 0, actual, () -> method + " " + Arrays.toString(h1));
+        actual = AutoThreshold.getThreshold(method, h2);
+        assertThresholdValue(expected, pad, actual, () -> method + " " + Arrays.toString(h2));
+      }
+      SimpleArrayUtils.reverse(data);
     }
   }
 

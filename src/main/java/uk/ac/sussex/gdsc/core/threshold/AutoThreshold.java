@@ -974,12 +974,12 @@ public class AutoThreshold {
     // The total intensity for all histogram points <=k
     long sumK = 0;
     // n1 = # points with intensity <=k.
-    // Start with the entry for zero intensity
-    long n1 = data[0];
+    long n1 = 0;
 
     // Look at each possible threshold value,
     // calculate the between-class variance, and decide if it's a max
-    for (int k = 1; k < length - 1; k++) { // No need to check endpoints k = 0 or k = L-1
+    // No need to check endpoint k = L-1 as denom = 0
+    for (int k = 0; k < length - 1; k++) {
       final long value = data[k];
       sumK += value * k;
       n1 += value;
@@ -1020,7 +1020,7 @@ public class AutoThreshold {
     }
 
     // Output the measure of separability. Requires BCVmax / BCVglobal
-    if (logger.isLoggable(Level.FINER) && np > 0) {
+    if (logger.isLoggable(Level.FINER)) {
       // Calculate global variance
       final double sx = sum;
       final double bcv = (ssx - sx * sx / np) / np;
