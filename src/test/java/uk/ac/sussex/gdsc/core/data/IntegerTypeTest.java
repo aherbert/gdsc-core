@@ -69,13 +69,9 @@ public class IntegerTypeTest {
 
   @Test
   public void canProvideIntegerTypeData() {
-
     // This is a problem for 64-bit signed integers.
     Assertions.assertEquals(Long.MIN_VALUE, Math.abs(Long.MIN_VALUE),
         "abs(Long.MIN_VALUE) should should be Long.MIN_VALUE");
-    System.out.println(Long.MIN_VALUE * Long.MIN_VALUE);
-    System.out.println(Long.MIN_VALUE * Long.MAX_VALUE);
-    System.out.println(Long.MAX_VALUE * Long.MAX_VALUE);
 
     for (final IntegerType type : IntegerType.values()) {
       final int bd = type.getBitDepth();
