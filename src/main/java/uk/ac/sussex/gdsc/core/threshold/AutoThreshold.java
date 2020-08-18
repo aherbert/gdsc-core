@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.threshold;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 // History of the Auto_ThresholdImageJ plugin of G. Landini:
 // Autothreshold segmentation
@@ -255,7 +256,7 @@ public class AutoThreshold {
     for (last = data.length - 1; last > first && data[last] == 0; last--) {
       // do nothing
     }
-    if (first == last) {
+    if (first >= last) {
       return -1;
     }
 
@@ -403,7 +404,7 @@ public class AutoThreshold {
     //
     // There is a discrepancy with IJ because they are slightly different methods
     int threshold = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 0; i < data.length; i++) {
       if (data[i] > 0) {
         threshold = i + 1;
         break;
@@ -484,7 +485,7 @@ public class AutoThreshold {
         numBack += data[ih];
       }
       /* mean of the background pixels at a given threshold */
-      final double meanBack = (numBack == 0 ? 0.0 : (sumBack / (double) numBack));
+      final double meanBack = MathUtils.div0(sumBack, numBack);
       /* Object */
       /* sum of the object pixels at a given threshold */
       int sumObj = 0;
@@ -495,7 +496,7 @@ public class AutoThreshold {
         numObj += data[ih];
       }
       /* mean of the object pixels at a given threshold */
-      final double meanObj = (numObj == 0 ? 0.0 : (sumObj / (double) numObj));
+      final double meanObj = MathUtils.div0(sumObj, numObj);
 
       /* Calculate the new threshold: Equation (7) in Ref. 2 */
       // new_thresh = simple_round ( ( mean_back - mean_obj ) / ( Math.log ( mean_back ) - Math.log
@@ -507,15 +508,14 @@ public class AutoThreshold {
       // DBL_EPSILON = 2.220446049250313E-16
       final double temp = (meanBack - meanObj) / (Math.log(meanBack) - Math.log(meanObj));
 
-      if (temp < -2.220446049250313E-16) {
-        newThresh = (int) (temp - 0.5);
-      } else {
-        newThresh = (int) (temp + 0.5);
-        /*
-         * Stop the iterations when the difference between the new and old threshold values is less
-         * than the tolerance
-         */
-      }
+      // For a valid input histogram 'temp' is never negative as all counts are positive:
+      // meanObj > meanBack
+      // Thus we drop the check for if temp is negative.
+      newThresh = (int) (temp + 0.5);
+      /*
+       * Stop the iterations when the difference between the new and old threshold values is less
+       * than the tolerance
+       */
       // Use a fixed threshold tolerance of 0.5
     } while (Math.abs(newThresh - oldThresh) > 0.5);
     return threshold;
@@ -692,22 +692,19 @@ public class AutoThreshold {
       }
     }
 
-    if (tot == 0) {
+    if (tot <= 0) {
       return 0;
     }
 
     final double mean = sum / tot;
 
-    // Get the Std.Dev
+    // Get the Std.Dev.
+    // Note: total is > 0
     double stdDev;
-    if (tot > 0) {
-      final double d = tot;
-      stdDev = (d * sum2 - sum * sum) / d;
-      if (stdDev > 0.0) {
-        stdDev = Math.sqrt(stdDev / (d - 1.0));
-      } else {
-        stdDev = 0.0;
-      }
+    final double d = tot;
+    stdDev = (d * sum2 - sum * sum) / d;
+    if (stdDev > 0.0) {
+      stdDev = Math.sqrt(stdDev / (d - 1.0));
     } else {
       stdDev = 0.0;
     }
@@ -1051,10 +1048,9 @@ public class AutoThreshold {
       // Get closest fraction to the target fraction
       if (f < ptile) {
         final double distance = ptile - f;
-        if (distance < temp) {
-          temp = distance;
-          threshold = i;
-        }
+        // Always closer to 50% assuming data[i] >= 0
+        temp = distance;
+        threshold = i;
       } else {
         final double distance = f - ptile;
         if (distance < temp) {
@@ -1566,17 +1562,21 @@ public class AutoThreshold {
    * @return the threshold (may be 0 if not found)
    */
   public static int getThreshold(Method method, int[] data) {
-    if (method == Method.NONE || data == null) {
+    if (method == Method.NONE || data == null || data.length == 0) {
       return 0;
     }
 
     // bracket the histogram to the range that holds data to make it quicker
     int minbin = 0;
     int maxbin = data.length - 1;
-    while ((data[minbin] == 0) && (minbin < maxbin)) {
+    while (minbin <= maxbin && data[minbin] == 0) {
       minbin++;
     }
-    while ((data[maxbin] == 0) && (maxbin > minbin)) {
+    if (minbin > maxbin) {
+      // No data
+      return 0;
+    }
+    while (data[maxbin] == 0) {
       maxbin--;
     }
 

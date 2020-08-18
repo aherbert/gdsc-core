@@ -32,6 +32,8 @@ import fiji.threshold.Auto_Threshold;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
@@ -43,11 +45,20 @@ public class AutoThresholdTest {
   private static final Method[] methods = Method.values();
 
   @Test
+  public void canThresholdWithBadData() {
+    Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.NONE, null));
+    Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.NONE, new int[0]));
+    Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.DEFAULT, null));
+    Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.DEFAULT, new int[0]));
+    Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.DEFAULT, new int[10]));
+  }
+
+  @Test
   public void canThreshold() {
     assertThreshold(new int[] {1});
     assertThreshold(new int[] {6, 7, 8});
     assertThreshold(new int[] {1, 1, 4, 16, 7, 3, 1, 1, 1, 1, 1});
-    assertThreshold(new int[] {1, 1, 4, 16, 7, 3, 1, 0, 1, 0, 1});
+    assertThreshold(new int[] {1, 1, 4, 16, 7, 3, 1, 0, 1, 0, 2, 1});
   }
 
   @Test
@@ -92,7 +103,7 @@ public class AutoThresholdTest {
     final AutoThreshold thresholder = new AutoThreshold();
     final double multiplier = AutoThreshold.getStdDevMultiplier();
     try {
-      for (final double m : new double[] {2, 3, 4}) {
+      for (final double m : new double[] {-4, -3, -2, 2, 3, 4}) {
         AutoThreshold.setStdDevMultiplier(m);
         Assertions.assertEquals(m, AutoThreshold.getStdDevMultiplier());
         Assertions.assertEquals(thresholder.meanPlusStdDev(data, m),
@@ -101,6 +112,95 @@ public class AutoThresholdTest {
     } finally {
       AutoThreshold.setStdDevMultiplier(multiplier);
     }
+  }
+
+  @Test
+  public void testEmptyHistogram() {
+    final int[] data = new int[1];
+    // These results match what Auto_Threshold returns
+    Assertions.assertEquals(-1, AutoThreshold.huang(data));
+    Assertions.assertEquals(0, AutoThreshold.ijDefault(data));
+    Assertions.assertEquals(-1, AutoThreshold.intermodes(data));
+    Assertions.assertEquals(-1, AutoThreshold.isoData(data));
+    Assertions.assertEquals(0, AutoThreshold.li(data));
+    Assertions.assertEquals(-1, AutoThreshold.maxEntropy(data));
+    Assertions.assertEquals(0, AutoThreshold.mean(data));
+    Assertions.assertEquals(0, AutoThreshold.meanPlusStdDev(data));
+    Assertions.assertEquals(0, AutoThreshold.minErrorI(data));
+    Assertions.assertEquals(-1, AutoThreshold.minimum(data));
+    Assertions.assertEquals(0, AutoThreshold.moments(data));
+    Assertions.assertEquals(-1, AutoThreshold.otsu(data));
+    Assertions.assertEquals(0, AutoThreshold.percentile(data));
+    Assertions.assertEquals(0, AutoThreshold.renyiEntropy(data));
+    Assertions.assertEquals(0, AutoThreshold.shanbhag(data));
+    Assertions.assertEquals(0, AutoThreshold.triangle(data));
+    Assertions.assertEquals(-1, AutoThreshold.yen(data));
+  }
+
+  @Test
+  public void testHuang() {
+    Assertions.assertEquals(-1, AutoThreshold.huang(new int[10]));
+    final int threshold = AutoThreshold.huang(new int[] {5, 4, 3, 2, 1});
+    Assertions.assertEquals(threshold + 1, AutoThreshold.huang(new int[] {0, 5, 4, 3, 2, 1, 0}));
+  }
+
+  @Test
+  public void testIjDefault() {
+    Assertions.assertEquals(10 / 2, AutoThreshold.ijDefault(new int[10]));
+    final int threshold = AutoThreshold.ijDefault(new int[] {5, 4, 3, 2, 1});
+    Assertions.assertEquals(threshold + 1,
+        AutoThreshold.ijDefault(new int[] {0, 5, 4, 3, 2, 1, 0}));
+  }
+
+  @Test
+  public void testIsoData() {
+    final int threshold = AutoThreshold.isoData(new int[] {5, 4, 3, 2, 1});
+    Assertions.assertEquals(threshold + 1, AutoThreshold.isoData(new int[] {0, 5, 4, 3, 2, 1, 0}));
+  }
+
+  @Test
+  public void testOtsu() {
+    // Test no denominator for BCV
+    Assertions.assertEquals(0, AutoThreshold.otsu(new int[3]));
+    // Test multiple thresholds for maximum BCV returns the average
+    Assertions.assertEquals(6,
+        AutoThreshold.otsu(new int[] {10, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 20, 10}));
+    // Test the debugging
+    final Logger logger = Logger.getLogger(AutoThreshold.class.getName());
+    final Level level = logger.getLevel();
+    logger.setLevel(Level.FINER);
+    Assertions.assertEquals(0, AutoThreshold.otsu(new int[3]));
+    Assertions.assertEquals(1, AutoThreshold.otsu(new int[] {5, 4, 3, 2, 1}));
+    logger.setLevel(level);
+  }
+
+  @Test
+  public void testPercentile() {
+    Assertions.assertEquals(0, AutoThreshold.percentile(new int[] {1, 1}));
+    final int threshold = AutoThreshold.percentile(new int[] {4, 3, 2, 1});
+    Assertions.assertEquals(threshold + 1, AutoThreshold.percentile(new int[] {0, 4, 3, 2, 1, 0}));
+    final int threshold2 = AutoThreshold.percentile(new int[] {1, 2, 3, 4});
+    Assertions.assertEquals(threshold2 + 1, AutoThreshold.percentile(new int[] {0, 1, 2, 3, 4, 0}));
+  }
+
+  @Test
+  public void testRenyiEntropy() {
+    final int threshold =
+        AutoThreshold.renyiEntropy(new int[] {1, 1, 4, 16, 7, 3, 1, 0, 1, 0, 2, 1});
+    Assertions.assertEquals(threshold + 1,
+        AutoThreshold.renyiEntropy(new int[] {0, 1, 1, 4, 16, 7, 3, 1, 0, 1, 0, 2, 1}));
+  }
+
+  @Test
+  public void testShanbhag() {
+    final int threshold = AutoThreshold.shanbhag(new int[] {5, 4, 3, 2, 1});
+    Assertions.assertEquals(threshold + 1, AutoThreshold.shanbhag(new int[] {0, 5, 4, 3, 2, 1, 0}));
+  }
+
+  @Test
+  public void testTriangle() {
+    final int threshold = AutoThreshold.triangle(new int[] {5, 3, 2, 1});
+    Assertions.assertEquals(threshold + 1, AutoThreshold.triangle(new int[] {0, 5, 3, 2, 1, 0}));
   }
 
   private static void assertThreshold(int[] histogram) {
@@ -139,7 +239,14 @@ public class AutoThresholdTest {
         t = Auto_Threshold.Intermodes(data);
         break;
       case ISO_DATA:
-        t = Auto_Threshold.IsoData(data);
+        // Work around bug in isodata for small histograms
+        if (data.length < 4) {
+          final int[] newData = new int[7];
+          System.arraycopy(data, 0, newData, 4, data.length);
+          t = Auto_Threshold.IsoData(newData) - 4;
+        } else {
+          t = Auto_Threshold.IsoData(data);
+        }
         break;
       case LI:
         t = Auto_Threshold.Li(data);
