@@ -41,6 +41,7 @@ import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
+import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicInterpolatingFunction.Size;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
@@ -73,6 +74,64 @@ public class CustomTricubicInterpolatingFunctionTest {
       @SuppressWarnings("unused")
       final Size p = new Size(maxx, maxy, maxz - 1);
     });
+  }
+
+  @Test
+  public void testEstimateSize() {
+    final int maxx = 2;
+    final int maxy = 3;
+    final int maxz = 4;
+    Size size = CustomTricubicInterpolatingFunction.estimateSize(maxx, maxy, maxz);
+    Assertions.assertEquals(6, size.getTotalSplinePoints());
+    Assertions.assertEquals(24, size.getTotalFunctionPoints());
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> CustomTricubicInterpolatingFunction.estimateSize(null));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> CustomTricubicInterpolatingFunction.estimateSize(new int[2]));
+    size = CustomTricubicInterpolatingFunction.estimateSize(new int[] {maxx, maxy, maxz});
+    Assertions.assertEquals(6, size.getTotalSplinePoints());
+    Assertions.assertEquals(24, size.getTotalFunctionPoints());
+  }
+
+  @Test
+  public void testSampleEdgeCases() {
+    final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
+    final double[] _x = new double[] {0, 1};
+    final double[] a = new double[64];
+    splines[0][0][0] = createCustomTricubicFunction(a);
+
+    final CustomTricubicInterpolatingFunction f =
+        new CustomTricubicInterpolatingFunction(_x, _x, _x, splines);
+    final TrivalueProcedure p1 = new TrivalueProcedure() {
+      @Override
+      public boolean setDimensions(int maxx, int maxy, int maxz) {
+        return false;
+      }
+
+      @Override
+      public void setX(int index, double value) {
+        Assertions.fail("should not be called");
+      }
+
+      @Override
+      public void setY(int index, double value) {
+        Assertions.fail("should not be called");
+      }
+
+      @Override
+      public void setZ(int index, double value) {
+        Assertions.fail("should not be called");
+      }
+
+      @Override
+      public void setValue(int indexX, int indexY, int indexZ, double value) {
+        Assertions.fail("should not be called");
+      }
+    };
+    Assertions.assertThrows(IllegalArgumentException.class, () -> f.sample(0, 1, 1, p1, null));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> f.sample(1, 0, 1, p1, null));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> f.sample(1, 1, 0, p1, null));
+    f.sample(1, 1, 1, p1, null);
   }
 
   @Test
