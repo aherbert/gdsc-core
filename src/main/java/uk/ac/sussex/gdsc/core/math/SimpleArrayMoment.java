@@ -52,33 +52,6 @@ public final class SimpleArrayMoment implements ArrayMoment {
     // Do nothing
   }
 
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public SimpleArrayMoment(double[] data) {
-    add(data);
-  }
-
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public SimpleArrayMoment(float[] data) {
-    add(data);
-  }
-
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public SimpleArrayMoment(int[] data) {
-    add(data);
-  }
-
   @Override
   public void add(double data) {
     if (size == 0) {

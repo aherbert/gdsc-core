@@ -68,33 +68,6 @@ public final class IntegerArrayMoment implements ArrayMoment {
     // Do nothing
   }
 
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public IntegerArrayMoment(byte[] data) {
-    add(data);
-  }
-
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public IntegerArrayMoment(short[] data) {
-    add(data);
-  }
-
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public IntegerArrayMoment(int[] data) {
-    add(data);
-  }
-
   @Override
   public void add(double data) {
     throw new NotImplementedException();

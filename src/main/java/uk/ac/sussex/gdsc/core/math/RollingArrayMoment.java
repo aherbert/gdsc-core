@@ -70,33 +70,6 @@ public final class RollingArrayMoment implements ArrayMoment {
     // Do nothing
   }
 
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public RollingArrayMoment(double[] data) {
-    add(data);
-  }
-
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public RollingArrayMoment(float[] data) {
-    add(data);
-  }
-
-  /**
-   * Instantiates a new array moment with data.
-   *
-   * @param data the data
-   */
-  public RollingArrayMoment(int[] data) {
-    add(data);
-  }
-
   @Override
   public void add(double data) {
     if (size == 0) {
