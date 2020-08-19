@@ -219,16 +219,11 @@ public class CloseableBlockingQueue<E> {
       }
 
       while (size == queuedItems.length) {
+        notFull.await();
         if (closed) {
           // If nothing more can be queued we should return.
           return false;
         }
-        notFull.await();
-      }
-
-      if (closed) {
-        // If nothing more can be queued we should return.
-        return false;
       }
 
       // Only here if not closed and not full
