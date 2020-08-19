@@ -79,7 +79,7 @@ public class DoubleArrayTrivalueProviderTest {
         for (int z = 0; z < maxz; z++) {
           Assertions.assertEquals(data[x][y][z], f.get(x, y, z));
 
-          if (x > 0 && x < x - 1 && y > 0 && y < y - 1 && z > 0 && z < maxz - 1) {
+          if (x > 0 && x < maxx - 1 && y > 0 && y < maxy - 1 && z > 0 && z < maxz - 1) {
             f.get(x, y, z, values);
 
             for (final int i : test) {
