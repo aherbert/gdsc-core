@@ -38,6 +38,17 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"javadoc"})
 public class RadialStatisticsUtilsTest {
   @Test
+  public void testRadialSumThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RadialStatisticsUtils.radialSum(4, new float[0][0]));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RadialStatisticsUtils.radialSum(0, new float[][] {new float[16]}));
+    final float[][] data = new float[][] {{}};
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RadialStatisticsUtils.radialSum(4, data));
+  }
+
+  @Test
   public void canComputeRadialSum() {
     assertEquals("3", new double[] {1, 8, 0}, RadialStatisticsUtils.radialSum(3, ones(3)));
     assertEquals("4", new double[] {1, 8, 7}, RadialStatisticsUtils.radialSum(4, ones(4)));
@@ -75,6 +86,12 @@ public class RadialStatisticsUtilsTest {
         380, 376, 336, 372, 328, 348, 312, 312, 308, 272, 312, 260, 272, 256, 224, 276, 208, 232,
         212, 176, 232, 168, 196, 164, 156, 160, 120, 168, 108, 128, 112, 72, 132, 60, 108, 48, 72,
         48, 32, 52, 20, 28, 8, 4, 1}, RadialStatisticsUtils.radialSum(512, ones(512)));
+  }
+
+  @Test
+  public void testRadialCountThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RadialStatisticsUtils.radialCount(0));
   }
 
   @Test

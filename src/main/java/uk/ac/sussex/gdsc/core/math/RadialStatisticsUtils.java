@@ -32,6 +32,7 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Compute the radial statistics of 2D data.
@@ -121,6 +122,8 @@ public final class RadialStatisticsUtils {
    * @param size the size (in one dimension)
    * @param data the data (m arrays of size*size)
    * @return the sum
+   * @throws IllegalArgumentException if the size is not strictly positive, or if each array in the
+   *         data is not is not size*size.
    */
   public static double[][] radialSum(int size, float[]... data) {
     final int m = checkData(size, data);
@@ -203,6 +206,8 @@ public final class RadialStatisticsUtils {
    * @param size the size (in one dimension)
    * @param data the data (m arrays of size*size)
    * @return the sum
+   * @throws IllegalArgumentException if the size is not strictly positive, or if each array in the
+   *         data is not is not size*size.
    */
   public static double[][] radialSumAndCount(int size, float[]... data) {
     final int m = checkData(size, data);
@@ -290,9 +295,7 @@ public final class RadialStatisticsUtils {
     if (data.length == 0) {
       throw new IllegalArgumentException("No data");
     }
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be strictly positive");
-    }
+    ValidationUtils.checkStrictlyPositive(size, "size");
     final int m = data.length;
     final int length = SimpleArrayUtils.check2DSize(size, size);
     for (int mi = 0; mi < m; mi++) {
@@ -309,11 +312,10 @@ public final class RadialStatisticsUtils {
    *
    * @param size the size (in one dimension)
    * @return the sum
+   * @throws IllegalArgumentException if the size is not strictly positive
    */
   public static int[] radialCount(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be positive");
-    }
+    ValidationUtils.checkStrictlyPositive(size, "size");
 
     // Centre
     final int cx = size / 2;
