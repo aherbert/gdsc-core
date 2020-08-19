@@ -35,6 +35,17 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings({"javadoc"})
 public class FloatStackTrivalueProviderTest {
+  @Test
+  public void testConstructorThrows() {
+    final int maxx = 5;
+    final int maxy = 4;
+    Assertions.assertThrows(DataException.class,
+        () -> new FloatStackTrivalueProvider(new float[0][0], maxx, maxy));
+    Assertions.assertThrows(DataException.class,
+        () -> new FloatStackTrivalueProvider(new float[][] {new float[maxx * maxy + 1]}, maxx,
+            maxy));
+  }
+
   @SuppressWarnings("null")
   @Test
   public void canProvideData() {
@@ -48,6 +59,9 @@ public class FloatStackTrivalueProviderTest {
     }
 
     final FloatStackTrivalueProvider f = new FloatStackTrivalueProvider(data, maxx, maxy);
+    Assertions.assertEquals(maxx, f.getLengthX());
+    Assertions.assertEquals(maxy, f.getLengthY());
+    Assertions.assertEquals(maxz, f.getLengthZ());
 
     final double[][][] values = new double[3][3][3];
 

@@ -34,6 +34,23 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"javadoc"})
 public class DoubleArrayTrivalueProviderTest {
   @Test
+  public void testConstructorThrows() {
+    final int maxx = 5;
+    final int maxy = 4;
+    final int maxz = 3;
+    Assertions.assertThrows(DataException.class,
+        () -> new DoubleArrayTrivalueProvider(new double[0][0][0]));
+    Assertions.assertThrows(DataException.class,
+        () -> new DoubleArrayTrivalueProvider(new double[maxx][0][0]));
+    Assertions.assertThrows(DataException.class,
+        () -> new DoubleArrayTrivalueProvider(new double[maxx][maxy][0]));
+    Assertions.assertThrows(DataException.class, () -> new DoubleArrayTrivalueProvider(
+        new double[][][] {new double[maxy][maxz], new double[maxy + 1][maxz]}));
+    Assertions.assertThrows(DataException.class, () -> new DoubleArrayTrivalueProvider(
+        new double[][][] {new double[maxy][maxz], new double[maxy][maxz + 1]}));
+  }
+
+  @Test
   public void canProvideData() {
     final int maxx = 5;
     final int maxy = 4;
@@ -48,6 +65,10 @@ public class DoubleArrayTrivalueProviderTest {
     }
 
     final DoubleArrayTrivalueProvider f = new DoubleArrayTrivalueProvider(data);
+    Assertions.assertEquals(maxx, f.getLengthX());
+    Assertions.assertEquals(maxy, f.getLengthY());
+    Assertions.assertEquals(maxz, f.getLengthZ());
+    Assertions.assertSame(data, f.toArray());
 
     final double[][][] values = new double[3][3][3];
 
