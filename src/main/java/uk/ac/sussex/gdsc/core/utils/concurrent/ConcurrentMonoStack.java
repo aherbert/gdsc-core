@@ -39,8 +39,16 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>Provides a method to replace the current top of the stack to allow a LIFO functionality when
  * the stack is full.
  *
- * <p>The stack is closeable to prevent further additions. Items can still be removed from a closed
- * stack.
+ * <p>Modifications have been made to allow the stack to be closed to puts. When closed the
+ * behaviour is non-blocking. Any blocked threads waiting to put or take are released. No puts to
+ * the stack are allowed and any take operations return items or null when the stack is empty. The
+ * transition to closed is not reversible.
+ *
+ * <p>A pipeline to process items can be created using producer and consumer threads. If the stack
+ * is closed all threads will unblock. The producer should respond to the boolean flag returned by
+ * push indicating if the item was added to the stack. If the false then the producer can accept this
+ * as a shutdown signal. The consumer should check taken items are not null. If null then the
+ * consumer can accept this as a shutdown signal.
  *
  * <p>The stack does not implement a {@code java.util.Collection} interface and can only contain 1
  * element. However the blocking functionality is more similar to the concurrent collections in
@@ -51,13 +59,9 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <E> the element type
  * @since 1.2.0
+ * @see CloseableBlockingQueue
  */
 public class ConcurrentMonoStack<E> {
-
-  /** Message shown when trying to add to a closed stack. */
-  private static final String NO_ADDITIONS_TO_CLOSED_STACK = "No additions to a closed stack";
-  /** Message shown when trying to remove from an empty closed stack. */
-  private static final String EMPTY_CLOSED_STACK = "Empty closed stack";
 
   /** The single item in the mono stack. */
   private E item;
@@ -79,11 +83,6 @@ public class ConcurrentMonoStack<E> {
    * modified when holding lock.
    */
   private boolean closedAndEmpty;
-
-  /**
-   * Flag specifying the behaviour if closed. Should only be modified when holding lock.
-   */
-  private boolean throwIfClosed;
 
   /**
    * Creates an {@code ConcurrentMonoStack} with the default access policy.
@@ -131,6 +130,9 @@ public class ConcurrentMonoStack<E> {
    * Close the stack. No additions are possible when the stack is closed. Items can still be
    * removed.
    *
+   * <p>The transition to closed is not reversible. Closing a queue is a shutdown signal for any
+   * threads waiting to push or pop.
+   *
    * @param clear Set to true to clear the stack
    */
   public void close(boolean clear) {
@@ -165,43 +167,6 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Checks if an {@link IllegalStateException} is thrown when adding/removing from a closed stack.
-   *
-   * <p>The default is {@code false}.
-   *
-   * @return {@code true} if IllegalStateException is thrown by additions/removals when closed
-   * @see #push(Object)
-   * @see #insert(Object)
-   * @see #pop()
-   */
-  public boolean isThrowIfClosed() {
-    return throwIfClosed;
-  }
-
-  /**
-   * Sets the throw if closed flag.
-   *
-   * <p>If true then additions to the closed stack that normally block when full will throw an
-   * exception. The default is to ignore them.
-   *
-   * <p>If true then removals from the stack that normally block will throw an exception. The
-   * default is to return null.
-   *
-   * <p>The exception will be an IllegalStateException.
-   *
-   * @param throwIfClosed the new throw if closed
-   */
-  public void setThrowIfClosed(boolean throwIfClosed) {
-    final ReentrantLock localLock = this.lock;
-    localLock.lock();
-    try {
-      this.throwIfClosed = throwIfClosed;
-    } finally {
-      localLock.unlock();
-    }
-  }
-
-  /**
    * Pushes an element onto the stack and signals not empty.
    */
   private void doPush(E x) {
@@ -216,9 +181,7 @@ public class ConcurrentMonoStack<E> {
     final E x = item;
     item = null;
     // Set the closedAndEmpty flag to avoid synchronisation in a further dequeue methods
-    if (closed) {
-      closedAndEmpty = true;
-    }
+    closedAndEmpty = closed;
     notFull.signal();
     return x;
   }
@@ -226,7 +189,7 @@ public class ConcurrentMonoStack<E> {
   /**
    * Adds the specified element onto the stack waiting if necessary for space to become available.
    *
-   * <p>If closed then either ignores the element or throws an exception.
+   * <p>If closed then ignores the element.
    *
    * <p>If the stack is closed while waiting then this method will unblock and ignore the element.
    * Callers should check the return value to check if further items that will be ignored by a
@@ -236,13 +199,10 @@ public class ConcurrentMonoStack<E> {
    * @return true, if successfully added to the stack
    * @throws NullPointerException if the specified element is null
    * @throws InterruptedException If interrupted while waiting
-   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
-   * @see #isThrowIfClosed()
    */
   public boolean push(E element) throws InterruptedException {
     // Don't lock if closed
     if (closed) {
-      checkAdditionToClosedStack();
       return false;
     }
 
@@ -251,18 +211,18 @@ public class ConcurrentMonoStack<E> {
     localLock.lockInterruptibly();
     try {
       if (closed) {
-        checkAdditionToClosedStack();
         return false;
       }
 
       while (item != null) {
         notFull.await();
+        if (closed) {
+          // If nothing more can be queued we should return.
+          return false;
+        }
       }
 
-      if (closed) {
-        checkAdditionToClosedStack();
-        return false;
-      }
+      // Only here if not closed and not full
 
       doPush(element);
       return true;
@@ -272,20 +232,11 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Check if an addition is allowed to a closed stack.
-   *
-   * @throws IllegalStateException if exceptions should be thrown when the stack is closed
-   */
-  private void checkAdditionToClosedStack() {
-    if (throwIfClosed) {
-      throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
-    }
-  }
-
-  /**
    * Adds the specified element onto the stack if it is possible to do so immediately without
    * violating capacity restrictions, returning {@code true} upon success and {@code false} if no
    * space is currently available.
+   *
+   * <p>If closed then ignores the element.
    *
    * @param element the element to add
    * @return true, if successfully added to the stack
@@ -302,6 +253,7 @@ public class ConcurrentMonoStack<E> {
     localLock.lock();
     try {
       if (closed || item != null) {
+        // If nothing more can be queued we should return.
         return false;
       }
       doPush(element);
@@ -315,18 +267,15 @@ public class ConcurrentMonoStack<E> {
    * Inserts the specified element onto the stack replacing the most recently added element if it
    * exists.
    *
-   * <p>If closed then either ignores the element or throws an exception.
+   * <p>If closed then ignores the element.
    *
    * @param element the element to add
    * @return true, if successfully added to the stack
    * @throws NullPointerException if the specified element is null
-   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
-   * @see #isThrowIfClosed()
    */
   public boolean insert(E element) {
     // Don't lock if closed
     if (closed) {
-      checkAdditionToClosedStack();
       return false;
     }
 
@@ -335,7 +284,7 @@ public class ConcurrentMonoStack<E> {
     localLock.lock();
     try {
       if (closed) {
-        checkAdditionToClosedStack();
+        // If nothing more can be queued we should return.
         return false;
       }
       doPush(element);
@@ -349,22 +298,18 @@ public class ConcurrentMonoStack<E> {
    * Retrieves and removes the most recently added element from the stack, waiting if necessary
    * until an element becomes available.
    *
-   * <p>If the stack is closed while waiting then this method will unblock and either return null or
-   * throw an exception.
+   * <p>If the stack is closed while waiting then this method will unblock and return null.
    *
-   * <p>Callers should check if the return value is null and appropriately handle a closed empty
-   * stack, i.e. do not continue to call this method as it will no longer block but will have
-   * locking synchronisation overhead.
+   * <p>Callers should check if the return value is null and appropriately handle a closed stack,
+   * i.e. do not continue to call this method as it will no longer block but will have locking
+   * synchronisation overhead.
    *
-   * @return the top of this stack
+   * @return the top of this stack or null if this stack is closed
    * @throws InterruptedException if interrupted while waiting
-   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
-   * @see #isThrowIfClosed()
    */
   public E pop() throws InterruptedException {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
     if (closedAndEmpty) {
-      checkRemovalFromClosedStack();
       return null;
     }
 
@@ -373,12 +318,13 @@ public class ConcurrentMonoStack<E> {
     try {
       while (item == null) {
         if (closed) {
-          checkRemovalFromClosedStack();
+          // If nothing more can be queued we should return.
           return null;
         }
-
         notEmpty.await();
       }
+
+      // Only here if size is not 0 (we allow takes when the queue is closed but not empty)
 
       return doPop();
     } finally {
@@ -387,21 +333,16 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Check if a removal is allowed from a closed stack.
-   *
-   * @throws IllegalStateException if exceptions should be thrown when the stack is closed
-   */
-  private void checkRemovalFromClosedStack() {
-    if (throwIfClosed) {
-      throw new IllegalStateException(EMPTY_CLOSED_STACK);
-    }
-  }
-
-  /**
    * Retrieves and removes the most recently added element from the stack, or returns {@code null}
    * if this stack is empty.
    *
-   * @return the top of this stack, or {@code null} if this stack is empty
+   * <p>Note: In contrast to {@link #pop()} this method will not wait. If the stack is closed then
+   * this method will return null.
+   *
+   * <p>Callers should check if the return value is null and appropriately handle a closed stack,
+   * i.e. do not continue to call this method as it will will have locking synchronisation overhead.
+   *
+   * @return the top of this stack, or {@code null} if this stack is empty or closed
    */
   public E poll() {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -455,6 +396,8 @@ public class ConcurrentMonoStack<E> {
     try {
       if (item != null) {
         item = null;
+        // Set the closedAndEmpty flag to avoid synchronisation in a further dequeue methods
+        closedAndEmpty = closed;
         if (localLock.hasWaiters(notFull)) {
           notFull.signal();
         }
@@ -478,7 +421,7 @@ public class ConcurrentMonoStack<E> {
     final ReentrantLock localLock = this.lock;
     localLock.lock();
     try {
-      return (item == null) ? 1 : 0;
+      return (item == null) ? 0 : 1;
     } finally {
       localLock.unlock();
     }
