@@ -99,6 +99,53 @@ public class SiPrefixTest {
   }
 
   @Test
+  public void testSiPrefixDeci() {
+    Assertions.assertEquals(1e-1, SiPrefix.DECI.getFactor());
+    Assertions.assertEquals("deci", SiPrefix.DECI.getPrefix());
+    Assertions.assertEquals("d", SiPrefix.DECI.getSymbol());
+  }
+
+  @Test
+  public void testSiConvertions() {
+    final SiPrefix[] prefixes = SiPrefix.values();
+
+    for (final SiPrefix p1 : prefixes) {
+      Assertions.assertEquals(Math.PI / p1.getFactor(), p1.convert(Math.PI));
+      for (final SiPrefix p2 : prefixes) {
+        final double converted = p1.convert(Math.PI, p2);
+        Assertions.assertEquals(Math.PI * (p2.getFactor() / p1.getFactor()), converted);
+        Assertions.assertEquals(Math.PI, p2.convert(converted, p1), 1e-8);
+      }
+    }
+  }
+
+  @Test
+  public void testForOrdinal() {
+    for (final SiPrefix prefix : SiPrefix.values()) {
+      Assertions.assertEquals(prefix, SiPrefix.forOrdinal(prefix.ordinal()));
+    }
+  }
+
+  @Test
+  public void testForOrdinalThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> SiPrefix.forOrdinal(-1));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> SiPrefix.forOrdinal(Integer.MAX_VALUE));
+  }
+
+  @Test
+  public void testForOrdinalWithDefaultValue() {
+    final SiPrefix prefix0 = SiPrefix.forOrdinal(0);
+    Assertions.assertEquals(prefix0, SiPrefix.forOrdinal(-1, null));
+    Assertions.assertEquals(prefix0, SiPrefix.forOrdinal(Integer.MAX_VALUE, null));
+    for (SiPrefix prefix : new SiPrefix[] {SiPrefix.DECI, SiPrefix.PETA}) {
+      Assertions.assertEquals(prefix, SiPrefix.forOrdinal(prefix.ordinal(), SiPrefix.GIGA));
+      Assertions.assertEquals(prefix, SiPrefix.forOrdinal(-1, prefix));
+      Assertions.assertEquals(prefix, SiPrefix.forOrdinal(Integer.MAX_VALUE, prefix));
+    }
+  }
+
+  @Test
   public void canGetPrefix() {
     // Edge cases
     canGetPrefix(0, SiPrefix.NONE);
