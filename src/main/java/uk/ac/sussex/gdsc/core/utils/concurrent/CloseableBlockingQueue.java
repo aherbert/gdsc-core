@@ -45,8 +45,8 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *
  * <p>Modifications have been made to allow the queue to be closed to puts. When closed the
  * behaviour is non-blocking. Any blocked threads waiting to put or take are released. No puts to
- * the queue are allowed and any take operations return null. The transition to closed is not
- * reversible.
+ * the queue are allowed and any take operations return items or null when the queue is empty. The
+ * transition to closed is not reversible.
  *
  * <p>A pipeline to process items can be created using producer and consumer threads. If the queue
  * is closed all threads will unblock. The producer should respond to the boolean flag returned by
@@ -56,6 +56,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *
  * @param <E> the element type
  * @since 2.0
+ * @see ConcurrentMonoStack
  */
 public class CloseableBlockingQueue<E> {
   /** The queued items. */
@@ -149,7 +150,7 @@ public class CloseableBlockingQueue<E> {
    * reduced.
    */
   private void updateClosedAndEmpty() {
-    closedAndEmpty = closed && size == 0;
+    closedAndEmpty = (closed && size == 0);
   }
 
   /**
@@ -195,9 +196,11 @@ public class CloseableBlockingQueue<E> {
    * Inserts the specified element at the tail of this queue, waiting for space to become available
    * if the queue is full.
    *
-   * <p>If closed then either ignores the element or throws an exception.
+   * <p>If closed then ignores the element.
    *
    * <p>If the queue is closed while waiting then this method will unblock and ignore the element.
+   * Callers should check the return value to check if further items that will be ignored by a
+   * closed queue.
    *
    * @param e the element to add
    * @return true, if successfully added to the queue
@@ -248,8 +251,7 @@ public class CloseableBlockingQueue<E> {
    * Retrieves and removes the head of this queue, waiting if necessary until an element becomes
    * available.
    *
-   * <p>If the queue is closed while waiting then this method will unblock and either return null or
-   * throw an exception.
+   * <p>If the queue is closed while waiting then this method will unblock and return null.
    *
    * <p>Callers should check if the return value is null and appropriately handle a closed empty
    * queue, i.e. do not continue to call this method as it will no longer block but will have
