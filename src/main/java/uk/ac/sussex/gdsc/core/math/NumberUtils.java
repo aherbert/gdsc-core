@@ -49,13 +49,18 @@ public final class NumberUtils {
   private NumberUtils() {}
 
   /**
-   * Gets the unsigned exponent. This is in the range 0-255.
+   * Gets the unsigned exponent from the IEEE-754 floating-point "single format" bit layout. This is
+   * in the range 0-255.
+   *
+   * <p>The unsigned exponent is an 8 bit integer using bits 30-23.
    *
    * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
    * infinity.
    *
    * @param x the x
    * @return the signed exponent
+   * @see Float#floatToIntBits(float)
+   * @see Float#intBitsToFloat(int)
    */
   public static int getUnsignedExponent(float x) {
     final int bits = Float.floatToRawIntBits(x);
@@ -76,13 +81,18 @@ public final class NumberUtils {
   }
 
   /**
-   * Gets the unsigned exponent. This is in the range 0-2047.
+   * Gets the unsigned exponent from the IEEE-754 floating-point "double format" bit layout. This is
+   * in the range 0-2047.
+   *
+   * <p>The unsigned exponent is an 11 bit integer using bits 62-52.
    *
    * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
    * infinity.
    *
    * @param x the x
    * @return the signed exponent
+   * @see Double#doubleToLongBits(double)
+   * @see Double#longBitsToDouble(long)
    */
   public static int getUnsignedExponent(double x) {
     final long bits = Double.doubleToRawLongBits(x);
@@ -103,38 +113,56 @@ public final class NumberUtils {
   }
 
   /**
-   * Gets the signed exponent. This is in the range -127 to 128.
+   * Gets the signed exponent from the IEEE-754 floating-point "single format" bit layout. This is
+   * in the range -127 to 128.
+   *
+   * <p>The signed exponent is an 8 bit integer using bits 30-23; the raw bits represent a biased
+   * (unsigned) exponent and the value 127 is subtracted to create the signed exponent.
    *
    * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
    * infinity.
    *
    * @param x the x
    * @return the signed exponent
+   * @see Float#floatToIntBits(float)
+   * @see Float#intBitsToFloat(int)
    */
   public static int getSignedExponent(float x) {
     return getUnsignedExponent(x) - 127;
   }
 
   /**
-   * Gets the signed exponent. This is in the range -1023 to 1024.
+   * Gets the signed exponent from the IEEE-754 floating-point "double format" bit layout. This is
+   * in the range -1023 to 1024.
+   *
+   * <p>The signed exponent is an 11 bit integer using bits 62-52; the raw bits represent a biased
+   * (unsigned) exponent and the value 1023 is subtracted to create the signed exponent.
    *
    * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
    * infinity.
    *
    * @param x the x
    * @return the signed exponent
+   * @see Double#doubleToLongBits(double)
+   * @see Double#longBitsToDouble(long)
    */
   public static int getSignedExponent(double x) {
     return getUnsignedExponent(x) - 1023;
   }
 
   /**
-   * Gets the mantissa. This is a 23 bit integer. A leading 1 should be added to create a 24-bit
-   * integer if the unbiased exponent is not 0.
+   * Gets the mantissa from the IEEE-754 floating-point "single format" bit layout.
+   *
+   * <p>The raw mantissa is a 23 bit integer using bits 22-0.
+   *
+   * <p>A leading 1 should be added to create a 24-bit integer if the unbiased exponent is not 0.
+   * This is the implicit bit. Otherwise a left shift of 1 creates the mantissa.
    *
    * @param x the x
-   * @param raw Set to true to get the raw mantissa, otherwise add a leading 1 if applicable.
+   * @param raw Set to true to get the raw mantissa, otherwise adjust to the IEEE-754 mantissa.
    * @return the mantissa
+   * @see Float#floatToIntBits(float)
+   * @see Float#intBitsToFloat(int)
    */
   public static int getMantissa(float x, boolean raw) {
     final int bits = Float.floatToRawIntBits(x);
@@ -158,16 +186,22 @@ public final class NumberUtils {
 
     final int e = (bits >> 23) & 0xff;
 
-    return (e == 0) ? m : (m | 0x00800000);
+    return (e == 0) ? m << 1 : (m | 0x00800000);
   }
 
   /**
-   * Gets the mantissa. This is a 52 bit integer. A leading 1 should be added to create a 24-bit
-   * integer if the unbiased exponent is not 0.
+   * Gets the mantissa from the IEEE-754 floating-point "double format" bit layout.
+   *
+   * <p>The raw mantissa is a 52 bit integer using bits 51-0.
+   *
+   * <p>A leading 1 should be added to create a 53-bit integer if the unbiased exponent is not 0.
+   * This is the implicit bit. Otherwise a left shift of 1 creates the mantissa.
    *
    * @param x the x
-   * @param raw Set to true to get the raw mantissa, otherwise add a leading 1 if applicable.
+   * @param raw Set to true to get the raw mantissa, otherwise adjust to the IEEE-754 mantissa.
    * @return the mantissa
+   * @see Double#doubleToLongBits(double)
+   * @see Double#longBitsToDouble(long)
    */
   public static long getMantissa(double x, boolean raw) {
     final long bits = Double.doubleToRawLongBits(x);
@@ -192,14 +226,31 @@ public final class NumberUtils {
     // Get the biased exponent
     final int e = (int) ((bits >>> 52) & 0x7ffL);
 
-    return (e == 0) ? m : (m | 0x10000000000000L);
+    return (e == 0) ? m << 1 : (m | 0x10000000000000L);
   }
 
   /**
-   * Gets the sign. This returns 0 for NaN.
+   * Gets the sign.
+   *
+   * <ul>
+   *
+   * <li> If the argument is above 0, then the result is 1.
+   *
+   * <li> If the argument is below 0, then the result is -1.
+   *
+   * <li> If the argument is NaN, then the result is 0.
+   *
+   * <li> If the argument is 0, then the result is 0.
+   *
+   * </ul>
+   *
+   * <p>This method is similar to {@link Math#signum(float)} but returns an integer result. NaN
+   * values cannot return NaN and the result is 0. Signed zero has no integer equivalent and the
+   * sign is lost when {@code -0.0f} is converted to {@code 0}.
    *
    * @param x the x
    * @return the sign
+   * @see Math#signum(float)
    */
   public static int getSign(float x) {
     if (x < 0) {
@@ -212,10 +263,27 @@ public final class NumberUtils {
   }
 
   /**
-   * Gets the sign. This returns 0 for NaN.
+   * Gets the sign.
+   *
+   * <ul>
+   *
+   * <li> If the argument is above 0, then the result is 1.
+   *
+   * <li> If the argument is below 0, then the result is -1.
+   *
+   * <li> If the argument is NaN, then the result is 0.
+   *
+   * <li> If the argument is 0, then the result is 0.
+   *
+   * </ul>
+   *
+   * <p>This method is similar to {@link Math#signum(double)} but returns an integer result. NaN
+   * values cannot return NaN and the result is 0. Signed zero has no integer equivalent and the
+   * sign is lost when {@code -0.0} is converted to {@code 0}.
    *
    * @param x the x
    * @return the sign
+   * @see Math#signum(double)
    */
   public static int getSign(double x) {
     if (x < 0) {
@@ -230,6 +298,10 @@ public final class NumberUtils {
   /**
    * Checks if this is a sub normal number. This will have an unbiased exponent of 0.
    *
+   * <p>Special Cases:
+   *
+   * <ul> <li> If the argument is NaN, then the result is false. </ul>
+   *
    * @param x the x
    * @return true, if is sub normal
    */
@@ -239,6 +311,10 @@ public final class NumberUtils {
 
   /**
    * Checks if this is a sub normal number. This will have an unbiased exponent of 0.
+   *
+   * <p>Special Cases:
+   *
+   * <ul> <li> If the argument is NaN, then the result is false. </ul>
    *
    * @param x the x
    * @return true, if is sub normal
