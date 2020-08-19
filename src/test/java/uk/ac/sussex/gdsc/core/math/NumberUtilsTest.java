@@ -40,8 +40,8 @@ public class NumberUtilsTest {
   @Test
   public void canGetUnsignedExponentFloat() {
     final float value = Math.nextDown(1f);
-    for (float f : new float[] {0, 1, Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
-        1.23f, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
+    for (final float f : new float[] {0, 1, Float.NaN, Float.POSITIVE_INFINITY,
+        Float.NEGATIVE_INFINITY, 1.23f, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
       Assertions.assertEquals(Math.getExponent(f), NumberUtils.getUnsignedExponent(f) - 127);
     }
   }
@@ -49,7 +49,7 @@ public class NumberUtilsTest {
   @Test
   public void canGetUnsignedExponentDouble() {
     final double value = Math.nextDown(1.0);
-    for (double f : new double[] {0, 1, Double.NaN, Double.POSITIVE_INFINITY,
+    for (final double f : new double[] {0, 1, Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY, 1.23, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
       Assertions.assertEquals(Math.getExponent(f), NumberUtils.getUnsignedExponent(f) - 1023);
     }
@@ -58,8 +58,8 @@ public class NumberUtilsTest {
   @Test
   public void canGetSignedExponentFloat() {
     final float value = Math.nextDown(1f);
-    for (float f : new float[] {0, 1, Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
-        1.23f, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
+    for (final float f : new float[] {0, 1, Float.NaN, Float.POSITIVE_INFINITY,
+        Float.NEGATIVE_INFINITY, 1.23f, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
       Assertions.assertEquals(Math.getExponent(f), NumberUtils.getSignedExponent(f));
     }
   }
@@ -67,7 +67,7 @@ public class NumberUtilsTest {
   @Test
   public void canGetSignedExponentDouble() {
     final double value = Math.nextDown(1.0);
-    for (double f : new double[] {0, 1, Double.NaN, Double.POSITIVE_INFINITY,
+    for (final double f : new double[] {0, 1, Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY, 1.23, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
       Assertions.assertEquals(Math.getExponent(f), NumberUtils.getSignedExponent(f));
     }
@@ -106,7 +106,7 @@ public class NumberUtilsTest {
   @Test
   public void canGetSignFloat() {
     Assertions.assertEquals(0, NumberUtils.getSign(Float.NaN));
-    for (float f : new float[] {-8.96f, -1, -0f, 0, 1, 2.34f, Float.POSITIVE_INFINITY,
+    for (final float f : new float[] {-8.96f, -1, -0f, 0, 1, 2.34f, Float.POSITIVE_INFINITY,
         Float.NEGATIVE_INFINITY}) {
       Assertions.assertEquals((int) Math.signum(f), NumberUtils.getSign(f));
     }
@@ -115,7 +115,7 @@ public class NumberUtilsTest {
   @Test
   public void canGetSignDouble() {
     Assertions.assertEquals(0, NumberUtils.getSign(Double.NaN));
-    for (double f : new double[] {-8.96, -1, -0.0, 0, 1, 2.34, Double.POSITIVE_INFINITY,
+    for (final double f : new double[] {-8.96, -1, -0.0, 0, 1, 2.34, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY}) {
       Assertions.assertEquals((int) Math.signum(f), NumberUtils.getSign(f));
     }
@@ -153,14 +153,14 @@ public class NumberUtilsTest {
     Assertions.assertFalse(NumberUtils.isPrime(1), "1 should not be prime");
     Assertions.assertTrue(NumberUtils.isPrime(2), "2 should be prime");
     // Small primes
-    for (int prime : new int[] {3, 5, 7, 11, 13, 17}) {
+    for (final int prime : new int[] {3, 5, 7, 11, 13, 17}) {
       Assertions.assertTrue(NumberUtils.isPrime(prime), () -> prime + " is prime");
       Assertions.assertFalse(NumberUtils.isPrime(prime + 1), () -> (prime + 1) + " is not prime");
     }
     Assertions.assertFalse(NumberUtils.isPrime(15));
     // Bigger primes. Must not be prime 2 above the value.
     // Require a value above 211^2 = 44521
-    for (int prime : new int[] {883, 1777, 3313, 46147}) {
+    for (final int prime : new int[] {883, 1777, 3313, 46147}) {
       Assertions.assertTrue(NumberUtils.isPrime(prime), () -> prime + " is prime");
       Assertions.assertFalse(NumberUtils.isPrime(prime + 2), () -> (prime + 2) + " is not prime");
     }

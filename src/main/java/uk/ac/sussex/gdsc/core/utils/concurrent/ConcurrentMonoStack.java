@@ -46,8 +46,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * <p>A pipeline to process items can be created using producer and consumer threads. If the stack
  * is closed all threads will unblock. The producer should respond to the boolean flag returned by
- * push indicating if the item was added to the stack. If the false then the producer can accept this
- * as a shutdown signal. The consumer should check taken items are not null. If null then the
+ * push indicating if the item was added to the stack. If the false then the producer can accept
+ * this as a shutdown signal. The consumer should check taken items are not null. If null then the
  * consumer can accept this as a shutdown signal.
  *
  * <p>The stack does not implement a {@code java.util.Collection} interface and can only contain 1

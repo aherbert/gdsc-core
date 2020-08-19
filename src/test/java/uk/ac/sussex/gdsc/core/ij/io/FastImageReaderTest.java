@@ -303,7 +303,7 @@ public class FastImageReaderTest {
   public void canReadStrippedGrey8(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     canRead(createImage(200, 90, rng, FastImageReaderTest::createGrey8, 1), fi -> {
-      int size = fi.width * fi.height;
+      final int size = fi.width * fi.height;
       fi.stripOffsets = new int[] {0, size / 2};
       fi.stripLengths = new int[] {size / 2, size / 2};
     });
@@ -313,7 +313,7 @@ public class FastImageReaderTest {
   public void canReadStrippedGrey16(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     canRead(createImage(200, 90, rng, FastImageReaderTest::createGrey16, 1), fi -> {
-      int size = fi.width * fi.height * 2;
+      final int size = fi.width * fi.height * 2;
       fi.stripOffsets = new int[] {0, size / 2};
       fi.stripLengths = new int[] {size / 2, size / 2};
     });
@@ -324,7 +324,7 @@ public class FastImageReaderTest {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     canRead(createImage(5, 10, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       fi.fileType = FileInfo.GRAY16_SIGNED;
-      int size = fi.width * fi.height * 2;
+      final int size = fi.width * fi.height * 2;
       fi.stripOffsets = new int[] {0, size / 2};
       fi.stripLengths = new int[] {size / 2, size / 2};
     });
@@ -334,7 +334,7 @@ public class FastImageReaderTest {
   public void canReadStrippedGrey32(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     canRead(createImage(200, 90, rng, FastImageReaderTest::createGrey32, 1), fi -> {
-      int size = fi.width * fi.height * 4;
+      final int size = fi.width * fi.height * 4;
       fi.stripOffsets = new int[] {0, size / 2};
       fi.stripLengths = new int[] {size / 2, size / 2};
     });
@@ -345,7 +345,7 @@ public class FastImageReaderTest {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     canRead(createImage(5, 10, rng, FastImageReaderTest::createGrey32, 1), fi -> {
       fi.fileType = FileInfo.GRAY32_UNSIGNED;
-      int size = fi.width * fi.height * 4;
+      final int size = fi.width * fi.height * 4;
       fi.stripOffsets = new int[] {0, size / 2};
       fi.stripLengths = new int[] {size / 2, size / 2};
     });
@@ -356,7 +356,7 @@ public class FastImageReaderTest {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     canRead(createImage(5, 10, rng, FastImageReaderTest::createGrey32, 1), fi -> {
       fi.fileType = FileInfo.GRAY32_INT;
-      int size = fi.width * fi.height * 4;
+      final int size = fi.width * fi.height * 4;
       fi.stripOffsets = new int[] {0, size / 2};
       fi.stripLengths = new int[] {size / 2, size / 2};
     });
@@ -368,7 +368,7 @@ public class FastImageReaderTest {
     canRead(createImage(12, 5, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       fi.fileType = FileInfo.RGB48;
       fi.width /= 3;
-      int size = fi.width * fi.height * 6;
+      final int size = fi.width * fi.height * 6;
       fi.stripOffsets = new int[] {0, size / 2};
       // Make the final strip too big on purpose to hit an edge case
       fi.stripLengths = new int[] {size / 2, size / 2 + 1};

@@ -45,8 +45,7 @@ public class JonkerVolgenantAssignmentTest {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> JonkerVolgenantAssignment.compute(new int[0][0]), "zero length input");
     Assertions.assertThrows(IllegalArgumentException.class,
-        () -> JonkerVolgenantAssignment.compute(new int[1][0]),
-        "zero length second input");
+        () -> JonkerVolgenantAssignment.compute(new int[1][0]), "zero length second input");
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> JonkerVolgenantAssignment.compute(new int[][] {{1, 2, 3}, {1, 2}}),
         "Non rectangular input");

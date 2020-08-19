@@ -306,8 +306,7 @@ public class DoubleNdTreeTest {
       point[n] = i;
       Assertions.assertTrue(tree.addIfAbsent(point));
       Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
-      Assertions.assertFalse(tree.addIfAbsent(point.clone()),
-          () -> "Point added. dim=" + dim);
+      Assertions.assertFalse(tree.addIfAbsent(point.clone()), () -> "Point added. dim=" + dim);
       Assertions.assertEquals(i + 1, tree.size(), () -> "Incorrect size. dim=" + dim);
     }
     // -0.0 and 0.0 are equal
@@ -320,13 +319,13 @@ public class DoubleNdTreeTest {
   public void testForEach() {
     final DoubleKdTree tree = KdTrees.newDoubleKdTree(2);
     final IndexSupplier msg = new IndexSupplier(1, "item ", "");
-    for (int size : new int[] {0, 1, 4, 16, 64, 256}) {
+    for (final int size : new int[] {0, 1, 4, 16, 64, 256}) {
       for (int i = tree.size(); i < size; i++) {
         tree.add(new double[] {i, 0});
       }
       final int[] count = new int[size];
       tree.forEach(p -> {
-        final int item  = (int) p[0];
+        final int item = (int) p[0];
         count[item]++;
       });
       for (int i = 0; i < size; i++) {

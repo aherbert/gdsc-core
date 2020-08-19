@@ -97,14 +97,14 @@ public class MiddleSquareWeylSequenceTest {
     Assertions.assertEquals(1024, increments.length);
     // Check the permutations are unique.
     final TIntHashSet set = new TIntHashSet(increments.length * 2);
-    for (int inc : increments) {
+    for (final int inc : increments) {
       if (!set.add(inc)) {
         Assertions
             .fail("Duplicate increment " + Integer.toHexString(inc) + " at position " + set.size());
       }
     }
     // Check the permutations are unique when byte reversed.
-    for (int inc : increments) {
+    for (final int inc : increments) {
       if (!set.add(Integer.reverseBytes(inc))) {
         Assertions.fail("Duplicate byte reversed increment " + Integer.toHexString(inc)
             + " at position " + (set.size() - increments.length));
@@ -171,7 +171,7 @@ public class MiddleSquareWeylSequenceTest {
   @Test
   public void testNextInt() {
     // Test some simple seeds here
-    for (long seed : new long[] {-1L, 0L, 1L, 789314346434L}) {
+    for (final long seed : new long[] {-1L, 0L, 1L, 789314346434L}) {
       final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
       int bitCount = 0;
       final int n = 100;

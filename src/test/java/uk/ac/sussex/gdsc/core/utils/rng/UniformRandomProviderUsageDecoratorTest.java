@@ -248,7 +248,7 @@ public class UniformRandomProviderUsageDecoratorTest {
   public void testSampling() {
     final UniformRandomProviderUsageDecorator rng =
         new UniformRandomProviderUsageDecorator(SplitMix.new64(0));
-    Logger logger = Logger.getLogger(getClass().getName());
+    final Logger logger = Logger.getLogger(getClass().getName());
 
     final NormalizedGaussianSampler sampler = SamplerUtils.createNormalizedGaussianSampler(rng);
     final int size = 1 << 20;
@@ -256,7 +256,7 @@ public class UniformRandomProviderUsageDecoratorTest {
       sampler.sample();
     }
     logger.info(rng.toString());
-    long total = rng.getNextDoubleCount() + rng.getNextLongCount();
+    final long total = rng.getNextDoubleCount() + rng.getNextLongCount();
     logger.info(() -> String.format("%d / %d = %s", rng.getNextDoubleCount(), total,
         rng.getNextDoubleCount() / (double) total));
 
@@ -267,7 +267,7 @@ public class UniformRandomProviderUsageDecoratorTest {
         sampler2.sample();
       }
       logger.info(rng.toString());
-      long total2 = rng.getNextDoubleCount() + rng.getNextLongCount();
+      final long total2 = rng.getNextDoubleCount() + rng.getNextLongCount();
       logger.info(() -> String.format("%d / %d = %s", rng.getNextDoubleCount(), total2,
           rng.getNextDoubleCount() / (double) total2));
     }

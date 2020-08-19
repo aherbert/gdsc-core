@@ -55,7 +55,7 @@ public class KnnConcaveHull2dTest {
   @Test
   public void testAngleListSortByAngle() {
     final double[][] points = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0.5, 0.5}};
-    AngleList knn = new AngleList(4);
+    final AngleList knn = new AngleList(4);
     for (int i = 0; i < 4; i++) {
       // Ignore distance
       knn.add(i, 0.0);
@@ -78,7 +78,7 @@ public class KnnConcaveHull2dTest {
   @Test
   public void testAngleListSortByDistance() {
     final double[][] points = {{1, 0}, {2, 0}, {3, 0}, {0, 0}};
-    AngleList knn = new AngleList(4);
+    final AngleList knn = new AngleList(4);
     for (int i = 0; i < 3; i++) {
       // Add distance
       knn.add(i, points[i][0]);
@@ -102,7 +102,7 @@ public class KnnConcaveHull2dTest {
 
   @Test
   public void testNumberOfNeighbours() {
-    KnnConcaveHull2d.Builder builder = KnnConcaveHull2d.newBuilder();
+    final KnnConcaveHull2d.Builder builder = KnnConcaveHull2d.newBuilder();
     Assertions.assertEquals(3, builder.getK());
     Assertions.assertSame(builder, builder.setK(7));
     Assertions.assertEquals(7, builder.getK());

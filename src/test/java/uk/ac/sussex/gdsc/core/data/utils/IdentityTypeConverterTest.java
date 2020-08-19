@@ -41,8 +41,7 @@ public class IdentityTypeConverterTest {
   @SeededTest
   public void testConverter(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
-    final IdentityTypeConverter<TimeUnit> c =
-        new IdentityTypeConverter<>(TimeUnit.MILLISECONDS);
+    final IdentityTypeConverter<TimeUnit> c = new IdentityTypeConverter<>(TimeUnit.MILLISECONDS);
     Assertions.assertEquals("x", c.getFunction());
     for (int i = 0; i < 10; i++) {
       final double d = rng.nextDouble();

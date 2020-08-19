@@ -107,7 +107,8 @@ public class IntegerTypeTest {
     final IntegerType type0 = IntegerType.forOrdinal(0);
     Assertions.assertEquals(type0, IntegerType.forOrdinal(-1, null));
     Assertions.assertEquals(type0, IntegerType.forOrdinal(Integer.MAX_VALUE, null));
-    for (IntegerType type : new IntegerType[] {IntegerType.SIGNED_13, IntegerType.UNSIGNED_17}) {
+    for (final IntegerType type : new IntegerType[] {IntegerType.SIGNED_13,
+        IntegerType.UNSIGNED_17}) {
       Assertions.assertEquals(type, IntegerType.forOrdinal(-1, type));
       Assertions.assertEquals(type, IntegerType.forOrdinal(Integer.MAX_VALUE, type));
     }

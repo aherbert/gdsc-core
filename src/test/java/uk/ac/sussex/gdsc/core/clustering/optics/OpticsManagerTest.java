@@ -687,8 +687,8 @@ public class OpticsManagerTest {
     om3.setRandomSeed(seed);
     om2.setTracker(AssertionTracker.INSTANCE);
     om3.setTracker(AssertionTracker.INSTANCE);
-    int numberOfSplits = 200;
-    int numberOfProjections = 200;
+    final int numberOfSplits = 200;
+    final int numberOfProjections = 200;
     final OpticsResult r2 =
         om2.fastOptics(3, numberOfSplits, numberOfProjections, true, false, SampleMode.ALL);
     // Don't choose use random vectors, it will default to this anyway.

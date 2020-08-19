@@ -39,7 +39,7 @@ public class ComputationExceptionTest {
     final Throwable cause = new ComputationException();
     Assertions.assertEquals(message, new ComputationException(message).getMessage());
     Assertions.assertEquals(cause, new ComputationException(cause).getCause());
-    ComputationException ex = new ComputationException(message, cause);
+    final ComputationException ex = new ComputationException(message, cause);
     Assertions.assertEquals(message, ex.getMessage());
     Assertions.assertEquals(cause, ex.getCause());
   }

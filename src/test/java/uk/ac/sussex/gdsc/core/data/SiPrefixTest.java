@@ -138,7 +138,7 @@ public class SiPrefixTest {
     final SiPrefix prefix0 = SiPrefix.forOrdinal(0);
     Assertions.assertEquals(prefix0, SiPrefix.forOrdinal(-1, null));
     Assertions.assertEquals(prefix0, SiPrefix.forOrdinal(Integer.MAX_VALUE, null));
-    for (SiPrefix prefix : new SiPrefix[] {SiPrefix.DECI, SiPrefix.PETA}) {
+    for (final SiPrefix prefix : new SiPrefix[] {SiPrefix.DECI, SiPrefix.PETA}) {
       Assertions.assertEquals(prefix, SiPrefix.forOrdinal(prefix.ordinal(), SiPrefix.GIGA));
       Assertions.assertEquals(prefix, SiPrefix.forOrdinal(-1, prefix));
       Assertions.assertEquals(prefix, SiPrefix.forOrdinal(Integer.MAX_VALUE, prefix));

@@ -1130,7 +1130,7 @@ public class LocalListTest {
           new SplittableRandom().ints(size + i, lower, upper).boxed().collect(Collectors.toList());
       final LocalList<Integer> list = new LocalList<>(c);
       list.reverse();
-      ListIterator<Integer> it = c.listIterator(c.size());
+      final ListIterator<Integer> it = c.listIterator(c.size());
       int index = 0;
       while (it.hasPrevious()) {
         Assertions.assertEquals(it.previous(), list.get(index++));

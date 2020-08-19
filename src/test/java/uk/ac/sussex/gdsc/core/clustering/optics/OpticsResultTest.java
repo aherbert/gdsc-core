@@ -490,7 +490,7 @@ public class OpticsResultTest {
     final OpticsResult result = om.optics(3, 4);
 
     result.resetClusterIds();
-    double xi = 0.05;
+    final double xi = 0.05;
     result.extractClusters(xi);
 
     final double[] reachability = result.getReachabilityDistanceProfile(false);
@@ -514,10 +514,10 @@ public class OpticsResultTest {
     Assertions.assertArrayEquals(clusters, result.getClusters());
 
     // Find some limits that will effect clustering
-    Percentile p = new Percentile();
+    final Percentile p = new Percentile();
     p.setData(reachability);
-    double lower = p.evaluate(35);
-    double upper = p.evaluate(65);
+    final double lower = p.evaluate(35);
+    final double upper = p.evaluate(65);
     result.setLowerLimit(lower);
     result.setUpperLimit(upper);
 
@@ -551,7 +551,7 @@ public class OpticsResultTest {
     final OpticsManager om = new OpticsManager(x.toArray(), y.toArray(), 0);
     final OpticsResult result = om.optics(3, 4);
 
-    double xi = 0.05;
+    final double xi = 0.05;
     result.extractClusters(xi);
 
     final int[] clusters = result.getClusters();

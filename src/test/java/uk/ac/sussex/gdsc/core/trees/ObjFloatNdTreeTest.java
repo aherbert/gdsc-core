@@ -486,7 +486,7 @@ public class ObjFloatNdTreeTest {
   public void testForEach() {
     final ObjFloatKdTree<Integer> tree = KdTrees.newObjFloatKdTree(2);
     final IndexSupplier msg = new IndexSupplier(1, "item ", "");
-    for (int size : new int[] {0, 1, 4, 16, 64, 256}) {
+    for (final int size : new int[] {0, 1, 4, 16, 64, 256}) {
       for (int i = tree.size(); i < size; i++) {
         tree.add(new float[] {i, 0}, i);
       }

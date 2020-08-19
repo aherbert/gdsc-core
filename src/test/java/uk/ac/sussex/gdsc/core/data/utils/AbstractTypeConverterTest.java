@@ -63,8 +63,8 @@ public class AbstractTypeConverterTest {
 
   @Test
   public void testConstructorWithNull() {
-    TimeUnit from = TimeUnit.MILLISECONDS;
-    TimeUnit to = TimeUnit.SECONDS;
+    final TimeUnit from = TimeUnit.MILLISECONDS;
+    final TimeUnit to = TimeUnit.SECONDS;
     Assertions.assertThrows(ConversionException.class, () -> new DummyTypeConverter(null, to));
     Assertions.assertThrows(ConversionException.class, () -> new DummyTypeConverter(from, null));
     Assertions.assertThrows(ConversionException.class,

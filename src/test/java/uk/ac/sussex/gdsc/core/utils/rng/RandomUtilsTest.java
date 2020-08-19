@@ -114,8 +114,8 @@ public class RandomUtilsTest {
     final int k = 3;
     for (int i = 0; i < 10; i++) {
       final int[] sample = RandomUtils.sample(k, data, rng);
-      BitSet set = new BitSet(upper);
-      for (int value : sample) {
+      final BitSet set = new BitSet(upper);
+      for (final int value : sample) {
         Assertions.assertTrue(value >= lower && value < upper);
         set.set(value);
       }

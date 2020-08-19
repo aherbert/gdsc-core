@@ -39,7 +39,7 @@ public class NotImplementedExceptionTest {
     final Throwable cause = new NotImplementedException();
     Assertions.assertEquals(message, new NotImplementedException(message).getMessage());
     Assertions.assertEquals(cause, new NotImplementedException(cause).getCause());
-    NotImplementedException ex = new NotImplementedException(message, cause);
+    final NotImplementedException ex = new NotImplementedException(message, cause);
     Assertions.assertEquals(message, ex.getMessage());
     Assertions.assertEquals(cause, ex.getCause());
   }

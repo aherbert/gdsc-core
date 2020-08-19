@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
 public class IntFixedListTest {
   @Test
   public void testAddGetSet() {
-    int capacity = 5;
-    IntFixedList list = new IntFixedList(capacity);
+    final int capacity = 5;
+    final IntFixedList list = new IntFixedList(capacity);
     Assertions.assertEquals(capacity, list.capacity());
     Assertions.assertEquals(0, list.size());
     for (int i = 0; i < capacity; i++) {
@@ -50,8 +50,8 @@ public class IntFixedListTest {
 
   @Test
   public void testAddArray() {
-    IntFixedList list = new IntFixedList(10);
-    int[] data = {42, 7, 13};
+    final IntFixedList list = new IntFixedList(10);
+    final int[] data = {42, 7, 13};
     list.add(data);
     Assertions.assertEquals(3, list.size());
     for (int i = 0; i < list.size(); i++) {
@@ -66,9 +66,9 @@ public class IntFixedListTest {
 
   @Test
   public void testAddIntFixedList() {
-    IntFixedList list = new IntFixedList(10);
-    IntFixedList list2 = new IntFixedList(10);
-    int[] data = {42, 7, 13};
+    final IntFixedList list = new IntFixedList(10);
+    final IntFixedList list2 = new IntFixedList(10);
+    final int[] data = {42, 7, 13};
     list2.add(data);
 
     list.add(list2);
@@ -85,19 +85,19 @@ public class IntFixedListTest {
 
   @Test
   public void testCopy() {
-    IntFixedList list = new IntFixedList(10);
-    int[] data = {42, 7, 13};
+    final IntFixedList list = new IntFixedList(10);
+    final int[] data = {42, 7, 13};
     list.add(data);
 
-    int[] dest = new int[5];
+    final int[] dest = new int[5];
     list.copy(dest, 2);
     Assertions.assertArrayEquals(new int[] {0, 0, 42, 7, 13}, dest);
   }
 
   @Test
   public void testClear() {
-    IntFixedList list = new IntFixedList(10);
-    int[] data = {42, 7, 13};
+    final IntFixedList list = new IntFixedList(10);
+    final int[] data = {42, 7, 13};
     list.add(data);
     Assertions.assertEquals(3, list.size());
     list.clear();
@@ -106,17 +106,17 @@ public class IntFixedListTest {
 
   @Test
   public void testToArray() {
-    IntFixedList list = new IntFixedList(10);
+    final IntFixedList list = new IntFixedList(10);
     Assertions.assertArrayEquals(new int[0], list.toArray());
-    int[] data = {42, 7, 13};
+    final int[] data = {42, 7, 13};
     list.add(data);
     Assertions.assertArrayEquals(data, list.toArray());
   }
 
   @Test
   public void testRemove() {
-    IntFixedList list = new IntFixedList(10);
-    int[] data = {42, 7, 13};
+    final IntFixedList list = new IntFixedList(10);
+    final int[] data = {42, 7, 13};
     list.add(data);
     list.remove(1);
     Assertions.assertArrayEquals(new int[] {42, 13}, list.toArray());
@@ -126,8 +126,8 @@ public class IntFixedListTest {
 
   @Test
   public void testRemoveIf() {
-    IntFixedList list = new IntFixedList(10);
-    int[] data = {42, 7, 13};
+    final IntFixedList list = new IntFixedList(10);
+    final int[] data = {42, 7, 13};
     list.add(data);
     list.removeIf(i -> i == 99);
     Assertions.assertArrayEquals(data, list.toArray());
@@ -145,7 +145,7 @@ public class IntFixedListTest {
         }
         throw new RuntimeException();
       });
-    } catch (RuntimeException expected) {
+    } catch (final RuntimeException expected) {
       // ignore
     }
     // The list is not corrupted

@@ -40,7 +40,7 @@ public class FloatCubicSplineDataTest {
   @Test
   public void testToArray() {
     final float[] exp = SimpleArrayUtils.newArray(64, 1.0f, 1.0f);
-    FloatCubicSplineData data = new FloatCubicSplineData(exp);
+    final FloatCubicSplineData data = new FloatCubicSplineData(exp);
     final float[] obs = new float[64];
     data.toArray(obs);
     Assertions.assertArrayEquals(exp, obs);
@@ -50,7 +50,7 @@ public class FloatCubicSplineDataTest {
   public void testScale() {
     final float[] exp = SimpleArrayUtils.newArray(64, 1.0f, 1.0f);
     final int scale = 3;
-    FloatCubicSplineData data = new FloatCubicSplineData(exp).scale(scale);
+    final FloatCubicSplineData data = new FloatCubicSplineData(exp).scale(scale);
     final float[] obs = new float[64];
     data.toArray(obs);
     SimpleArrayUtils.multiply(exp, scale);

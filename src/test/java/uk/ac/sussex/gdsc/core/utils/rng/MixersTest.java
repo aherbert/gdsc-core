@@ -91,7 +91,7 @@ public class MixersTest {
 
   private static void assertUnmixer(RandomSeed seed, LongUnaryOperator mix,
       LongUnaryOperator unmix) {
-    for (long x : new long[] {Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE}) {
+    for (final long x : new long[] {Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE}) {
       final long y = mix.applyAsLong(x);
       final long x2 = unmix.applyAsLong(y);
       Assertions.assertEquals(x, x2);

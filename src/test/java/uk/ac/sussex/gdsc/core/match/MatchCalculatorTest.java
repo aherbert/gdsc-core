@@ -334,7 +334,7 @@ public class MatchCalculatorTest {
       Assertions.assertEquals(tp, matches.size(), "list matches");
       final HashSet<Coordinate> matchPredicted = new HashSet<>();
       // Test the matches contains the predicted as the second of the pair.
-      for (PointPair pair : matches) {
+      for (final PointPair pair : matches) {
         Assertions.assertTrue(ArrayUtils.indexOf(actual, pair.getPoint1()) != -1,
             "actual match should be first of the match pair");
         Assertions.assertTrue(ArrayUtils.indexOf(predicted, pair.getPoint2()) != -1,

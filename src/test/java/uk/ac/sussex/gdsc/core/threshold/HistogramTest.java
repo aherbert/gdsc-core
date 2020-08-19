@@ -84,7 +84,7 @@ public class HistogramTest {
   private static void assertBuildHistogram(int[] values, int[] histogram, int... data) {
     final int[] input = data == null ? null : data.clone();
     for (int i = 0; i < 3; i++) {
-      Histogram h = Histogram.buildHistogram(input);
+      final Histogram h = Histogram.buildHistogram(input);
       Assertions.assertArrayEquals(histogram, h.histogramCounts, () -> String.format("%s => %s",
           Arrays.toString(data), Arrays.toString(h.histogramCounts)));
       for (int j = 0; j < values.length; j++) {
@@ -109,7 +109,7 @@ public class HistogramTest {
     final int[] histogram = {4, 1, 5, 1, 0, 1, 0, 1, 1};
     for (int i = 0; i < 3; i++) {
       final Histogram h = new Histogram(histogram);
-      for (Method method : new Method[] {Method.OTSU, Method.MEAN}) {
+      for (final Method method : new Method[] {Method.OTSU, Method.MEAN}) {
         Assertions.assertEquals(AutoThreshold.getThreshold(method, histogram),
             h.getThreshold(method));
       }

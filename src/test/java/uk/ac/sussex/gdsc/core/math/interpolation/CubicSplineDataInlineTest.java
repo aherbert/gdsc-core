@@ -72,7 +72,7 @@ public class CubicSplineDataInlineTest {
 
       sb.append(NL);
 
-      Object[] args = new Object[4];
+      final Object[] args = new Object[4];
       for (int k = 0, ai = 0; k < N; k++) {
         args[2] = k;
         for (int j = 0; j < N; j++) {
@@ -164,7 +164,7 @@ public class CubicSplineDataInlineTest {
   }
 
   static String create_power(Formatter formatter, int powerY, int powerZ) {
-    String x0yYzZ = "x0y" + powerY + "z" + powerZ;
+    final String x0yYzZ = "x0y" + powerY + "z" + powerZ;
     String powerZpowerY;
     if (powerY == 0) {
       if (powerZ == 0) {

@@ -64,7 +64,7 @@ public class FhtTest {
     final ByteProcessor bp = new ByteProcessor(4, 4);
     final int index = 7;
     bp.set(index, 42);
-    Fht fht = new Fht(bp, false);
+    final Fht fht = new Fht(bp, false);
     Assertions.assertEquals(42, fht.getf(index));
   }
 
@@ -209,12 +209,12 @@ public class FhtTest {
     fht1.transform();
     fht2.transform();
 
-    ImageStack stack1 = fht1.getComplexTransform();
-    ImageStack stack2 = fht2.getComplexTransform();
+    final ImageStack stack1 = fht1.getComplexTransform();
+    final ImageStack stack2 = fht2.getComplexTransform();
 
     Assertions.assertArrayEquals(stack1.getImageArray(), stack2.getImageArray());
 
-    FloatProcessor[] processors = fht2.getComplexTransformProcessors();
+    final FloatProcessor[] processors = fht2.getComplexTransformProcessors();
 
     for (int i = 0; i < 2; i++) {
       Assertions.assertArrayEquals((float[]) stack1.getPixels(i + 1),

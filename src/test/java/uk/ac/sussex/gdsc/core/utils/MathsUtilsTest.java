@@ -124,8 +124,8 @@ public class MathsUtilsTest {
 
   @Test
   public void canGetLogLikelihoodFromResidualSumOfSquares() {
-    for (int n : new int[] {34, 67}) {
-      for (double rss : new double[] {456.78, 98.123}) {
+    for (final int n : new int[] {34, 67}) {
+      for (final double rss : new double[] {456.78, 98.123}) {
         final double expected =
             -n * Math.log(2 * Math.PI) / 2 - n * Math.log(rss / n) / 2 - n / 2.0;
         Assertions.assertEquals(expected, MathUtils.getLogLikelihood(rss, n),
@@ -136,8 +136,8 @@ public class MathsUtilsTest {
 
   @Test
   public void canComputeAic() {
-    for (int k : new int[] {3, 6}) {
-      for (double ll : new double[] {-456.78, 98.123}) {
+    for (final int k : new int[] {3, 6}) {
+      for (final double ll : new double[] {-456.78, 98.123}) {
         final double expected = 2 * k - 2 * ll;
         Assertions.assertEquals(expected, MathUtils.getAkaikeInformationCriterion(ll, k));
       }
@@ -146,9 +146,9 @@ public class MathsUtilsTest {
 
   @Test
   public void canComputeAicc() {
-    for (int n : new int[] {13, 42}) {
-      for (int k : new int[] {3, 6}) {
-        for (double ll : new double[] {-456.78, 98.123}) {
+    for (final int n : new int[] {13, 42}) {
+      for (final int k : new int[] {3, 6}) {
+        for (final double ll : new double[] {-456.78, 98.123}) {
           double expected = 2 * k - 2 * ll;
           // adjust
           expected += (2.0 * k * k + 2 * k) / (n - k - 1);
@@ -160,9 +160,9 @@ public class MathsUtilsTest {
 
   @Test
   public void canComputeBic() {
-    for (int n : new int[] {13, 42}) {
-      for (int k : new int[] {3, 6}) {
-        for (double ll : new double[] {-456.78, 98.123}) {
+    for (final int n : new int[] {13, 42}) {
+      for (final int k : new int[] {3, 6}) {
+        for (final double ll : new double[] {-456.78, 98.123}) {
           final double expected = k * Math.log(n) - 2 * ll;
           Assertions.assertEquals(expected, MathUtils.getBayesianInformationCriterion(ll, n, k));
         }
@@ -172,10 +172,10 @@ public class MathsUtilsTest {
 
   @Test
   public void canComputeAdjustedR2() {
-    for (int n : new int[] {13, 42}) {
-      for (int k : new int[] {3, 6}) {
-        for (double rss : new double[] {-456.78, 98.123}) {
-          for (double tss : new double[] {-456.78, 98.123}) {
+    for (final int n : new int[] {13, 42}) {
+      for (final int k : new int[] {3, 6}) {
+        for (final double rss : new double[] {-456.78, 98.123}) {
+          for (final double tss : new double[] {-456.78, 98.123}) {
             final double expected = 1 - (rss / tss) * ((double) (n - 1) / (n - k - 1));
             Assertions.assertEquals(expected,
                 MathUtils.getAdjustedCoefficientOfDetermination(rss, tss, n, k));

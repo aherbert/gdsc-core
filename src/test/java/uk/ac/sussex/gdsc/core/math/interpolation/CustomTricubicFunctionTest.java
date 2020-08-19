@@ -52,14 +52,14 @@ public class CustomTricubicFunctionTest {
     final DoubleCustomTricubicFunction df =
         (DoubleCustomTricubicFunction) CustomTricubicFunctionUtils.create(da.clone());
 
-    double[] da2 = new double[64];
+    final double[] da2 = new double[64];
 
     ff.getCoefficients(da2);
     Assertions.assertArrayEquals(da, da2);
     df.getCoefficients(da2);
     Assertions.assertArrayEquals(da, da2);
 
-    float[] fa2 = new float[64];
+    final float[] fa2 = new float[64];
 
     ff.getCoefficients(fa2);
     Assertions.assertArrayEquals(fa, fa2);
@@ -95,8 +95,8 @@ public class CustomTricubicFunctionTest {
     final DoubleCustomTricubicFunction df2 = (DoubleCustomTricubicFunction) ff.toDoublePrecision();
     final FloatCustomTricubicFunction ff2 = (FloatCustomTricubicFunction) df.toSinglePrecision();
 
-    float[] fa2 = new float[64];
-    double[] da2 = new double[64];
+    final float[] fa2 = new float[64];
+    final double[] da2 = new double[64];
     ff2.getCoefficients(fa2);
     df2.getCoefficients(da2);
 

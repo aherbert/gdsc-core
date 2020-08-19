@@ -41,7 +41,7 @@ public class DiggingConcaveHull2dTest {
 
   @Test
   public void testNumberOfNeighbours() {
-    DiggingConcaveHull2d.Builder builder = DiggingConcaveHull2d.newBuilder();
+    final DiggingConcaveHull2d.Builder builder = DiggingConcaveHull2d.newBuilder();
     Assertions.assertTrue(builder.getThreshold() >= 1);
     Assertions.assertSame(builder, builder.setThreshold(7));
     Assertions.assertEquals(7, builder.getThreshold());
@@ -278,19 +278,19 @@ public class DiggingConcaveHull2dTest {
     Assertions.assertNotNull(hull);
     final double[][] vertices = hull.getVertices();
     for (int i = 0, j = vertices.length - 1; i < vertices.length; j = i, i++) {
-      double x1 = vertices[i][0];
-      double y1 = vertices[i][1];
-      double x2 = vertices[j][0];
-      double y2 = vertices[j][1];
+      final double x1 = vertices[i][0];
+      final double y1 = vertices[i][1];
+      final double x2 = vertices[j][0];
+      final double y2 = vertices[j][1];
       for (int ii = 0, jj = vertices.length - 1; ii < vertices.length; jj = ii, ii++) {
         // Ignore touching vertices
         if (ii == i || ii == j || jj == i || jj == j) {
           continue;
         }
-        double x3 = vertices[ii][0];
-        double y3 = vertices[ii][1];
-        double x4 = vertices[jj][0];
-        double y4 = vertices[jj][1];
+        final double x3 = vertices[ii][0];
+        final double y3 = vertices[ii][1];
+        final double x4 = vertices[jj][0];
+        final double y4 = vertices[jj][1];
         Assertions.assertFalse(GeometryUtils.testIntersect(x1, y1, x2, y2, x3, y3, x4, y4));
       }
     }

@@ -38,13 +38,13 @@ public class VersionUtilsTest {
 
   @Test
   public void testVersionUtils() {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream test = new PrintStream(baos);
-    PrintStream out  =  System.out;
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final PrintStream test = new PrintStream(baos);
+    final PrintStream out = System.out;
     System.setOut(test);
     VersionUtils.main(null);
     System.setOut(out);
-    String text = baos.toString();
+    final String text = baos.toString();
     Assertions.assertTrue(text.contains(VersionUtils.getVersion()));
     Assertions.assertTrue(text.contains(VersionUtils.getBuildDate()));
     Assertions.assertTrue(text.contains(VersionUtils.getBuildNumber()));

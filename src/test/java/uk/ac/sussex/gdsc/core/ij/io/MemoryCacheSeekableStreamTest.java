@@ -100,7 +100,7 @@ public class MemoryCacheSeekableStreamTest {
       Assertions.assertArrayEquals(Arrays.copyOf(bytes, buffer.length), buffer);
 
       // Read the rest
-      ByteArrayOutputStream tmp = new ByteArrayOutputStream(bytes.length);
+      final ByteArrayOutputStream tmp = new ByteArrayOutputStream(bytes.length);
       tmp.write(buffer);
       int read = ss.read(buffer);
       while (read >= 0) {

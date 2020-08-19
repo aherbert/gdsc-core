@@ -251,7 +251,7 @@ public class FloatHistogramTest {
     final float[] value = {2, 3, 4, 5, 6, 7, 8, 9, 10};
     final int[] histogram = {0, 1, 5, 1, 0, 1, 0, 1, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
-    for (Method method : new Method[] {Method.OTSU, Method.MEAN}) {
+    for (final Method method : new Method[] {Method.OTSU, Method.MEAN}) {
       Assertions.assertEquals(value[0] + AutoThreshold.getThreshold(method, histogram),
           h.getThreshold(method));
     }

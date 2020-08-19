@@ -291,7 +291,6 @@ public final class ConcurrencyUtils {
    * @return the value
    * @throws NullPointerException If the {@link Supplier} creates a null object
    */
-  @SuppressWarnings("null")
   @NotNull
   public static <T> T refresh(AtomicReference<T> reference, final Predicate<T> test,
       final Supplier<T> supplier) {

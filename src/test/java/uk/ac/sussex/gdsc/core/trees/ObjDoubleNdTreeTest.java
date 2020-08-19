@@ -483,7 +483,7 @@ public class ObjDoubleNdTreeTest {
   public void testForEach() {
     final ObjDoubleKdTree<Integer> tree = KdTrees.newObjDoubleKdTree(2);
     final IndexSupplier msg = new IndexSupplier(1, "item ", "");
-    for (int size : new int[] {0, 1, 4, 16, 64, 256}) {
+    for (final int size : new int[] {0, 1, 4, 16, 64, 256}) {
       for (int i = tree.size(); i < size; i++) {
         tree.add(new double[] {i, 0}, i);
       }

@@ -71,7 +71,7 @@ public class MemoryUtilsTest {
     // Start from the default
     int capacity = 11;
     for (;;) {
-      int newCapacity = MemoryUtils.createNewCapacity(capacity + 1, capacity);
+      final int newCapacity = MemoryUtils.createNewCapacity(capacity + 1, capacity);
       Assertions.assertTrue(newCapacity >= capacity + 1);
       capacity = newCapacity;
       if (capacity == Integer.MAX_VALUE) {

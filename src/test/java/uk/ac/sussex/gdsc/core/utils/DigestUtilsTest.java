@@ -64,8 +64,8 @@ public class DigestUtilsTest {
 
   @Test
   public void canConvertToHexString() {
-    byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, (byte) 255};
-    String expected = "000102030405060708090a0b0c0d0e0f10ff";
+    final byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, (byte) 255};
+    final String expected = "000102030405060708090a0b0c0d0e0f10ff";
     Assertions.assertEquals(expected, DigestUtils.toHex(data));
     Assertions.assertEquals(expected.toUpperCase(Locale.getDefault()),
         DigestUtils.toHex(data, false));

@@ -48,7 +48,7 @@ public class ActiveListTest {
       Assertions.assertFalse(active.isDisabled(i));
     }
     Assertions.assertEquals(n, active.size());
-    int index = 2;
+    final int index = 2;
     active.disable(index);
     Assertions.assertEquals(n - 1, active.size());
     Assertions.assertFalse(active.isEnabled(index));
