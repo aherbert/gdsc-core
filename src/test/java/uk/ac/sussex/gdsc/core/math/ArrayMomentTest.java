@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.IntegerType;
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
@@ -58,6 +59,7 @@ import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 @SuppressWarnings({"javadoc"})
 public class ArrayMomentTest {
   static final int MAX_INT = 65335; // Unsigned 16-bit int
+  static final int MAX_INT_2 = MAX_INT / 2;
 
   private static Logger logger;
 
@@ -72,6 +74,35 @@ public class ArrayMomentTest {
   }
 
   final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
+
+  // XXX RollingArrayMoment
+
+  @Test
+  public void testRollingArrayMomentSingleDouble() {
+    final RollingArrayMoment m = new RollingArrayMoment();
+    m.add(1);
+    final double[] zero = new double[1];
+    Assertions.assertEquals(1, m.getN());
+    Assertions.assertArrayEquals(new double[] {1}, m.getFirstMoment());
+    Assertions.assertArrayEquals(zero, m.getSecondMoment());
+    Assertions.assertArrayEquals(zero, m.getVariance());
+    Assertions.assertArrayEquals(zero, m.getVariance(false));
+    Assertions.assertArrayEquals(zero, m.getStandardDeviation());
+    Assertions.assertArrayEquals(zero, m.getStandardDeviation(false));
+    m.add(2);
+    Assertions.assertEquals(2, m.getN());
+    Assertions.assertArrayEquals(new double[] {1.5}, m.getFirstMoment());
+    Assertions.assertArrayEquals(new double[] {0.5}, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {0.5}, m.getVariance());
+    Assertions.assertArrayEquals(new double[] {0.25}, m.getVariance(false));
+    Assertions.assertArrayEquals(new double[] {Math.sqrt(0.5)}, m.getStandardDeviation());
+    Assertions.assertArrayEquals(new double[] {Math.sqrt(0.25)}, m.getStandardDeviation(false));
+  }
+
+  @Test
+  public void testRollingMomentSmallResults() {
+    assertSmallResults(new RollingArrayMoment());
+  }
 
   @SeededTest
   public void canComputeRollingMomentDouble(RandomSeed seed) {
@@ -123,20 +154,92 @@ public class ArrayMomentTest {
 
   @SeededTest
   public void canComputeRollingMomentInt(RandomSeed seed) {
-    canComputeMoment("Single", new int[] {42}, new RollingArrayMoment());
+    canComputeMoment("Single", new int[] {-42}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[] d = new int[1000];
 
     for (int i = 0; i < d.length; i++) {
-      d[i] = rng.nextInt(MAX_INT);
+      d[i] = rng.nextInt(MAX_INT) - MAX_INT_2;
     }
     canComputeMoment("Uniform", d, new RollingArrayMoment());
 
     for (int i = 0; i < d.length; i++) {
-      d[i] = i;
+      d[i] = i - 500;
     }
     canComputeMoment("Series", d, new RollingArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeRollingMomentShort(RandomSeed seed) {
+    canComputeMoment("Single", new short[] {-42}, new RollingArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final short[] d = new short[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMoment("Uniform", d, new RollingArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (i - 500);
+    }
+    canComputeMoment("Series", d, new RollingArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeRollingMomentByte(RandomSeed seed) {
+    canComputeMoment("Single", new byte[] {-42}, new RollingArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final byte[] d = new byte[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMoment("Uniform", d, new RollingArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (i - 500);
+    }
+    canComputeMoment("Series", d, new RollingArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeRollingMomentShortUnsigned(RandomSeed seed) {
+    canComputeMomentUnsigned("Single", new short[] {-42}, new RollingArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final short[] d = new short[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMomentUnsigned("Uniform", d, new RollingArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (i - 500);
+    }
+    canComputeMomentUnsigned("Series", d, new RollingArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeRollingMomentByteUnsigned(RandomSeed seed) {
+    canComputeMomentUnsigned("Single", new byte[] {-42}, new RollingArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final byte[] d = new byte[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMomentUnsigned("Uniform", d, new RollingArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (i - 500);
+    }
+    canComputeMomentUnsigned("Series", d, new RollingArrayMoment());
   }
 
   @SeededTest
@@ -167,6 +270,8 @@ public class ArrayMomentTest {
     }
 
     final RollingArrayMoment r1 = new RollingArrayMoment();
+    Assertions.assertThrows(IllegalArgumentException.class, () -> r1.add(new IntegerArrayMoment()));
+
     final int size = 6;
     final RollingArrayMoment[] r2 = new RollingArrayMoment[size];
     for (int i = 0; i < size; i++) {
@@ -183,7 +288,7 @@ public class ArrayMomentTest {
     final double[] esd = r1.getStandardDeviation();
 
     for (int i = 1; i < size; i++) {
-      r2[0].add(r2[i]);
+      r2[0].add((ArrayMoment) r2[i]);
     }
 
     final double[] om1 = r2[0].getFirstMoment();
@@ -197,7 +302,34 @@ public class ArrayMomentTest {
     TestAssertions.assertArrayTest(esd, osd, equality, "SD");
   }
 
-  // Copy to here
+  // XXX SimpleArrayMoment
+
+  @Test
+  public void testSimpleMomentSmallResults() {
+    assertSmallResults(new SimpleArrayMoment());
+  }
+
+  @Test
+  public void testSimpleArrayMomentSingleDouble() {
+    final SimpleArrayMoment m = new SimpleArrayMoment();
+    m.add(1);
+    final double[] zero = new double[1];
+    Assertions.assertEquals(1, m.getN());
+    Assertions.assertArrayEquals(new double[] {1}, m.getFirstMoment());
+    Assertions.assertArrayEquals(zero, m.getSecondMoment());
+    Assertions.assertArrayEquals(zero, m.getVariance());
+    Assertions.assertArrayEquals(zero, m.getVariance(false));
+    Assertions.assertArrayEquals(zero, m.getStandardDeviation());
+    Assertions.assertArrayEquals(zero, m.getStandardDeviation(false));
+    m.add(2);
+    Assertions.assertEquals(2, m.getN());
+    Assertions.assertArrayEquals(new double[] {1.5}, m.getFirstMoment());
+    Assertions.assertArrayEquals(new double[] {0.5}, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {0.5}, m.getVariance());
+    Assertions.assertArrayEquals(new double[] {0.25}, m.getVariance(false));
+    Assertions.assertArrayEquals(new double[] {Math.sqrt(0.5)}, m.getStandardDeviation());
+    Assertions.assertArrayEquals(new double[] {Math.sqrt(0.25)}, m.getStandardDeviation(false));
+  }
 
   @SeededTest
   public void canComputeSimpleMomentDouble(RandomSeed seed) {
@@ -249,21 +381,94 @@ public class ArrayMomentTest {
 
   @SeededTest
   public void canComputeSimpleMomentInt(RandomSeed seed) {
-    canComputeMoment("Single", new int[] {42}, new SimpleArrayMoment());
+    canComputeMoment("Single", new int[] {-42}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[] d = new int[1000];
 
     for (int i = 0; i < d.length; i++) {
-      d[i] = rng.nextInt(MAX_INT);
+      d[i] = rng.nextInt(MAX_INT) - MAX_INT_2;
     }
     canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
     for (int i = 0; i < d.length; i++) {
-      d[i] = i;
+      d[i] = i - 500;
     }
     canComputeMoment("Series", d, new SimpleArrayMoment());
   }
+
+  @SeededTest
+  public void canComputeSimpleMomentShort(RandomSeed seed) {
+    canComputeMoment("Single", new short[] {-42}, new SimpleArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final short[] d = new short[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMoment("Uniform", d, new SimpleArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (i - 500);
+    }
+    canComputeMoment("Series", d, new SimpleArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeSimpleMomentByte(RandomSeed seed) {
+    canComputeMoment("Single", new byte[] {-42}, new SimpleArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final byte[] d = new byte[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMoment("Uniform", d, new SimpleArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (i - 500);
+    }
+    canComputeMoment("Series", d, new SimpleArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeSimpleMomentShortUnsigned(RandomSeed seed) {
+    canComputeMomentUnsigned("Single", new short[] {-42}, new SimpleArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final short[] d = new short[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMomentUnsigned("Uniform", d, new SimpleArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (i - 500);
+    }
+    canComputeMomentUnsigned("Series", d, new SimpleArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeSimpleMomentByteUnsigned(RandomSeed seed) {
+    canComputeMomentUnsigned("Single", new byte[] {-42}, new SimpleArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final byte[] d = new byte[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMomentUnsigned("Uniform", d, new SimpleArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (i - 500);
+    }
+    canComputeMomentUnsigned("Series", d, new SimpleArrayMoment());
+  }
+
 
   @SeededTest
   public void canComputeSimpleArrayMomentInt(RandomSeed seed) {
@@ -293,6 +498,8 @@ public class ArrayMomentTest {
     }
 
     final SimpleArrayMoment r1 = new SimpleArrayMoment();
+    Assertions.assertThrows(IllegalArgumentException.class, () -> r1.add(new RollingArrayMoment()));
+
     final int size = 6;
     final SimpleArrayMoment[] r2 = new SimpleArrayMoment[size];
     for (int i = 0; i < size; i++) {
@@ -309,7 +516,7 @@ public class ArrayMomentTest {
     final double[] esd = r1.getStandardDeviation();
 
     for (int i = 1; i < size; i++) {
-      r2[0].add(r2[i]);
+      r2[0].add((ArrayMoment) r2[i]);
     }
 
     final double[] om1 = r2[0].getFirstMoment();
@@ -323,23 +530,111 @@ public class ArrayMomentTest {
     TestAssertions.assertArrayTest(esd, osd, equality, "SD");
   }
 
+  // XXX IntegerArrayMoment
+
+  @Test
+  public void testIntegerMomentSmallResults() {
+    assertSmallResults(new IntegerArrayMoment());
+  }
+
+  @Test
+  public void testIntegerArrayMomentThrows() {
+    final IntegerArrayMoment m = new IntegerArrayMoment();
+    Assertions.assertThrows(NotImplementedException.class, () -> m.add(1.23));
+    Assertions.assertThrows(NotImplementedException.class, () -> m.add(new double[] {1.23}));
+    Assertions.assertThrows(NotImplementedException.class, () -> m.add(new float[] {1.5f}));
+  }
+
   @SeededTest
   public void canComputeIntegerMomentInt(RandomSeed seed) {
-    canComputeMoment("Single", new int[] {42}, new IntegerArrayMoment());
+    canComputeMoment("Single", new int[] {-42}, new IntegerArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[] d = new int[1000];
 
     for (int i = 0; i < d.length; i++) {
-      d[i] = rng.nextInt(MAX_INT);
+      d[i] = rng.nextInt(MAX_INT) - MAX_INT_2;
     }
     canComputeMoment("Uniform", d, new IntegerArrayMoment());
 
     for (int i = 0; i < d.length; i++) {
-      d[i] = i;
+      d[i] = i - 500;
     }
     canComputeMoment("Series", d, new IntegerArrayMoment());
   }
+
+  @SeededTest
+  public void canComputeIntegerMomentShort(RandomSeed seed) {
+    canComputeMoment("Single", new short[] {-42}, new IntegerArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final short[] d = new short[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMoment("Uniform", d, new IntegerArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (i - 500);
+    }
+    canComputeMoment("Series", d, new IntegerArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeIntegerMomentByte(RandomSeed seed) {
+    canComputeMoment("Single", new byte[] {-42}, new IntegerArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final byte[] d = new byte[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMoment("Uniform", d, new IntegerArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (i - 500);
+    }
+    canComputeMoment("Series", d, new IntegerArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeIntegerMomentShortUnsigned(RandomSeed seed) {
+    canComputeMomentUnsigned("Single", new short[] {-42}, new IntegerArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final short[] d = new short[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMomentUnsigned("Uniform", d, new IntegerArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (short) (i - 500);
+    }
+    canComputeMomentUnsigned("Series", d, new IntegerArrayMoment());
+  }
+
+  @SeededTest
+  public void canComputeIntegerMomentByteUnsigned(RandomSeed seed) {
+    canComputeMomentUnsigned("Single", new byte[] {-42}, new IntegerArrayMoment());
+
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final byte[] d = new byte[1000];
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (rng.nextInt(MAX_INT) - MAX_INT_2);
+    }
+    canComputeMomentUnsigned("Uniform", d, new IntegerArrayMoment());
+
+    for (int i = 0; i < d.length; i++) {
+      d[i] = (byte) (i - 500);
+    }
+    canComputeMomentUnsigned("Series", d, new IntegerArrayMoment());
+  }
+
 
   @SeededTest
   public void canComputeIntegerArrayMomentInt(RandomSeed seed) {
@@ -369,6 +664,8 @@ public class ArrayMomentTest {
     }
 
     final IntegerArrayMoment r1 = new IntegerArrayMoment();
+    Assertions.assertThrows(IllegalArgumentException.class, () -> r1.add(new RollingArrayMoment()));
+
     final int size = 6;
     final IntegerArrayMoment[] r2 = new IntegerArrayMoment[size];
     for (int i = 0; i < size; i++) {
@@ -385,7 +682,7 @@ public class ArrayMomentTest {
     final double[] esd = r1.getStandardDeviation();
 
     for (int i = 1; i < size; i++) {
-      r2[0].add(r2[i]);
+      r2[0].add((ArrayMoment) r2[i]);
     }
 
     final double[] om1 = r2[0].getFirstMoment();
@@ -432,9 +729,11 @@ public class ArrayMomentTest {
     m1.add(data);
     final SecondMoment m2 = new SecondMoment();
     m2.incrementAll(data);
+    final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new double[] {data[i]});
     }
+    Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
         () -> title + " Mean");
     TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
@@ -450,9 +749,11 @@ public class ArrayMomentTest {
     m1.add(data);
     final SecondMoment m2 = new SecondMoment();
     m2.incrementAll(toDouble(data));
+    final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
-      r2.add(new double[] {data[i]});
+      r2.add(new float[] {data[i]});
     }
+    Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
         () -> title + " Mean");
     TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
@@ -468,9 +769,95 @@ public class ArrayMomentTest {
     m1.add(data);
     final SecondMoment m2 = new SecondMoment();
     m2.incrementAll(toDouble(data));
+    final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new int[] {data[i]});
     }
+    Assertions.assertEquals(n + data.length, r2.getN());
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
+        () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
+        () -> title + " Variance");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
+        () -> title + " SD");
+  }
+
+  private void canComputeMoment(String title, short[] data, ArrayMoment r2) {
+    final double[] data2 = toDouble(data);
+    final Statistics m1 = new Statistics();
+    m1.add(data2);
+    final SecondMoment m2 = new SecondMoment();
+    m2.incrementAll(data2);
+    final long n = r2.getN();
+    for (int i = 0; i < data.length; i++) {
+      r2.add(new short[] {data[i]});
+    }
+    Assertions.assertEquals(n + data.length, r2.getN());
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
+        () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
+        () -> title + " Variance");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
+        () -> title + " SD");
+  }
+
+  private void canComputeMoment(String title, byte[] data, ArrayMoment r2) {
+    final double[] data2 = toDouble(data);
+    final Statistics m1 = new Statistics();
+    m1.add(data2);
+    final SecondMoment m2 = new SecondMoment();
+    m2.incrementAll(data2);
+    final long n = r2.getN();
+    for (int i = 0; i < data.length; i++) {
+      r2.add(new byte[] {data[i]});
+    }
+    Assertions.assertEquals(n + data.length, r2.getN());
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
+        () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
+        () -> title + " Variance");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
+        () -> title + " SD");
+  }
+
+  private void canComputeMomentUnsigned(String title, short[] data, ArrayMoment r2) {
+    final double[] data2 = toDoubleUnsigned(data);
+    final Statistics m1 = new Statistics();
+    m1.add(data2);
+    final SecondMoment m2 = new SecondMoment();
+    m2.incrementAll(data2);
+    final long n = r2.getN();
+    for (int i = 0; i < data.length; i++) {
+      r2.addUnsigned(new short[] {data[i]});
+    }
+    Assertions.assertEquals(n + data.length, r2.getN());
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
+        () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
+        () -> title + " Variance");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
+        () -> title + " SD");
+  }
+
+  private void canComputeMomentUnsigned(String title, byte[] data, ArrayMoment r2) {
+    final double[] data2 = toDoubleUnsigned(data);
+    final Statistics m1 = new Statistics();
+    m1.add(data2);
+    final SecondMoment m2 = new SecondMoment();
+    m2.incrementAll(data2);
+    final long n = r2.getN();
+    for (int i = 0; i < data.length; i++) {
+      r2.addUnsigned(new byte[] {data[i]});
+    }
+    Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
         () -> title + " Mean");
     TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
@@ -497,6 +884,38 @@ public class ArrayMomentTest {
     return d;
   }
 
+  private static double[] toDouble(short[] in) {
+    final double[] d = new double[in.length];
+    for (int i = 0; i < d.length; i++) {
+      d[i] = in[i];
+    }
+    return d;
+  }
+
+  private static double[] toDouble(byte[] in) {
+    final double[] d = new double[in.length];
+    for (int i = 0; i < d.length; i++) {
+      d[i] = in[i];
+    }
+    return d;
+  }
+
+  private static double[] toDoubleUnsigned(short[] in) {
+    final double[] d = new double[in.length];
+    for (int i = 0; i < d.length; i++) {
+      d[i] = in[i] & 0xffff;
+    }
+    return d;
+  }
+
+  private static double[] toDoubleUnsigned(byte[] in) {
+    final double[] d = new double[in.length];
+    for (int i = 0; i < d.length; i++) {
+      d[i] = in[i] & 0xff;
+    }
+    return d;
+  }
+
   private static double[] uniformDouble(UniformRandomProvider rng, int n) {
     final double[] d = new double[n];
     for (int i = 0; i < d.length; i++) {
@@ -513,10 +932,74 @@ public class ArrayMomentTest {
     return d;
   }
 
+  /**
+   * Assert small results.
+   *
+   * @param m the moment (must be empty)
+   */
+  private static void assertSmallResults(ArrayMoment m) {
+    final double[] empty = new double[0];
+    Assertions.assertEquals(0, m.getN());
+    Assertions.assertArrayEquals(empty, m.getFirstMoment());
+    Assertions.assertArrayEquals(empty, m.getSecondMoment());
+    Assertions.assertArrayEquals(empty, m.getVariance());
+    Assertions.assertArrayEquals(empty, m.getVariance(false));
+    Assertions.assertArrayEquals(empty, m.getStandardDeviation());
+    Assertions.assertArrayEquals(empty, m.getStandardDeviation(false));
+
+    m.add(new int[] {0, 1, 2});
+    final double[] zero = new double[3];
+    Assertions.assertEquals(1, m.getN());
+    Assertions.assertArrayEquals(new double[] {0, 1, 2}, m.getFirstMoment());
+    Assertions.assertArrayEquals(zero, m.getSecondMoment());
+    Assertions.assertArrayEquals(zero, m.getVariance());
+    Assertions.assertArrayEquals(zero, m.getVariance(false));
+    Assertions.assertArrayEquals(zero, m.getStandardDeviation());
+    Assertions.assertArrayEquals(zero, m.getStandardDeviation(false));
+
+    m.add(new int[] {0, 2, 4});
+    Assertions.assertEquals(2, m.getN());
+    Assertions.assertArrayEquals(new double[] {0, 1.5, 3}, m.getFirstMoment());
+    Assertions.assertArrayEquals(new double[] {0, 0.5, 2}, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {0, 0.5, 2}, m.getVariance());
+    Assertions.assertArrayEquals(new double[] {0, 0.25, 1}, m.getVariance(false));
+    Assertions.assertArrayEquals(new double[] {0, Math.sqrt(0.5), Math.sqrt(2)},
+        m.getStandardDeviation());
+    Assertions.assertArrayEquals(new double[] {0, Math.sqrt(0.25), 1},
+        m.getStandardDeviation(false));
+
+    final ArrayMoment m2 = m.newInstance();
+    Assertions.assertEquals(0, m2.getN());
+    Assertions.assertEquals(m.getClass(), m2.getClass());
+
+    m2.add(m);
+    Assertions.assertEquals(m.getN(), m2.getN());
+    Assertions.assertArrayEquals(m.getFirstMoment(), m2.getFirstMoment());
+    Assertions.assertArrayEquals(m.getSecondMoment(), m2.getSecondMoment());
+    Assertions.assertArrayEquals(m.getVariance(), m2.getVariance());
+    Assertions.assertArrayEquals(m.getStandardDeviation(), m2.getStandardDeviation());
+
+    // Add empty
+    final ArrayMoment m3 = m.newInstance();
+    m2.add(m3);
+    Assertions.assertEquals(m.getN(), m2.getN());
+    Assertions.assertArrayEquals(m.getFirstMoment(), m2.getFirstMoment());
+    Assertions.assertArrayEquals(m.getSecondMoment(), m2.getSecondMoment());
+    Assertions.assertArrayEquals(m.getVariance(), m2.getVariance());
+    Assertions.assertArrayEquals(m.getStandardDeviation(), m2.getStandardDeviation());
+
+    // Wrong size
+    final ArrayMoment m4 = m.newInstance();
+    m4.add(new int[] {99});
+    Assertions.assertThrows(IllegalArgumentException.class, () -> m2.add(m4));
+  }
+
   private void canComputeArrayMoment(String title, double[][] data, ArrayMoment r2) {
+    final long size = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(data[i]);
     }
+    Assertions.assertEquals(size + data.length, r2.getN());
     final double[] om1 = r2.getFirstMoment();
     final double[] om2 = r2.getSecondMoment();
     final double[] ov = r2.getVariance();
@@ -537,9 +1020,11 @@ public class ArrayMomentTest {
   }
 
   private void canComputeArrayMoment(String title, int[][] data, ArrayMoment r2) {
+    final long size = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(data[i]);
     }
+    Assertions.assertEquals(size + data.length, r2.getN());
     final double[] om1 = r2.getFirstMoment();
     final double[] om2 = r2.getSecondMoment();
     final double[] ov = r2.getVariance();
