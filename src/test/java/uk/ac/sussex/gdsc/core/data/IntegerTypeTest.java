@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.data;
 
+import java.util.function.IntToLongFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -77,6 +78,8 @@ public class IntegerTypeTest {
       final int bd = type.getBitDepth();
       Assertions.assertTrue(type.getTypeName().contains(Integer.toString(bd) + "-bit"));
       Assertions.assertEquals(type, IntegerType.forOrdinal(type.ordinal()));
+      Assertions.assertEquals(type, IntegerType.forOrdinal(type.ordinal(), IntegerType.SIGNED_11));
+      Assertions.assertEquals(type.getTypeName(), type.toString());
 
       if (type.isSigned()) {
         // Signed
@@ -89,6 +92,48 @@ public class IntegerTypeTest {
         Assertions.assertEquals(0L, type.getMin(), type.getTypeName());
         Assertions.assertEquals(maxUnsigned(bd), type.getMax(), type.getTypeName());
       }
+    }
+  }
+
+  @Test
+  public void testForOrdinalThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> IntegerType.forOrdinal(-1));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> IntegerType.forOrdinal(Integer.MAX_VALUE));
+  }
+
+  @Test
+  public void testForOrdinalWithDefaultValue() {
+    final IntegerType type0 = IntegerType.forOrdinal(0);
+    Assertions.assertEquals(type0, IntegerType.forOrdinal(-1, null));
+    Assertions.assertEquals(type0, IntegerType.forOrdinal(Integer.MAX_VALUE, null));
+    for (IntegerType type : new IntegerType[] {IntegerType.SIGNED_13, IntegerType.UNSIGNED_17}) {
+      Assertions.assertEquals(type, IntegerType.forOrdinal(-1, type));
+      Assertions.assertEquals(type, IntegerType.forOrdinal(Integer.MAX_VALUE, type));
+    }
+  }
+
+  @Test
+  public void testMaxUnsigned() {
+    assertBitFunction(IntegerTypeTest::maxUnsigned, IntegerType::maxUnsigned, 1, 63);
+  }
+
+  @Test
+  public void testMaxSigned() {
+    assertBitFunction(IntegerTypeTest::maxSigned, IntegerType::maxSigned, 1, 64);
+  }
+
+  @Test
+  public void testMinSigned() {
+    assertBitFunction(IntegerTypeTest::minSigned, IntegerType::minSigned, 1, 64);
+  }
+
+  private static void assertBitFunction(IntToLongFunction expected, IntToLongFunction actual,
+      int min, int max) {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> actual.applyAsLong(min - 1));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> actual.applyAsLong(max + 1));
+    for (int i = min; i <= max; i++) {
+      Assertions.assertEquals(expected.applyAsLong(i), actual.applyAsLong(i));
     }
   }
 

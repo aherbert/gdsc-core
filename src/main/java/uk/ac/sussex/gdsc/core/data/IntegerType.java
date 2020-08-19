@@ -409,7 +409,7 @@ public enum IntegerType {
    * @throws IllegalArgumentException If the bit-depth is invalid
    */
   public static long maxUnsigned(int bitDepth) {
-    if (bitDepth < 0 || bitDepth > 63) {
+    if (bitDepth < 1 || bitDepth > 63) {
       throw new IllegalArgumentException(invalidBitDepthMessage(bitDepth));
     }
     return (1L << bitDepth) - 1;
@@ -423,7 +423,7 @@ public enum IntegerType {
    * @throws IllegalArgumentException If the bit-depth is invalid
    */
   public static long maxSigned(int bitDepth) {
-    if (bitDepth < 0 || bitDepth > 64) {
+    if (bitDepth < 1 || bitDepth > 64) {
       throw new IllegalArgumentException(invalidBitDepthMessage(bitDepth));
     }
     return (1L << (bitDepth - 1)) - 1;
@@ -437,7 +437,7 @@ public enum IntegerType {
    * @throws IllegalArgumentException If the bit-depth is invalid
    */
   public static long minSigned(int bitDepth) {
-    if (bitDepth < 0 || bitDepth > 64) {
+    if (bitDepth < 1 || bitDepth > 64) {
       throw new IllegalArgumentException(invalidBitDepthMessage(bitDepth));
     }
     return -(1L << (bitDepth - 1));
