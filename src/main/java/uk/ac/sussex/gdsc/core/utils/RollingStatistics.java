@@ -111,14 +111,38 @@ public class RollingStatistics extends Statistics {
   }
 
   @Override
-  protected void addInternal(int n, double value) {
-    // Note: for the input mean value the
-    // deviation from mean is 0 (ss=0)
-    final double delta = value - sum;
-    final int nB = size;
-    size += n;
-    sum = (n * value + nB * sum) / size;
-    sumSq += delta * delta * n * nB / size;
+  public void add(int n, double value) {
+    // Here we override add and not addInternal to allow adding with n==0
+    if (n > 0) {
+      // Note: for the input mean value the
+      // deviation from mean is 0 (ss=0)
+      final double delta = value - sum;
+      final int nB = size;
+      size += n;
+      sum = (n * value + nB * sum) / size;
+      sumSq += delta * delta * n * nB / size;
+    } else {
+      // Call the super method to create the exception for an invalid n
+      super.add(n, value);
+    }
+  }
+
+  @Override
+  public void add(Statistics statistics) {
+    if (statistics instanceof RollingStatistics) {
+      final RollingStatistics extra = (RollingStatistics) statistics;
+      if (extra.size > 0) {
+        // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
+        final double delta = extra.sum - sum;
+        final int nA = extra.size;
+        final int nB = size;
+        size += nA;
+        sum = (nA * extra.sum + nB * sum) / size;
+        sumSq += extra.sumSq + delta * delta * nA * nB / size;
+      }
+      return;
+    }
+    throw new IllegalArgumentException("Not a RollingStatistics instance");
   }
 
   @Override
@@ -155,23 +179,5 @@ public class RollingStatistics extends Statistics {
       return sumSq / (size - 1);
     }
     return (size == 0) ? Double.NaN : 0;
-  }
-
-  @Override
-  public void add(Statistics statistics) {
-    if (statistics instanceof RollingStatistics) {
-      final RollingStatistics extra = (RollingStatistics) statistics;
-      if (extra.size > 0) {
-        // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-        final double delta = extra.sum - sum;
-        final int nA = extra.size;
-        final int nB = size;
-        size += nA;
-        sum = (nA * extra.sum + nB * sum) / size;
-        sumSq += extra.sumSq + delta * delta * nA * nB / size;
-      }
-      return;
-    }
-    throw new IllegalArgumentException("Not a RollingStatistics instance");
   }
 }

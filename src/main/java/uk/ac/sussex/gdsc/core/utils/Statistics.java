@@ -174,10 +174,10 @@ public class Statistics {
    *
    * @param n The number of times
    * @param value The value
-   * @throws IllegalArgumentException if the number of times is not strictly positive
+   * @throws IllegalArgumentException if the number of times is not positive
    */
   public void add(int n, double value) {
-    ValidationUtils.checkStrictlyPositive(n, "number of times");
+    ValidationUtils.checkPositive(n, "number of times");
     addInternal(n, value);
   }
 

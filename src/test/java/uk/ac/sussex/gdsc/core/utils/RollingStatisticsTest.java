@@ -107,7 +107,7 @@ public class RollingStatisticsTest {
     final RollingStatistics observed = new RollingStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, 123));
-    Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(0, 123));
+    observed.add(0, 123);
     for (int i = 0; i < 5; i++) {
       final int n = r.nextInt(10) + 1;
       final double value = r.nextDouble();
