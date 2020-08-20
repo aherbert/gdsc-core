@@ -29,8 +29,8 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules. The molecule can store
- * distances used in the processing algorithm (current, core and reachability distances).
+ * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules. The molecule can store distances
+ * used in the processing algorithm (current, core and reachability distances).
  */
 class Molecule {
   /** The id. */

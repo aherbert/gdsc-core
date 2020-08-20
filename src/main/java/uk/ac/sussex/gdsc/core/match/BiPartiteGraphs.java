@@ -46,7 +46,7 @@ public final class BiPartiteGraphs {
   static class IntQueue {
     private int pos;
     private int size;
-    private int[] data;
+    private final int[] data;
 
     /**
      * Create a new instance.

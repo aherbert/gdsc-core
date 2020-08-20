@@ -171,7 +171,7 @@ public class FastImageReader {
     int current = 0;
     for (int i = 0; i < fi.stripOffsets.length; i++) {
       in.seek(fi.stripOffsets[i]);
-      byte[] byteArray = new byte[fi.stripLengths[i]];
+      final byte[] byteArray = new byte[fi.stripLengths[i]];
       int read = 0;
       int left = byteArray.length;
       while (left > 0) {
@@ -297,7 +297,7 @@ public class FastImageReader {
     int base = 0;
     for (int k = 0; k < fi.stripOffsets.length; k++) {
       in.seek(fi.stripOffsets[k]);
-      byte[] byteArray = new byte[fi.stripLengths[k]];
+      final byte[] byteArray = new byte[fi.stripLengths[k]];
       int read = 0;
       int left = byteArray.length;
       while (left > 0) {
@@ -465,7 +465,7 @@ public class FastImageReader {
     int base = 0;
     for (int k = 0; k < fi.stripOffsets.length; k++) {
       in.seek(fi.stripOffsets[k]);
-      byte[] byteArray = new byte[fi.stripLengths[k]];
+      final byte[] byteArray = new byte[fi.stripLengths[k]];
       int read = 0;
       int left = byteArray.length;
       while (left > 0) {
@@ -983,7 +983,7 @@ public class FastImageReader {
   @VisibleForTesting
   static int getBufferSize(long byteCount) {
     // Divide by 32
-    long block = byteCount >>> 5;
+    final long block = byteCount >>> 5;
     if (block < BUFFER_BLOCK_SIZE) {
       return BUFFER_BLOCK_SIZE;
     }

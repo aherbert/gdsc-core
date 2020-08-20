@@ -1089,8 +1089,8 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner
-   * border boundary is ignored as potential maxima.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner border
+   * boundary is ignored as potential maxima.
    *
    * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=border; i&lt;maxx-border; i+=n+1) x (j=border,
    * j&lt;maxy-border; j+=n+1)
@@ -1303,8 +1303,8 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner
-   * border boundary is ignored as potential maxima.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner border
+   * boundary is ignored as potential maxima.
    *
    * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=border; i&lt;maxx-border; i+=n+1) x (j=border,
    * j&lt;maxy-border; j+=n+1)
@@ -2392,8 +2392,8 @@ public class NonMaximumSuppression {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner
-   * border boundary is ignored as potential maxima.
+   * Search the data for the index of the maximum in each block of size (n+1)*(n+1). An inner border
+   * boundary is ignored as potential maxima.
    *
    * <p>E.g. Max ( [i,i+n] x [i,j+n] ) for (i=border; i&lt;maxx-border; i+=n+1) x (j=border,
    * j&lt;maxy-border; j+=n+1)

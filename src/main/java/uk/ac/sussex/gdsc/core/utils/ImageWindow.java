@@ -101,7 +101,7 @@ public class ImageWindow {
     }
 
     // Get cache and update if necessary
-    WindowMethod localWindowFunction = this.windowFunction;
+    final WindowMethod localWindowFunction = this.windowFunction;
     double[] localWx = this.wx;
     double[] localWy = this.wy;
 

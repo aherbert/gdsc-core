@@ -121,8 +121,8 @@ public interface IntDoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  boolean findNeighbours(double[] location, double range,
-      DoubleDistanceFunction distanceFunction, IntDoubleConsumer results);
+  boolean findNeighbours(double[] location, double range, DoubleDistanceFunction distanceFunction,
+      IntDoubleConsumer results);
 
   /**
    * Calculates the nearest point to {@code location} and puts the item and the distance in the

@@ -475,8 +475,8 @@ public final class DiggingConcaveHull2d {
       double x4 = points[e1].getX();
       double y4 = points[e1].getY();
       while (e2 != end) {
-        double x3 = x4;
-        double y3 = y4;
+        final double x3 = x4;
+        final double y3 = y4;
         x4 = points[e2].getX();
         y4 = points[e2].getY();
         if (GeometryUtils.testIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {

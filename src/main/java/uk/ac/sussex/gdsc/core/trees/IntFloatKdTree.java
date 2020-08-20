@@ -121,8 +121,8 @@ public interface IntFloatKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  boolean findNeighbours(double[] location, double range,
-      FloatDistanceFunction distanceFunction, IntDoubleConsumer results);
+  boolean findNeighbours(double[] location, double range, FloatDistanceFunction distanceFunction,
+      IntDoubleConsumer results);
 
   /**
    * Calculates the nearest point to {@code location} and puts the item and the distance in the

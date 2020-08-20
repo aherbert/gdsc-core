@@ -1075,7 +1075,7 @@ public class OpticsManager extends CoordinateStore {
     // Class<?> clazz = getPreferredMoleculeSpace(true)
 
     final Class<?> clazz = getPreferredMoleculeSpace(false);
-    float workingGeneratingDistanceE = generatingDistanceE;
+    final float workingGeneratingDistanceE = generatingDistanceE;
     initialise(workingGeneratingDistanceE, minPts, clazz);
   }
 

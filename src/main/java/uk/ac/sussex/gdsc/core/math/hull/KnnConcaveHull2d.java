@@ -44,8 +44,8 @@ import uk.ac.sussex.gdsc.core.trees.KdTrees;
  * existing hull.
  *
  * <blockquote>Moreira and Santos (2007) <br>Concave hull: A k-nearest neighbours approach for the
- * computation of the region occupied by a set of points. <br>Conference: GRAPP 2007, Proceedings
- * of the Second International Conference on Computer Graphics Theory and Applications, Barcelona,
+ * computation of the region occupied by a set of points. <br>Conference: GRAPP 2007, Proceedings of
+ * the Second International Conference on Computer Graphics Theory and Applications, Barcelona,
  * Spain.</blockquote>
  *
  * @since 2.0
@@ -335,8 +335,8 @@ public final class KnnConcaveHull2d {
        *
        * @param o1 the first object
        * @param o2 the second object
-       * @return -1 if the first object has a higher angle (or same angle and higher distance), 1
-       *         if lower (or same angle and lower distance), else 0 if the same
+       * @return -1 if the first object has a higher angle (or same angle and higher distance), 1 if
+       *         lower (or same angle and lower distance), else 0 if the same
        */
       static int compare(IndexAngle o1, IndexAngle o2) {
         // highest first

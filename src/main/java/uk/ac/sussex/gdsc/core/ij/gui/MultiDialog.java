@@ -349,7 +349,7 @@ public class MultiDialog extends Dialog {
     } else if (source == none) {
       list.clearSelection();
     } else if (source == help) {
-      String macro = "run('URL...', 'url=" + helpUrl + "');";
+      final String macro = "run('URL...', 'url=" + helpUrl + "');";
       new MacroRunner(macro);
     }
   }

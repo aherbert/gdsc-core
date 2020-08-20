@@ -232,7 +232,7 @@ public abstract class FastTiffDecoder {
   /**
    * The directory. This is extracted from the TIFF image name for convenience when creating IFDs.
    */
-  private String directory;
+  private final String directory;
 
   /** The ss. */
   protected SeekableStream ss;
@@ -1432,7 +1432,7 @@ public abstract class FastTiffDecoder {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   void getPlot(int first, FileInfo fi) throws IOException {
-    int len = metaDataCounts[first];
+    final int len = metaDataCounts[first];
     fi.plot = new byte[len];
     ss.readFully(fi.plot, len);
   }
@@ -1629,7 +1629,7 @@ public abstract class FastTiffDecoder {
       if (readInt() == 2355492) {
         return readInt();
       }
-    } catch (IOException ignored) {
+    } catch (final IOException ignored) {
       // Ignore: the metadata is missing.
     }
     return 0;

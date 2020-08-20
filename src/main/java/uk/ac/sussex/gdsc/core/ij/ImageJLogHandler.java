@@ -66,13 +66,13 @@ public class ImageJLogHandler extends Handler {
       String msg;
       try {
         msg = getFormatter().format(record);
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         reportError(null, ex, ErrorManager.FORMAT_FAILURE);
         return;
       }
       try {
         IJ.log(msg);
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         reportError(null, ex, ErrorManager.WRITE_FAILURE);
       }
     }

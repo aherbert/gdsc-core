@@ -476,7 +476,7 @@ public final class SimpleArrayUtils {
         }
       }
       return true;
-    } catch (ArithmeticException ex) {
+    } catch (final ArithmeticException ex) {
       // Overflow so this is not a uniform ascending/descending series.
       return false;
     }
@@ -538,7 +538,7 @@ public final class SimpleArrayUtils {
         }
       }
       return true;
-    } catch (ArithmeticException ex) {
+    } catch (final ArithmeticException ex) {
       // Bad interval
       return false;
     }

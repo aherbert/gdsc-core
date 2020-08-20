@@ -126,7 +126,7 @@ public final class Mixers {
    * {@code
    * value = x ^ (x << shift)
      * }
-     * </pre>
+   * </pre>
    *
    * <p>The shift value is not checked that it lies in the interval {@code [1, 63]}. If outside this
    * interval the results are undefined.
@@ -267,7 +267,7 @@ public final class Mixers {
    */
   private static long invertRor2449(long value) {
     long acc = 0;
-    for (int r : rots) {
+    for (final int r : rots) {
       acc ^= Long.rotateRight(value, r);
     }
     return acc ^ value;

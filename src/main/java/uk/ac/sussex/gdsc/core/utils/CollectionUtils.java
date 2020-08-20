@@ -117,7 +117,7 @@ public final class CollectionUtils {
     if (collection.contains(first)) {
       return true;
     }
-    for (T element : rest) {
+    for (final T element : rest) {
       if (collection.contains(element)) {
         return true;
       }
@@ -202,7 +202,7 @@ public final class CollectionUtils {
   @SafeVarargs
   public static <T> boolean containsAll(Collection<T> collection, T first, T... rest) {
     if (collection.contains(first)) {
-      for (T element : rest) {
+      for (final T element : rest) {
         if (!collection.contains(element)) {
           return false;
         }

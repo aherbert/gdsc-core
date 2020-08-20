@@ -33,7 +33,7 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 class GridMolecule extends Molecule {
   /** The next molecule in a single linked list of molecules. */
-  private GridMolecule next;
+  private final GridMolecule next;
   /** The x-bin. */
   private final int xbin;
   /** The y-bin. */

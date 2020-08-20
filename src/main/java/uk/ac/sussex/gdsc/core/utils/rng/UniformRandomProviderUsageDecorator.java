@@ -49,7 +49,7 @@ public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDe
   /**
    * The {@link UniformRandomProvider#nextBytes(byte[])} total bytes size.
    */
-  private SizeCounter nextBytesSize = new SizeCounter();
+  private final SizeCounter nextBytesSize = new SizeCounter();
 
   /**
    * The {@link UniformRandomProvider#nextBytes(byte[], int, int)} invocation count.
@@ -59,7 +59,7 @@ public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDe
   /**
    * The {@link UniformRandomProvider#nextBytes(byte[], int, int)} total bytes size.
    */
-  private SizeCounter nextBytesRangeSize = new SizeCounter();
+  private final SizeCounter nextBytesRangeSize = new SizeCounter();
 
   /**
    * The {@link UniformRandomProvider#nextInt()} invocation count.

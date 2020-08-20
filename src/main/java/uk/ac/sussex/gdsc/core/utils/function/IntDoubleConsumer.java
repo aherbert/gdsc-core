@@ -29,8 +29,8 @@
 package uk.ac.sussex.gdsc.core.utils.function;
 
 /**
- * Represents an operation that accepts an {@code int}-valued and a {@code double}-valued
- * argument, and returns no result. This is the {@code (int, double)} specialization of
+ * Represents an operation that accepts an {@code int}-valued and a {@code double}-valued argument,
+ * and returns no result. This is the {@code (int, double)} specialization of
  * {@link java.util.function.ObjDoubleConsumer ObjDoubleConsumer}. Unlike most other functional
  * interfaces, {@code IntDoubleConsumer} is expected to operate via side-effects.
  */

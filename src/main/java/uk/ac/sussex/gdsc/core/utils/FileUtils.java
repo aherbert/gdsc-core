@@ -336,8 +336,8 @@ public final class FileUtils {
    * @see File#separatorChar
    */
   public static String replaceExtension(String filename, String extension) {
-    int filenameLength = TextUtils.getLength(filename);
-    int extensionLength = TextUtils.getLength(extension);
+    final int filenameLength = TextUtils.getLength(filename);
+    final int extensionLength = TextUtils.getLength(extension);
     final StringBuilder sb = new StringBuilder(filenameLength + extensionLength + 1);
 
     if (filenameLength != 0) {

@@ -94,8 +94,8 @@ public interface DoubleKdTree {
    * @param results the results
    * @return true if neighbours were found
    */
-  boolean findNeighbours(double[] location, double range,
-      DoubleDistanceFunction distanceFunction, DoubleConsumer results);
+  boolean findNeighbours(double[] location, double range, DoubleDistanceFunction distanceFunction,
+      DoubleConsumer results);
 
   /**
    * Calculates the nearest point to {@code location} and puts the distance in the result. The
