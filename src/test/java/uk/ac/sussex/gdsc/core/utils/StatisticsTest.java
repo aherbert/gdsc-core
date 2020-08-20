@@ -355,4 +355,31 @@ public class StatisticsTest {
       Assertions.fail(ex);
     }
   }
+
+  @Test
+  public void testConfidenceInterval() {
+    final Statistics stats = new Statistics();
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.0));
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.01));
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.05));
+    stats.add(42);
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.0));
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.01));
+    Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.05));
+
+    stats.add(SimpleArrayUtils.newArray(100, 42, 1));
+
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> stats.getConfidenceInterval(-0.01));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> stats.getConfidenceInterval(1.01));
+
+    Assertions.assertEquals(0.0, stats.getConfidenceInterval(0.0));
+    // Should be larger.
+    // Note: No check is if the values are correct.
+    final double[] intervals = {stats.getConfidenceInterval(0.001),
+        stats.getConfidenceInterval(0.01), stats.getConfidenceInterval(0.05)};
+    Assertions.assertTrue(intervals[1] > intervals[0]);
+    Assertions.assertTrue(intervals[2] > intervals[1]);
+  }
 }
