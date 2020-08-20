@@ -110,9 +110,10 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     stats = null;
     final int minCapacity = size + length;
     final int oldCapacity = values.length;
-    if (minCapacity > oldCapacity) {
+    // Overflow safe
+    if (minCapacity - oldCapacity > 0) {
       int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
+      if (newCapacity - minCapacity < 0) {
         newCapacity = minCapacity;
       }
       final double[] newValues = new double[newCapacity];
@@ -123,9 +124,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 
   @Override
   protected void addInternal(float[] data, int from, int to) {
-    if (data == null) {
-      return;
-    }
+    // Assume:
+    // - data is not null
+    // - from <= to
     checkCapacity(to - from);
     for (int i = from; i < to; i++) {
       final double value = data[i];
@@ -137,9 +138,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 
   @Override
   protected void addInternal(double[] data, int from, int to) {
-    if (data == null) {
-      return;
-    }
+    // Assume:
+    // - data is not null
+    // - from <= to
     checkCapacity(to - from);
     for (int i = from; i < to; i++) {
       final double value = data[i];
@@ -151,9 +152,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 
   @Override
   protected void addInternal(int[] data, int from, int to) {
-    if (data == null) {
-      return;
-    }
+    // Assume:
+    // - data is not null
+    // - from <= to
     checkCapacity(to - from);
     for (int i = from; i < to; i++) {
       final double value = data[i];
@@ -164,15 +165,18 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
   }
 
   @Override
-  public void add(final double value) {
-    checkCapacity(1);
+  protected void addInternal(final double value) {
+    if (size == values.length) {
+      checkCapacity(1);
+    }
+    stats = null;
     values[size++] = value;
     sum += value;
     sumSq += value * value;
   }
 
   @Override
-  public void add(int n, double value) {
+  protected void addInternal(int n, double value) {
     checkCapacity(n);
     for (int i = 0; i < n; i++) {
       values[this.size++] = value;
@@ -188,9 +192,13 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
       if (extra.size > 0) {
         checkCapacity(extra.size);
         System.arraycopy(extra.values, 0, values, size, extra.size);
+        size += statistics.size;
+        sum += statistics.sum;
+        sumSq += statistics.sumSq;
       }
+      return;
     }
-    super.add(statistics);
+    throw new IllegalArgumentException("Not a StoredDataStatistics instance");
   }
 
   /**
@@ -233,7 +241,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
    */
   public DescriptiveStatistics getStatistics() {
     if (stats == null) {
-      stats = new DescriptiveStatistics(values);
+      stats = new DescriptiveStatistics(values());
     }
     return stats;
   }
@@ -250,18 +258,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     if (size == 1) {
       return values[0];
     }
-
-    // Check for negatives
-    for (final double d : values) {
-      if (d < 0) {
-        final double[] data = getValues();
-        Arrays.sort(data);
-        return (data[(data.length - 1) / 2] + data[data.length / 2]) * 0.5;
-      }
-    }
-
-    // This does not work when the array contains negative data due to the
-    // implementation of the library using partially sorted data
     return getStatistics().getPercentile(50);
   }
 
