@@ -95,17 +95,20 @@ public class CollectionUtilsTest {
     Assertions.assertTrue(CollectionUtils.containsAll(EnumSet.of(A, B), A, B));
 
     // 3 args
+    Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), B, C, D));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), A, B, C));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B), A, B, C));
     Assertions.assertTrue(CollectionUtils.containsAll(EnumSet.of(A, B, C), A, B, C));
 
     // 4 args
+    Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), B, C, D, E));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), A, B, C, D));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B), A, B, C, D));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C), A, B, C, D));
     Assertions.assertTrue(CollectionUtils.containsAll(EnumSet.of(A, B, C, D), A, B, C, D));
 
     // 5 args
+    Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), B, C, D, E, F));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), A, B, C, D, E));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B), A, B, C, D, E));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C), A, B, C, D, E));
@@ -114,6 +117,8 @@ public class CollectionUtilsTest {
 
     // 6 args
     // @formatter:off
+    Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), B));
+    Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), A, B));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), A, B, C, D, E, F));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B), A, B, C, D, E, F));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C), A, B, C, D, E, F));
