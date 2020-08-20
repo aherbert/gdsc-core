@@ -55,6 +55,15 @@ public class StatisticsTest {
   }
 
   @Test
+  public void testSingleValues() {
+    final Statistics observed = new Statistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    observed.add(Math.PI);
+    expected.addValue(Math.PI);
+    check(expected, observed);
+  }
+
+  @Test
   public void canAddNullArray() {
     final Statistics observed = new Statistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
@@ -157,7 +166,7 @@ public class StatisticsTest {
 
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     Statistics observed;
     final Statistics observed2 = new Statistics();
@@ -165,7 +174,7 @@ public class StatisticsTest {
       expected = new DescriptiveStatistics();
       observed = new Statistics();
       for (int j = 0; j < 100; j++) {
-        final double d = r.nextDouble();
+        final double d = rng.nextDouble();
         expected.addValue(d);
         observed.add(d);
         check(expected, observed);
@@ -174,7 +183,7 @@ public class StatisticsTest {
 
     expected = new DescriptiveStatistics();
     final int[] idata = SimpleArrayUtils.natural(100);
-    PermutationSampler.shuffle(r, idata);
+    PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
       expected.addValue(v);
     }

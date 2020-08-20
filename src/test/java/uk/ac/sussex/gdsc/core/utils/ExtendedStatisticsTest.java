@@ -47,6 +47,15 @@ public class ExtendedStatisticsTest {
   }
 
   @Test
+  public void testSingleValues() {
+    final ExtendedStatistics observed = new ExtendedStatistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    observed.add(Math.PI);
+    expected.addValue(Math.PI);
+    check(expected, observed);
+  }
+
+  @Test
   public void testAddDoubleArrayWithZeroRange() {
     final ExtendedStatistics observed = new ExtendedStatistics();
     final double[] data = new double[] {1, 2, 3};
@@ -100,7 +109,7 @@ public class ExtendedStatisticsTest {
 
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     ExtendedStatistics observed;
     final ExtendedStatistics observed2 = new ExtendedStatistics();
@@ -108,7 +117,7 @@ public class ExtendedStatisticsTest {
       expected = new DescriptiveStatistics();
       observed = new ExtendedStatistics();
       for (int j = 0; j < 100; j++) {
-        final double d = r.nextDouble();
+        final double d = rng.nextDouble();
         expected.addValue(d);
         observed.add(d);
         check(expected, observed);
@@ -117,7 +126,7 @@ public class ExtendedStatisticsTest {
 
     expected = new DescriptiveStatistics();
     final int[] idata = SimpleArrayUtils.natural(100);
-    PermutationSampler.shuffle(r, idata);
+    PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
       expected.addValue(v);
     }

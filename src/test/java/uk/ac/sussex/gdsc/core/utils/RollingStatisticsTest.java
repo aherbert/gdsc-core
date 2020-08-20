@@ -33,6 +33,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
@@ -42,11 +43,86 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
 public class RollingStatisticsTest {
+  @Test
+  public void testEmptyValues() {
+    final RollingStatistics observed = new RollingStatistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    check(expected, observed);
+  }
+
+  @Test
+  public void testSingleValues() {
+    final RollingStatistics observed = new RollingStatistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    observed.add(Math.PI);
+    expected.addValue(Math.PI);
+    check(expected, observed);
+  }
+
+  @Test
+  public void testSumOfSquaresThrows() {
+    final RollingStatistics observed = new RollingStatistics();
+    Assertions.assertThrows(NotImplementedException.class, () -> observed.getSumOfSquares());
+  }
+
+  @Test
+  public void testAddDoubleArrayWithZeroRange() {
+    final RollingStatistics observed = new RollingStatistics();
+    final double[] data = new double[] {1, 2, 3};
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
+    observed.add(data, 2, 3);
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    expected.addValue(data[2]);
+    check(expected, observed);
+  }
+
+  @Test
+  public void testAddFloatArrayWithZeroRange() {
+    final RollingStatistics observed = new RollingStatistics();
+    final float[] data = new float[] {1, 2, 3};
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
+    observed.add(data, 2, 3);
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    expected.addValue(data[2]);
+    check(expected, observed);
+  }
+
+  @Test
+  public void testAddIntArrayWithZeroRange() {
+    final RollingStatistics observed = new RollingStatistics();
+    final int[] data = new int[] {1, 2, 3};
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
+    observed.add(data, 2, 3);
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    expected.addValue(data[2]);
+    check(expected, observed);
+  }
+
+  @SeededTest
+  public void canAddMultipleValues(RandomSeed seed) {
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final RollingStatistics observed = new RollingStatistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    for (int i = 0; i < 5; i++) {
+      final int n = r.nextInt(10) + 1;
+      final double value = r.nextDouble();
+      observed.add(n, value);
+      for (int j = 0; j < n; j++) {
+        expected.addValue(value);
+      }
+    }
+    check(expected, observed);
+  }
+
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     RollingStatistics observed;
+    final RollingStatistics observed2 = new RollingStatistics();
     for (int i = 0; i < 10; i++) {
       expected = new DescriptiveStatistics();
       observed = new RollingStatistics();
@@ -59,33 +135,42 @@ public class RollingStatisticsTest {
     }
 
     expected = new DescriptiveStatistics();
-    observed = new RollingStatistics();
     final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
       expected.addValue(v);
     }
-    observed.add(idata);
+    observed = RollingStatistics.create(idata);
+    check(expected, observed);
+    observed2.reset();
+    observed2.add(idata, 0, idata.length / 2);
+    observed2.add(idata, idata.length / 2, idata.length);
     check(expected, observed);
 
     expected = new DescriptiveStatistics();
-    observed = new RollingStatistics();
     final double[] ddata = new double[idata.length];
     for (int i = 0; i < idata.length; i++) {
       ddata[i] = idata[i];
       expected.addValue(ddata[i]);
     }
-    observed.add(ddata);
+    observed = RollingStatistics.create(ddata);
+    check(expected, observed);
+    observed2.reset();
+    observed2.add(ddata, 0, ddata.length / 2);
+    observed2.add(ddata, ddata.length / 2, ddata.length);
     check(expected, observed);
 
     expected = new DescriptiveStatistics();
-    observed = new RollingStatistics();
     final float[] fdata = new float[idata.length];
     for (int i = 0; i < idata.length; i++) {
       fdata[i] = idata[i];
       expected.addValue(fdata[i]);
     }
-    observed.add(fdata);
+    observed = RollingStatistics.create(fdata);
+    check(expected, observed);
+    observed2.reset();
+    observed2.add(fdata, 0, fdata.length / 2);
+    observed2.add(fdata, fdata.length / 2, fdata.length);
     check(expected, observed);
   }
 
@@ -95,28 +180,35 @@ public class RollingStatisticsTest {
     Assertions.assertEquals(expected.getVariance(), observed.getVariance(), 1e-10, "Variance");
     Assertions.assertEquals(expected.getStandardDeviation(), observed.getStandardDeviation(), 1e-10,
         "SD");
+    Assertions.assertEquals(expected.getSum(), observed.getSum(), 1e-10, "Sum");
   }
 
   @Test
   public void canAddStatistics() {
     final int[] d1 = SimpleArrayUtils.natural(100);
-    final int[] d2 = SimpleArrayUtils.newArray(100, 4, 1);
-    final RollingStatistics o = new RollingStatistics();
-    o.add(d1);
-    final RollingStatistics o2 = new RollingStatistics();
-    o2.add(d2);
-    final RollingStatistics o3 = new RollingStatistics();
-    o3.add(o);
-    o3.add(o2);
-    final RollingStatistics o4 = new RollingStatistics();
-    o4.add(d1);
-    o4.add(d2);
+    final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
+    final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);
+    final RollingStatistics o1 = RollingStatistics.create(d1);
+    final RollingStatistics o2 = RollingStatistics.create(d2);
+    final RollingStatistics o3 = RollingStatistics.create(d3);
+    final RollingStatistics expected = new RollingStatistics();
+    expected.add(d1);
+    expected.add(d2);
+    expected.add(d3);
+    final RollingStatistics observed = new RollingStatistics();
+    observed.add(o1);
+    observed.add(o2);
+    observed.add(o3);
+    observed.add(new RollingStatistics());
 
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
-    Assertions.assertEquals(o3.getN(), o4.getN(), "N");
-    TestAssertions.assertTest(o3.getMean(), o4.getMean(), equality, "Mean");
-    TestAssertions.assertTest(o3.getVariance(), o4.getVariance(), equality, "Variance");
-    TestAssertions.assertTest(o3.getStandardDeviation(), o4.getStandardDeviation(), equality, "SD");
+    Assertions.assertEquals(expected.getN(), observed.getN(), "N");
+    TestAssertions.assertTest(expected.getMean(), observed.getMean(), equality, "Mean");
+    TestAssertions.assertTest(expected.getVariance(), observed.getVariance(), equality, "Variance");
+    TestAssertions.assertTest(expected.getStandardDeviation(), observed.getStandardDeviation(),
+        equality, "SD");
+
+    Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(new Statistics()));
   }
 
   @Test

@@ -126,6 +126,11 @@ public class RollingStatistics extends Statistics {
     return sum * size;
   }
 
+  /**
+   * This method throws a {@link NotImplementedException}.
+   *
+   * @throws NotImplementedException method is not implemented
+   */
   @Override
   public double getSumOfSquares() {
     throw new NotImplementedException("Sum-of-squares not computed");
@@ -133,7 +138,7 @@ public class RollingStatistics extends Statistics {
 
   @Override
   public double getMean() {
-    return sum;
+    return (size == 0) ? Double.NaN : sum;
   }
 
   @Override
@@ -167,6 +172,6 @@ public class RollingStatistics extends Statistics {
       }
       return;
     }
-    throw new NotImplementedException("Not a RollingStatistics instance");
+    throw new IllegalArgumentException("Not a RollingStatistics instance");
   }
 }
