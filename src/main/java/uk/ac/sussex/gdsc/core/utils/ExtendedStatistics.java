@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.core.data.NotImplementedException;
-
 /**
  * Simple class to calculate the min, max, mean and standard deviation of data.
  */
@@ -189,7 +187,7 @@ public class ExtendedStatistics extends Statistics {
       }
       return;
     }
-    throw new NotImplementedException("Not a ExtendedStatistics instance");
+    throw new IllegalArgumentException("Not an ExtendedStatistics instance");
   }
 
   @Override

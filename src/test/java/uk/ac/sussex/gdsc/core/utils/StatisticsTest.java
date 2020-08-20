@@ -85,6 +85,8 @@ public class StatisticsTest {
     Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> observed.add(data, -1, 2));
     Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
         () -> observed.add(data, 1, size + 1));
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
   }
 
   @Test
@@ -96,6 +98,8 @@ public class StatisticsTest {
     Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> observed.add(data, -1, 2));
     Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
         () -> observed.add(data, 1, size + 1));
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
   }
 
   @Test
@@ -107,6 +111,32 @@ public class StatisticsTest {
     Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> observed.add(data, -1, 2));
     Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
         () -> observed.add(data, 1, size + 1));
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
+  }
+
+  @Test
+  public void testAddDoubleArrayWithZeroRange() {
+    final Statistics observed = new Statistics();
+    final double[] data = new double[3];
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
+  }
+
+  @Test
+  public void testAddFloatArrayWithZeroRange() {
+    final Statistics observed = new Statistics();
+    final float[] data = new float[3];
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
+  }
+
+  @Test
+  public void testAddIntArrayWithZeroRange() {
+    final Statistics observed = new Statistics();
+    final int[] data = new int[3];
+    observed.add(data, 1, 1);
+    Assertions.assertEquals(0, observed.getN());
   }
 
   @SeededTest
@@ -197,22 +227,25 @@ public class StatisticsTest {
   @Test
   public void canAddStatistics() {
     final int[] d1 = SimpleArrayUtils.natural(100);
-    final int[] d2 = SimpleArrayUtils.newArray(100, 4, 1);
-    final Statistics o = new Statistics();
-    o.add(d1);
-    final Statistics o2 = new Statistics();
-    o2.add(d2);
-    final Statistics o3 = new Statistics();
-    o3.add(o);
-    o3.add(o2);
-    final Statistics o4 = new Statistics();
-    o4.add(d1);
-    o4.add(d2);
+    final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
+    final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);
+    final Statistics o1 = Statistics.create(d1);
+    final Statistics o2 = Statistics.create(d2);
+    final Statistics o3 = Statistics.create(d3);
+    final Statistics expected = new Statistics();
+    expected.add(d1);
+    expected.add(d2);
+    expected.add(d3);
+    final Statistics observed = new Statistics();
+    observed.add(o1);
+    observed.add(o2);
+    observed.add(o3);
+    observed.add(new Statistics());
 
-    Assertions.assertEquals(o3.getN(), o4.getN(), "N");
-    Assertions.assertEquals(o3.getMean(), o4.getMean(), "Mean");
-    Assertions.assertEquals(o3.getVariance(), o4.getVariance(), "Variance");
-    Assertions.assertEquals(o3.getStandardDeviation(), o4.getStandardDeviation(), "SD");
+    Assertions.assertEquals(expected.getN(), observed.getN(), "N");
+    Assertions.assertEquals(expected.getMean(), observed.getMean(), "Mean");
+    Assertions.assertEquals(expected.getVariance(), observed.getVariance(), "Variance");
+    Assertions.assertEquals(expected.getStandardDeviation(), observed.getStandardDeviation(), "SD");
   }
 
   @Test
