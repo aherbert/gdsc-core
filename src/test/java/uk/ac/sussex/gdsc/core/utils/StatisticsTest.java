@@ -28,23 +28,109 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
+import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
 public class StatisticsTest {
+  @Test
+  public void testEmptyValues() {
+    final Statistics observed = new Statistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    check(expected, observed);
+  }
+
+  @Test
+  public void canAddNullArray() {
+    final Statistics observed = new Statistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    observed.add((double[]) null);
+    observed.add((float[]) null);
+    observed.add((int[]) null);
+    check(expected, observed);
+  }
+
+  @Test
+  public void canAddNullArrayUsingRange() {
+    final Statistics observed = new Statistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final int from = 0;
+    final int to = 10;
+    observed.add((double[]) null, from, to);
+    observed.add((float[]) null, from, to);
+    observed.add((int[]) null, from, to);
+    check(expected, observed);
+  }
+
+  @Test
+  public void testAddDoubleArrayWithBadRangeThrows() {
+    final Statistics observed = new Statistics();
+    final int size = 3;
+    final double[] data = new double[size];
+    Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(data, 1, 0));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> observed.add(data, -1, 2));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> observed.add(data, 1, size + 1));
+  }
+
+  @Test
+  public void testAddFloatArrayWithBadRangeThrows() {
+    final Statistics observed = new Statistics();
+    final int size = 3;
+    final float[] data = new float[size];
+    Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(data, 1, 0));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> observed.add(data, -1, 2));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> observed.add(data, 1, size + 1));
+  }
+
+  @Test
+  public void testAddIntArrayWithBadRangeThrows() {
+    final Statistics observed = new Statistics();
+    final int size = 3;
+    final int[] data = new int[size];
+    Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(data, 1, 0));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> observed.add(data, -1, 2));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> observed.add(data, 1, size + 1));
+  }
+
+  @SeededTest
+  public void canAddMultipleValues(RandomSeed seed) {
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final Statistics observed = new Statistics();
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    for (int i = 0; i < 5; i++) {
+      final int n = r.nextInt(10) + 1;
+      final double value = r.nextDouble();
+      observed.add(n, value);
+      for (int j = 0; j < n; j++) {
+        expected.addValue(value);
+      }
+    }
+    check(expected, observed);
+  }
+
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     Statistics observed;
+    final Statistics observed2 = new Statistics();
     for (int i = 0; i < 10; i++) {
       expected = new DescriptiveStatistics();
       observed = new Statistics();
@@ -57,33 +143,42 @@ public class StatisticsTest {
     }
 
     expected = new DescriptiveStatistics();
-    observed = new Statistics();
     final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(r, idata);
     for (final double v : idata) {
       expected.addValue(v);
     }
-    observed.add(idata);
+    observed = Statistics.create(idata);
+    check(expected, observed);
+    observed2.reset();
+    observed2.add(idata, 0, idata.length / 2);
+    observed2.add(idata, idata.length / 2, idata.length);
     check(expected, observed);
 
     expected = new DescriptiveStatistics();
-    observed = new Statistics();
     final double[] ddata = new double[idata.length];
     for (int i = 0; i < idata.length; i++) {
       ddata[i] = idata[i];
       expected.addValue(ddata[i]);
     }
-    observed.add(ddata);
+    observed = Statistics.create(ddata);
+    check(expected, observed);
+    observed2.reset();
+    observed2.add(ddata, 0, ddata.length / 2);
+    observed2.add(ddata, ddata.length / 2, ddata.length);
     check(expected, observed);
 
     expected = new DescriptiveStatistics();
-    observed = new Statistics();
     final float[] fdata = new float[idata.length];
     for (int i = 0; i < idata.length; i++) {
       fdata[i] = idata[i];
       expected.addValue(fdata[i]);
     }
-    observed.add(fdata);
+    observed = Statistics.create(fdata);
+    check(expected, observed);
+    observed2.reset();
+    observed2.add(fdata, 0, fdata.length / 2);
+    observed2.add(fdata, fdata.length / 2, fdata.length);
     check(expected, observed);
   }
 
@@ -93,6 +188,10 @@ public class StatisticsTest {
     Assertions.assertEquals(expected.getVariance(), observed.getVariance(), 1e-10, "Variance");
     Assertions.assertEquals(expected.getStandardDeviation(), observed.getStandardDeviation(), 1e-10,
         "SD");
+    Assertions.assertEquals(expected.getSum(), observed.getSum(), 1e-10, "Sum");
+    Assertions.assertEquals(expected.getSumsq(), observed.getSumOfSquares(), 1e-10, "SumOfSquare");
+    Assertions.assertEquals(expected.getStandardDeviation() / Math.sqrt(expected.getN()),
+        observed.getStandardError(), 1e-10, "StandardError");
   }
 
   @Test
@@ -138,5 +237,78 @@ public class StatisticsTest {
     Assertions.assertThrows(AssertionFailedError.class, () -> {
       Assertions.assertEquals(30, o2.getVariance(), 5, "Variance");
     });
+  }
+
+  @Test
+  public void canSafeAdd() throws InterruptedException, ExecutionException {
+    final ExecutorService es = Executors.newFixedThreadPool(6);
+    final float[][] fdata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
+    final double[][] ddata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
+    final int[][] idata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
+    final double[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    final Statistics[] sdata = new Statistics[3];
+    for (int i = 0; i < sdata.length; i++) {
+      sdata[i] = Statistics.create(data);
+    }
+    final Statistics observed = new Statistics();
+    final CountDownLatch count = new CountDownLatch(1);
+    final LocalList<Future<?>> futures = new LocalList<>();
+    futures.add(es.submit(() -> {
+      await(count);
+      for (final float[] value : fdata) {
+        observed.safeAdd(value);
+      }
+    }));
+    futures.add(es.submit(() -> {
+      await(count);
+      for (final double[] value : ddata) {
+        observed.safeAdd(value);
+      }
+    }));
+    futures.add(es.submit(() -> {
+      await(count);
+      for (final int[] value : idata) {
+        observed.safeAdd(value);
+      }
+    }));
+    futures.add(es.submit(() -> {
+      await(count);
+      for (final double value : data) {
+        observed.safeAdd(value);
+      }
+    }));
+    futures.add(es.submit(() -> {
+      await(count);
+      for (final double value : data) {
+        observed.safeAdd(2, value);
+      }
+    }));
+    futures.add(es.submit(() -> {
+      await(count);
+      for (final Statistics value : sdata) {
+        observed.safeAdd(value);
+      }
+    }));
+    // Wait then release all the threads together
+    Thread.sleep(1000);
+    count.countDown();
+    ConcurrencyUtils.waitForCompletion(futures);
+
+    // All the arrays are the same so add multiple
+    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    for (int i = 0; i < 9; i++) {
+      for (final double value : data) {
+        expected.addValue(value);
+      }
+    }
+    check(expected, observed);
+  }
+
+  private static void await(CountDownLatch count) {
+    try {
+      count.await(5, TimeUnit.SECONDS);
+    } catch (final InterruptedException ex) {
+      Assertions.fail(ex);
+    }
   }
 }
