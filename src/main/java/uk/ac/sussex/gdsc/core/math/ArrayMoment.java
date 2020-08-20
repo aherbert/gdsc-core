@@ -113,14 +113,14 @@ public interface ArrayMoment {
   /**
    * Gets the first moment (the sample mean).
    *
-   * @return the first moment (null if no data has been added)
+   * @return the first moment (empty array if no data has been added)
    */
   double[] getFirstMoment();
 
   /**
    * Gets the second moment (sum of squared deviations from the sample mean).
    *
-   * @return the second moment (null if no data has been added)
+   * @return the second moment (empty array if no data has been added)
    */
   double[] getSecondMoment();
 
@@ -134,30 +134,50 @@ public interface ArrayMoment {
   /**
    * Gets the unbiased estimate of the variance.
    *
-   * @return the variance (null if no data has been added)
+   * @return the variance (empty array if no data has been added)
+   * @see #getVariance(boolean)
    */
   double[] getVariance();
 
   /**
    * Gets the estimate of the variance.
    *
-   * @param isBiasCorrected Set to true to be bias corrected, i.e. unbiased
-   * @return the variance (null if no data has been added)
+   * <p>The unbiased sample variance formula is:
+   *
+   * <pre>
+   * variance = sum((x_i - mean) ^ 2) / (n - 1)
+   * </pre>
+   *
+   * <p>The biased population variance formula is:
+   *
+   * <pre>
+   * variance = sum((x_i - mean) ^ 2) / n
+   * </pre>
+   *
+   * @param isBiasCorrected Set to true to be bias corrected, i.e. unbiased sample variance;
+   *        otherwise the biased population variance is computed.
+   * @return the variance (empty array if no data has been added)
    */
   double[] getVariance(boolean isBiasCorrected);
 
   /**
    * Gets the unbiased estimate of the standard deviation.
    *
-   * @return the standard deviation (null if no data has been added)
+   * <p>This will be the square root of the unbiased sample variance.
+   *
+   * @return the standard deviation (empty array if no data has been added)
+   * @see #getVariance(boolean)
    */
   double[] getStandardDeviation();
 
   /**
    * Gets the estimate of the standard deviation.
    *
+   * <p>This will be the square root of the biased population variance.
+   *
    * @param isBiasCorrected Set to true to be bias corrected, i.e. unbiased
-   * @return the standard deviation (null if no data has been added)
+   * @return the standard deviation (empty array if no data has been added)
+   * @see #getVariance(boolean)
    */
   double[] getStandardDeviation(boolean isBiasCorrected);
 
