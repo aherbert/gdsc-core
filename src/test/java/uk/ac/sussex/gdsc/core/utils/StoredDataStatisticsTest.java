@@ -45,6 +45,8 @@ public class StoredDataStatisticsTest {
     final StoredDataStatistics observed = new StoredDataStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     check(expected, observed);
+    final StoredDataStatistics observed2 = new StoredDataStatistics(10);
+    check(expected, observed2);
   }
 
   @Test
