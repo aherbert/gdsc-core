@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Objects;
+import java.util.function.DoubleConsumer;
 
 /**
  * Specify double data.
@@ -49,6 +50,16 @@ public interface DoubleData {
   double[] values();
 
   /**
+   * Performs the given action for each value of the data until all elements have been processed or
+   * the action throws an exception. Unless otherwise specified by the implementing class, actions
+   * are performed in the order of values as defined by the {@link #values()} method. Exceptions
+   * thrown by the action are relayed to the caller.
+   *
+   * @param action The action to be performed for each element
+   */
+  void forEach(DoubleConsumer action);
+
+  /**
    * Wrap the values to create an instance.
    *
    * @param values the values
@@ -65,6 +76,13 @@ public interface DoubleData {
       @Override
       public int size() {
         return values.length;
+      }
+
+      @Override
+      public void forEach(DoubleConsumer action) {
+        for (int i = 0; i < values.length; i++) {
+          action.accept(values[i]);
+        }
       }
     };
   }

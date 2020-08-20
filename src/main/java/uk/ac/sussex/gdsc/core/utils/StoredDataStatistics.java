@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
+import java.util.function.DoubleConsumer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
@@ -267,6 +268,15 @@ public class StoredDataStatistics extends Statistics implements DoubleData {
   @Override
   public double[] values() {
     return getValues();
+  }
+
+  @Override
+  public void forEach(DoubleConsumer action) {
+    final int n = size;
+    final double[] local = values;
+    for (int i = 0; i < n; i++) {
+      action.accept(local[i]);
+    }
   }
 
   /**

@@ -40,5 +40,8 @@ public class DoubleDataTest {
     final DoubleData dd = DoubleData.wrap(data);
     Assertions.assertEquals(data.length, dd.size());
     Assertions.assertSame(data, dd.values());
+    final int[] count = {0};
+    dd.forEach(d -> Assertions.assertEquals(data[count[0]++], d));
+    Assertions.assertEquals(data.length, count[0]);
   }
 }
