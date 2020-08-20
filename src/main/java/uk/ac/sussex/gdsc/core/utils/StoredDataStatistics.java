@@ -29,15 +29,13 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.
  */
-public class StoredDataStatistics extends Statistics implements Iterable<Double>, DoubleData {
+public class StoredDataStatistics extends Statistics implements DoubleData {
 
   /** The values. */
   private double[] values = ArrayUtils.EMPTY_DOUBLE_ARRAY;
@@ -259,45 +257,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
       return values[0];
     }
     return getStatistics().getPercentile(50);
-  }
-
-  /**
-   * Returns a list iterator over the elements in this list (in proper sequence).
-   *
-   * @return a list iterator over the elements in this list (in proper sequence)
-   */
-  @Override
-  public Iterator<Double> iterator() {
-    return new Itr();
-  }
-
-  /**
-   * Copied from ArrayList and removed unrequired code.
-   */
-  private class Itr implements Iterator<Double> {
-    int cursor; // index of next element to return
-
-    @Override
-    public boolean hasNext() {
-      return cursor != size;
-    }
-
-    @Override
-    public Double next() {
-      // Copied from ArrayList and removed unrequired code
-      final int index = cursor;
-      if (index >= size) {
-        throw new NoSuchElementException();
-      }
-      final double[] elementData = StoredDataStatistics.this.values;
-      cursor = index + 1;
-      return elementData[index];
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("remove");
-    }
   }
 
   @Override
