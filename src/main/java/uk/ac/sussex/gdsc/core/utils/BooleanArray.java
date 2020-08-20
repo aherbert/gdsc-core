@@ -29,13 +29,11 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * Expandable store for boolean data backed by an array.
  */
-public class BooleanArray implements Iterable<Boolean> {
+public class BooleanArray {
 
   private boolean[] values;
   private int size;
@@ -203,45 +201,6 @@ public class BooleanArray implements Iterable<Boolean> {
    */
   public boolean getf(int index) {
     return values[index];
-  }
-
-  /**
-   * Returns a list iterator over the elements in this list (in proper sequence).
-   *
-   * @return a list iterator over the elements in this list (in proper sequence)
-   */
-  @Override
-  public Iterator<Boolean> iterator() {
-    return new Itr();
-  }
-
-  /**
-   * Copied from ArrayList and removed unrequired code.
-   */
-  private class Itr implements Iterator<Boolean> {
-    int cursor; // index of next element to return
-
-    @Override
-    public boolean hasNext() {
-      return cursor != size();
-    }
-
-    @Override
-    public Boolean next() {
-      // Copied from ArrayList and removed unrequired code
-      final int index = cursor;
-      if (index >= size()) {
-        throw new NoSuchElementException();
-      }
-      final boolean[] elementData = BooleanArray.this.values;
-      cursor = index + 1;
-      return elementData[index];
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("remove");
-    }
   }
 
   /**
