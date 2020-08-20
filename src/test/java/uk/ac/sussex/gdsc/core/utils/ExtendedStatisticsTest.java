@@ -135,7 +135,7 @@ public class ExtendedStatisticsTest {
     observed2.reset();
     observed2.add(idata, 0, idata.length / 2);
     observed2.add(idata, idata.length / 2, idata.length);
-    check(expected, observed);
+    check(expected, observed2);
 
     expected = new DescriptiveStatistics();
     final double[] ddata = new double[idata.length];
@@ -148,7 +148,7 @@ public class ExtendedStatisticsTest {
     observed2.reset();
     observed2.add(ddata, 0, ddata.length / 2);
     observed2.add(ddata, ddata.length / 2, ddata.length);
-    check(expected, observed);
+    check(expected, observed2);
 
     expected = new DescriptiveStatistics();
     final float[] fdata = new float[idata.length];
@@ -161,7 +161,7 @@ public class ExtendedStatisticsTest {
     observed2.reset();
     observed2.add(fdata, 0, fdata.length / 2);
     observed2.add(fdata, fdata.length / 2, fdata.length);
-    check(expected, observed);
+    check(expected, observed2);
   }
 
   private static void check(DescriptiveStatistics expected, ExtendedStatistics observed) {
