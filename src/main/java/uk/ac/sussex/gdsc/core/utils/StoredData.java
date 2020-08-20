@@ -29,14 +29,12 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Expandable store for data backed by a double array.
  */
-public class StoredData implements Iterable<Double>, DoubleData {
+public class StoredData implements DoubleData {
 
   /** The values. */
   private double[] values = ArrayUtils.EMPTY_DOUBLE_ARRAY;
@@ -297,45 +295,6 @@ public class StoredData implements Iterable<Double>, DoubleData {
       data[i] = (float) values[i];
     }
     return data;
-  }
-
-  /**
-   * Returns a list iterator over the elements in this list (in proper sequence).
-   *
-   * @return a list iterator over the elements in this list (in proper sequence)
-   */
-  @Override
-  public Iterator<Double> iterator() {
-    return new Itr();
-  }
-
-  /**
-   * Copied from ArrayList and removed unrequired code.
-   */
-  private class Itr implements Iterator<Double> {
-    int cursor; // index of next element to return
-
-    @Override
-    public boolean hasNext() {
-      return cursor != size();
-    }
-
-    @Override
-    public Double next() {
-      // Copied from ArrayList and removed unrequired code
-      final int index = cursor;
-      if (index >= size()) {
-        throw new NoSuchElementException();
-      }
-      final double[] elementData = StoredData.this.values;
-      cursor = index + 1;
-      return elementData[index];
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("remove");
-    }
   }
 
   @Override
