@@ -75,7 +75,7 @@ class MinMax2d {
 
   /**
    * Gets the minimum and maximum bounds.
-   * 
+   *
    * <pre>
    * [minX, maxX, minY, maxY]
    * </pre>
