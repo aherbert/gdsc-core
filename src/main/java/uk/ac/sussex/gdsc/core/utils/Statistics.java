@@ -356,6 +356,9 @@ public class Statistics {
   /**
    * Gets the sum of the data points.
    *
+   * <p>Note: This returns zero when no data has been added. Test the statistics are valid using
+   * {@link #getN()}.
+   *
    * @return The sum of the data points
    */
   public double getSum() {
@@ -364,6 +367,9 @@ public class Statistics {
 
   /**
    * Gets the sum of squares of the data points.
+   *
+   * <p>Note: This returns zero when no data has been added. Test the statistics are valid using
+   * {@link #getN()}.
    *
    * @return The sum of squares of the data points
    */
