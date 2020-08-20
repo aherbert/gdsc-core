@@ -374,6 +374,9 @@ public class Statistics {
   /**
    * Gets the mean of the data points.
    *
+   * <p>Note: This returns NaN when no data has been added. Test the statistics are valid using
+   * {@link #getN()}.
+   *
    * @return The mean of the data points
    */
   public double getMean() {
@@ -383,9 +386,15 @@ public class Statistics {
   /**
    * Gets the standard deviation of the data points.
    *
+   * <p>Note: This returns NaN when no data has been added. Test the statistics are valid using
+   * {@link #getN()}.
+   *
    * @return The unbiased standard deviation of the data points
    */
   public double getStandardDeviation() {
+    if (size == 0) {
+      return Double.NaN;
+    }
     double stdDev = sumSq - (sum * sum) / size;
     if (stdDev > 0) {
       stdDev = Math.sqrt(stdDev / (size - 1));
@@ -398,9 +407,15 @@ public class Statistics {
   /**
    * Gets the variance of the data points.
    *
+   * <p>Note: This returns NaN when no data has been added. Test the statistics are valid using
+   * {@link #getN()}.
+   *
    * @return The unbiased variance of the data points
    */
   public double getVariance() {
+    if (size == 0) {
+      return Double.NaN;
+    }
     double variance = sumSq - (sum * sum) / size;
     if (variance > 0) {
       variance = variance / (size - 1);
@@ -416,13 +431,16 @@ public class Statistics {
    *
    * <p>Uses the unbiased standard deviation divided by the square root of the sample size.
    *
+   * <p>Note: This returns NaN when no data has been added. Test the statistics are valid using
+   * {@link #getN()}.
+   *
    * @return The standard error
    */
   public double getStandardError() {
     if (size > 0) {
       return getStandardDeviation() / Math.sqrt(size);
     }
-    return 0;
+    return Double.NaN;
   }
 
   /**
