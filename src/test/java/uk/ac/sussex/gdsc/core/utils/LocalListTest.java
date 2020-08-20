@@ -509,7 +509,8 @@ public class LocalListTest {
     final List<Integer> c1 = c.subList(0, 2);
     final List<Integer> c2 = c.subList(2, c.size());
 
-    final LocalList<Integer> list = new LocalList<>(c1);
+    final LocalList<Integer> list = new LocalList<>(3);
+    Assertions.assertTrue(list.addAll(c1));
     Assertions.assertTrue(list.addAll(c2));
     for (int i = 0; i < c.size(); i++) {
       Assertions.assertEquals(c.get(i), list.get(i));
@@ -524,7 +525,8 @@ public class LocalListTest {
     final List<Integer> c1 = c.subList(0, 2);
     final LocalList<Integer> c2 = new LocalList<>(c.subList(2, c.size()));
 
-    final LocalList<Integer> list = new LocalList<>(c1);
+    final LocalList<Integer> list = new LocalList<>(3);
+    Assertions.assertTrue(list.addAll(c1));
     Assertions.assertTrue(list.addAll(c2));
     for (int i = 0; i < c.size(); i++) {
       Assertions.assertEquals(c.get(i), list.get(i));
@@ -540,7 +542,8 @@ public class LocalListTest {
     final List<Integer> c2 = c.subList(2, c.size());
 
     // Add in middle
-    final LocalList<Integer> list = new LocalList<>(c1);
+    final LocalList<Integer> list = new LocalList<>(3);
+    Assertions.assertTrue(list.addAll(0, c1));
     Assertions.assertTrue(list.addAll(1, c2));
     Assertions.assertEquals(c.get(0), list.get(0));
     Assertions.assertEquals(c.get(2), list.get(1));
