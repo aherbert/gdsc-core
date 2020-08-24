@@ -320,7 +320,7 @@ public final class MathUtils {
    * @return the max
    */
   public static long max(long... data) {
-    return maxDefault(Integer.MIN_VALUE, data);
+    return maxDefault(Long.MIN_VALUE, data);
   }
 
   /**
@@ -476,7 +476,7 @@ public final class MathUtils {
    * @return the min
    */
   public static long min(long... data) {
-    return minDefault(Integer.MAX_VALUE, data);
+    return minDefault(Long.MAX_VALUE, data);
   }
 
   /**
@@ -662,8 +662,8 @@ public final class MathUtils {
       sum = Arrays.copyOf(sum, position);
     }
 
-    // Normalise
-    if (normalise && count != 0) {
+    // Normalise. Count is always positive as zero length arrays, or all NaN are fast exit.
+    if (normalise) {
       for (int i = 0; i < sum.length; i++) {
         sum[i] /= count;
       }
@@ -896,21 +896,21 @@ public final class MathUtils {
   }
 
   /**
-   * Round the double to the specified significant digits.
+   * Round the double to the specified significant digits. Non-finite values are unchanged.
    *
    * @param value The double
    * @param significantDigits The number of significan digits
    * @return A string containing the rounded double
    */
   public static String rounded(double value, int significantDigits) {
-    if (Double.isInfinite(value) || Double.isNaN(value)) {
+    if (!Double.isFinite(value)) {
       return Double.toString(value);
     }
     return Double.toString(roundToBigDecimal(value, significantDigits).doubleValue());
   }
 
   /**
-   * Round the double to 4 significant digits.
+   * Round the double to 4 significant digits. Non-finite values are unchanged.
    *
    * @param value The double
    * @return A string containing the rounded double
@@ -920,21 +920,21 @@ public final class MathUtils {
   }
 
   /**
-   * Round the double to the specified significant digits.
+   * Round the double to the specified significant digits. Non-finite values are unchanged.
    *
    * @param value The double
    * @param significantDigits The number of significant digits
    * @return The rounded double
    */
   public static double round(double value, int significantDigits) {
-    if (Double.isInfinite(value) || Double.isNaN(value)) {
+    if (!Double.isFinite(value)) {
       return value;
     }
     return roundToBigDecimal(value, significantDigits).doubleValue();
   }
 
   /**
-   * Round the double to 4 significant digits.
+   * Round the double to 4 significant digits. Non-finite values are unchanged.
    *
    * @param value The double
    * @return The rounded double
@@ -944,22 +944,26 @@ public final class MathUtils {
   }
 
   /**
-   * Round to the nearest factor.
+   * Round to the nearest factor. Non-finite values are unchanged.
    *
    * @param value the value
    * @param factor the factor
    * @return the rounded value
    */
   public static double round(double value, double factor) {
+    if (!Double.isFinite(value)) {
+      return value;
+    }
     return Math.round(value / factor) * factor;
   }
 
   /**
-   * Round the double to the specified significant digits.
+   * Round the double to the specified significant digits. Non-finite values are unsupported.
    *
    * @param value The double
    * @param significantDigits The number of significant digits
    * @return The rounded value
+   * @throws NumberFormatException If the value is non-finite
    */
   public static BigDecimal roundToBigDecimal(double value, int significantDigits) {
     return BigDecimal.valueOf(value).round(new MathContext(significantDigits));
@@ -1006,6 +1010,9 @@ public final class MathUtils {
    * @return the rounded value
    */
   public static double floor(double value, double factor) {
+    if (!Double.isFinite(value)) {
+      return value;
+    }
     return Math.floor(value / factor) * factor;
   }
 
@@ -1017,6 +1024,9 @@ public final class MathUtils {
    * @return the rounded value
    */
   public static double ceil(double value, double factor) {
+    if (!Double.isFinite(value)) {
+      return value;
+    }
     return Math.ceil(value / factor) * factor;
   }
 
@@ -1263,7 +1273,21 @@ public final class MathUtils {
   }
 
   /**
-   * Checks if is a power of 2. Note a value of 1 will return true (as this is 2^0).
+   * Checks if the strictly positive number is a power of 2. Note a value of 1 will return true (as
+   * this is 2^0).
+   *
+   * <p>Warning: The method should be used to test positive non-zero sizes are a power of 2. This
+   * method is not valid for zero or negative integers. A value of zero returns true which is
+   * incorrect. Negations of powers of 2 return false (e.g. -2, -4, etc) with the exception of
+   * {@link Integer#MIN_VALUE} which returns true.
+   *
+   * <p>All values can be handled using:
+   *
+   * <pre>
+   * {@code int value = ...;
+   * boolean isPow2 = value > 0 && MathUtils.isPow2(value);
+   * }
+   * </pre>
    *
    * <p>Adapted from the JTransforms library class org.jtransforms.utils.CommonUtils.
    *
@@ -1277,10 +1301,14 @@ public final class MathUtils {
   /**
    * Returns the closest power-of-two number greater than or equal to value.
    *
+   * <p>Warning: This will return {@link Integer#MIN_VALUE} for any value above {@code 1 << 30}.
+   * This is the next power of 2 as an unsigned integer.
+   *
    * <p>Adapted from the JTransforms library class org.jtransforms.utils.CommonUtils.
    *
    * @param value the value
    * @return the closest power-of-two number greater than or equal to value
+   * @throws IllegalArgumentException if the value is not strictly positive
    */
   public static int nextPow2(int value) {
     if (value < 1) {
