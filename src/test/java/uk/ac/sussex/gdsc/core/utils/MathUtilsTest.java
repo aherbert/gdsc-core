@@ -39,7 +39,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class MathsUtilsTest {
+public class MathUtilsTest {
   @Test
   public void testLimitsDouble() {
     final double[] noLimits = {Double.NaN, Double.NaN};
