@@ -167,7 +167,7 @@ public class MathUtilsTest {
     final double noMax = Double.NaN;
     Assertions.assertEquals(noMax, MathUtils.max((double[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new double[0]));
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY, -42}) {
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY, -42}) {
       Assertions.assertEquals(value, MathUtils.maxDefault(value, new double[0]));
       Assertions.assertEquals(value, MathUtils.maxDefault(value, (double[]) null));
     }
@@ -180,7 +180,7 @@ public class MathUtilsTest {
     final float noMax = Float.NaN;
     Assertions.assertEquals(noMax, MathUtils.max((float[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new float[0]));
-    for (float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY, -42}) {
+    for (final float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY, -42}) {
       Assertions.assertEquals(value, MathUtils.maxDefault(value, new float[0]));
       Assertions.assertEquals(value, MathUtils.maxDefault(value, (float[]) null));
     }
@@ -193,7 +193,7 @@ public class MathUtilsTest {
     final int noMax = Integer.MIN_VALUE;
     Assertions.assertEquals(noMax, MathUtils.max((int[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new int[0]));
-    for (int value : new int[] {Integer.MIN_VALUE, -42, 13}) {
+    for (final int value : new int[] {Integer.MIN_VALUE, -42, 13}) {
       Assertions.assertEquals(value, MathUtils.maxDefault(value, new int[0]));
       Assertions.assertEquals(value, MathUtils.maxDefault(value, (int[]) null));
     }
@@ -206,7 +206,7 @@ public class MathUtilsTest {
     final long noMax = Long.MIN_VALUE;
     Assertions.assertEquals(noMax, MathUtils.max((long[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new long[0]));
-    for (long value : new long[] {Long.MIN_VALUE, -42, 13}) {
+    for (final long value : new long[] {Long.MIN_VALUE, -42, 13}) {
       Assertions.assertEquals(value, MathUtils.maxDefault(value, new long[0]));
       Assertions.assertEquals(value, MathUtils.maxDefault(value, (long[]) null));
     }
@@ -219,7 +219,7 @@ public class MathUtilsTest {
     final short noMax = Short.MIN_VALUE;
     Assertions.assertEquals(noMax, MathUtils.max((short[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new short[0]));
-    for (short value : new short[] {Short.MIN_VALUE, -42, 13}) {
+    for (final short value : new short[] {Short.MIN_VALUE, -42, 13}) {
       Assertions.assertEquals(value, MathUtils.maxDefault(value, new short[0]));
       Assertions.assertEquals(value, MathUtils.maxDefault(value, (short[]) null));
     }
@@ -232,7 +232,7 @@ public class MathUtilsTest {
     final double noMin = Double.NaN;
     Assertions.assertEquals(noMin, MathUtils.min((double[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new double[0]));
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY, -42}) {
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY, -42}) {
       Assertions.assertEquals(value, MathUtils.minDefault(value, new double[0]));
       Assertions.assertEquals(value, MathUtils.minDefault(value, (double[]) null));
     }
@@ -245,7 +245,7 @@ public class MathUtilsTest {
     final float noMin = Float.NaN;
     Assertions.assertEquals(noMin, MathUtils.min((float[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new float[0]));
-    for (float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY, -42}) {
+    for (final float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY, -42}) {
       Assertions.assertEquals(value, MathUtils.minDefault(value, new float[0]));
       Assertions.assertEquals(value, MathUtils.minDefault(value, (float[]) null));
     }
@@ -258,7 +258,7 @@ public class MathUtilsTest {
     final int noMin = Integer.MAX_VALUE;
     Assertions.assertEquals(noMin, MathUtils.min((int[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new int[0]));
-    for (int value : new int[] {Integer.MAX_VALUE, -42, 13}) {
+    for (final int value : new int[] {Integer.MAX_VALUE, -42, 13}) {
       Assertions.assertEquals(value, MathUtils.minDefault(value, new int[0]));
       Assertions.assertEquals(value, MathUtils.minDefault(value, (int[]) null));
     }
@@ -271,7 +271,7 @@ public class MathUtilsTest {
     final long noMin = Long.MAX_VALUE;
     Assertions.assertEquals(noMin, MathUtils.min((long[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new long[0]));
-    for (long value : new long[] {Long.MAX_VALUE, -42, 13}) {
+    for (final long value : new long[] {Long.MAX_VALUE, -42, 13}) {
       Assertions.assertEquals(value, MathUtils.minDefault(value, new long[0]));
       Assertions.assertEquals(value, MathUtils.minDefault(value, (long[]) null));
     }
@@ -284,7 +284,7 @@ public class MathUtilsTest {
     final short noMin = Short.MAX_VALUE;
     Assertions.assertEquals(noMin, MathUtils.min((short[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new short[0]));
-    for (short value : new short[] {Short.MAX_VALUE, -42, 13}) {
+    for (final short value : new short[] {Short.MAX_VALUE, -42, 13}) {
       Assertions.assertEquals(value, MathUtils.minDefault(value, new short[0]));
       Assertions.assertEquals(value, MathUtils.minDefault(value, (short[]) null));
     }
@@ -379,7 +379,7 @@ public class MathUtilsTest {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final double[] values = new double[7];
     for (int i = 1; i <= 10; i++) {
-      SummaryStatistics stats = new SummaryStatistics();
+      final SummaryStatistics stats = new SummaryStatistics();
       for (int j = 0; j < values.length; j++) {
         values[j] = r.nextDouble() * i;
         stats.addValue(values[j]);
@@ -423,7 +423,7 @@ public class MathUtilsTest {
 
   @Test
   public void testRoundedToSignificantDigits() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(String.valueOf(value), MathUtils.rounded(value, 3));
     }
@@ -438,7 +438,7 @@ public class MathUtilsTest {
 
   @Test
   public void testRoundToSignificantDigits() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.round(value, 3));
     }
@@ -453,7 +453,7 @@ public class MathUtilsTest {
 
   @Test
   public void testRoundToFactor() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.round(value, 3.0));
     }
@@ -467,7 +467,7 @@ public class MathUtilsTest {
 
   @Test
   public void testRoundToBigDecimalSignificantDigits() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertThrows(NumberFormatException.class,
           () -> MathUtils.roundToBigDecimal(value, 3));
@@ -482,7 +482,7 @@ public class MathUtilsTest {
 
   @Test
   public void canRoundUsingDecimalPlaces() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.roundUsingDecimalPlaces(value, 3));
     }
@@ -550,7 +550,7 @@ public class MathUtilsTest {
 
   @Test
   public void testFloorToFactor() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.floor(value, 3.0));
     }
@@ -564,7 +564,7 @@ public class MathUtilsTest {
 
   @Test
   public void testCeilToFactor() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.ceil(value, 3.0));
     }
@@ -774,7 +774,7 @@ public class MathUtilsTest {
 
   @Test
   public void testIsMathematicalInteger() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertFalse(MathUtils.isMathematicalInteger(value));
     }
@@ -790,7 +790,7 @@ public class MathUtilsTest {
 
   @Test
   public void testIsIntegerDouble() {
-    for (double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+    for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertFalse(MathUtils.isInteger(value));
     }
@@ -806,7 +806,8 @@ public class MathUtilsTest {
 
   @Test
   public void testIsIntegerFloat() {
-    for (float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY}) {
+    for (final float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY,
+        Float.POSITIVE_INFINITY}) {
       Assertions.assertFalse(MathUtils.isInteger(value));
     }
     for (int i = -1; i <= 1; i++) {
