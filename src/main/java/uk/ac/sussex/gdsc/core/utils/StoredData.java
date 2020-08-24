@@ -60,25 +60,15 @@ public class StoredData implements DoubleData {
   }
 
   /**
-   * Instantiates a new stored data.
+   * Instantiates a new stored data statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public StoredData(double[] data) {
-    this(data, true);
-  }
-
-  /**
-   * Instantiates a new stored data.
-   *
-   * @param data the data
-   * @param clone the clone
-   */
-  public StoredData(double[] data, boolean clone) {
-    if (data != null) {
-      values = (clone) ? data.clone() : data;
-      size = data.length;
-    }
+  public static StoredData create(float[] data) {
+    final StoredData object = new StoredData();
+    object.add(data);
+    return object;
   }
 
   /**
@@ -87,7 +77,7 @@ public class StoredData implements DoubleData {
    * @param data the data
    * @return the stored data statistics
    */
-  public static StoredData create(float[] data) {
+  public static StoredData create(double[] data) {
     final StoredData object = new StoredData();
     object.add(data);
     return object;
@@ -117,9 +107,10 @@ public class StoredData implements DoubleData {
   private void checkCapacity(int length) {
     final int minCapacity = size + length;
     final int oldCapacity = values.length;
-    if (minCapacity > oldCapacity) {
+    // Overflow safe
+    if (minCapacity - oldCapacity > 0) {
       int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
+      if (newCapacity - minCapacity < 0) {
         newCapacity = minCapacity;
       }
       final double[] newValues = new double[newCapacity];
@@ -178,7 +169,9 @@ public class StoredData implements DoubleData {
    * @param value the value
    */
   public void add(final double value) {
-    checkCapacity(1);
+    if (size == values.length) {
+      checkCapacity(1);
+    }
     values[size++] = value;
   }
 
@@ -187,8 +180,10 @@ public class StoredData implements DoubleData {
    *
    * @param n The number of times
    * @param value The value
+   * @throws IllegalArgumentException if the number of times is not positive
    */
   public void add(int n, double value) {
+    ValidationUtils.checkPositive(n, "number of times");
     checkCapacity(n);
     for (int i = 0; i < n; i++) {
       values[this.size++] = value;
@@ -234,6 +229,18 @@ public class StoredData implements DoubleData {
   }
 
   /**
+   * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd
+   * method to ensure thread safety.)
+   *
+   * @param data the data
+   */
+  public void safeAdd(int[] data) {
+    synchronized (this) {
+      add(data);
+    }
+  }
+
+  /**
    * Add the value. Synchronized for thread safety. (Multiple threads must all use the same safeAdd
    * method to ensure thread safety.)
    *
@@ -242,6 +249,19 @@ public class StoredData implements DoubleData {
   public void safeAdd(final double value) {
     synchronized (this) {
       add(value);
+    }
+  }
+
+  /**
+   * Add the value n times. Synchronized for thread safety. (Multiple threads must all use the same
+   * safeAdd method to ensure thread safety.)
+   *
+   * @param n the n
+   * @param value the value
+   */
+  public void safeAdd(int n, final double value) {
+    synchronized (this) {
+      add(n, value);
     }
   }
 
@@ -264,15 +284,6 @@ public class StoredData implements DoubleData {
    */
   public double[] getValues() {
     return Arrays.copyOf(values, size);
-  }
-
-  /**
-   * Gets the current values array. This may be larger than the current size.
-   *
-   * @return The values array
-   */
-  public double[] getValuesRef() {
-    return values;
   }
 
   /**
