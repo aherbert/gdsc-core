@@ -100,25 +100,12 @@ public final class PartialSort {
      * Instantiates a new max double heap.
      *
      * @param selectN the number to select
+     * @throws IllegalArgumentException if number to select is not {@code >0}
      */
     public DoubleHeap(int selectN) {
-      checkStrictlyPositive(selectN);
+      ValidationUtils.checkStrictlyPositive(selectN, "number to select");
       this.queue = new double[selectN];
       this.selectN = selectN;
-    }
-
-    /**
-     * Pick the bottom N from the data using ascending order, i.e. find the bottom selectN smallest
-     * values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The bottom N (passed as a reference to internal data structure)
-     */
-    public double[] bottom(double[] list) {
-      return bottom(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -211,19 +198,6 @@ public final class PartialSort {
         }
       }
       queue[parent] = toSift;
-    }
-
-    /**
-     * Pick the top N from the data using ascending order, i.e. find the top N largest values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The top N (passed as a reference to internal data structure)
-     */
-    public double[] top(double[] list) {
-      return top(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -334,25 +308,12 @@ public final class PartialSort {
      * Create a new DoubleSelector.
      *
      * @param selectN The number N to select
+     * @throws IllegalArgumentException if number to select is not {@code >0}
      */
     public DoubleSelector(int selectN) {
-      checkStrictlyPositive(selectN);
+      ValidationUtils.checkStrictlyPositive(selectN, "number to select");
       this.selectN = selectN;
       queue = new double[selectN];
-    }
-
-    /**
-     * Pick the bottom N from the data using ascending order, i.e. find the bottom selectN smallest
-     * values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The bottom N (passed as a reference to internal data structure)
-     */
-    public double[] bottom(double[] list) {
-      return bottom(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -413,19 +374,6 @@ public final class PartialSort {
       }
 
       return finish(queue, options);
-    }
-
-    /**
-     * Pick the top N from the data using ascending order, i.e. find the top N largest values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The top N (passed as a reference to internal data structure)
-     */
-    public double[] top(double[] list) {
-      return top(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -507,25 +455,12 @@ public final class PartialSort {
      * Instantiates a new max float heap.
      *
      * @param selectN the number to select
+     * @throws IllegalArgumentException if number to select is not {@code >0}
      */
     public FloatHeap(int selectN) {
-      checkStrictlyPositive(selectN);
+      ValidationUtils.checkStrictlyPositive(selectN, "number to select");
       this.queue = new float[selectN];
       this.selectN = selectN;
-    }
-
-    /**
-     * Pick the bottom N from the data using ascending order, i.e. find the bottom selectN smallest
-     * values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The bottom N (passed as a reference to internal data structure)
-     */
-    public float[] bottom(float[] list) {
-      return bottom(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -618,19 +553,6 @@ public final class PartialSort {
         }
       }
       queue[parent] = toSift;
-    }
-
-    /**
-     * Pick the top N from the data using ascending order, i.e. find the top N largest values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The top N (passed as a reference to internal data structure)
-     */
-    public float[] top(float[] list) {
-      return top(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -741,25 +663,12 @@ public final class PartialSort {
      * Create a new FloatSelector.
      *
      * @param selectN The number N to select
+     * @throws IllegalArgumentException if number to select is not {@code >0}
      */
     public FloatSelector(int selectN) {
-      checkStrictlyPositive(selectN);
+      ValidationUtils.checkStrictlyPositive(selectN, "number to select");
       this.selectN = selectN;
       queue = new float[selectN];
-    }
-
-    /**
-     * Pick the bottom N from the data using ascending order, i.e. find the bottom selectN smallest
-     * values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The bottom N (passed as a reference to internal data structure)
-     */
-    public float[] bottom(float[] list) {
-      return bottom(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -820,19 +729,6 @@ public final class PartialSort {
       }
 
       return finish(queue, options);
-    }
-
-    /**
-     * Pick the top N from the data using ascending order, i.e. find the top N largest values.
-     *
-     * <p>If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException}
-     * will occur.
-     *
-     * @param list the data list
-     * @return The top N (passed as a reference to internal data structure)
-     */
-    public float[] top(float[] list) {
-      return top(OPTION_CLEAN, list, list.length);
     }
 
     /**
@@ -1577,16 +1473,5 @@ public final class PartialSort {
     final float temp = data[index1];
     data[index1] = data[index2];
     data[index2] = temp;
-  }
-
-  /**
-   * Check the number is strictly positive ({@code > 0}).
-   *
-   * @param number the number
-   */
-  static void checkStrictlyPositive(int number) {
-    if (number < 1) {
-      throw new IllegalArgumentException("N must be strictly positive: " + number);
-    }
   }
 }
