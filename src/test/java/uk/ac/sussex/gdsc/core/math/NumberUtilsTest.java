@@ -35,10 +35,10 @@ import org.junit.jupiter.api.Test;
  * Test for {@link NumberUtils}.
  */
 @SuppressWarnings({"javadoc"})
-public class NumberUtilsTest {
+class NumberUtilsTest {
 
   @Test
-  public void canGetUnsignedExponentFloat() {
+  void canGetUnsignedExponentFloat() {
     final float value = Math.nextDown(1f);
     for (final float f : new float[] {0, 1, Float.NaN, Float.POSITIVE_INFINITY,
         Float.NEGATIVE_INFINITY, 1.23f, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
@@ -47,7 +47,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetUnsignedExponentDouble() {
+  void canGetUnsignedExponentDouble() {
     final double value = Math.nextDown(1.0);
     for (final double f : new double[] {0, 1, Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY, 1.23, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
@@ -56,7 +56,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetSignedExponentFloat() {
+  void canGetSignedExponentFloat() {
     final float value = Math.nextDown(1f);
     for (final float f : new float[] {0, 1, Float.NaN, Float.POSITIVE_INFINITY,
         Float.NEGATIVE_INFINITY, 1.23f, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
@@ -65,7 +65,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetSignedExponentDouble() {
+  void canGetSignedExponentDouble() {
     final double value = Math.nextDown(1.0);
     for (final double f : new double[] {0, 1, Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY, 1.23, value, Math.scalb(value, -45), Math.scalb(value, 67)}) {
@@ -74,7 +74,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetMantissaFloat() {
+  void canGetMantissaFloat() {
     Assertions.assertEquals(0, NumberUtils.getMantissa(0f, true));
     Assertions.assertEquals(0, NumberUtils.getMantissa(0f, false));
     final int bits = -1 << 23;
@@ -89,7 +89,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetMantissaDouble() {
+  void canGetMantissaDouble() {
     Assertions.assertEquals(0, NumberUtils.getMantissa(0f, true));
     Assertions.assertEquals(0, NumberUtils.getMantissa(0f, false));
     final long bits = -1L << 52;
@@ -104,7 +104,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetSignFloat() {
+  void canGetSignFloat() {
     Assertions.assertEquals(0, NumberUtils.getSign(Float.NaN));
     for (final float f : new float[] {-8.96f, -1, -0f, 0, 1, 2.34f, Float.POSITIVE_INFINITY,
         Float.NEGATIVE_INFINITY}) {
@@ -113,7 +113,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canGetSignDouble() {
+  void canGetSignDouble() {
     Assertions.assertEquals(0, NumberUtils.getSign(Double.NaN));
     for (final double f : new double[] {-8.96, -1, -0.0, 0, 1, 2.34, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY}) {
@@ -122,7 +122,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canTestIsSubnormalFloat() {
+  void canTestIsSubnormalFloat() {
     Assertions.assertFalse(NumberUtils.isSubNormal(Float.NaN));
     Assertions.assertFalse(NumberUtils.isSubNormal(Float.POSITIVE_INFINITY));
     Assertions.assertFalse(NumberUtils.isSubNormal(Float.NEGATIVE_INFINITY));
@@ -135,7 +135,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void canTestIsSubnormalDouble() {
+  void canTestIsSubnormalDouble() {
     Assertions.assertFalse(NumberUtils.isSubNormal(Double.NaN));
     Assertions.assertFalse(NumberUtils.isSubNormal(Double.POSITIVE_INFINITY));
     Assertions.assertFalse(NumberUtils.isSubNormal(Double.NEGATIVE_INFINITY));
@@ -148,7 +148,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testIsPrime() {
+  void testIsPrime() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.isPrime(-1));
     Assertions.assertFalse(NumberUtils.isPrime(1), "1 should not be prime");
     Assertions.assertTrue(NumberUtils.isPrime(2), "2 should be prime");
@@ -169,7 +169,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testUlps() {
+  void testUlps() {
     Assertions.assertEquals(0, NumberUtils.ulps(4.56, 4.56));
     Assertions.assertEquals(1, NumberUtils.ulps(4.56, Math.nextUp(4.56)));
     Assertions.assertEquals(0, NumberUtils.ulps(0.0, 0.0));

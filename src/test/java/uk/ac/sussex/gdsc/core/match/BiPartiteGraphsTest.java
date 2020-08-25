@@ -39,9 +39,9 @@ import uk.ac.sussex.gdsc.core.match.BiPartiteGraphs.IntQueue;
  * Test for {@link BiPartiteGraphs}.
  */
 @SuppressWarnings({"javadoc"})
-public class BiPartiteGraphsTest {
+class BiPartiteGraphsTest {
   @Test
-  public void testIntQueue() {
+  void testIntQueue() {
     final IntQueue queue = new IntQueue(10);
     Assertions.assertTrue(queue.empty());
     queue.put(42);
@@ -54,12 +54,12 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphsEmpty() {
+  void testExtractSubGraphsEmpty() {
     assertExtractSubGraphs(new int[][] {{}});
   }
 
   @Test
-  public void testExtractSubGraphs2x2Empty() {
+  void testExtractSubGraphs2x2Empty() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 0, 0 },
@@ -69,7 +69,7 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphs2x2() {
+  void testExtractSubGraphs2x2() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 1, 0 },
@@ -79,7 +79,7 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphs4x4WithNonConnectedA() {
+  void testExtractSubGraphs4x4WithNonConnectedA() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 1, 0, 0, 0 },
@@ -91,7 +91,7 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphs4x4WithNonConnectedB() {
+  void testExtractSubGraphs4x4WithNonConnectedB() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 1, 0, 0, 0 },
@@ -103,7 +103,7 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphs4x4WithNonConnectedAB() {
+  void testExtractSubGraphs4x4WithNonConnectedAB() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 0, 0, 0, 0 },
@@ -115,7 +115,7 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphs4x4TwoSubGraphs() {
+  void testExtractSubGraphs4x4TwoSubGraphs() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 1, 0, 0, 0 },
@@ -128,7 +128,7 @@ public class BiPartiteGraphsTest {
   }
 
   @Test
-  public void testExtractSubGraphs4x4TwoMixedSubGraphs() {
+  void testExtractSubGraphs4x4TwoMixedSubGraphs() {
     // @formatter:off
     assertExtractSubGraphs(new int[][] {
       { 1, 0, 0, 0 },

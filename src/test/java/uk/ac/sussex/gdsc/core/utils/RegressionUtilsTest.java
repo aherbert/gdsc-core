@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class RegressionUtilsTest {
+class RegressionUtilsTest {
   // Use the abbreviated names
   // CHECKSTYLE.OFF: MemberName
   private final double rss1 = 10;
@@ -42,7 +42,7 @@ public class RegressionUtilsTest {
   private final int n = 20;
 
   @Test
-  public void testResidualsFStatisticThrows() {
+  void testResidualsFStatisticThrows() {
     Assertions.assertDoesNotThrow(() -> RegressionUtils.residualsFStatistic(rss1, p1, rss1, p2, n),
         "rss1 == rss2");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -54,7 +54,7 @@ public class RegressionUtilsTest {
   }
 
   @Test
-  public void testResidualsFTestWithAlphaThrows() {
+  void testResidualsFTestWithAlphaThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> RegressionUtils.residualsFTest(rss1, p1, rss1, p2, n, 0), "alpha 0");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -62,7 +62,7 @@ public class RegressionUtilsTest {
   }
 
   @Test
-  public void canComputeResidualsFStatisticWithZeroResiduals() {
+  void canComputeResidualsFStatisticWithZeroResiduals() {
     final double f1 = RegressionUtils.residualsFStatistic(0, p1, 0, p2, n);
     // This is the result if the divide was done without checks: NaN
     Assertions.assertEquals(Double.NaN, 0.0 / 0.0);
@@ -85,21 +85,21 @@ public class RegressionUtilsTest {
   }
 
   @Test
-  public void canComputeResidualsFStatistic() {
+  void canComputeResidualsFStatistic() {
     final double f1 = RegressionUtils.residualsFStatistic(rss1, p1, rss2, p2, n);
     final double f2 = RegressionUtils.residualsFStatistic(rss1, p1, rss2 / 2, p2, n);
     Assertions.assertTrue(f2 > f1, "Better model should be higher F");
   }
 
   @Test
-  public void canComputeResidualsFTest() {
+  void canComputeResidualsFTest() {
     final double pvalue1 = RegressionUtils.residualsFTest(rss1, p1, rss2, p2, n);
     final double pvalue2 = RegressionUtils.residualsFTest(rss1, p1, rss2 / 2, p2, n);
     Assertions.assertTrue(pvalue2 < pvalue1, "Better model should be lower p-value");
   }
 
   @Test
-  public void canComputeResidualsFTestWithAlpha() {
+  void canComputeResidualsFTestWithAlpha() {
     final double pvalue = RegressionUtils.residualsFTest(rss1, p1, rss2, p2, n);
     Assertions.assertFalse(RegressionUtils.residualsFTest(rss1, p1, rss2, p2, n, pvalue * 0.99),
         "p-value above alpha should be accepted");

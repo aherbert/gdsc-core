@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
-public class EnumListTest {
+class EnumListTest {
 
   enum EmptyEnum {
     // Empty
@@ -50,19 +50,19 @@ public class EnumListTest {
   }
 
   @Test
-  public void canCreateWithEmptyEnum() {
+  void canCreateWithEmptyEnum() {
     final EnumList<EmptyEnum> list = EnumList.forEnum(EmptyEnum.class);
     check(list, EmptyEnum.values());
   }
 
   @Test
-  public void canCreateWithSize1Enum() {
+  void canCreateWithSize1Enum() {
     final EnumList<Size1Enum> list = EnumList.forEnum(Size1Enum.class);
     check(list, Size1Enum.values());
   }
 
   @Test
-  public void canCreateWithSize2Enum() {
+  void canCreateWithSize2Enum() {
     final EnumList<Size2Enum> list = EnumList.forEnum(Size2Enum.class);
     check(list, Size2Enum.values());
   }
@@ -103,7 +103,7 @@ public class EnumListTest {
   }
 
   @Test
-  public void canIterate() {
+  void canIterate() {
     final EnumList<Size2Enum> list = EnumList.forEnum(Size2Enum.class);
     final Size2Enum[] values = Size2Enum.values();
     int index = 0;

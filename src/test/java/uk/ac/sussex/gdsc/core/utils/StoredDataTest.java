@@ -47,9 +47,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class StoredDataTest {
+class StoredDataTest {
   @Test
-  public void testEmptyValues() {
+  void testEmptyValues() {
     final StoredData observed = new StoredData();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     check(expected, observed);
@@ -58,7 +58,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void testSingleValues() {
+  void testSingleValues() {
     final StoredData observed = new StoredData();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     observed.add(Math.PI);
@@ -67,7 +67,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canAddNullArray() {
+  void canAddNullArray() {
     final StoredData observed = new StoredData();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     observed.add((double[]) null);
@@ -77,7 +77,7 @@ public class StoredDataTest {
   }
 
   @SeededTest
-  public void canAddMultipleValues(RandomSeed seed) {
+  void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final StoredData observed = new StoredData();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
@@ -95,7 +95,7 @@ public class StoredDataTest {
   }
 
   @SeededTest
-  public void canComputeStatistics(RandomSeed seed) {
+  void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     StoredData observed;
@@ -158,7 +158,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canAddStoredData() {
+  void canAddStoredData() {
     final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
     final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);
@@ -180,7 +180,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canSafeAdd() throws InterruptedException, ExecutionException {
+  void canSafeAdd() throws InterruptedException, ExecutionException {
     final ExecutorService es = Executors.newFixedThreadPool(6);
     final float[][] fdata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
     final double[][] ddata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
@@ -253,7 +253,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canConstructWithData() {
+  void canConstructWithData() {
     // This requires that the constructor correctly initialises the storage
     StoredData data;
     data = StoredData.create(new double[] {1, 2, 3});
@@ -265,7 +265,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canReset() {
+  void canReset() {
     final double[] array = {1, 2, 3};
     final StoredData data = StoredData.create(array);
     Assertions.assertEquals(array.length, data.size());
@@ -277,7 +277,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canClear() {
+  void canClear() {
     final double[] array = {1, 2, 3};
     final StoredData data = StoredData.create(array);
     Assertions.assertEquals(array.length, data.size());
@@ -288,7 +288,7 @@ public class StoredDataTest {
   }
 
   @Test
-  public void canClearWithCapacity() {
+  void canClearWithCapacity() {
     final double[] array = {1, 2, 3};
     final StoredData data = StoredData.create(array);
     Assertions.assertEquals(array.length, data.size());

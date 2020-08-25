@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class IntegerTypeTest {
+class IntegerTypeTest {
   @Test
-  public void canGenerateIntegerType() {
+  void canGenerateIntegerType() {
     final Level level = Level.FINEST;
     // This is not a test. It generates the Enum.
     // It is left to ensure the code will run.
@@ -69,7 +69,7 @@ public class IntegerTypeTest {
   }
 
   @Test
-  public void canProvideIntegerTypeData() {
+  void canProvideIntegerTypeData() {
     // This is a problem for 64-bit signed integers.
     Assertions.assertEquals(Long.MIN_VALUE, Math.abs(Long.MIN_VALUE),
         "abs(Long.MIN_VALUE) should should be Long.MIN_VALUE");
@@ -96,14 +96,14 @@ public class IntegerTypeTest {
   }
 
   @Test
-  public void testForOrdinalThrows() {
+  void testForOrdinalThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> IntegerType.forOrdinal(-1));
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> IntegerType.forOrdinal(Integer.MAX_VALUE));
   }
 
   @Test
-  public void testForOrdinalWithDefaultValue() {
+  void testForOrdinalWithDefaultValue() {
     final IntegerType type0 = IntegerType.forOrdinal(0);
     Assertions.assertEquals(type0, IntegerType.forOrdinal(-1, null));
     Assertions.assertEquals(type0, IntegerType.forOrdinal(Integer.MAX_VALUE, null));
@@ -115,17 +115,17 @@ public class IntegerTypeTest {
   }
 
   @Test
-  public void testMaxUnsigned() {
+  void testMaxUnsigned() {
     assertBitFunction(IntegerTypeTest::maxUnsigned, IntegerType::maxUnsigned, 1, 63);
   }
 
   @Test
-  public void testMaxSigned() {
+  void testMaxSigned() {
     assertBitFunction(IntegerTypeTest::maxSigned, IntegerType::maxSigned, 1, 64);
   }
 
   @Test
-  public void testMinSigned() {
+  void testMinSigned() {
     assertBitFunction(IntegerTypeTest::minSigned, IntegerType::minSigned, 1, 64);
   }
 

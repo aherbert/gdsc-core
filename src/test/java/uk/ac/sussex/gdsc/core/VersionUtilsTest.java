@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class VersionUtilsTest {
+class VersionUtilsTest {
 
   @Test
-  public void testVersionUtils() {
+  void testVersionUtils() {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     final PrintStream test = new PrintStream(baos);
     final PrintStream out = System.out;
@@ -55,7 +55,7 @@ public class VersionUtilsTest {
   }
 
   @Test
-  public void testGetSemVern() {
+  void testGetSemVern() {
     Assertions.assertEquals(0, VersionUtils.getMajorVersion(""));
     Assertions.assertEquals(1, VersionUtils.getMajorVersion("1.2.3"));
     Assertions.assertEquals(0, VersionUtils.getMinorVersion(""));

@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class DimensionWeightFunctionsTest {
+class DimensionWeightFunctionsTest {
   @Test
-  public void testWeightOne() {
+  void testWeightOne() {
     for (int i = 0; i < 5; i++) {
       Assertions.assertEquals(1.0, DimensionWeightFunctions.ONE.applyAsDouble(i));
     }

@@ -36,10 +36,10 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class IdentityTypeConverterTest {
+class IdentityTypeConverterTest {
 
   @SeededTest
-  public void testConverter(RandomSeed seed) {
+  void testConverter(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final IdentityTypeConverter<TimeUnit> c = new IdentityTypeConverter<>(TimeUnit.MILLISECONDS);
     Assertions.assertEquals("x", c.getFunction());

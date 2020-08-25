@@ -37,7 +37,7 @@ import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({"javadoc"})
-public class SortConversionSpeedTest {
+class SortConversionSpeedTest {
   private static Logger logger;
 
   @BeforeAll
@@ -116,7 +116,7 @@ public class SortConversionSpeedTest {
   }
 
   @Test
-  public void canTestFloatBitConversionSpeed() {
+  void canTestFloatBitConversionSpeed() {
     Assumptions.assumeTrue(false);
 
     // Q. Is it faster to use:
@@ -210,7 +210,7 @@ public class SortConversionSpeedTest {
   }
 
   @Test
-  public void canTestDoubleBitConversionSpeed() {
+  void canTestDoubleBitConversionSpeed() {
     Assumptions.assumeTrue(false);
 
     // Q. Is it faster to use:

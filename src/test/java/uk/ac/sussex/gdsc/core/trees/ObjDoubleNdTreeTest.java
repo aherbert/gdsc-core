@@ -44,11 +44,11 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
-public class ObjDoubleNdTreeTest {
+class ObjDoubleNdTreeTest {
   private static final int BUCKET_SIZE = 24;
 
   @Test
-  public void testEmptyTree() {
+  void testEmptyTree() {
     final ObjDoubleKdTree<Integer> tree = KdTrees.newObjDoubleKdTree(2);
     Assertions.assertEquals(2, tree.dimensions());
     Assertions.assertEquals(0, tree.size());
@@ -91,19 +91,19 @@ public class ObjDoubleNdTreeTest {
   }
 
   @Test
-  public void testComputeKnnWithSmallTree() {
+  void testComputeKnnWithSmallTree() {
     final double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
     assertComputeKnn(data);
   }
 
   @Test
-  public void testComputeKnnWithSingleTree() {
+  void testComputeKnnWithSingleTree() {
     final double[][] data = new double[][] {{0, 0}};
     assertComputeKnn(data);
   }
 
   @Test
-  public void testComputeKnnWithSingularity() {
+  void testComputeKnnWithSingularity() {
     final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
     final double[] point1 = new double[2];
     // Create some data.
@@ -115,12 +115,12 @@ public class ObjDoubleNdTreeTest {
   }
 
   @SeededTest
-  public void testComputeKnn(RandomSeed seed) {
+  void testComputeKnn(RandomSeed seed) {
     assertComputeKnn(seed, false);
   }
 
   @SeededTest
-  public void testComputeKnnWithDuplicates(RandomSeed seed) {
+  void testComputeKnnWithDuplicates(RandomSeed seed) {
     assertComputeKnn(seed, true);
   }
 
@@ -328,7 +328,7 @@ public class ObjDoubleNdTreeTest {
    * Test that the distance function can be used with a singularity to exclude points.
    */
   @Test
-  public void testSingularityWithDistanceAboveRange() {
+  void testSingularityWithDistanceAboveRange() {
     final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 3);
     final double[] point1 = {0, 0};
     final double[] point2 = {5, 4};
@@ -395,7 +395,7 @@ public class ObjDoubleNdTreeTest {
   }
 
   @Test
-  public void testComputeKnnWithNaN() {
+  void testComputeKnnWithNaN() {
     final LocalList<double[]> list = new LocalList<>(BUCKET_SIZE * 2);
     final double[] point1 = {0, 0};
     final double[] point2 = {Double.NaN, Double.NaN};
@@ -455,7 +455,7 @@ public class ObjDoubleNdTreeTest {
   }
 
   @Test
-  public void testAddIfAbsent() {
+  void testAddIfAbsent() {
     assertAddIfAbsent(2);
     assertAddIfAbsent(3);
     assertAddIfAbsent(4);
@@ -480,7 +480,7 @@ public class ObjDoubleNdTreeTest {
   }
 
   @Test
-  public void testForEach() {
+  void testForEach() {
     final ObjDoubleKdTree<Integer> tree = KdTrees.newObjDoubleKdTree(2);
     final IndexSupplier msg = new IndexSupplier(1, "item ", "");
     for (final int size : new int[] {0, 1, 4, 16, 64, 256}) {

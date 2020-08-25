@@ -52,7 +52,7 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
  * Test for {@link Matchings}.
  */
 @SuppressWarnings({"javadoc"})
-public class MatchingsTest {
+class MatchingsTest {
   interface MatchingFunction<T, U> {
     int compute(List<T> verticesA, List<U> verticesB, ToDoubleBiFunction<T, U> edges,
         double threshold, BiConsumer<T, U> matched, Consumer<T> unmatchedA, Consumer<U> unmatchedB);
@@ -108,7 +108,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testIntersectionMatchConsumer() {
+  void testIntersectionMatchConsumer() {
     final int offsetA = 1;
     final int offsetB = 16;
     final int size = 5;
@@ -133,7 +133,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testUnmatchedMatchConsumer() {
+  void testUnmatchedMatchConsumer() {
     final int offset = 1;
     final int size = 5;
     final List<Integer> vertices =
@@ -173,7 +173,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testCompositeMatchConsumer() {
+  void testCompositeMatchConsumer() {
     final int offsetA = 1;
     final int offsetB = 16;
     final int size = 5;
@@ -219,7 +219,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMaximumCardinality() {
+  void testMaximumCardinality() {
     final List<Integer> verticesA = Arrays.asList(1, 2, 3, 4, 5);
     final List<Integer> verticesB = Arrays.asList(1, 2, 3, 4, 5);
     // Data from Wikipedia:
@@ -264,22 +264,22 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testNearestNeighbourWithNoVertices() {
+  void testNearestNeighbourWithNoVertices() {
     assertMatchingFunctionWithNoVertices(NearestNeighbourMatchingFunction.instance());
   }
 
   @Test
-  public void testNearestNeighbourWithNoEdges() {
+  void testNearestNeighbourWithNoEdges() {
     assertMatchingFunctionWithNoEdges(NearestNeighbourMatchingFunction.instance());
   }
 
   @Test
-  public void testNearestNeighbourWithMaxCardinality() {
+  void testNearestNeighbourWithMaxCardinality() {
     assertMatchingFunctionWithMaxCardinality(NearestNeighbourMatchingFunction.instance());
   }
 
   @Test
-  public void testNearestNeighbour() {
+  void testNearestNeighbour() {
     final double[][] connections = new double[5][];
     for (int i = 0; i < connections.length; i++) {
       connections[i] = SimpleArrayUtils.newDoubleArray(4, Double.MAX_VALUE);
@@ -296,22 +296,22 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMinimumDistanceWithNoVertices() {
+  void testMinimumDistanceWithNoVertices() {
     assertMatchingFunctionWithNoVertices(MinimumDistanceMatchingFunction.instance());
   }
 
   @Test
-  public void testMinimumDistanceWithNoEdges() {
+  void testMinimumDistanceWithNoEdges() {
     assertMatchingFunctionWithNoEdges(MinimumDistanceMatchingFunction.instance());
   }
 
   @Test
-  public void testMinimumDistanceWithMaxCardinality() {
+  void testMinimumDistanceWithMaxCardinality() {
     assertMatchingFunctionWithMaxCardinality(MinimumDistanceMatchingFunction.instance());
   }
 
   @Test
-  public void testMinimumDistance() {
+  void testMinimumDistance() {
     final double[][] connections = new double[5][];
     for (int i = 0; i < connections.length; i++) {
       connections[i] = SimpleArrayUtils.newDoubleArray(4, Double.MAX_VALUE);
@@ -328,7 +328,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMinimumDistanceWithSubGraphs() {
+  void testMinimumDistanceWithSubGraphs() {
     final double[][] connections = new double[10][];
     for (int i = 0; i < connections.length; i++) {
       connections[i] = SimpleArrayUtils.newDoubleArray(10, Double.MAX_VALUE);
@@ -349,7 +349,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMinimumDistanceWithPerfectAssignments() {
+  void testMinimumDistanceWithPerfectAssignments() {
     // This should be detected as arbitrary and assign the diagonal
     final double[][] connections2x2 = new double[2][2];
     final int[][] expected2x2 = new int[][] {{0, 0}, {1, 1}};
@@ -366,7 +366,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMinimumDistanceWithIncompleteAssignments() {
+  void testMinimumDistanceWithIncompleteAssignments() {
     final double[][] connections = new double[3][];
     for (int i = 0; i < connections.length; i++) {
       connections[i] = SimpleArrayUtils.newDoubleArray(2, 1);
@@ -379,7 +379,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMinimumDistanceWithAssignmentsAboveMatchDistance() {
+  void testMinimumDistanceWithAssignmentsAboveMatchDistance() {
     // 1 is max distance. 2 is above distance threshold.
     //@formatter:off
     final double[][] connections = new double[][] {
@@ -398,7 +398,7 @@ public class MatchingsTest {
 
   @Disabled("The minimum distance matching does not currently totally exclude those above the distance threshold")
   @Test
-  public void testMinimumDistanceWithAssignmentsAboveMatchDistanceB() {
+  void testMinimumDistanceWithAssignmentsAboveMatchDistanceB() {
     // 1 is max distance. 2 is above distance threshold.
     //@formatter:off
     final double[][] connections = new double[][] {
@@ -424,7 +424,7 @@ public class MatchingsTest {
   }
 
   @Test
-  public void testMinimumDistanceThrowsWithInfiniteRange() {
+  void testMinimumDistanceThrowsWithInfiniteRange() {
     //@formatter:off
     final double[][] connections = new double[][] {
       {Double.MAX_VALUE, 0},

@@ -38,12 +38,12 @@ import org.junit.jupiter.api.Test;
  * Test for {@link Resequencer}.
  */
 @SuppressWarnings({"javadoc"})
-public class ResequencerTest {
+class ResequencerTest {
 
   private static final int NO_ENTRY = -1;
 
   @Test
-  public void renumberThrowsWithMismatchedArrays() {
+  void renumberThrowsWithMismatchedArrays() {
     final Resequencer resequencer = new Resequencer();
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       resequencer.renumber(new int[2], new int[3]);
@@ -51,12 +51,12 @@ public class ResequencerTest {
   }
 
   @Test
-  public void canResequenceWithDefaultSwitchPoint() {
+  void canResequenceWithDefaultSwitchPoint() {
     canResequence(false);
   }
 
   @Test
-  public void canResequenceAboveSwitchPoint() {
+  void canResequenceAboveSwitchPoint() {
     canResequence(true);
   }
 
@@ -109,12 +109,12 @@ public class ResequencerTest {
   }
 
   @Test
-  public void canCacheRenumberMapWithDefaultSwitchPoint() {
+  void canCacheRenumberMapWithDefaultSwitchPoint() {
     canCacheRenumberMap(false);
   }
 
   @Test
-  public void canCacheRenumberMapAboveSwitchPoint() {
+  void canCacheRenumberMapAboveSwitchPoint() {
     canCacheRenumberMap(true);
   }
 

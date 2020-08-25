@@ -43,10 +43,10 @@ import uk.ac.sussex.gdsc.core.data.procedures.FValueProcedure;
 import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
 
 @SuppressWarnings({"javadoc"})
-public class RoiHelperTest {
+class RoiHelperTest {
 
   @Test
-  public void testGetMask() {
+  void testGetMask() {
     final int size = 8;
     final ImagePlus imp = new ImagePlus(null, new ByteProcessor(size, size));
     // No ROI
@@ -85,7 +85,7 @@ public class RoiHelperTest {
   }
 
   @Test
-  public void testForEachFloat() {
+  void testForEachFloat() {
     final int size = 8;
     final byte[] pixels = new byte[size * size];
     for (int i = 0; i < pixels.length; i++) {
@@ -128,7 +128,7 @@ public class RoiHelperTest {
   }
 
   @Test
-  public void testForEachImageStackFloat() {
+  void testForEachImageStackFloat() {
     final int size = 8;
     final byte[] pixels = new byte[size * size];
     for (int i = 0; i < pixels.length; i++) {
@@ -172,7 +172,7 @@ public class RoiHelperTest {
   }
 
   @Test
-  public void testForEachInt() {
+  void testForEachInt() {
     final int size = 8;
     final byte[] pixels = new byte[size * size];
     for (int i = 0; i < pixels.length; i++) {
@@ -213,7 +213,7 @@ public class RoiHelperTest {
   }
 
   @Test
-  public void testForEachImageStackInt() {
+  void testForEachImageStackInt() {
     final int size = 8;
     final byte[] pixels = new byte[size * size];
     for (int i = 0; i < pixels.length; i++) {

@@ -44,7 +44,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class FileSeekableStreamTest {
+class FileSeekableStreamTest {
 
   private static Path tmpFile;
 
@@ -59,14 +59,14 @@ public class FileSeekableStreamTest {
   }
 
   @Test
-  public void testThrowsWithNullInputFile() {
+  void testThrowsWithNullInputFile() {
     Assertions.assertThrows(NullPointerException.class,
         () -> new FileSeekableStream((RandomAccessFile) null));
     Assertions.assertThrows(NullPointerException.class, () -> new FileSeekableStream((File) null));
   }
 
   @Test
-  public void testThrowsWithOutOfBounds() throws IOException {
+  void testThrowsWithOutOfBounds() throws IOException {
     try (SeekableStream ss = create(new byte[10])) {
       final byte[] bytes = new byte[5];
       Assertions.assertThrows(IndexOutOfBoundsException.class, () -> ss.read(bytes, -1, 1));
@@ -76,7 +76,7 @@ public class FileSeekableStreamTest {
   }
 
   @SeededTest
-  public void canReadSingleByte(RandomSeed seed) throws IOException {
+  void canReadSingleByte(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 2);
     try (SeekableStream ss = create(bytes)) {
@@ -90,7 +90,7 @@ public class FileSeekableStreamTest {
   }
 
   @SeededTest
-  public void canReadMultiByte(RandomSeed seed) throws IOException {
+  void canReadMultiByte(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 2);
     try (SeekableStream ss = create(bytes)) {
@@ -106,7 +106,7 @@ public class FileSeekableStreamTest {
   }
 
   @SeededTest
-  public void canSeek(RandomSeed seed) throws IOException {
+  void canSeek(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (SeekableStream ss = create(bytes)) {
@@ -127,7 +127,7 @@ public class FileSeekableStreamTest {
   }
 
   @SeededTest
-  public void canSkip(RandomSeed seed) throws IOException {
+  void canSkip(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (SeekableStream ss = create(bytes, true)) {

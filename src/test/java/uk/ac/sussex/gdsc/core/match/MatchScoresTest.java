@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link MatchScores}.
  */
 @SuppressWarnings({"javadoc"})
-public class MatchScoresTest {
+class MatchScoresTest {
   @Test
-  public void testPrecision() {
+  void testPrecision() {
     Assertions.assertEquals(0, MatchScores.calculatePrecision(0, 0));
     final int tp = 5;
     final int fp = 1;
@@ -45,7 +45,7 @@ public class MatchScoresTest {
   }
 
   @Test
-  public void testRecall() {
+  void testRecall() {
     Assertions.assertEquals(0, MatchScores.calculateRecall(0, 0));
     final int tp = 5;
     final int fn = 1;
@@ -53,7 +53,7 @@ public class MatchScoresTest {
   }
 
   @Test
-  public void testJaccard() {
+  void testJaccard() {
     Assertions.assertEquals(0, MatchScores.calculateJaccard(0, 0, 0));
     final int tp = 5;
     final int fp = 1;
@@ -62,7 +62,7 @@ public class MatchScoresTest {
   }
 
   @Test
-  public void testF1Score() {
+  void testF1Score() {
     Assertions.assertEquals(0, MatchScores.calculateF1Score(0.0, 0.0));
     Assertions.assertEquals(0, MatchScores.calculateF1Score(0, 0, 0));
     final int tp = 5;
@@ -77,7 +77,7 @@ public class MatchScoresTest {
   }
 
   @Test
-  public void testFBetaScore() {
+  void testFBetaScore() {
     final int tp = 5;
     final int fp = 1;
     final int fn = 1;

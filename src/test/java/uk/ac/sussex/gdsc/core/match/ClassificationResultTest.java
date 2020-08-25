@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link ClassificationResult}.
  */
 @SuppressWarnings({"javadoc"})
-public class ClassificationResultTest {
+class ClassificationResultTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final int tp = 5;
     final int fp = 1;
     final int tn = 2;
@@ -84,7 +84,7 @@ public class ClassificationResultTest {
   }
 
   @Test
-  public void testMatthewsCorrelationCoefficientWithZeroDistance() {
+  void testMatthewsCorrelationCoefficientWithZeroDistance() {
     final int tp = 0;
     final int fp = 0;
     final int tn = 0;

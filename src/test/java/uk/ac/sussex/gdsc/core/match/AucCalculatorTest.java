@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link AucCalculator}.
  */
 @SuppressWarnings({"javadoc"})
-public class AucCalculatorTest {
+class AucCalculatorTest {
   @Test
-  public void testBadArguments() {
+  void testBadArguments() {
     // Length mismatch
     final double[] precision = new double[1];
     final double[] recall = new double[2];
@@ -48,7 +48,7 @@ public class AucCalculatorTest {
   }
 
   @Test
-  public void testAuc() {
+  void testAuc() {
     final double[] precision = {1, 0.75, 0.8, 0.8, 0.6};
     final double[] recall = {0, 0.1, 0.2, 0.35, 0.4};
     // @formatter:off
@@ -62,7 +62,7 @@ public class AucCalculatorTest {
   }
 
   @Test
-  public void testAucWithoutRecallZero() {
+  void testAucWithoutRecallZero() {
     final double[] precision = {0.75, 0.8, 0.8, 0.6};
     final double[] recall = {0.1, 0.2, 0.35, 0.4};
     // @formatter:off

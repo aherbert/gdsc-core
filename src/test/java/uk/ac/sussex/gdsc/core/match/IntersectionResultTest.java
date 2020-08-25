@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link IntersectionResult}.
  */
 @SuppressWarnings({"javadoc"})
-public class IntersectionResultTest {
+class IntersectionResultTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final int tp = 5;
     final int fp = 1;
     final int fn = 3;

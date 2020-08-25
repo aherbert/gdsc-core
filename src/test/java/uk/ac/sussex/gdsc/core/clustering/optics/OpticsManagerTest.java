@@ -112,7 +112,7 @@ import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
-public class OpticsManagerTest {
+class OpticsManagerTest {
   private static Logger logger;
   private static ExecutorService executor;
 
@@ -426,7 +426,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testBadZCoords() {
+  void testBadZCoords() {
     final float[] x = {0};
     final float[] z = {0, 1};
     Assertions.assertThrows(IllegalArgumentException.class, () -> new OpticsManager(x, x, null, 1));
@@ -434,7 +434,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testCoords2d() {
+  void testCoords2d() {
     final float[] x = {1, 2};
     final float[] y = {6, 4};
     final OpticsManager om = new OpticsManager(x.clone(), y.clone(), 1);
@@ -456,7 +456,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testCoords3d() {
+  void testCoords3d() {
     final float[] x = {1, 2};
     final float[] y = {6, 4};
     final float[] z = {0.5f, 1.5f};
@@ -482,7 +482,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testRandomSeed() {
+  void testRandomSeed() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     Assertions.assertEquals(0, om.getRandomSeed());
@@ -491,7 +491,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOptions() {
+  void testOptions() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     final Set<Option> options = om.getOptions();
@@ -503,7 +503,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testExecutorService() {
+  void testExecutorService() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     Assertions.assertNull(om.getExecutorService());
@@ -517,14 +517,14 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testNearestNeighbourDistanceEmpty() {
+  void testNearestNeighbourDistanceEmpty() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 10);
     Assertions.assertArrayEquals(new float[0], om.nearestNeighbourDistance(5, 5, false));
   }
 
   @Test
-  public void testNearestNeighbourDistance2d() {
+  void testNearestNeighbourDistance2d() {
     final float[] x = SimpleArrayUtils.newArray(5, 0f, 1f);
     final OpticsManager om = new OpticsManager(x, x, 4 * 4);
     om.setTracker(AssertionTracker.INSTANCE);
@@ -542,7 +542,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testNearestNeighbourDistance3d() {
+  void testNearestNeighbourDistance3d() {
     final float[] x = SimpleArrayUtils.newArray(5, 0f, 1f);
     final OpticsManager om = new OpticsManager(x, x, x, 4 * 4 * 4);
     final float end = (float) Math.sqrt(2 * 2 + 2 * 2 + 2 * 2);
@@ -559,14 +559,14 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testLoopEmpty() {
+  void testLoopEmpty() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 10);
     Assertions.assertArrayEquals(new float[1], om.loop(2, 3, false));
   }
 
   @Test
-  public void testLoop2d() {
+  void testLoop2d() {
     final float[] x = {0, 1, 2, 3, 10};
     final OpticsManager om = new OpticsManager(x, x, 10);
     om.setTracker(AssertionTracker.INSTANCE);
@@ -580,7 +580,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testLoop2dColocated() {
+  void testLoop2dColocated() {
     final float[] x = {0, 0, 0, 0, 1, 10};
     final OpticsManager om = new OpticsManager(x, x, 100);
     om.setTracker(AssertionTracker.INSTANCE);
@@ -590,7 +590,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testLoop3d() {
+  void testLoop3d() {
     final float[] x = {0, 1, 2, 3, 10};
     final OpticsManager om = new OpticsManager(x, x, x, 1000);
     om.setTracker(AssertionTracker.INSTANCE);
@@ -604,7 +604,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testCopy() {
+  void testCopy() {
     final float[] x = {0, 1, 2, 3, 10};
     final OpticsManager om = new OpticsManager(x, x, x, 1000);
     om.addOptions(Option.GRID_PROCESSING);
@@ -616,7 +616,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testAbortOptics() {
+  void testAbortOptics() {
     final float[] x = {0, 1, 2, 3};
     final OpticsManager om = new OpticsManager(x, x, 1);
     for (int i = 0; i < 3; i++) {
@@ -626,7 +626,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testAbortDbscan() {
+  void testAbortDbscan() {
     final float[] x = {0, 1, 2, 3};
     final OpticsManager om = new OpticsManager(x, x, 1);
     for (int i = 0; i < 3; i++) {
@@ -636,7 +636,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testAbortFastOptics() {
+  void testAbortFastOptics() {
     final float[] x = {0, 1, 2, 3};
     final OpticsManager om = new OpticsManager(x, x, 1);
     for (int i = 0; i < 3; i++) {
@@ -646,7 +646,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOptics2dVerses3d() {
+  void testOptics2dVerses3d() {
     final float[] x = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
     final float[] z = new float[x.length];
     final RandIndex ri = new RandIndex();
@@ -660,7 +660,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testDbscan2dVerses3d() {
+  void testDbscan2dVerses3d() {
     final float[] x = {0, 1, 2, 3, 4, 20, 21, 22, 23, 24};
     final float[] z = new float[x.length];
     final RandIndex ri = new RandIndex();
@@ -675,7 +675,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testFastOptics2dVerses3d() {
+  void testFastOptics2dVerses3d() {
     final float[] x = {0, 1, 2.1f, 3.3f, 1.4f, 20, 20.5f, 21.1f, 21.8f, 22.6f};
     final float[] z = new float[x.length];
     final RandIndex ri = new RandIndex();
@@ -702,7 +702,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOpticsMoleculePriorityQueue() {
+  void testOpticsMoleculePriorityQueue() {
     final OpticsPriorityQueue q = new OpticsMoleculePriorityQueue(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
@@ -721,7 +721,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOpticsMoleculePriorityQueueIdOrdered() {
+  void testOpticsMoleculePriorityQueueIdOrdered() {
     final OpticsPriorityQueue q = new OpticsMoleculePriorityQueueIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
@@ -740,7 +740,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOpticsMoleculePriorityQueueReverseIdOrdered() {
+  void testOpticsMoleculePriorityQueueReverseIdOrdered() {
     final OpticsPriorityQueue q = new OpticsMoleculePriorityQueueReverseIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
@@ -759,7 +759,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOpticsMoleculeBinaryHeap() {
+  void testOpticsMoleculeBinaryHeap() {
     final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeap(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
@@ -778,7 +778,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOpticsMoleculeBinaryHeapIdOrdered() {
+  void testOpticsMoleculeBinaryHeapIdOrdered() {
     final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeapIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
@@ -797,7 +797,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testOpticsMoleculeBinaryHeapReverseIdOrdered() {
+  void testOpticsMoleculeBinaryHeapReverseIdOrdered() {
     final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeapReverseIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
@@ -822,7 +822,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testCreateQueue() {
+  void testCreateQueue() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     Assertions.assertEquals(OpticsMoleculeBinaryHeap.class, om.createQueue(1).getClass());
@@ -843,7 +843,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testGetPreferredMoleculeSpace() {
+  void testGetPreferredMoleculeSpace() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     Assertions.assertNull(om.getPreferredMoleculeSpace(true));
@@ -859,7 +859,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testDbscanMoleculeSpace() {
+  void testDbscanMoleculeSpace() {
     final float[] x = {0, 1, 2, 3, 4, 5, 6, 7};
     final float[] y = {1, 0, 1, 0, 5, 4, 5, 4};
     final OpticsManager om = new OpticsManager(x, y, 1);
@@ -876,7 +876,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testGetNumberOfSplitSets() {
+  void testGetNumberOfSplitSets() {
     // Too small
     float[] x = {0};
     OpticsManager om = new OpticsManager(x, x, 1);
@@ -890,7 +890,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void testGetOriginalCoords() {
+  void testGetOriginalCoords() {
     final float[] x = {1, 3, 2};
     final float[] y = {7, 4, 2};
     final OpticsManager om = new OpticsManager(x.clone(), y.clone(), 1);
@@ -904,7 +904,7 @@ public class OpticsManagerTest {
    * Test the results of Optics using the ELKI framework.
    */
   @SeededTest
-  public void canComputeOptics(RandomSeed seed) {
+  void canComputeOptics(RandomSeed seed) {
     // This does not fail but logs warnings
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -991,7 +991,7 @@ public class OpticsManagerTest {
    * Test the results of Fast Optics using the ELKI framework.
    */
   @SeededTest
-  public void canComputeFastOptics(RandomSeed seed) {
+  void canComputeFastOptics(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
@@ -1071,7 +1071,7 @@ public class OpticsManagerTest {
    * Test the results of Optics using the ELKI framework.
    */
   @SeededTest
-  public void canComputeOpticsXi(RandomSeed seed) {
+  void canComputeOpticsXi(RandomSeed seed) {
     // This does not fail but logs warnings
 
     final UniformRandomProvider rg = RngUtils.create(123); // seed.getSeed());
@@ -1158,7 +1158,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeOpticsXiWithNoHierarchy(RandomSeed seed) {
+  void canComputeOpticsXiWithNoHierarchy(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
@@ -1192,7 +1192,7 @@ public class OpticsManagerTest {
    * Test the results of FastOPTICS using the ELKI framework.
    */
   @SeededTest
-  public void canComputeSimilarFastOpticsToElki(RandomSeed seed) {
+  void canComputeSimilarFastOpticsToElki(RandomSeed seed) {
     // This does not fail but logs warnings
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -1291,7 +1291,7 @@ public class OpticsManagerTest {
 
   @SpeedTag
   @SeededTest
-  public void canComputeFastOpticsFasterThanElki(RandomSeed seed) {
+  void canComputeFastOpticsFasterThanElki(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -1360,12 +1360,12 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeSimilarFastOpticsTopLevelClusters(RandomSeed seed) {
+  void canComputeSimilarFastOpticsTopLevelClusters(RandomSeed seed) {
     canComputeSimilarFastOptics(seed, 0, 0.7);
   }
 
   @SeededTest
-  public void canComputeSimilarFastOpticsXi(RandomSeed seed) {
+  void canComputeSimilarFastOpticsXi(RandomSeed seed) {
     canComputeSimilarFastOptics(seed, 0.03, 0.5);
   }
 
@@ -1444,25 +1444,25 @@ public class OpticsManagerTest {
   // The following tests are optional since they test non-default Optics processing
 
   @SeededTest
-  public void canComputeOpticsWithInnerProcessing(RandomSeed seed) {
+  void canComputeOpticsWithInnerProcessing(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeOpticsWithOptions(seed, Option.INNER_PROCESSING);
   }
 
   @SeededTest
-  public void canComputeOpticsWithCircularProcessing(RandomSeed seed) {
+  void canComputeOpticsWithCircularProcessing(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeOpticsWithOptions(seed, Option.CIRCULAR_PROCESSING);
   }
 
   @SeededTest
-  public void canComputeOpticsWithInnerCircularProcessing(RandomSeed seed) {
+  void canComputeOpticsWithInnerCircularProcessing(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeOpticsWithOptions(seed, Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
   }
 
   @SeededTest
-  public void canComputeOpticsWithSimpleQueue(RandomSeed seed) {
+  void canComputeOpticsWithSimpleQueue(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     // This fails as the order is different when we do not use ID to order the objects when
     // reachability distance is equal
@@ -1475,14 +1475,14 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeOpticsWithSimpleQueueReverseIdOrderD(RandomSeed seed) {
+  void canComputeOpticsWithSimpleQueueReverseIdOrderD(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeOpticsWithOptions(seed, new Option[] {Option.OPTICS_STRICT_REVERSE_ID_ORDER},
         Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
   }
 
   @SeededTest
-  public void canComputeOpticsWithSimpleQueueIdOrder(RandomSeed seed) {
+  void canComputeOpticsWithSimpleQueueIdOrder(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeOpticsWithOptions(seed, new Option[] {Option.OPTICS_STRICT_ID_ORDER},
         Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
@@ -1587,19 +1587,19 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeDbscanWithGridProcessing(RandomSeed seed) {
+  void canComputeDbscanWithGridProcessing(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeDbscanWithOptions(seed, Option.GRID_PROCESSING);
   }
 
   @SeededTest
-  public void canComputeDbscanWithCircularProcessing(RandomSeed seed) {
+  void canComputeDbscanWithCircularProcessing(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeDbscanWithOptions(seed, Option.CIRCULAR_PROCESSING);
   }
 
   @SeededTest
-  public void canComputeDbscanWithInnerProcessingCircular(RandomSeed seed) {
+  void canComputeDbscanWithInnerProcessingCircular(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     canComputeDbscanWithOptions(seed, Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
   }
@@ -1648,7 +1648,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canPerformOpticsWithLargeData(RandomSeed seed) {
+  void canPerformOpticsWithLargeData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
@@ -1681,7 +1681,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeKnnDistance(RandomSeed seed) {
+  void canComputeKnnDistance(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int n = 100;
     final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1719,7 +1719,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeKnnDistanceWithBigData(RandomSeed seed) {
+  void canComputeKnnDistanceWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
@@ -1733,7 +1733,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canComputeKnnDistanceWithSample(RandomSeed seed) {
+  void canComputeKnnDistanceWithSample(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1747,7 +1747,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void canComputeGeneratingDistance() {
+  void canComputeGeneratingDistance() {
     // 1000 points in 10000 area => 10 area / point
     Assertions.assertEquals(3.56825, OpticsManager.computeGeneratingDistance(4, 10000, false, 1000),
         1e-3);
@@ -1761,7 +1761,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canRepeatOptics(RandomSeed seed) {
+  void canRepeatOptics(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int n = ns[0];
     final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1792,7 +1792,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canPerformOpticsWithTinyRadius(RandomSeed seed) {
+  void canPerformOpticsWithTinyRadius(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int minPts = 10;
     for (final int n : ns) {
@@ -1806,7 +1806,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canPerformOpticsWith1Point(RandomSeed seed) {
+  void canPerformOpticsWith1Point(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager om = createOpticsManager(size, 1, rg);
 
@@ -1824,7 +1824,7 @@ public class OpticsManagerTest {
   }
 
   @Test
-  public void canPerformOpticsWithColocatedData() {
+  void canPerformOpticsWithColocatedData() {
     final OpticsManager om = new OpticsManager(new float[10], new float[10], size * size);
 
     for (final float radius : new float[] {-1, 0, 0.01f, 1f}) {
@@ -1837,7 +1837,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canConvertOpticsToDbscan(RandomSeed seed) {
+  void canConvertOpticsToDbscan(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int n = ns[0];
     final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1875,7 +1875,7 @@ public class OpticsManagerTest {
    * Test the results of Dbscan using Optics.
    */
   @SeededTest
-  public void canComputeDbscan(RandomSeed seed) {
+  void canComputeDbscan(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
@@ -1908,7 +1908,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void testDbscanIsFasterThanOptics(RandomSeed seed) {
+  void testDbscanIsFasterThanOptics(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -1938,7 +1938,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canMatchDbscanCorePointsWithOptics(RandomSeed seed) {
+  void canMatchDbscanCorePointsWithOptics(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1968,7 +1968,7 @@ public class OpticsManagerTest {
 
   @SpeedTag
   @SeededTest
-  public void testDbscanInnerCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
+  void testDbscanInnerCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -2013,7 +2013,7 @@ public class OpticsManagerTest {
 
   @SpeedTag
   @SeededTest
-  public void testOpticsCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
+  void testOpticsCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
     // Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
@@ -2169,7 +2169,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canTestMoleculeSpaceFindNeighbours(RandomSeed seed) {
+  void canTestMoleculeSpaceFindNeighbours(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager[] om = new OpticsManager[5];
     for (int i = 0; i < om.length; i++) {
@@ -2266,7 +2266,7 @@ public class OpticsManagerTest {
   }
 
   @SeededTest
-  public void canTestMoleculeSpaceFindNeighboursPregenerated(RandomSeed seed) {
+  void canTestMoleculeSpaceFindNeighboursPregenerated(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager[] om = new OpticsManager[5];
     for (int i = 0; i < om.length; i++) {
@@ -2366,7 +2366,7 @@ public class OpticsManagerTest {
    * processing on.
    */
   @SeededTest
-  public void canTestMoleculeSpaceFindNeighboursWithAutoResolution(RandomSeed seed) {
+  void canTestMoleculeSpaceFindNeighboursWithAutoResolution(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
@@ -2442,7 +2442,7 @@ public class OpticsManagerTest {
    * This tests what resolution to use for a GridMoleculeSpace.
    */
   @SeededTest
-  public void canTestGridMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
+  void canTestGridMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
@@ -2513,7 +2513,7 @@ public class OpticsManagerTest {
    * This tests what resolution to use for a RadialMoleculeSpace.
    */
   @SeededTest
-  public void canTestRadialMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
+  void canTestRadialMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
@@ -2585,7 +2585,7 @@ public class OpticsManagerTest {
    * This tests what resolution to use for a InnerRadialMoleculeSpace.
    */
   @SeededTest
-  public void canTestInnerRadialMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
+  void canTestInnerRadialMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
@@ -2721,7 +2721,7 @@ public class OpticsManagerTest {
    * default level then the speed is similar.
    */
   @SeededTest
-  public void canTestOpticsQueue(RandomSeed seed) {
+  void canTestOpticsQueue(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
@@ -2784,7 +2784,7 @@ public class OpticsManagerTest {
    * Test the results of LoOP using the ELKI framework.
    */
   @SeededTest
-  public void canComputeLoop(RandomSeed seed) {
+  void canComputeLoop(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =

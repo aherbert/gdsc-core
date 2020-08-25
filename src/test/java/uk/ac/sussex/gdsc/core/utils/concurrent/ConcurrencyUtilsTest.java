@@ -45,10 +45,10 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ConcurrencyUtilsTest {
+class ConcurrencyUtilsTest {
 
   @Test
-  public void canWaitForCompletion() throws InterruptedException, ExecutionException {
+  void canWaitForCompletion() throws InterruptedException, ExecutionException {
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final AtomicInteger count = new AtomicInteger();
     final ArrayList<Future<?>> futures = new ArrayList<>();
@@ -61,7 +61,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionUnchecked() {
+  void canWaitForCompletionUnchecked() {
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final AtomicInteger count = new AtomicInteger();
     final ArrayList<Future<?>> futures = new ArrayList<>();
@@ -74,7 +74,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionUncheckedWithInterruptedException() throws InterruptedException {
+  void canWaitForCompletionUncheckedWithInterruptedException() throws InterruptedException {
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final ArrayList<Future<?>> futures = new ArrayList<>();
@@ -107,7 +107,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionUncheckedWithRuntimeException() {
+  void canWaitForCompletionUncheckedWithRuntimeException() {
     final RuntimeException error = new RuntimeException();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -121,7 +121,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionUncheckedWithConcurrentRuntimeException() {
+  void canWaitForCompletionUncheckedWithConcurrentRuntimeException() {
     final IOException error = new IOException();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -135,7 +135,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionUncheckedWithError() {
+  void canWaitForCompletionUncheckedWithError() {
     final Error error = new Error();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -149,7 +149,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionUncheckedWithErrorAndHandler() {
+  void canWaitForCompletionUncheckedWithErrorAndHandler() {
     final Error error = new Error();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -169,7 +169,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionT() throws InterruptedException, ExecutionException {
+  void canWaitForCompletionT() throws InterruptedException, ExecutionException {
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final AtomicInteger count = new AtomicInteger();
     final ArrayList<Future<Integer>> futures = new ArrayList<>();
@@ -182,7 +182,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionTUnchecked() {
+  void canWaitForCompletionTUnchecked() {
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final AtomicInteger count = new AtomicInteger();
     final ArrayList<Future<Integer>> futures = new ArrayList<>();
@@ -195,7 +195,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionTUncheckedWithInterruptedException() throws InterruptedException {
+  void canWaitForCompletionTUncheckedWithInterruptedException() throws InterruptedException {
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final ArrayList<Future<Integer>> futures = new ArrayList<>();
@@ -229,7 +229,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionTUncheckedWithRuntimeException() {
+  void canWaitForCompletionTUncheckedWithRuntimeException() {
     final RuntimeException error = new RuntimeException();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -243,7 +243,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionTUncheckedWithConcurrentRuntimeException() {
+  void canWaitForCompletionTUncheckedWithConcurrentRuntimeException() {
     final IOException error = new IOException();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -257,7 +257,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionTUncheckedWithError() {
+  void canWaitForCompletionTUncheckedWithError() {
     final Error error = new Error();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -271,7 +271,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canWaitForCompletionTUncheckedWithErrorAndHandler() {
+  void canWaitForCompletionTUncheckedWithErrorAndHandler() {
     final Error error = new Error();
     // Set-up jobs
     final ExecutorService es = Executors.newSingleThreadExecutor();
@@ -291,7 +291,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canInvokeAll() {
+  void canInvokeAll() {
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final AtomicInteger count = new AtomicInteger();
     final ArrayList<Callable<Integer>> tasks = new ArrayList<>();
@@ -304,7 +304,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canInvokeAllWithInterruptedException() throws InterruptedException {
+  void canInvokeAllWithInterruptedException() throws InterruptedException {
     final ExecutorService es = Executors.newSingleThreadExecutor();
     final AtomicInteger count = new AtomicInteger();
     final ArrayList<Callable<Integer>> tasks = new ArrayList<>();
@@ -338,7 +338,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canRefresh() {
+  void canRefresh() {
     final AtomicReference<Integer> reference = new AtomicReference<>();
     final Predicate<Integer> test = v -> v.equals(1);
     final Supplier<Integer> supplier = () -> Integer.valueOf(1);
@@ -357,7 +357,7 @@ public class ConcurrencyUtilsTest {
   }
 
   @Test
-  public void canInterruptAndThrowUncheckedIf() {
+  void canInterruptAndThrowUncheckedIf() {
     Assumptions.assumeFalse(Thread.currentThread().isInterrupted(),
         "Thread should not be interrupted");
 

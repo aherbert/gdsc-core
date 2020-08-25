@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class CoordinatePredicateUtilsTest {
+class CoordinatePredicateUtilsTest {
 
   @Test
-  public void testCoordinatePredicateNotArea() {
+  void testCoordinatePredicateNotArea() {
     Assertions.assertNull(CoordinatePredicateUtils.createContainsPredicate(null));
     Assertions.assertNull(CoordinatePredicateUtils.createContainsPredicate(new Line(1, 2, 3, 4)));
     Assertions.assertNull(CoordinatePredicateUtils.createContainsPredicate(
@@ -65,19 +65,19 @@ public class CoordinatePredicateUtilsTest {
   }
 
   @Test
-  public void testBasicRoiContainsPredicateThrows() {
+  void testBasicRoiContainsPredicateThrows() {
     final Roi roi = new PolygonRoi(new int[] {0, 0, 5}, new int[] {0, 5, 5}, 3, Roi.POLYGON);
     assertThrows(roi, BasicRoiContainsPredicate::new);
   }
 
   @Test
-  public void testPolygonRoiContainsPredicateThrows() {
+  void testPolygonRoiContainsPredicateThrows() {
     final Roi roi = new Roi(0, 1, 2, 3);
     assertThrows(roi, PolygonRoiContainsPredicate::new);
   }
 
   @Test
-  public void testCompositeRoiContainsPredicateThrows() {
+  void testCompositeRoiContainsPredicateThrows() {
     final Roi roi = new Roi(0, 1, 2, 3);
     assertThrows(roi, CompositeRoiContainsPredicate::new);
   }
@@ -87,26 +87,26 @@ public class CoordinatePredicateUtilsTest {
   }
 
   @Test
-  public void testCoordinatePredicateRectangle() {
+  void testCoordinatePredicateRectangle() {
     assertCoordinatePredicate(new Roi(1, 2, 3, 4), new int[][] {{2, 3}, {5, 6}},
         new boolean[] {true, false});
   }
 
   @Test
-  public void testCoordinatePredicateRoundedRectangle() {
+  void testCoordinatePredicateRoundedRectangle() {
     final Roi roi = new Roi(0, 0, 10, 10);
     roi.setRoundRectArcSize(1);
     assertCoordinatePredicate(roi, new int[][] {{2, 3}, {10, 10}}, new boolean[] {true, false});
   }
 
   @Test
-  public void testCoordinatePredicateOval() {
+  void testCoordinatePredicateOval() {
     assertCoordinatePredicate(new OvalRoi(1, 2, 3, 4), new int[][] {{2, 3}, {5, 6}},
         new boolean[] {true, false});
   }
 
   @Test
-  public void testCoordinatePredicateComposite() {
+  void testCoordinatePredicateComposite() {
     final Roi roi1 = new Roi(1, 2, 3, 4);
     final Roi roi2 = new Roi(5, 6, 7, 8);
     final Roi roi = new ShapeRoi(roi1).or(new ShapeRoi(roi2));
@@ -115,7 +115,7 @@ public class CoordinatePredicateUtilsTest {
   }
 
   @Test
-  public void testCoordinatePredicatePolygon() {
+  void testCoordinatePredicatePolygon() {
     final Roi roi = new PolygonRoi(new float[] {0, 0.5f, 1.5f, 2, 1.5f, 0.5f},
         new float[] {0, 1, 1, 0, -1, -1}, 6, Roi.POLYGON);
     assertCoordinatePredicate(roi, new int[][] {{0, 1}, {1, 1}, {2, 1}, {0, -1}, {1, -1}, {2, -1}},
@@ -123,14 +123,14 @@ public class CoordinatePredicateUtilsTest {
   }
 
   @Test
-  public void testCoordinatePredicateFreeRoi() {
+  void testCoordinatePredicateFreeRoi() {
     final Roi roi = new PolygonRoi(new int[] {0, 0, 5}, new int[] {0, 5, 5}, 3, Roi.FREEROI);
     assertCoordinatePredicate(roi, new int[][] {{1, 2}, {1, 1}, {5, 0}, {3, 4}},
         new boolean[] {true, false, false, true});
   }
 
   @Test
-  public void testCoordinatePredicateTracedRoi() {
+  void testCoordinatePredicateTracedRoi() {
     final Roi roi = new PolygonRoi(new int[] {0, 0, 5}, new int[] {0, 5, 5}, 3, Roi.TRACED_ROI);
     assertCoordinatePredicate(roi, new int[][] {{1, 2}, {1, 1}, {5, 0}, {3, 4}},
         new boolean[] {true, false, false, true});

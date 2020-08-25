@@ -52,7 +52,7 @@ import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({"javadoc"})
-public class DetectionGridTest {
+class DetectionGridTest {
   private static Logger logger;
 
   @BeforeAll
@@ -66,7 +66,7 @@ public class DetectionGridTest {
   }
 
   @Test
-  public void canDetectCollisionsUsingSimpleGrid() {
+  void canDetectCollisionsUsingSimpleGrid() {
     final Rectangle[] bounds = new Rectangle[3];
     bounds[0] = new Rectangle(0, 0, 10, 10);
     bounds[1] = new Rectangle(0, 5, 10, 5);
@@ -83,7 +83,7 @@ public class DetectionGridTest {
   }
 
   @Test
-  public void canFindIndicesUsingBinaryTreeGrid() {
+  void canFindIndicesUsingBinaryTreeGrid() {
     final double[] data = SimpleArrayUtils.newArray(10, 0, 1.0);
     int i1;
     int i2;
@@ -140,7 +140,7 @@ public class DetectionGridTest {
   }
 
   @Test
-  public void canDetectCollisionsUsingBinaryTreeGrid() {
+  void canDetectCollisionsUsingBinaryTreeGrid() {
     final Rectangle[] r = new Rectangle[3];
     r[0] = new Rectangle(0, 0, 10, 10);
     r[1] = new Rectangle(0, 5, 10, 5);
@@ -155,7 +155,7 @@ public class DetectionGridTest {
   }
 
   @SeededTest
-  public void canDetectTheSameCollisions(RandomSeed seed) {
+  void canDetectTheSameCollisions(RandomSeed seed) {
     final int size = 512;
     final UniformRandomProvider rdg = RngUtils.create(seed.getSeed());
     final Rectangle2D[] r = generateRectangles(rdg, 1000, size);
@@ -253,7 +253,7 @@ public class DetectionGridTest {
   }
 
   @SeededTest
-  public void binaryTreeIsFasterWithBigRectangles(RandomSeed seed) {
+  void binaryTreeIsFasterWithBigRectangles(RandomSeed seed) {
     final int size = 512;
     final int width = 200;
     final int n = 10000;
@@ -262,7 +262,7 @@ public class DetectionGridTest {
   }
 
   @SeededTest
-  public void binaryTreeIsFasterWithSmallRectangles(RandomSeed seed) {
+  void binaryTreeIsFasterWithSmallRectangles(RandomSeed seed) {
     final int size = 512;
     final int width = 10;
     final int n = 10000;

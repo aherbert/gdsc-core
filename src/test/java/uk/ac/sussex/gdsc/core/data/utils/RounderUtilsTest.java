@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class RounderUtilsTest {
+class RounderUtilsTest {
 
   @Test
-  public void testCreate() {
+  void testCreate() {
     Assertions.assertSame(NonRounder.INSTANCE, RounderUtils.create(0));
     Assertions.assertSame(NonRounder.INSTANCE, RounderUtils.create(-99));
     final Rounder r = RounderUtils.create(3);

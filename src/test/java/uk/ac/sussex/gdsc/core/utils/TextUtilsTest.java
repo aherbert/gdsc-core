@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class TextUtilsTest {
+class TextUtilsTest {
 
   @Test
-  public void canConvertMillisToString() {
+  void canConvertMillisToString() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> TextUtils.millisToString(-1));
     // Milliseconds reported exactly
     Assertions.assertEquals("0ms", TextUtils.millisToString(0));
@@ -78,7 +78,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canConvertNanosToString() {
+  void canConvertNanosToString() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> TextUtils.nanosToString(-1));
     Assertions.assertEquals("0ns", TextUtils.nanosToString(0));
     Assertions.assertEquals("999ns", TextUtils.nanosToString(999));
@@ -131,7 +131,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canConvertDecisToString() {
+  void canConvertDecisToString() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> TextUtils.decisToString(-1, false));
     // Seconds should be 1 decimal place
@@ -160,7 +160,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canConvertBytesToString() {
+  void canConvertBytesToString() {
     Assertions.assertEquals("0 B", TextUtils.bytesToString(0));
     Assertions.assertEquals("27 B", TextUtils.bytesToString(27));
     Assertions.assertEquals("999 B", TextUtils.bytesToString(999));
@@ -177,7 +177,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canConvertBytesToStringWithBinaryUnits() {
+  void canConvertBytesToStringWithBinaryUnits() {
     final Locale locale = Locale.UK;
     Assertions.assertEquals("0 B", TextUtils.bytesToString(0, false, locale));
     Assertions.assertEquals("27 B", TextUtils.bytesToString(27, false, locale));
@@ -196,7 +196,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canCheckIsNullOrEmptyString() {
+  void canCheckIsNullOrEmptyString() {
     Assertions.assertTrue(TextUtils.isNullOrEmpty(null));
     Assertions.assertTrue(TextUtils.isNullOrEmpty(""));
     Assertions.assertFalse(TextUtils.isNullOrEmpty(" "));
@@ -204,7 +204,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canCheckIsNotEmptyString() {
+  void canCheckIsNotEmptyString() {
     Assertions.assertFalse(TextUtils.isNotEmpty(null));
     Assertions.assertFalse(TextUtils.isNotEmpty(""));
     Assertions.assertTrue(TextUtils.isNotEmpty(" "));
@@ -212,7 +212,7 @@ public class TextUtilsTest {
   }
 
   @Test
-  public void canFormatToAppendable() {
+  void canFormatToAppendable() {
     final String format = "%s=%d";
     final Object[] args = {"text", 1};
     final String expected = String.format(format, args);

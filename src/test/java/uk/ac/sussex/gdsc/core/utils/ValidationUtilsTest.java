@@ -37,7 +37,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ValidationUtilsTest {
+class ValidationUtilsTest {
 
   private static final String[] series = {"first", "second"};
 
@@ -64,7 +64,7 @@ public class ValidationUtilsTest {
    * This is not a test but is inline generation of the class methods.
    */
   @Test
-  public void canGenerateMethods() {
+  void canGenerateMethods() {
     final String[] name = {"Argument", "State", "NotNull"};
     final String[] ex = {"IllegalArgument", "IllegalState", "NullPointer"};
     final boolean[] generics = {false, false, true};
@@ -184,7 +184,7 @@ public class ValidationUtilsTest {
    * This is not a test but is inline generation of the test class methods.
    */
   @Test
-  public void canGenerateTestMethods() {
+  void canGenerateTestMethods() {
     final String[] name = {"Argument", "State", "NotNull"};
     final String[] ex = {"IllegalArgument", "IllegalState", "NullPointer"};
     final boolean[] generics = {false, false, true};
@@ -214,7 +214,7 @@ public class ValidationUtilsTest {
   private static void doGenerateTestMethods(StringBuilder sb, boolean generic, String methodSuffix,
       String exceptionPrefix, Arguments args, String... params) {
     sb.append("@Test\n");
-    sb.append("public void canCheck").append(methodSuffix);
+    sb.append("void canCheck").append(methodSuffix);
     if (args != Arguments.NONE) {
       sb.append("With");
       if (args == Arguments.FORMAT) {
@@ -301,7 +301,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canGetDefaultIfNull() {
+  void canGetDefaultIfNull() {
     final Object object = new Object();
     final Object defaultValue = new Object();
     Assertions.assertSame(object, ValidationUtils.defaultIfNull(object, defaultValue),
@@ -314,7 +314,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgument() {
+  void canCheckArgument() {
     ValidationUtils.checkArgument(true);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       ValidationUtils.checkArgument(false);
@@ -322,7 +322,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithSupplier() {
+  void canCheckArgumentWithSupplier() {
     final Supplier<String> message = () -> "failure message";
     ValidationUtils.checkArgument(true, message);
 
@@ -335,7 +335,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithValueOf() {
+  void canCheckArgumentWithValueOf() {
     final String message = "failure message";
 
     ValidationUtils.checkArgument(true, message);
@@ -349,7 +349,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatByte() {
+  void canCheckArgumentWithFormatByte() {
     final String message = "failure message %s";
     final byte p1 = 1;
 
@@ -364,7 +364,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatInt() {
+  void canCheckArgumentWithFormatInt() {
     final String message = "failure message %s";
     final int p1 = 1;
 
@@ -379,7 +379,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatLong() {
+  void canCheckArgumentWithFormatLong() {
     final String message = "failure message %s";
     final long p1 = 1;
 
@@ -394,7 +394,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatFloat() {
+  void canCheckArgumentWithFormatFloat() {
     final String message = "failure message %s";
     final float p1 = 1;
 
@@ -409,7 +409,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatDouble() {
+  void canCheckArgumentWithFormatDouble() {
     final String message = "failure message %s";
     final double p1 = 1;
 
@@ -424,7 +424,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatObject() {
+  void canCheckArgumentWithFormatObject() {
     final String message = "failure message %s";
     final Object p1 = 1;
 
@@ -439,7 +439,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatByteByte() {
+  void canCheckArgumentWithFormatByteByte() {
     final String message = "failure message %s %s";
     final byte p1 = 1;
     final byte p2 = 2;
@@ -455,7 +455,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatIntInt() {
+  void canCheckArgumentWithFormatIntInt() {
     final String message = "failure message %s %s";
     final int p1 = 1;
     final int p2 = 2;
@@ -471,7 +471,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatLongLong() {
+  void canCheckArgumentWithFormatLongLong() {
     final String message = "failure message %s %s";
     final long p1 = 1;
     final long p2 = 2;
@@ -487,7 +487,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatFloatFloat() {
+  void canCheckArgumentWithFormatFloatFloat() {
     final String message = "failure message %s %s";
     final float p1 = 1;
     final float p2 = 2;
@@ -503,7 +503,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatDoubleDouble() {
+  void canCheckArgumentWithFormatDoubleDouble() {
     final String message = "failure message %s %s";
     final double p1 = 1;
     final double p2 = 2;
@@ -519,7 +519,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArgumentWithFormatObjectObject() {
+  void canCheckArgumentWithFormatObjectObject() {
     final String message = "failure message %s %s";
     final Object p1 = 1;
     final Object p2 = 2;
@@ -535,7 +535,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckState() {
+  void canCheckState() {
     ValidationUtils.checkState(true);
     Assertions.assertThrows(IllegalStateException.class, () -> {
       ValidationUtils.checkState(false);
@@ -543,7 +543,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithSupplier() {
+  void canCheckStateWithSupplier() {
     final Supplier<String> message = () -> "failure message";
     ValidationUtils.checkState(true, message);
 
@@ -555,7 +555,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithValueOf() {
+  void canCheckStateWithValueOf() {
     final String message = "failure message";
 
     ValidationUtils.checkState(true, message);
@@ -568,7 +568,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatByte() {
+  void canCheckStateWithFormatByte() {
     final String message = "failure message %s";
     final byte p1 = 1;
 
@@ -582,7 +582,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatInt() {
+  void canCheckStateWithFormatInt() {
     final String message = "failure message %s";
     final int p1 = 1;
 
@@ -596,7 +596,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatLong() {
+  void canCheckStateWithFormatLong() {
     final String message = "failure message %s";
     final long p1 = 1;
 
@@ -610,7 +610,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatFloat() {
+  void canCheckStateWithFormatFloat() {
     final String message = "failure message %s";
     final float p1 = 1;
 
@@ -624,7 +624,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatDouble() {
+  void canCheckStateWithFormatDouble() {
     final String message = "failure message %s";
     final double p1 = 1;
 
@@ -638,7 +638,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatObject() {
+  void canCheckStateWithFormatObject() {
     final String message = "failure message %s";
     final Object p1 = 1;
 
@@ -652,7 +652,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatByteByte() {
+  void canCheckStateWithFormatByteByte() {
     final String message = "failure message %s %s";
     final byte p1 = 1;
     final byte p2 = 2;
@@ -667,7 +667,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatIntInt() {
+  void canCheckStateWithFormatIntInt() {
     final String message = "failure message %s %s";
     final int p1 = 1;
     final int p2 = 2;
@@ -682,7 +682,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatLongLong() {
+  void canCheckStateWithFormatLongLong() {
     final String message = "failure message %s %s";
     final long p1 = 1;
     final long p2 = 2;
@@ -697,7 +697,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatFloatFloat() {
+  void canCheckStateWithFormatFloatFloat() {
     final String message = "failure message %s %s";
     final float p1 = 1;
     final float p2 = 2;
@@ -712,7 +712,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatDoubleDouble() {
+  void canCheckStateWithFormatDoubleDouble() {
     final String message = "failure message %s %s";
     final double p1 = 1;
     final double p2 = 2;
@@ -727,7 +727,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStateWithFormatObjectObject() {
+  void canCheckStateWithFormatObjectObject() {
     final String message = "failure message %s %s";
     final Object p1 = 1;
     final Object p2 = 2;
@@ -742,7 +742,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNull() {
+  void canCheckNotNull() {
     ValidationUtils.checkNotNull(this);
     Assertions.assertThrows(NullPointerException.class, () -> {
       ValidationUtils.checkNotNull(null);
@@ -750,7 +750,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithSupplier() {
+  void canCheckNotNullWithSupplier() {
     final Supplier<String> message = () -> "failure message";
     final Object anything = new Object();
     final Object result = ValidationUtils.checkNotNull(anything, message);
@@ -764,7 +764,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithValueOf() {
+  void canCheckNotNullWithValueOf() {
     final String message = "failure message";
 
     final Object anything = new Object();
@@ -779,7 +779,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatByte() {
+  void canCheckNotNullWithFormatByte() {
     final String message = "failure message %s";
     final byte p1 = 1;
 
@@ -795,7 +795,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatInt() {
+  void canCheckNotNullWithFormatInt() {
     final String message = "failure message %s";
     final int p1 = 1;
 
@@ -811,7 +811,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatLong() {
+  void canCheckNotNullWithFormatLong() {
     final String message = "failure message %s";
     final long p1 = 1;
 
@@ -827,7 +827,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatFloat() {
+  void canCheckNotNullWithFormatFloat() {
     final String message = "failure message %s";
     final float p1 = 1;
 
@@ -843,7 +843,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatDouble() {
+  void canCheckNotNullWithFormatDouble() {
     final String message = "failure message %s";
     final double p1 = 1;
 
@@ -859,7 +859,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatObject() {
+  void canCheckNotNullWithFormatObject() {
     final String message = "failure message %s";
     final Object p1 = 1;
 
@@ -875,7 +875,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatByteByte() {
+  void canCheckNotNullWithFormatByteByte() {
     final String message = "failure message %s %s";
     final byte p1 = 1;
     final byte p2 = 2;
@@ -892,7 +892,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatIntInt() {
+  void canCheckNotNullWithFormatIntInt() {
     final String message = "failure message %s %s";
     final int p1 = 1;
     final int p2 = 2;
@@ -909,7 +909,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatLongLong() {
+  void canCheckNotNullWithFormatLongLong() {
     final String message = "failure message %s %s";
     final long p1 = 1;
     final long p2 = 2;
@@ -926,7 +926,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatFloatFloat() {
+  void canCheckNotNullWithFormatFloatFloat() {
     final String message = "failure message %s %s";
     final float p1 = 1;
     final float p2 = 2;
@@ -943,7 +943,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatDoubleDouble() {
+  void canCheckNotNullWithFormatDoubleDouble() {
     final String message = "failure message %s %s";
     final double p1 = 1;
     final double p2 = 2;
@@ -960,7 +960,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckNotNullWithFormatObjectObject() {
+  void canCheckNotNullWithFormatObjectObject() {
     final String message = "failure message %s %s";
     final Object p1 = 1;
     final Object p2 = 2;
@@ -978,7 +978,7 @@ public class ValidationUtilsTest {
 
 
   @Test
-  public void canCheckPositiveWithInt() {
+  void canCheckPositiveWithInt() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42));
     final int value = 0;
     ValidationUtils.checkPositive(value);
@@ -993,7 +993,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckPositiveWithLong() {
+  void canCheckPositiveWithLong() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42L));
     final long value = 0;
     ValidationUtils.checkPositive(value);
@@ -1008,7 +1008,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckPositiveWithFloat() {
+  void canCheckPositiveWithFloat() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0F));
     final float value = 0;
     ValidationUtils.checkPositive(value);
@@ -1023,7 +1023,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckPositiveWithDouble() {
+  void canCheckPositiveWithDouble() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0));
     final double value = 0;
     ValidationUtils.checkPositive(value);
@@ -1038,7 +1038,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStrictlyPositiveWithInt() {
+  void canCheckStrictlyPositiveWithInt() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42));
     final int value = 1;
     ValidationUtils.checkStrictlyPositive(value);
@@ -1053,7 +1053,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStrictlyPositiveWithLong() {
+  void canCheckStrictlyPositiveWithLong() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42L));
     final long value = 1;
     ValidationUtils.checkStrictlyPositive(value);
@@ -1068,7 +1068,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStrictlyPositiveWithFloat() {
+  void canCheckStrictlyPositiveWithFloat() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0F));
     final float value = 1;
     ValidationUtils.checkStrictlyPositive(value);
@@ -1083,7 +1083,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckStrictlyPositiveWithDouble() {
+  void canCheckStrictlyPositiveWithDouble() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42.0));
     final double value = 1;
     ValidationUtils.checkStrictlyPositive(value);
@@ -1098,7 +1098,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArrayLength() {
+  void canCheckArrayLength() {
     ValidationUtils.checkArrayLength(new boolean[1]);
     ValidationUtils.checkArrayLength(new byte[1]);
     ValidationUtils.checkArrayLength(new char[1]);
@@ -1146,7 +1146,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckArrayIndex() {
+  void canCheckArrayIndex() {
     final Object o1 = new Object();
     final Object[] array = {o1};
     ValidationUtils.checkIndex(0, array);
@@ -1162,7 +1162,7 @@ public class ValidationUtilsTest {
   }
 
   @Test
-  public void canCheckSizeIndex() {
+  void canCheckSizeIndex() {
     final int size = 1;
     ValidationUtils.checkIndex(0, size);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {

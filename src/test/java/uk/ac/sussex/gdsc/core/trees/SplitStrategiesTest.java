@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class SplitStrategiesTest {
+class SplitStrategiesTest {
   @Test
-  public void testComputeSplitValue() {
+  void testComputeSplitValue() {
     Assertions.assertEquals(3.5, SplitStrategies.computeSplitValue(2, 5));
     Assertions.assertEquals(0.5, SplitStrategies.computeSplitValue(Double.MIN_VALUE, 1));
 

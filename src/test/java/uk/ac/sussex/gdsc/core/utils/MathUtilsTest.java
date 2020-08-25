@@ -39,9 +39,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class MathUtilsTest {
+class MathUtilsTest {
   @Test
-  public void testLimitsDouble() {
+  void testLimitsDouble() {
     final double[] noLimits = {Double.NaN, Double.NaN};
     Assertions.assertArrayEquals(noLimits, MathUtils.limits((double[]) null));
     Assertions.assertArrayEquals(noLimits, MathUtils.limits(new double[0]));
@@ -67,7 +67,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testLimitsFloat() {
+  void testLimitsFloat() {
     final float[] noLimits = {Float.NaN, Float.NaN};
     Assertions.assertArrayEquals(noLimits, MathUtils.limits((float[]) null));
     Assertions.assertArrayEquals(noLimits, MathUtils.limits(new float[0]));
@@ -91,7 +91,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testLimitsInt() {
+  void testLimitsInt() {
     final int[] noLimits = {0, 0};
     Assertions.assertArrayEquals(noLimits, MathUtils.limits((int[]) null));
     Assertions.assertArrayEquals(noLimits, MathUtils.limits(new int[0]));
@@ -115,7 +115,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testLimitsLong() {
+  void testLimitsLong() {
     final long[] noLimits = {0, 0};
     Assertions.assertArrayEquals(noLimits, MathUtils.limits((long[]) null));
     Assertions.assertArrayEquals(noLimits, MathUtils.limits(new long[0]));
@@ -139,7 +139,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testLimitsShort() {
+  void testLimitsShort() {
     final short[] noLimits = {0, 0};
     Assertions.assertArrayEquals(noLimits, MathUtils.limits((short[]) null));
     Assertions.assertArrayEquals(noLimits, MathUtils.limits(new short[0]));
@@ -163,7 +163,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMaxDouble() {
+  void testMaxDouble() {
     final double noMax = Double.NaN;
     Assertions.assertEquals(noMax, MathUtils.max((double[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new double[0]));
@@ -176,7 +176,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMaxFloat() {
+  void testMaxFloat() {
     final float noMax = Float.NaN;
     Assertions.assertEquals(noMax, MathUtils.max((float[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new float[0]));
@@ -189,7 +189,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMaxInt() {
+  void testMaxInt() {
     final int noMax = Integer.MIN_VALUE;
     Assertions.assertEquals(noMax, MathUtils.max((int[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new int[0]));
@@ -202,7 +202,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMaxLong() {
+  void testMaxLong() {
     final long noMax = Long.MIN_VALUE;
     Assertions.assertEquals(noMax, MathUtils.max((long[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new long[0]));
@@ -215,7 +215,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMaxShort() {
+  void testMaxShort() {
     final short noMax = Short.MIN_VALUE;
     Assertions.assertEquals(noMax, MathUtils.max((short[]) null));
     Assertions.assertEquals(noMax, MathUtils.max(new short[0]));
@@ -228,7 +228,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMinDouble() {
+  void testMinDouble() {
     final double noMin = Double.NaN;
     Assertions.assertEquals(noMin, MathUtils.min((double[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new double[0]));
@@ -241,7 +241,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMinFloat() {
+  void testMinFloat() {
     final float noMin = Float.NaN;
     Assertions.assertEquals(noMin, MathUtils.min((float[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new float[0]));
@@ -254,7 +254,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMinInt() {
+  void testMinInt() {
     final int noMin = Integer.MAX_VALUE;
     Assertions.assertEquals(noMin, MathUtils.min((int[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new int[0]));
@@ -267,7 +267,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMinLong() {
+  void testMinLong() {
     final long noMin = Long.MAX_VALUE;
     Assertions.assertEquals(noMin, MathUtils.min((long[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new long[0]));
@@ -280,7 +280,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testMinShort() {
+  void testMinShort() {
     final short noMin = Short.MAX_VALUE;
     Assertions.assertEquals(noMin, MathUtils.min((short[]) null));
     Assertions.assertEquals(noMin, MathUtils.min(new short[0]));
@@ -293,7 +293,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testCumulativeHistogram() {
+  void testCumulativeHistogram() {
     Assertions.assertArrayEquals(new double[2][0], MathUtils.cumulativeHistogram(null, false));
     Assertions.assertArrayEquals(new double[2][0],
         MathUtils.cumulativeHistogram(new double[0], false));
@@ -312,7 +312,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canGetLogLikelihoodFromResidualSumOfSquares() {
+  void canGetLogLikelihoodFromResidualSumOfSquares() {
     for (final int n : new int[] {34, 67}) {
       for (final double rss : new double[] {456.78, 98.123}) {
         final double expected =
@@ -324,7 +324,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeAic() {
+  void canComputeAic() {
     for (final int k : new int[] {3, 6}) {
       for (final double ll : new double[] {-456.78, 98.123}) {
         final double expected = 2 * k - 2 * ll;
@@ -334,7 +334,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeAicc() {
+  void canComputeAicc() {
     for (final int n : new int[] {13, 42}) {
       for (final int k : new int[] {3, 6}) {
         for (final double ll : new double[] {-456.78, 98.123}) {
@@ -348,7 +348,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeBic() {
+  void canComputeBic() {
     for (final int n : new int[] {13, 42}) {
       for (final int k : new int[] {3, 6}) {
         for (final double ll : new double[] {-456.78, 98.123}) {
@@ -360,7 +360,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeAdjustedR2() {
+  void canComputeAdjustedR2() {
     for (final int n : new int[] {13, 42}) {
       for (final int k : new int[] {3, 6}) {
         for (final double rss : new double[] {-456.78, 98.123}) {
@@ -375,7 +375,7 @@ public class MathUtilsTest {
   }
 
   @SeededTest
-  public void canGetTotalSumOfSquares(RandomSeed seed) {
+  void canGetTotalSumOfSquares(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final double[] values = new double[7];
     for (int i = 1; i <= 10; i++) {
@@ -390,7 +390,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testSumDouble() {
+  void testSumDouble() {
     Assertions.assertEquals(0, MathUtils.sum((double[]) null));
     Assertions.assertEquals(0, MathUtils.sum(new double[0]));
     Assertions.assertEquals(0, MathUtils.sum(new double[2]));
@@ -398,7 +398,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testSumFloat() {
+  void testSumFloat() {
     Assertions.assertEquals(0, MathUtils.sum((float[]) null));
     Assertions.assertEquals(0, MathUtils.sum(new float[0]));
     Assertions.assertEquals(0, MathUtils.sum(new float[2]));
@@ -406,7 +406,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testSumLong() {
+  void testSumLong() {
     Assertions.assertEquals(0, MathUtils.sum((long[]) null));
     Assertions.assertEquals(0, MathUtils.sum(new long[0]));
     Assertions.assertEquals(0, MathUtils.sum(new long[2]));
@@ -414,7 +414,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testSumInt() {
+  void testSumInt() {
     Assertions.assertEquals(0, MathUtils.sum((int[]) null));
     Assertions.assertEquals(0, MathUtils.sum(new int[0]));
     Assertions.assertEquals(0, MathUtils.sum(new int[2]));
@@ -422,7 +422,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testRoundedToSignificantDigits() {
+  void testRoundedToSignificantDigits() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(String.valueOf(value), MathUtils.rounded(value, 3));
@@ -437,7 +437,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testRoundToSignificantDigits() {
+  void testRoundToSignificantDigits() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.round(value, 3));
@@ -452,7 +452,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testRoundToFactor() {
+  void testRoundToFactor() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.round(value, 3.0));
@@ -466,7 +466,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testRoundToBigDecimalSignificantDigits() {
+  void testRoundToBigDecimalSignificantDigits() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertThrows(NumberFormatException.class,
@@ -481,7 +481,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canRoundUsingDecimalPlaces() {
+  void canRoundUsingDecimalPlaces() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.roundUsingDecimalPlaces(value, 3));
@@ -495,7 +495,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canRoundUsingNegativeDecimalPlaces() {
+  void canRoundUsingNegativeDecimalPlaces() {
     Assertions.assertEquals(123.0, MathUtils.roundUsingDecimalPlaces(123, 2));
     Assertions.assertEquals(123.0, MathUtils.roundUsingDecimalPlaces(123, 1));
     Assertions.assertEquals(123, MathUtils.roundUsingDecimalPlaces(123, 0));
@@ -507,7 +507,7 @@ public class MathUtilsTest {
   }
 
   @SeededTest
-  public void canRoundToBigDecimalUsingDecimalPlaces(RandomSeed seed) {
+  void canRoundToBigDecimalUsingDecimalPlaces(RandomSeed seed) {
     // 0.1 cannot be an exact double (see constructor documentation for BigDecimal)
     double value = 0.1;
     BigDecimal bd = new BigDecimal(value);
@@ -529,7 +529,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canRoundToBigDecimalUsingNegativeDecimalPlaces() {
+  void canRoundToBigDecimalUsingNegativeDecimalPlaces() {
     Assertions.assertEquals("123.0",
         MathUtils.roundUsingDecimalPlacesToBigDecimal(123, 2).toPlainString());
     Assertions.assertEquals("123.0",
@@ -549,7 +549,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testFloorToFactor() {
+  void testFloorToFactor() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.floor(value, 3.0));
@@ -563,7 +563,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testCeilToFactor() {
+  void testCeilToFactor() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertEquals(value, MathUtils.ceil(value, 3.0));
@@ -577,7 +577,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canInterpolateY() {
+  void canInterpolateY() {
     Assertions.assertEquals(3.5, MathUtils.interpolateY(1, 2, 3, 5, 2));
     Assertions.assertEquals(6.5, MathUtils.interpolateY(1, 2, 3, 5, 4));
     Assertions.assertEquals(-1, MathUtils.interpolateY(1, 2, 3, 5, -1));
@@ -585,7 +585,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canInterpolateX() {
+  void canInterpolateX() {
     Assertions.assertEquals(5.0 / 3, MathUtils.interpolateX(1, 2, 3, 5, 3));
     Assertions.assertEquals(11.0 / 3, MathUtils.interpolateX(1, 2, 3, 5, 6));
     Assertions.assertEquals(-1, MathUtils.interpolateX(1, 2, 3, 5, -1));
@@ -593,94 +593,94 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testDistanceDouble() {
+  void testDistanceDouble() {
     Assertions.assertEquals(5, MathUtils.distance(1.0, 2, 4, 6));
   }
 
   @Test
-  public void testDistanceThreeDDouble() {
+  void testDistanceThreeDDouble() {
     Assertions.assertEquals(Math.sqrt(2 * 5 * 5), MathUtils.distance(1.0, 2, 3, 4, 6, 8));
   }
 
   @Test
-  public void testDistanceFloat() {
+  void testDistanceFloat() {
     Assertions.assertEquals(5, MathUtils.distance(1f, 2, 4, 6));
   }
 
   @Test
-  public void testDistance2Double() {
+  void testDistance2Double() {
     Assertions.assertEquals(5 * 5, MathUtils.distance2(1.0, 2, 4, 6));
   }
 
   @Test
-  public void testDistance2ThreeDDouble() {
+  void testDistance2ThreeDDouble() {
     Assertions.assertEquals(2 * 5 * 5, MathUtils.distance2(1.0, 2, 3, 4, 6, 8));
   }
 
   @Test
-  public void testDistance2Float() {
+  void testDistance2Float() {
     Assertions.assertEquals(5 * 5, MathUtils.distance2(1f, 2, 4, 6));
   }
 
   @Test
-  public void testClipDouble() {
+  void testClipDouble() {
     Assertions.assertEquals(5, MathUtils.clip(5.0, 10.0, 3));
     Assertions.assertEquals(7, MathUtils.clip(5.0, 10.0, 7));
     Assertions.assertEquals(10, MathUtils.clip(5.0, 10.0, 11));
   }
 
   @Test
-  public void testClipFloat() {
+  void testClipFloat() {
     Assertions.assertEquals(5f, MathUtils.clip(5.0f, 10.0f, 3f));
     Assertions.assertEquals(7f, MathUtils.clip(5.0f, 10.0f, 7f));
     Assertions.assertEquals(10f, MathUtils.clip(5.0f, 10.0f, 11f));
   }
 
   @Test
-  public void testClipInt() {
+  void testClipInt() {
     Assertions.assertEquals(5, MathUtils.clip(5, 10, 3));
     Assertions.assertEquals(7, MathUtils.clip(5, 10, 7));
     Assertions.assertEquals(10, MathUtils.clip(5, 10, 11));
   }
 
   @Test
-  public void testPow2Double() {
+  void testPow2Double() {
     Assertions.assertEquals(25, MathUtils.pow2(5.0));
     Assertions.assertEquals(25, MathUtils.pow2(-5.0));
   }
 
   @Test
-  public void testPow2Int() {
+  void testPow2Int() {
     Assertions.assertEquals(25, MathUtils.pow2(5));
     Assertions.assertEquals(25, MathUtils.pow2(-5));
   }
 
   @Test
-  public void testPow3Double() {
+  void testPow3Double() {
     Assertions.assertEquals(125, MathUtils.pow3(5.0));
     Assertions.assertEquals(-125, MathUtils.pow3(-5.0));
   }
 
   @Test
-  public void testPow3Int() {
+  void testPow3Int() {
     Assertions.assertEquals(125, MathUtils.pow3(5));
     Assertions.assertEquals(-125, MathUtils.pow3(-5));
   }
 
   @Test
-  public void testPow4Double() {
+  void testPow4Double() {
     Assertions.assertEquals(625, MathUtils.pow4(5.0));
     Assertions.assertEquals(625, MathUtils.pow4(-5.0));
   }
 
   @Test
-  public void testPow4Int() {
+  void testPow4Int() {
     Assertions.assertEquals(625, MathUtils.pow4(5));
     Assertions.assertEquals(625, MathUtils.pow4(-5));
   }
 
   @Test
-  public void testIsPow2() {
+  void testIsPow2() {
     // This is technically incorrect
     Assertions.assertTrue(MathUtils.isPow2(0));
 
@@ -700,7 +700,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testNextPow2() {
+  void testNextPow2() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> MathUtils.nextPow2(0));
     Assertions.assertThrows(IllegalArgumentException.class, () -> MathUtils.nextPow2(-1));
     for (int i = 0; i < 31; i++) {
@@ -717,7 +717,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeApproximateLog2() {
+  void canComputeApproximateLog2() {
     Assertions.assertEquals(Integer.MIN_VALUE, MathUtils.log2(0));
     Assertions.assertEquals(0, MathUtils.log2(1));
     Assertions.assertEquals(1, MathUtils.log2(2));
@@ -726,7 +726,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeLog2() {
+  void canComputeLog2() {
     Assertions.assertEquals(Double.NaN, MathUtils.log2(Double.NaN));
     Assertions.assertEquals(Double.NEGATIVE_INFINITY, MathUtils.log2(-0.0));
     Assertions.assertEquals(Double.NEGATIVE_INFINITY, MathUtils.log2(0.0));
@@ -741,7 +741,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testDiv0Double() {
+  void testDiv0Double() {
     Assertions.assertEquals(0, MathUtils.div0(0.0, 0));
     Assertions.assertEquals(0, MathUtils.div0(0.0, 10));
     Assertions.assertEquals(1.1, MathUtils.div0(11.0, 10));
@@ -749,7 +749,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testDiv0Float() {
+  void testDiv0Float() {
     Assertions.assertEquals(0f, MathUtils.div0(0f, 0));
     Assertions.assertEquals(0f, MathUtils.div0(0f, 10));
     Assertions.assertEquals(1.1f, MathUtils.div0(11f, 10));
@@ -757,7 +757,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testDiv0Int() {
+  void testDiv0Int() {
     Assertions.assertEquals(0, MathUtils.div0(0, 0));
     Assertions.assertEquals(0, MathUtils.div0(0, 10));
     Assertions.assertEquals(1.1, MathUtils.div0(11, 10));
@@ -765,7 +765,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testDiv0Long() {
+  void testDiv0Long() {
     Assertions.assertEquals(0, MathUtils.div0(0L, 0));
     Assertions.assertEquals(0, MathUtils.div0(0L, 10));
     Assertions.assertEquals(1.1, MathUtils.div0(11L, 10));
@@ -773,7 +773,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testIsMathematicalInteger() {
+  void testIsMathematicalInteger() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertFalse(MathUtils.isMathematicalInteger(value));
@@ -789,7 +789,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testIsIntegerDouble() {
+  void testIsIntegerDouble() {
     for (final double value : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
         Double.POSITIVE_INFINITY}) {
       Assertions.assertFalse(MathUtils.isInteger(value));
@@ -805,7 +805,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testIsIntegerFloat() {
+  void testIsIntegerFloat() {
     for (final float value : new float[] {Float.NaN, Float.NEGATIVE_INFINITY,
         Float.POSITIVE_INFINITY}) {
       Assertions.assertFalse(MathUtils.isInteger(value));
@@ -821,7 +821,7 @@ public class MathUtilsTest {
   }
 
   @SeededTest
-  public void testErf(RandomSeed seed) {
+  void testErf(RandomSeed seed) {
     Assertions.assertEquals(-1, MathUtils.erf(-7));
     Assertions.assertEquals(1, MathUtils.erf(7));
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
@@ -834,7 +834,7 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void canComputeAverageIndex() {
+  void canComputeAverageIndex() {
     canComputeAverageIndex(0, 0);
     canComputeAverageIndex(0, 1);
     canComputeAverageIndex(0, 2);

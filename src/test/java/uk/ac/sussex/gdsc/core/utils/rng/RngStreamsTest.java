@@ -46,9 +46,9 @@ import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings("javadoc")
-public class RngStreamsTest {
+class RngStreamsTest {
   @Test
-  public void testRandomIntsThrowsWithBadSize() {
+  void testRandomIntsThrowsWithBadSize() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.ints(rng, -1);
@@ -59,7 +59,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomIntsThrowsWithBadRange() {
+  void testRandomIntsThrowsWithBadRange() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     final int lower = 10;
     final int upper = 9;
@@ -72,7 +72,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomInts(RandomSeed randomSeed) {
+  void testRandomInts(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng).limit(size).toArray();
@@ -80,7 +80,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomIntsWithSize(RandomSeed randomSeed) {
+  void testRandomIntsWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng, size).toArray();
@@ -88,7 +88,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomIntsWithSmallRange(RandomSeed randomSeed) {
+  void testRandomIntsWithSmallRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -101,7 +101,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomIntsWithLargeRange(RandomSeed randomSeed) {
+  void testRandomIntsWithLargeRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
@@ -115,7 +115,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomIntsWithSmallRangeWithSize(RandomSeed randomSeed) {
+  void testRandomIntsWithSmallRangeWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -128,7 +128,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomIntsSpliteratorCanSplit() {
+  void testRandomIntsSpliteratorCanSplit() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final RandomIntsSpliterator spliterator1 = new RandomIntsSpliterator(rng, 0, 2, 0, -1);
@@ -150,7 +150,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomIntsSpliteratorTryAdvance() {
+  void testRandomIntsSpliteratorTryAdvance() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
@@ -176,7 +176,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomIntsSpliteratorForEachRemaining() {
+  void testRandomIntsSpliteratorForEachRemaining() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
@@ -204,7 +204,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomLongsThrowsWithBadSize() {
+  void testRandomLongsThrowsWithBadSize() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.longs(rng, -1);
@@ -215,7 +215,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomLongsThrowsWithBadRange() {
+  void testRandomLongsThrowsWithBadRange() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     final long lower = 10;
     final long upper = 9;
@@ -228,7 +228,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomLongs(RandomSeed randomSeed) {
+  void testRandomLongs(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng).limit(size).toArray();
@@ -236,7 +236,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomLongsWithSize(RandomSeed randomSeed) {
+  void testRandomLongsWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng, size).toArray();
@@ -244,7 +244,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomLongsWithSmallRange(RandomSeed randomSeed) {
+  void testRandomLongsWithSmallRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -257,7 +257,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomLongsWithLargeRange(RandomSeed randomSeed) {
+  void testRandomLongsWithLargeRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
@@ -271,7 +271,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomLongsWithSmallRangeWithSize(RandomSeed randomSeed) {
+  void testRandomLongsWithSmallRangeWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -284,7 +284,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomLongsSpliteratorCanSplit() {
+  void testRandomLongsSpliteratorCanSplit() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final RandomLongsSpliterator spliterator1 = new RandomLongsSpliterator(rng, 0, 2, 0, -1);
@@ -306,7 +306,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomLongsSpliteratorTryAdvance() {
+  void testRandomLongsSpliteratorTryAdvance() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
@@ -332,7 +332,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomLongsSpliteratorForEachRemaining() {
+  void testRandomLongsSpliteratorForEachRemaining() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
@@ -360,7 +360,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomDoublesThrowsWithBadSize() {
+  void testRandomDoublesThrowsWithBadSize() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.doubles(rng, -1);
@@ -371,7 +371,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomDoublesThrowsWithBadRange() {
+  void testRandomDoublesThrowsWithBadRange() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
     final double lower = 10;
     final double upper = Double.NaN;
@@ -384,7 +384,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomDoubles(RandomSeed randomSeed) {
+  void testRandomDoubles(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng).limit(size).toArray();
@@ -392,7 +392,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomDoublesWithSize(RandomSeed randomSeed) {
+  void testRandomDoublesWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng, size).toArray();
@@ -400,7 +400,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomDoublesWithRange(RandomSeed randomSeed) {
+  void testRandomDoublesWithRange(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -413,7 +413,7 @@ public class RngStreamsTest {
   }
 
   @SeededTest
-  public void testRandomDoublesWithRangeWithSize(RandomSeed randomSeed) {
+  void testRandomDoublesWithRangeWithSize(RandomSeed randomSeed) {
     final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
@@ -426,7 +426,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomDoublesSpliteratorCanSplit() {
+  void testRandomDoublesSpliteratorCanSplit() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final RandomDoublesSpliterator spliterator1 = new RandomDoublesSpliterator(rng, 0, 2, 0, -1);
@@ -448,7 +448,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomDoublesSpliteratorTryAdvance() {
+  void testRandomDoublesSpliteratorTryAdvance() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
@@ -474,7 +474,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testRandomDoublesSpliteratorForEachRemaining() {
+  void testRandomDoublesSpliteratorForEachRemaining() {
     final SplittableUniformRandomProvider rng = UniformRandomProviders.createSplittable(123);
 
     final int size = 2;
@@ -507,7 +507,7 @@ public class RngStreamsTest {
    * exclusive.
    */
   @Test
-  public void testRandomDoublesSpliteratorTryAdvanceWithSampleAtUpperBound() {
+  void testRandomDoublesSpliteratorTryAdvanceWithSampleAtUpperBound() {
     final SplittableUniformRandomProvider rng = new SplittableUniformRandomProvider() {
       @Override
       public void nextBytes(byte[] bytes) {
@@ -573,7 +573,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testSplittableIntsThrowsWithBadSize() {
+  void testSplittableIntsThrowsWithBadSize() {
     final SplittableIntSupplier generator =
         Splittables.ofInt(UniformRandomProviders.createSplittable(123),
             rng -> DiscreteUniformSampler.of(rng, 0, 2048));
@@ -583,7 +583,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testSplittableInts() {
+  void testSplittableInts() {
     final SplittableIntSupplier generator =
         Splittables.ofInt(UniformRandomProviders.createSplittable(123),
             rng -> DiscreteUniformSampler.of(rng, 0, 2048));
@@ -593,7 +593,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testSplittableIntsWithSize() {
+  void testSplittableIntsWithSize() {
     final SplittableIntSupplier generator =
         Splittables.ofInt(UniformRandomProviders.createSplittable(123),
             rng -> DiscreteUniformSampler.of(rng, 0, 2048));
@@ -603,7 +603,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsSpliteratorCanSplit() {
+  void testIntsSpliteratorCanSplit() {
     final SplittableIntSupplier generator =
         Splittables.ofInt(UniformRandomProviders.createSplittable(123),
             rng -> DiscreteUniformSampler.of(rng, 0, 2048));
@@ -627,7 +627,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsSpliteratorTryAdvance() {
+  void testIntsSpliteratorTryAdvance() {
     final SplittableIntSupplier generator =
         Splittables.ofInt(UniformRandomProviders.createSplittable(123),
             rng -> DiscreteUniformSampler.of(rng, 0, 2048));
@@ -655,7 +655,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testIntsSpliteratorForEachRemaining() {
+  void testIntsSpliteratorForEachRemaining() {
     final SplittableIntSupplier generator =
         Splittables.ofInt(UniformRandomProviders.createSplittable(123),
             rng -> DiscreteUniformSampler.of(rng, 0, 2048));
@@ -685,7 +685,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testSplittableDoublesThrowsWithBadSize() {
+  void testSplittableDoublesThrowsWithBadSize() {
     final SplittableDoubleSupplier generator =
         Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
             rng -> ContinuousUniformSampler.of(rng, 0, 2048));
@@ -695,7 +695,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testSplittableDoubles() {
+  void testSplittableDoubles() {
     final SplittableDoubleSupplier generator =
         Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
             rng -> ContinuousUniformSampler.of(rng, 0, 2048));
@@ -705,7 +705,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testSplittableDoublesWithSize() {
+  void testSplittableDoublesWithSize() {
     final SplittableDoubleSupplier generator =
         Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
             rng -> ContinuousUniformSampler.of(rng, 0, 2048));
@@ -715,7 +715,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesSpliteratorCanSplit() {
+  void testDoublesSpliteratorCanSplit() {
     final SplittableDoubleSupplier generator =
         Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
             rng -> ContinuousUniformSampler.of(rng, 0, 2048));
@@ -739,7 +739,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesSpliteratorTryAdvance() {
+  void testDoublesSpliteratorTryAdvance() {
     final SplittableDoubleSupplier generator =
         Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
             rng -> ContinuousUniformSampler.of(rng, 0, 2048));
@@ -767,7 +767,7 @@ public class RngStreamsTest {
   }
 
   @Test
-  public void testDoublesSpliteratorForEachRemaining() {
+  void testDoublesSpliteratorForEachRemaining() {
     final SplittableDoubleSupplier generator =
         Splittables.ofDouble(UniformRandomProviders.createSplittable(123),
             rng -> ContinuousUniformSampler.of(rng, 0, 2048));

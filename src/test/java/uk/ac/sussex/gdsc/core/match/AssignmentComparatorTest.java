@@ -41,9 +41,9 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
  * Test for {@link AssignmentComparator}.
  */
 @SuppressWarnings({"javadoc"})
-public class AssignmentComparatorTest {
+class AssignmentComparatorTest {
   @SeededTest
-  public void canSort(RandomSeed seed) {
+  void canSort(RandomSeed seed) {
     final Assignment[] data = IntStream.rangeClosed(1, 10)
         .mapToObj(d -> new ImmutableAssignment(0, 0, d)).toArray(Assignment[]::new);
     RandomUtils.shuffle(data, RngUtils.create(seed.getSeed()));

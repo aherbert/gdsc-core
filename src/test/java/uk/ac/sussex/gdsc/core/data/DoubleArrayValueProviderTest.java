@@ -32,14 +32,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class DoubleArrayValueProviderTest {
+class DoubleArrayValueProviderTest {
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     Assertions.assertThrows(DataException.class, () -> new DoubleArrayValueProvider(new double[0]));
   }
 
   @Test
-  public void canProvideData() {
+  void canProvideData() {
     final int maxx = 5;
     final double[] data = new double[maxx];
     for (int x = 0, i = 0; x < maxx; x++) {

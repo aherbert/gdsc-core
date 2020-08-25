@@ -57,7 +57,7 @@ import uk.ac.sussex.gdsc.test.utils.TimingService;
  * {@link CustomTricubicInterpolatingFunction}.
  */
 @SuppressWarnings({"javadoc"})
-public class CustomTricubicInterpolatingFunctionInlineTest {
+class CustomTricubicInterpolatingFunctionInlineTest {
   private static Logger logger;
 
   @BeforeAll
@@ -227,13 +227,13 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
   private final Level level = Level.FINEST;
 
   @Test
-  public void canConstructInlineComputeCoefficients() {
+  void canConstructInlineComputeCoefficients() {
     Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineComputeCoefficients());
   }
 
   @Test
-  public void canConstructInlineComputeCoefficientsCollectTerms() {
+  void canConstructInlineComputeCoefficientsCollectTerms() {
     Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineComputeCoefficientsCollectTerms());
   }
@@ -266,7 +266,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
   }
 
   @SeededTest
-  public void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
+  void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());

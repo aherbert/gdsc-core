@@ -32,14 +32,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class BitFlagUtilsTest {
+class BitFlagUtilsTest {
 
   private static final int FLAG1 = 0x01;
   private static final int FLAG2 = 0x02;
   private static final int FLAGS = FLAG1 | FLAG2;
 
   @Test
-  public void canSetAndTestFlags() {
+  void canSetAndTestFlags() {
     int flags = 0;
     Assertions.assertFalse(BitFlagUtils.areSet(flags, FLAG1));
     Assertions.assertFalse(BitFlagUtils.areSet(flags, FLAG2));

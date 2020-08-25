@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ActiveListTest {
+class ActiveListTest {
   @Test
-  public void testActiveList() {
+  void testActiveList() {
     final int n = 5;
     final ActiveList active = new ActiveList(n);
     Assertions.assertEquals(0, active.size());

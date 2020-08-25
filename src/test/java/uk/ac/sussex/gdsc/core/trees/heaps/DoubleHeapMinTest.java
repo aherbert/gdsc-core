@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.trees.heaps.DoubleMinHeap;
 
 @SuppressWarnings({"javadoc"})
-public class DoubleHeapMinTest {
+class DoubleHeapMinTest {
   @Test
-  public void testEmpty() {
+  void testEmpty() {
     final DoubleMinHeap heap = new DoubleMinHeap(5);
     Assertions.assertEquals(0, heap.getSize());
     Assertions.assertEquals(5, heap.getCapacity());
@@ -46,7 +46,7 @@ public class DoubleHeapMinTest {
   }
 
   @Test
-  public void testNaN() {
+  void testNaN() {
     final DoubleMinHeap heap = new DoubleMinHeap(5);
     Assertions.assertEquals(0, heap.getSize());
     heap.offer(Double.NaN);
@@ -54,7 +54,7 @@ public class DoubleHeapMinTest {
   }
 
   @Test
-  public void testPartial() {
+  void testPartial() {
     final DoubleMinHeap heap = new DoubleMinHeap(5);
     heap.offer(1.1);
     heap.offer(3.1);
@@ -80,7 +80,7 @@ public class DoubleHeapMinTest {
   }
 
   @Test
-  public void testFull() {
+  void testFull() {
     final DoubleMinHeap heap = new DoubleMinHeap(3);
     heap.offer(1.1);
     heap.offer(3.1);
@@ -110,7 +110,7 @@ public class DoubleHeapMinTest {
    * that maintain the internal structure not hit by the other tests.
    */
   @Test
-  public void testFullReverseOrder() {
+  void testFullReverseOrder() {
     final DoubleMinHeap heap = new DoubleMinHeap(3);
     heap.offer(3.1);
     heap.offer(2.1);

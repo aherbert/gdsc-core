@@ -40,9 +40,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class DigestUtilsTest {
+class DigestUtilsTest {
   @SeededTest
-  public void canComputeMD5Hex(RandomSeed seed) throws IOException {
+  void canComputeMD5Hex(RandomSeed seed) throws IOException {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     final byte[] testBytes = new byte[50];
@@ -63,7 +63,7 @@ public class DigestUtilsTest {
   }
 
   @Test
-  public void canConvertToHexString() {
+  void canConvertToHexString() {
     final byte[] data = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, (byte) 255};
     final String expected = "000102030405060708090a0b0c0d0e0f10ff";
     Assertions.assertEquals(expected, DigestUtils.toHex(data));
@@ -72,7 +72,7 @@ public class DigestUtilsTest {
   }
 
   @Test
-  public void getDigestWithBadAlgorithmThrows() {
+  void getDigestWithBadAlgorithmThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> DigestUtils.getDigest("this is nonsense"));
   }

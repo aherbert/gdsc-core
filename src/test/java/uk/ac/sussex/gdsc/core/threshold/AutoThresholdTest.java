@@ -42,11 +42,11 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 
 @SuppressWarnings({"javadoc"})
-public class AutoThresholdTest {
+class AutoThresholdTest {
   private static final Method[] methods = Method.values();
 
   @Test
-  public void canThresholdWithBadData() {
+  void canThresholdWithBadData() {
     Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.NONE, null));
     Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.NONE, new int[0]));
     Assertions.assertEquals(0, AutoThreshold.getThreshold(Method.DEFAULT, null));
@@ -55,7 +55,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void canThreshold() {
+  void canThreshold() {
     assertThreshold(new int[] {1});
     assertThreshold(new int[] {6, 7, 8});
     assertThreshold(new int[] {1, 1, 4, 16, 7, 3, 1, 1, 1, 1, 1});
@@ -63,7 +63,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void canGetMethods() {
+  void canGetMethods() {
     final String[] methodNames = AutoThreshold.getMethods();
     Assertions.assertNotSame(methodNames, AutoThreshold.getMethods());
     Assertions.assertArrayEquals(methodNames, AutoThreshold.getMethods(false));
@@ -82,7 +82,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void canGetMethodsWithoutNone() {
+  void canGetMethodsWithoutNone() {
     final String[] methodNames = AutoThreshold.getMethods(true);
     Assertions.assertNotSame(methodNames, AutoThreshold.getMethods());
     Assertions.assertEquals(Method.NONE, AutoThreshold.getMethod("something else"));
@@ -99,7 +99,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void canChangeStdDevMultiplier() {
+  void canChangeStdDevMultiplier() {
     final int[] data = new int[] {1, 1, 4, 16, 7, 3, 1, 1, 1, 1, 1};
     final AutoThreshold thresholder = new AutoThreshold();
     final double multiplier = AutoThreshold.getStdDevMultiplier();
@@ -116,7 +116,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void testEmptyHistogram() {
+  void testEmptyHistogram() {
     final int[] data = new int[1];
     // These results match what Auto_Threshold returns
     Assertions.assertEquals(-1, AutoThreshold.huang(data));
@@ -139,14 +139,14 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void testHuang() {
+  void testHuang() {
     Assertions.assertEquals(-1, AutoThreshold.huang(new int[10]));
     final int threshold = AutoThreshold.huang(new int[] {5, 4, 3, 2, 1});
     Assertions.assertEquals(threshold + 1, AutoThreshold.huang(new int[] {0, 5, 4, 3, 2, 1, 0}));
   }
 
   @Test
-  public void testIjDefault() {
+  void testIjDefault() {
     Assertions.assertEquals(10 / 2, AutoThreshold.ijDefault(new int[10]));
     final int threshold = AutoThreshold.ijDefault(new int[] {5, 4, 3, 2, 1});
     Assertions.assertEquals(threshold + 1,
@@ -154,13 +154,13 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void testIsoData() {
+  void testIsoData() {
     final int threshold = AutoThreshold.isoData(new int[] {5, 4, 3, 2, 1});
     Assertions.assertEquals(threshold + 1, AutoThreshold.isoData(new int[] {0, 5, 4, 3, 2, 1, 0}));
   }
 
   @Test
-  public void testOtsu() {
+  void testOtsu() {
     // Test no denominator for BCV
     final int threshold = AutoThreshold.otsu(new int[] {5, 4, 3, 2, 1});
     Assertions.assertEquals(threshold + 2, AutoThreshold.otsu(new int[] {0, 0, 5, 4, 3, 2, 1, 0}));
@@ -176,7 +176,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void testPercentile() {
+  void testPercentile() {
     Assertions.assertEquals(0, AutoThreshold.percentile(new int[] {1, 1}));
     final int threshold = AutoThreshold.percentile(new int[] {4, 3, 2, 1});
     Assertions.assertEquals(threshold + 1, AutoThreshold.percentile(new int[] {0, 4, 3, 2, 1, 0}));
@@ -185,7 +185,7 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void testRenyiEntropy() {
+  void testRenyiEntropy() {
     final int threshold =
         AutoThreshold.renyiEntropy(new int[] {1, 1, 4, 16, 7, 3, 1, 0, 1, 0, 2, 1});
     Assertions.assertEquals(threshold + 1,
@@ -193,13 +193,13 @@ public class AutoThresholdTest {
   }
 
   @Test
-  public void testShanbhag() {
+  void testShanbhag() {
     final int threshold = AutoThreshold.shanbhag(new int[] {5, 4, 3, 2, 1});
     Assertions.assertEquals(threshold + 1, AutoThreshold.shanbhag(new int[] {0, 5, 4, 3, 2, 1, 0}));
   }
 
   @Test
-  public void testTriangle() {
+  void testTriangle() {
     final int threshold = AutoThreshold.triangle(new int[] {5, 3, 2, 1});
     Assertions.assertEquals(threshold + 1, AutoThreshold.triangle(new int[] {0, 5, 3, 2, 1, 0}));
   }

@@ -50,7 +50,7 @@ import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
  * Test the {@link LocalList}. Ensure the implementation of the {@link List} API is correct.
  */
 @SuppressWarnings({"javadoc"})
-public class LocalListTest {
+class LocalListTest {
 
   /**
    * Creates a list from the data. This is fully working list implementation.
@@ -118,7 +118,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testConstructorDefaultCapacity() {
+  void testConstructorDefaultCapacity() {
     final LocalList<Integer> list = new LocalList<>();
     Assertions.assertTrue(list.getCapacity() > 0, "Default capacity should not be zero");
     Assertions.assertTrue(list.isEmpty());
@@ -126,7 +126,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testConstructorWithCapacity() {
+  void testConstructorWithCapacity() {
     for (final int c : new int[] {0, 1, 7, 45}) {
       final LocalList<Integer> list = new LocalList<>(c);
       Assertions.assertEquals(c, list.getCapacity());
@@ -136,7 +136,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testConstructorWithCollection() {
+  void testConstructorWithCollection() {
     final List<Integer> c = createList(2, 5, 13);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertFalse(list.isEmpty());
@@ -147,13 +147,13 @@ public class LocalListTest {
   }
 
   @Test
-  public void testConstructorWithEmptyCollection() {
+  void testConstructorWithEmptyCollection() {
     final LocalList<Integer> list = new LocalList<>(Collections.emptyList());
     Assertions.assertTrue(list.isEmpty());
   }
 
   @Test
-  public void testConstructorWithCollectionWithBadToArray() {
+  void testConstructorWithCollectionWithBadToArray() {
     final Integer[] contents = {13, 42};
     final ArrayList<Integer> badList = new ArrayList<Integer>() {
       private static final long serialVersionUID = 1L;
@@ -179,7 +179,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testCopy() {
+  void testCopy() {
     // Empty
     final LocalList<Integer> list0 = new LocalList<>();
     LocalList<Integer> list2 = list0.copy();
@@ -198,7 +198,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testCopyOfRange() {
+  void testCopyOfRange() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list1 = new LocalList<>(c);
 
@@ -222,7 +222,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testTrimToSize() {
+  void testTrimToSize() {
     LocalList<Integer> list = new LocalList<>();
     Assertions.assertTrue(list.getCapacity() > 1);
     list.trimToSize();
@@ -241,7 +241,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testTruncate() {
+  void testTruncate() {
     final List<Integer> c = createList(2, 5, 13);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertEquals(3, list.size());
@@ -271,7 +271,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testEnsureCapacity() {
+  void testEnsureCapacity() {
     final LocalList<Integer> list = new LocalList<>();
     final int capacity = list.getCapacity();
     list.ensureCapacity(capacity * 2);
@@ -291,7 +291,7 @@ public class LocalListTest {
    * allocation scheme.
    */
   @Test
-  public void testCreateNewCapacity() {
+  void testCreateNewCapacity() {
     // Start from the default
     int capacity = 11;
     for (;;) {
@@ -326,7 +326,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAddTooLarge() {
+  void testAddTooLarge() {
     Object[] big = null;
     try {
       big = new Object[Integer.MAX_VALUE - 8];
@@ -362,7 +362,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testUnsafeAccess() {
+  void testUnsafeAccess() {
     final LocalList<Integer> list = new LocalList<>(10);
     final Integer element = 42;
     final int index = 5;
@@ -374,7 +374,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testPushPop() {
+  void testPushPop() {
     final LocalList<Integer> list = new LocalList<>(2);
     final Integer element1 = 42;
     final Integer element2 = 99;
@@ -396,7 +396,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testToArray() {
+  void testToArray() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertArrayEquals(c.toArray(), list.toArray());
@@ -409,7 +409,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testToArrayRange() {
+  void testToArrayRange() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
 
@@ -441,7 +441,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testGetSet() {
+  void testGetSet() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
 
@@ -464,7 +464,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAdd() {
+  void testAdd() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
 
     final LocalList<Integer> list = new LocalList<>();
@@ -478,7 +478,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAddIndex() {
+  void testAddIndex() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
 
     final LocalList<Integer> list = new LocalList<>(c);
@@ -504,7 +504,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAddAll() {
+  void testAddAll() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final List<Integer> c1 = c.subList(0, 2);
     final List<Integer> c2 = c.subList(2, c.size());
@@ -520,7 +520,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAddAllLocalList() {
+  void testAddAllLocalList() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final List<Integer> c1 = c.subList(0, 2);
     final LocalList<Integer> c2 = new LocalList<>(c.subList(2, c.size()));
@@ -536,7 +536,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAddAllIndex() {
+  void testAddAllIndex() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final List<Integer> c1 = c.subList(0, 2);
     final List<Integer> c2 = c.subList(2, c.size());
@@ -566,7 +566,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testAddAllIndexLocalList() {
+  void testAddAllIndexLocalList() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final List<Integer> c1 = c.subList(0, 2);
     final LocalList<Integer> c2 = new LocalList<>(c.subList(2, c.size()));
@@ -595,7 +595,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testRemove() {
+  void testRemove() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
 
     // Remove in middle
@@ -619,7 +619,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testRemoveObject() {
+  void testRemoveObject() {
     final List<Integer> c = createList(2, 5, 13, null, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertTrue(list.remove(null));
@@ -633,7 +633,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testContains() {
+  void testContains() {
     List<Integer> c = createList(2, 5, 13, 42, 99);
     LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertFalse(list.contains(10000));
@@ -650,7 +650,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testContainsAll() {
+  void testContainsAll() {
     final List<Integer> c = createList(2, 5, 13);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertTrue(list.containsAll(c));
@@ -659,7 +659,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testRemoveAll() {
+  void testRemoveAll() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertThrows(NullPointerException.class, () -> list.removeAll(null));
@@ -674,7 +674,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testRetainAll() {
+  void testRetainAll() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertThrows(NullPointerException.class, () -> list.retainAll(null));
@@ -688,7 +688,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testRemoveIf() {
+  void testRemoveIf() {
     final List<Integer> c = createList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
     // Remove evens
     testRemoveIf(c, i -> i % 2 == 0, createList(1, 3, 5, 7, 9));
@@ -710,7 +710,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testRemoveIfWithBadFilter() {
+  void testRemoveIfWithBadFilter() {
     final List<Integer> c = createList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertThrows(NullPointerException.class, () -> list.removeIf(null));
@@ -741,7 +741,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testReplaceAll() {
+  void testReplaceAll() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertThrows(NullPointerException.class, () -> list.replaceAll(null));
@@ -761,7 +761,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testForEach() {
+  void testForEach() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     Assertions.assertThrows(NullPointerException.class, () -> list.forEach(null));
@@ -771,7 +771,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testClear() {
+  void testClear() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> list = new LocalList<>(c);
     final int capacity = list.getCapacity();
@@ -785,7 +785,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testClearRange() {
+  void testClearRange() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     testClearRange(c, 0, 5, createList());
     testClearRange(c, 0, 4, createList(99));
@@ -815,12 +815,12 @@ public class LocalListTest {
   }
 
   @Test
-  public void testIndexOf() {
+  void testIndexOf() {
     assertIndexOf(List::indexOf);
   }
 
   @Test
-  public void testLastIndexOf() {
+  void testLastIndexOf() {
     assertIndexOf(List::lastIndexOf);
   }
 
@@ -837,17 +837,17 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSpliteratorEmpty() {
+  void testSpliteratorEmpty() {
     assertSpliterator(new LocalList<>());
   }
 
   @Test
-  public void testSpliterator() {
+  void testSpliterator() {
     assertSpliterator(new LocalList<>(createList(2, 5, 3, 42, 3, 76)));
   }
 
   @Test
-  public void testSpliteratorWithNulls() {
+  void testSpliteratorWithNulls() {
     assertSpliterator(new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)));
   }
 
@@ -899,17 +899,17 @@ public class LocalListTest {
   }
 
   @Test
-  public void testIteratorEmpty() {
+  void testIteratorEmpty() {
     assertIterator(new LocalList<>());
   }
 
   @Test
-  public void testIterator() {
+  void testIterator() {
     assertIterator(new LocalList<>(createList(2, 5, 3, 42, 3, 76)));
   }
 
   @Test
-  public void testIteratorWithNulls() {
+  void testIteratorWithNulls() {
     assertIterator(new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)));
   }
 
@@ -937,7 +937,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testListIteratorThrowsWithBadIndex() {
+  void testListIteratorThrowsWithBadIndex() {
     final LocalList<Integer> list = new LocalList<>(createList(0, 1, 2));
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> list.listIterator(-1));
     Assertions.assertThrows(IndexOutOfBoundsException.class,
@@ -949,7 +949,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testListIteratorRemove() {
+  void testListIteratorRemove() {
     final LocalList<Integer> list = new LocalList<>(createList(2, 4, 6, 8));
     final ListIterator<Integer> it = list.listIterator(2);
     Assertions.assertThrows(IllegalStateException.class, () -> it.remove(),
@@ -971,7 +971,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testListIteratorSet() {
+  void testListIteratorSet() {
     final LocalList<Integer> list = new LocalList<>(createList(2, 4, 6, 8));
     final ListIterator<Integer> it = list.listIterator(2);
     Assertions.assertThrows(IllegalStateException.class, () -> it.set(3),
@@ -995,7 +995,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testListIteratorAdd() {
+  void testListIteratorAdd() {
     final List<Integer> c = createList(2, 4);
     LocalList<Integer> list = new LocalList<>(c);
 
@@ -1039,17 +1039,17 @@ public class LocalListTest {
   }
 
   @Test
-  public void testListIteratorEmpty() {
+  void testListIteratorEmpty() {
     assertListIterator(new LocalList<>());
   }
 
   @Test
-  public void testListIterator() {
+  void testListIterator() {
     assertListIterator(new LocalList<>(createList(2, 5, 3, 42, 3, 76)));
   }
 
   @Test
-  public void testListIteratorWithNulls() {
+  void testListIteratorWithNulls() {
     assertListIterator(new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)));
   }
 
@@ -1108,7 +1108,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSort() {
+  void testSort() {
     final int size = 5;
     final int lower = 23;
     final int upper = 107;
@@ -1123,7 +1123,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testReverse() {
+  void testReverse() {
     final int size = 5;
     final int lower = 23;
     final int upper = 107;
@@ -1142,7 +1142,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     final int size = 5;
     final int lower = 23;
     final int upper = 107;
@@ -1157,7 +1157,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testEqualsEdgeCases() {
+  void testEqualsEdgeCases() {
     final List<Integer> c = createList(2, null, 5, 3);
     final LocalList<Integer> list = new LocalList<>(c);
 
@@ -1185,7 +1185,7 @@ public class LocalListTest {
 
   @SuppressWarnings("unlikely-arg-type")
   @Test
-  public void testEqualsWhenSizeOfIteratorIsDifferent() {
+  void testEqualsWhenSizeOfIteratorIsDifferent() {
     final List<Integer> c = createList(2, 5, 3);
     final ArrayList<Integer> badList = new ArrayList<Integer>() {
       private static final long serialVersionUID = 1L;
@@ -1208,7 +1208,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     // With null
     List<Integer> c = createList(2, 5, null, 3);
     LocalList<Integer> list = new LocalList<>(c);
@@ -1229,7 +1229,7 @@ public class LocalListTest {
   // the skeleton implementation provided by AbstractList
 
   @Test
-  public void testSubListThrowsWithBadIndex() {
+  void testSubListThrowsWithBadIndex() {
     final LocalList<Integer> list = new LocalList<>(createList(0, 1, 2));
     final int from = 0;
     final int to = list.size();
@@ -1240,7 +1240,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListSizeAndGet() {
+  void testSubListSizeAndGet() {
     final List<Integer> c = createList(2, null, 5, 3, 42, null, 3, 76);
     final LocalList<Integer> list = new LocalList<>(c);
     // Sub-list
@@ -1257,7 +1257,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListToArray() {
+  void testSubListToArray() {
     final int from = 2;
     final int to = 4;
     List<Integer> c = createList(2, 5, 13, 42, 99);
@@ -1273,7 +1273,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListGetSet() {
+  void testSubListGetSet() {
     final List<Integer> c = createList(2, 5, 13, 42, 99);
     final LocalList<Integer> parent = new LocalList<>(c);
 
@@ -1302,7 +1302,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListAdd() {
+  void testSubListAdd() {
     final List<Integer> c = createList(0, 1, 2, 3, 4);
     final LocalList<Integer> list = new LocalList<>(c);
 
@@ -1321,7 +1321,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListAddIndex() {
+  void testSubListAddIndex() {
     final List<Integer> c = createList(0, 1, 2, 3, 4);
     final LocalList<Integer> list = new LocalList<>(c);
 
@@ -1361,7 +1361,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListAddAll() {
+  void testSubListAddAll() {
     final List<Integer> c = createList(0, 1, 2, 3, 4);
     final List<Integer> c2 = createList(-1, -2, -3);
     final List<Integer> c3 = createList(10, 20);
@@ -1384,7 +1384,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListRemove() {
+  void testSubListRemove() {
     final List<Integer> c = createList(0, 1, 2, 3, 4);
     final LocalList<Integer> list = new LocalList<>(c);
 
@@ -1404,49 +1404,49 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListSpliteratorEmpty() {
+  void testSubListSpliteratorEmpty() {
     assertSpliterator(new LocalList<>(createList(1, 23, 234)).subList(0, 0));
   }
 
   @Test
-  public void testSubListSpliterator() {
+  void testSubListSpliterator() {
     assertSpliterator(new LocalList<>(createList(2, 5, 3, 42, 3, 76).subList(1, 5)));
   }
 
   @Test
-  public void testSubListSpliteratorWithNulls() {
+  void testSubListSpliteratorWithNulls() {
     assertSpliterator(new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)).subList(1, 6));
   }
 
   @Test
-  public void testSubListSubListSpliterator() {
+  void testSubListSubListSpliterator() {
     assertSpliterator(
         new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)).subList(1, 6).subList(1, 3));
   }
 
   @Test
-  public void testSubListIteratorEmpty() {
+  void testSubListIteratorEmpty() {
     assertIterator(new LocalList<>(createList(1, 23, 234)).subList(0, 0));
   }
 
   @Test
-  public void testSubListIterator() {
+  void testSubListIterator() {
     assertIterator(new LocalList<>(createList(2, 5, 3, 42, 3, 76).subList(1, 5)));
   }
 
   @Test
-  public void testSubListIteratorWithNulls() {
+  void testSubListIteratorWithNulls() {
     assertIterator(new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)).subList(1, 6));
   }
 
   @Test
-  public void testSubListSubListIterator() {
+  void testSubListSubListIterator() {
     assertIterator(
         new LocalList<>(createList(2, null, 5, 3, 42, null, 3, 76)).subList(1, 6).subList(1, 3));
   }
 
   @Test
-  public void testSubListClear() {
+  void testSubListClear() {
     final List<Integer> c = IntStream.range(0, 20).boxed().collect(Collectors.toList());
     assertClear(c, l -> l.subList(0, 20));
     assertClear(c, l -> l.subList(3, 20));
@@ -1456,7 +1456,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListSubListClear() {
+  void testSubListSubListClear() {
     final List<Integer> c = IntStream.range(0, 20).boxed().collect(Collectors.toList());
     assertClear(c, l -> l.subList(0, 17), l -> l.subList(0, 6));
     assertClear(c, l -> l.subList(0, 17), l -> l.subList(2, 6));
@@ -1494,7 +1494,7 @@ public class LocalListTest {
   }
 
   @Test
-  public void testSubListSort() {
+  void testSubListSort() {
     final List<Integer> c = createList(2, 5, 3, 42, 3, 76, 1, 23, 4, 6, 7, 19, 2, 3, 4, 1);
     final int from = 5;
     final int to = 12;

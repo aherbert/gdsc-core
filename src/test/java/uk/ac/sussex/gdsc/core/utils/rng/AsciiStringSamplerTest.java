@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.functions.IntArrayFormatSupplier;
 
 @SuppressWarnings("javadoc")
-public class AsciiStringSamplerTest {
+class AsciiStringSamplerTest {
 
   private static Logger logger;
 
@@ -60,7 +60,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     final UniformRandomProvider rng = SplitMix.new64(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertNotNull(s);
@@ -68,14 +68,14 @@ public class AsciiStringSamplerTest {
 
   @SuppressWarnings("unused")
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     Assertions.assertThrows(NullPointerException.class, () -> {
       new AsciiStringSampler(null);
     });
   }
 
   @Test
-  public void testNextWithZeroLength() {
+  void testNextWithZeroLength() {
     final UniformRandomProvider rng = SplitMix.new64(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertEquals("", s.nextAscii(0));
@@ -83,7 +83,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testNextWithNegativeLengthThrows() {
+  void testNextWithNegativeLengthThrows() {
     final UniformRandomProvider rng = SplitMix.new64(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertThrows(IllegalArgumentException.class, () -> s.nextAscii(-1));
@@ -151,7 +151,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testAll() {
+  void testAll() {
     final Level level = Level.INFO;
     Assumptions.assumeTrue(logger.isLoggable(level));
     final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.SPLIT_MIX_64);
@@ -176,7 +176,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testAlphabetic() {
+  void testAlphabetic() {
     testSamples((s, l) -> s.nextAlphabetic(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -189,7 +189,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testAlphanumeric() {
+  void testAlphanumeric() {
     testSamples((s, l) -> s.nextAlphanumeric(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -202,7 +202,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testAscii() {
+  void testAscii() {
     testSamples((s, l) -> s.nextAscii(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -215,7 +215,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testBase64() {
+  void testBase64() {
     testSamples((s, l) -> s.nextBase64(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -228,7 +228,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testCharacter() {
+  void testCharacter() {
     testSamples((s, l) -> s.nextCharacter(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -241,7 +241,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testGraph() {
+  void testGraph() {
     testSamples((s, l) -> s.nextGraph(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -254,7 +254,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testHex() {
+  void testHex() {
     testSamples((s, l) -> s.nextHex(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -267,7 +267,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testLower() {
+  void testLower() {
     testSamples((s, l) -> s.nextLower(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -280,7 +280,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testNumeric() {
+  void testNumeric() {
     testSamples((s, l) -> s.nextNumeric(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -293,7 +293,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testPrint() {
+  void testPrint() {
     testSamples((s, l) -> s.nextPrint(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);
@@ -306,7 +306,7 @@ public class AsciiStringSamplerTest {
   }
 
   @Test
-  public void testUpper() {
+  void testUpper() {
     testSamples((s, l) -> s.nextUpper(l), (string) -> {
       for (int i = 0; i < string.length(); i++) {
         final char c = string.charAt(i);

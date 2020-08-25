@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 @SuppressWarnings("javadoc")
-public class RadixStringSamplerTest {
+class RadixStringSamplerTest {
 
   private static Logger logger;
 
@@ -56,7 +56,7 @@ public class RadixStringSamplerTest {
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final int length = 1;
     for (int radix = 2; radix <= 64; radix++) {
@@ -69,7 +69,7 @@ public class RadixStringSamplerTest {
 
   @SuppressWarnings("unused")
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final int length = 1;
     final int radix = 16;
@@ -88,7 +88,7 @@ public class RadixStringSamplerTest {
   }
 
   @Test
-  public void testZeroLengthSamples() {
+  void testZeroLengthSamples() {
     final RestorableUniformRandomProvider rng2 = null;
     final int length = 0;
     for (int radix = 2; radix <= 64; radix++) {
@@ -99,7 +99,7 @@ public class RadixStringSamplerTest {
   }
 
   @Test
-  public void testSamples() {
+  void testSamples() {
     for (int radix = 2; radix <= 64; radix++) {
       testSamples(radix);
     }
@@ -162,7 +162,7 @@ public class RadixStringSamplerTest {
   }
 
   @Test
-  public void testSamplesAreUniform() {
+  void testSamplesAreUniform() {
     for (int radix = 2; radix <= 64; radix++) {
       testSamplesAreUniform(radix);
     }
@@ -200,7 +200,7 @@ public class RadixStringSamplerTest {
   }
 
   @Test
-  public void testStaticSampleMethodsMatchInstanceSampler() {
+  void testStaticSampleMethodsMatchInstanceSampler() {
     final UniformRandomProvider rng1 = SplitMix.new64(0);
     final UniformRandomProvider rng2 = SplitMix.new64(0);
     final int length = 16;

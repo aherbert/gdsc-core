@@ -35,9 +35,9 @@ import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class ConvexHull2dTest {
+class ConvexHull2dTest {
   @Test
-  public void cannotComputeConvexHullFromNoCoords() {
+  void cannotComputeConvexHullFromNoCoords() {
     final double[] x = new double[] {};
     final double[] y = new double[] {};
     final Hull2d hull = ConvexHull2d.create(x, y);
@@ -45,7 +45,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canComputeConvexHullFromSquare() {
+  void canComputeConvexHullFromSquare() {
     final double[] ex = new double[] {0, 10, 10, 0};
     final double[] ey = new double[] {0, 0, 10, 10};
     for (int i = 0; i < ex.length; i++) {
@@ -62,7 +62,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canComputeConvexHullFromSquareWithInternalPoint() {
+  void canComputeConvexHullFromSquareWithInternalPoint() {
     final double[] x = new double[] {0, 0, 10, 10, 5};
     final double[] y = new double[] {0, 10, 10, 0, 5};
     final double[] ex = new double[] {0, 10, 10, 0};
@@ -72,7 +72,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canComputeConvexHullFromSquareWithInternalPoint2() {
+  void canComputeConvexHullFromSquareWithInternalPoint2() {
     final double[] x = new double[] {0, 0, 5, 10, 10};
     final double[] y = new double[] {0, 10, 5, 10, 0};
     final double[] ex = new double[] {0, 10, 10, 0};
@@ -99,12 +99,12 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canBuildWithNoPoints() {
+  void canBuildWithNoPoints() {
     Assertions.assertNull(ConvexHull2d.newBuilder().build());
   }
 
   @Test
-  public void canBuildWithOnePoint() {
+  void canBuildWithOnePoint() {
     final double[] x = new double[] {1.2345, 6.78};
     final Hull2d hull = ConvexHull2d.newBuilder().add(x).build();
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -114,7 +114,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canClearBuilder() {
+  void canClearBuilder() {
     final ConvexHull2d.Builder builder = ConvexHull2d.newBuilder();
     builder.add(1, 2);
     final Hull2d hull1 = builder.build();
@@ -128,13 +128,13 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canCreateWithNoPoints() {
+  void canCreateWithNoPoints() {
     final double[] x = new double[0];
     Assertions.assertNull(ConvexHull2d.create(x, x));
   }
 
   @Test
-  public void canCreateWithOnePoint() {
+  void canCreateWithOnePoint() {
     final double[] x = new double[] {1.2345f};
     final Hull2d hull = ConvexHull2d.create(x, x);
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -143,7 +143,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canCreateWithTwoPoints() {
+  void canCreateWithTwoPoints() {
     final double[] x = new double[] {1.5f, 2.5f};
     final Hull2d hull = ConvexHull2d.create(x, x);
     Assertions.assertEquals(2, hull.getNumberOfVertices());
@@ -152,7 +152,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canCreateWithThreePoints() {
+  void canCreateWithThreePoints() {
     final double[] x = new double[] {1, 2, 2};
     final double[] y = new double[] {1, 1, 2};
     final Hull2d hull = ConvexHull2d.create(x, y);
@@ -162,7 +162,7 @@ public class ConvexHull2dTest {
   }
 
   @Test
-  public void canCreateWithManyPoints() {
+  void canCreateWithManyPoints() {
     final UnitCircleSampler sampler = UnitCircleSampler.of(RngUtils.create(126487618L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);

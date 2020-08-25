@@ -35,22 +35,22 @@ import org.junit.jupiter.api.Test;
  * Test for {@link GeometryUtils}.
  */
 @SuppressWarnings({"javadoc"})
-public class GeometryUtilsTest {
+class GeometryUtilsTest {
   @Test
-  public void canComputeTraingleArea() {
+  void canComputeTraingleArea() {
     Assertions.assertEquals(0.5, GeometryUtils.getArea(1, 1, 2, 1, 1, 2));
     Assertions.assertEquals(2.0, GeometryUtils.getArea(0, 0, 1, 2, 2, 0));
     Assertions.assertEquals(1.5, GeometryUtils.getArea(0, 0, 1, 2, 2, 1));
   }
 
   @Test
-  public void canComputeTraingleAreaWithZero() {
+  void canComputeTraingleAreaWithZero() {
     Assertions.assertEquals(2.0, GeometryUtils.getArea(1, 2, 2, 0));
     Assertions.assertEquals(1.5, GeometryUtils.getArea(1, 2, 2, 1));
   }
 
   @Test
-  public void canComputeAreaFloat() {
+  void canComputeAreaFloat() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> GeometryUtils.getArea(new float[5], new float[4]));
 
@@ -78,7 +78,7 @@ public class GeometryUtilsTest {
   }
 
   @Test
-  public void canComputeAreaDouble() {
+  void canComputeAreaDouble() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> GeometryUtils.getArea(new double[5], new double[4]));
 
@@ -106,7 +106,7 @@ public class GeometryUtilsTest {
   }
 
   @Test
-  public void canComputeIntersection() {
+  void canComputeIntersection() {
     // no intersection
     canComputeIntersection(null, 0, 0, 1, 0, 0, 1, 1, 0.5);
     canComputeIntersection(null, 0, 0, 1, 0, 0.5, 1, 0.5, 0.5);

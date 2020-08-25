@@ -50,7 +50,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
  * Test for {@link RandIndex}.
  */
 @SuppressWarnings({"javadoc"})
-public class RandIndexTest {
+class RandIndexTest {
 
   private static Logger logger;
 
@@ -65,7 +65,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void computeRandIndexThrowsWithBadData() {
+  void computeRandIndexThrowsWithBadData() {
     Assertions.assertThrows(NullPointerException.class, () -> RandIndex.randIndex(null, new int[2]),
         "Set1 null mismatch");
     Assertions.assertThrows(NullPointerException.class, () -> RandIndex.randIndex(new int[2], null),
@@ -83,7 +83,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeSimpleRandIndexWithNoData() {
+  void canComputeSimpleRandIndexWithNoData() {
     for (final int size : new int[] {0, 1, 2}) {
       final double e = (size == 0) ? 0 : 1;
       final int[] clusters = new int[size];
@@ -93,7 +93,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndexWithNoData() {
+  void canComputeRandIndexWithNoData() {
     for (final int size : new int[] {0, 1, 2}) {
       final double e = (size == 0) ? 0 : 1;
       final int[] clusters = new int[size];
@@ -103,7 +103,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeAdjustedRandIndexWithNoData() {
+  void canComputeAdjustedRandIndexWithNoData() {
     for (final int size : new int[] {0, 1, 2}) {
       final double e = (size == 0) ? 0 : 1;
       final int[] clusters = new int[size];
@@ -118,7 +118,7 @@ public class RandIndexTest {
   // the matrix variant of the algorithm
 
   @Test
-  public void canComputeSimpleRandIndex() {
+  void canComputeSimpleRandIndex() {
     final int[] clusters = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0};
     final double r = RandIndex.simpleRandIndex(clusters, classes);
@@ -126,7 +126,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndex() {
+  void canComputeRandIndex() {
     final int[] clusters = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0};
     final double r = RandIndex.randIndex(clusters, classes);
@@ -148,7 +148,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndexWithBigClusterNumbers() {
+  void canComputeRandIndexWithBigClusterNumbers() {
     // This test should make the class switch to using the matrix version
     final int[] clusters = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0};
@@ -162,7 +162,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndexWithArbitraryClusterNumbers() {
+  void canComputeRandIndexWithArbitraryClusterNumbers() {
     final int[] clusters = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0};
     final double r = RandIndex.simpleRandIndex(clusters, classes);
@@ -182,7 +182,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeSimpleRandIndexWithSparseData() {
+  void canComputeSimpleRandIndexWithSparseData() {
     final int[] clusters = {4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0};
     final double r = RandIndex.simpleRandIndex(clusters, classes);
@@ -190,7 +190,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndexWithSparseData() {
+  void canComputeRandIndexWithSparseData() {
     final int[] clusters = {4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0};
     final double r = RandIndex.randIndex(clusters, classes);
@@ -198,7 +198,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void getRandIndexThrowsWhenNotComputed() {
+  void getRandIndexThrowsWhenNotComputed() {
     Assertions.assertThrows(IllegalStateException.class, () -> {
       final RandIndex ri = new RandIndex();
       ri.getRandIndex();
@@ -206,7 +206,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void getAdjustedRandIndexThrowsWhenNotComputed() {
+  void getAdjustedRandIndexThrowsWhenNotComputed() {
     Assertions.assertThrows(IllegalStateException.class, () -> {
       final RandIndex ri = new RandIndex();
       ri.getAdjustedRandIndex();
@@ -214,7 +214,7 @@ public class RandIndexTest {
   }
 
   @SeededTest
-  public void canComputeRandIndexWithSimpleData(RandomSeed seed) {
+  void canComputeRandIndexWithSimpleData(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int size = 100;
     for (final int n1 : new int[] {1, 2, 3, 4, 5}) {
@@ -225,7 +225,7 @@ public class RandIndexTest {
   }
 
   @SeededTest
-  public void canComputeRandIndexWithBigData(RandomSeed seed) {
+  void canComputeRandIndexWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int size = 10000;
@@ -280,7 +280,7 @@ public class RandIndexTest {
   }
 
   @SeededTest
-  public void adjustedRandIndexIsZeroForRandomData(RandomSeed seed) {
+  void adjustedRandIndexIsZeroForRandomData(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int size = 100;
     for (final int n1 : new int[] {2, 5, 10}) {
@@ -315,7 +315,7 @@ public class RandIndexTest {
   }
 
   @SeededTest
-  public void canComputeAdjustedRandIndexWithSimpleData(RandomSeed seed) {
+  void canComputeAdjustedRandIndexWithSimpleData(RandomSeed seed) {
     final int size = 100;
     for (final int n1 : new int[] {1, 2, 3, 4, 5}) {
       for (final int n2 : new int[] {1, 2, 3, 4, 5}) {
@@ -326,7 +326,7 @@ public class RandIndexTest {
 
   // Speed test on large data
   @SeededTest
-  public void canComputeAdjustedRandIndexWithBigData(RandomSeed seed) {
+  void canComputeAdjustedRandIndexWithBigData(RandomSeed seed) {
     final int size = 10000;
     for (final int i : new int[] {3, 5, 10}) {
       final int n1 = size / i;

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 @SuppressWarnings({"javadoc"})
-public class SiPrefixTest {
+class SiPrefixTest {
   private static Logger logger;
 
   @BeforeAll
@@ -51,7 +51,7 @@ public class SiPrefixTest {
   }
 
   @Test
-  public void canGenerateSiPrefix() {
+  void canGenerateSiPrefix() {
     final Level level = Level.FINEST;
     // This is not a test. It generates the Enum.
     // It is left to ensure the code will run.
@@ -99,14 +99,14 @@ public class SiPrefixTest {
   }
 
   @Test
-  public void testSiPrefixDeci() {
+  void testSiPrefixDeci() {
     Assertions.assertEquals(1e-1, SiPrefix.DECI.getFactor());
     Assertions.assertEquals("deci", SiPrefix.DECI.getPrefix());
     Assertions.assertEquals("d", SiPrefix.DECI.getSymbol());
   }
 
   @Test
-  public void testSiConvertions() {
+  void testSiConvertions() {
     final SiPrefix[] prefixes = SiPrefix.values();
 
     for (final SiPrefix p1 : prefixes) {
@@ -120,21 +120,21 @@ public class SiPrefixTest {
   }
 
   @Test
-  public void testForOrdinal() {
+  void testForOrdinal() {
     for (final SiPrefix prefix : SiPrefix.values()) {
       Assertions.assertEquals(prefix, SiPrefix.forOrdinal(prefix.ordinal()));
     }
   }
 
   @Test
-  public void testForOrdinalThrows() {
+  void testForOrdinalThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> SiPrefix.forOrdinal(-1));
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> SiPrefix.forOrdinal(Integer.MAX_VALUE));
   }
 
   @Test
-  public void testForOrdinalWithDefaultValue() {
+  void testForOrdinalWithDefaultValue() {
     final SiPrefix prefix0 = SiPrefix.forOrdinal(0);
     Assertions.assertEquals(prefix0, SiPrefix.forOrdinal(-1, null));
     Assertions.assertEquals(prefix0, SiPrefix.forOrdinal(Integer.MAX_VALUE, null));
@@ -146,7 +146,7 @@ public class SiPrefixTest {
   }
 
   @Test
-  public void canGetPrefix() {
+  void canGetPrefix() {
     // Edge cases
     canGetPrefix(0, SiPrefix.NONE);
     canGetPrefix(Double.POSITIVE_INFINITY, SiPrefix.NONE);

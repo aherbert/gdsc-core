@@ -37,10 +37,10 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
-public class DiggingConcaveHull2dTest {
+class DiggingConcaveHull2dTest {
 
   @Test
-  public void testNumberOfNeighbours() {
+  void testNumberOfNeighbours() {
     final DiggingConcaveHull2d.Builder builder = DiggingConcaveHull2d.newBuilder();
     Assertions.assertTrue(builder.getThreshold() >= 1);
     Assertions.assertSame(builder, builder.setThreshold(7));
@@ -49,7 +49,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void cannotComputeKnnConcaveHullFromNoCoords() {
+  void cannotComputeKnnConcaveHullFromNoCoords() {
     final double[] x = new double[] {};
     final double[] y = new double[] {};
     final Hull2d hull = DiggingConcaveHull2d.create(1.0, x, y);
@@ -57,7 +57,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquare() {
+  void canComputeKnnConcaveHullFromSquare() {
     final double[] ex = new double[] {0, 10, 10, 0};
     final double[] ey = new double[] {0, 0, 10, 10};
     for (int i = 0; i < ex.length; i++) {
@@ -74,7 +74,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquareWithInternalPoint() {
+  void canComputeKnnConcaveHullFromSquareWithInternalPoint() {
     final double[] x = new double[] {0, 0, 10, 10, 5};
     final double[] y = new double[] {0, 10, 10, 0, 5};
     final double[] ex = new double[] {0, 10, 10, 0};
@@ -84,7 +84,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquareWithInternalPoint2() {
+  void canComputeKnnConcaveHullFromSquareWithInternalPoint2() {
     final double[] x = new double[] {0, 0, 5, 10, 10};
     final double[] y = new double[] {0, 10, 5, 10, 0};
     final double[] ex = new double[] {0, 10, 10, 0};
@@ -94,7 +94,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquareWithInternalPoint3() {
+  void canComputeKnnConcaveHullFromSquareWithInternalPoint3() {
     final double[] x = new double[] {0, 0, 4, 10, 10};
     final double[] y = new double[] {0, 10, 1, 10, 0};
     final double[] ex = new double[] {0, 4, 10, 10, 0};
@@ -104,7 +104,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquareWithInternalPoint4() {
+  void canComputeKnnConcaveHullFromSquareWithInternalPoint4() {
     final double[] x = new double[] {0, 0, 6, 10, 10};
     final double[] y = new double[] {0, 10, 1, 10, 0};
     final double[] ex = new double[] {0, 6, 10, 10, 0};
@@ -133,12 +133,12 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canBuildWithNoPoints() {
+  void canBuildWithNoPoints() {
     Assertions.assertNull(DiggingConcaveHull2d.newBuilder().build());
   }
 
   @Test
-  public void canBuildWithOnePoint() {
+  void canBuildWithOnePoint() {
     final double[] x = new double[] {1.2345, 6.78};
     final Hull2d hull = DiggingConcaveHull2d.newBuilder().add(x).build();
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -148,7 +148,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canClearBuilder() {
+  void canClearBuilder() {
     final DiggingConcaveHull2d.Builder builder = DiggingConcaveHull2d.newBuilder();
     builder.add(1, 2);
     final Hull2d hull1 = builder.build();
@@ -162,13 +162,13 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithNoPoints() {
+  void canCreateWithNoPoints() {
     final double[] x = new double[0];
     Assertions.assertNull(DiggingConcaveHull2d.create(1.0, x, x));
   }
 
   @Test
-  public void canCreateWithOnePoint() {
+  void canCreateWithOnePoint() {
     final double[] x = new double[] {1.2345f};
     final Hull2d hull = DiggingConcaveHull2d.create(1.0, x, x);
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -177,7 +177,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithTwoPoints() {
+  void canCreateWithTwoPoints() {
     final double[] x = new double[] {1.5f, 2.5f};
     final Hull2d hull = DiggingConcaveHull2d.create(1.0, x, x);
     Assertions.assertEquals(2, hull.getNumberOfVertices());
@@ -186,7 +186,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithThreePoints() {
+  void canCreateWithThreePoints() {
     final double[] x = new double[] {1, 2, 2};
     final double[] y = new double[] {1, 1, 2};
     final Hull2d hull = DiggingConcaveHull2d.create(1.0, x, y);
@@ -196,7 +196,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithMultiplePointsCircular() {
+  void canCreateWithMultiplePointsCircular() {
     final UnitCircleSampler sampler = UnitCircleSampler.of(RngUtils.create(126487618L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
@@ -218,7 +218,7 @@ public class DiggingConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithMultiplePointsCircularMinusWedge() {
+  void canCreateWithMultiplePointsCircularMinusWedge() {
     final UnitCircleSampler sampler = UnitCircleSampler.of(RngUtils.create(126487618L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
@@ -246,7 +246,7 @@ public class DiggingConcaveHull2dTest {
    * Test the edge case where some points are colinear.
    */
   @Test
-  public void canCreateWithColinearPoints() {
+  void canCreateWithColinearPoints() {
     final double[] x = new double[] {0, 0, 1, 1, 3, 3};
     final double[] y = new double[] {0, 1, 1, 0, 0, 1};
     final Hull2d hull = DiggingConcaveHull2d.create(2.0, x, y);
@@ -260,7 +260,7 @@ public class DiggingConcaveHull2dTest {
    * Test that polygons are simple (non-self intersecting).
    */
   @Test
-  public void canCreateSimplePolygon() {
+  void canCreateSimplePolygon() {
     // Simple square.
     // 2 internal points.
     // Assuming the hull starts at (0,0) and proceeds counter clockwise

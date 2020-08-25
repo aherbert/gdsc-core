@@ -40,17 +40,17 @@ import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings("javadoc")
-public class JdkRandomAdaptorTest {
+class JdkRandomAdaptorTest {
   @SuppressWarnings("unused")
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     Assertions.assertThrows(NullPointerException.class, () -> {
       new JdkRandomAdaptor(null);
     });
   }
 
   @Test
-  public void testSetSeedThrows() {
+  void testSetSeedThrows() {
     final JdkRandomAdaptor rng = new JdkRandomAdaptor(SplitMix.new64(0));
     Assertions.assertThrows(NotImplementedException.class, () -> {
       rng.setSeed(44);
@@ -58,7 +58,7 @@ public class JdkRandomAdaptorTest {
   }
 
   @SeededTest
-  public void testGeneratedValues(RandomSeed randomSeed) {
+  void testGeneratedValues(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final Random random1 = new Random(seed);
     final Random random2 = new Random(seed);
@@ -117,7 +117,7 @@ public class JdkRandomAdaptorTest {
   }
 
   @Test
-  public void testSerializationThrows() throws IOException {
+  void testSerializationThrows() throws IOException {
     final JdkRandomAdaptor rng = new JdkRandomAdaptor(SplitMix.new64(0));
     try (ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
       Assertions.assertThrows(NotImplementedException.class, () -> {

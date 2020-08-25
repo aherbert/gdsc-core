@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class Hull2dTest {
+class Hull2dTest {
   @Test
-  public void testCreateThrows() {
+  void testCreateThrows() {
     final double[] x = {0, 1, 2};
     final double[] y = {};
     Assertions.assertThrows(NullPointerException.class, () -> Hull2d.create(null, x));
@@ -44,7 +44,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void canCreateWithOnePoint() {
+  void canCreateWithOnePoint() {
     final double[] x = {1.2345};
     final Hull2d hull = Hull2d.create(x, x);
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -53,7 +53,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void canCreateWithTwoPoints() {
+  void canCreateWithTwoPoints() {
     final double[] x = {1.5, 2.5};
     final Hull2d hull = Hull2d.create(x, x);
     Assertions.assertEquals(2, hull.getNumberOfVertices());
@@ -62,7 +62,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void canCreateWithThreePoints() {
+  void canCreateWithThreePoints() {
     final double[] x = {1, 2, 2};
     final double[] y = {1, 1, 2};
     final Hull2d hull = Hull2d.create(x, y);
@@ -72,14 +72,14 @@ public class Hull2dTest {
   }
 
   @Test
-  public void testCreateSingleArrayThrows() {
+  void testCreateSingleArrayThrows() {
     Assertions.assertThrows(NullPointerException.class, () -> Hull2d.create(null));
     Assertions.assertThrows(IllegalArgumentException.class, () -> Hull2d.create(new double[0][2]));
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> Hull2d.create(new double[1][1]));
   }
 
   @Test
-  public void canCreateSingleArrayWithOnePoint() {
+  void canCreateSingleArrayWithOnePoint() {
     final double[][] c = {{1.2345, 6.78}};
     final Hull2d hull = Hull2d.create(c);
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -88,7 +88,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void canCreateSingleArrayWithTwoPoints() {
+  void canCreateSingleArrayWithTwoPoints() {
     final double[][] c = {{1.5, 1.5}, {2.5, 2.5}};
     final Hull2d hull = Hull2d.create(c);
     Assertions.assertEquals(2, hull.getNumberOfVertices());
@@ -97,7 +97,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void canCreateSingleArrayWithThreePoints() {
+  void canCreateSingleArrayWithThreePoints() {
     final double[][] c = {{1, 1}, {2, 1}, {2, 2}};
     final Hull2d hull = Hull2d.create(c);
     Assertions.assertEquals(3, hull.getNumberOfVertices());
@@ -106,7 +106,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void canComputeLengthAndArea() {
+  void canComputeLengthAndArea() {
     // Parallelogram
     double[] xvalues = {0, 10, 11, 1};
     double[] yvalues = {0, 0, 10, 10};
@@ -138,7 +138,7 @@ public class Hull2dTest {
   }
 
   @Test
-  public void conComputeContains() {
+  void conComputeContains() {
     final double[] x = {0, 10, 11, 1};
     final double[] y = {0, 0, 10, 10};
     final Hull2d hull = Hull2d.create(x, y);

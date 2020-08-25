@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class StandardTrivalueProcedureTest {
+class StandardTrivalueProcedureTest {
   @Test
-  public void testProcedure() {
+  void testProcedure() {
     final StandardTrivalueProcedure procedure = new StandardTrivalueProcedure();
     Assertions.assertNull(procedure.getXAxis());
     Assertions.assertNull(procedure.getYAxis());

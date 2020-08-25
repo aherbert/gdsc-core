@@ -36,9 +36,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-public class PoissonSamplerUtilsTest {
+class PoissonSamplerUtilsTest {
   @Test
-  public void testCreatePoissonSamplerWithMeanZero() {
+  void testCreatePoissonSamplerWithMeanZero() {
     final UniformRandomProvider rng = SplitMix.new64(0);
     final SharedStateDiscreteSampler sampler = PoissonSamplerUtils.createPoissonSampler(rng, 0);
     for (int i = 0; i < 10; i++) {
@@ -48,13 +48,13 @@ public class PoissonSamplerUtilsTest {
   }
 
   @Test
-  public void testNextPoissonSampleWithMeanZero() {
+  void testNextPoissonSampleWithMeanZero() {
     final UniformRandomProvider rng = SplitMix.new64(0);
     Assertions.assertEquals(0, PoissonSamplerUtils.nextPoissonSample(rng, 0));
   }
 
   @Test
-  public void testCreatePoissonSampler() {
+  void testCreatePoissonSampler() {
     final UniformRandomProvider rng1 = SplitMix.new64(0);
     final UniformRandomProvider rng2 = SplitMix.new64(0);
     final double mean = 3.456;
@@ -66,7 +66,7 @@ public class PoissonSamplerUtilsTest {
   }
 
   @Test
-  public void testNextPoissonSample() {
+  void testNextPoissonSample() {
     final UniformRandomProvider rng1 = SplitMix.new64(0);
     final UniformRandomProvider rng2 = SplitMix.new64(0);
     final double mean = 3.456;

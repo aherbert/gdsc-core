@@ -49,7 +49,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({"javadoc"})
-public class SimpleArrayUtilsTest {
+class SimpleArrayUtilsTest {
   private static Logger logger;
 
   @BeforeAll
@@ -63,7 +63,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @SeededTest
-  public void canFlatten(RandomSeed seed) {
+  void canFlatten(RandomSeed seed) {
     Assertions.assertArrayEquals(new int[0], SimpleArrayUtils.flatten(null), "Null input");
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final TIntHashSet set = new TIntHashSet();
@@ -96,7 +96,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canMerge() {
+  void canMerge() {
     final int[] data1 = {1, 2, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 8, 9};
     final int[] data2 = {1, 5, 10};
     int[] result = SimpleArrayUtils.merge(data1, data2);
@@ -130,7 +130,7 @@ public class SimpleArrayUtilsTest {
 
   @SpeedTag
   @SeededTest
-  public void testMergeOnIndexData(RandomSeed seed) {
+  void testMergeOnIndexData(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -183,7 +183,7 @@ public class SimpleArrayUtilsTest {
 
   @SpeedTag
   @SeededTest
-  public void testMergeOnRedundantData(RandomSeed seed) {
+  void testMergeOnRedundantData(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -238,7 +238,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canConvertIntToDouble() {
+  void canConvertIntToDouble() {
     int[] array = null;
     Assertions.assertArrayEquals(new double[0], SimpleArrayUtils.toDouble(array), "Null argument");
     array = new int[] {1, 3, 7};
@@ -247,7 +247,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canConvertFloatToDouble() {
+  void canConvertFloatToDouble() {
     float[] array = null;
     Assertions.assertArrayEquals(new double[0], SimpleArrayUtils.toDouble(array), "Null argument");
     array = new float[] {1, 3, 7};
@@ -256,7 +256,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canConvertDoubleToFloat() {
+  void canConvertDoubleToFloat() {
     double[] array = null;
     Assertions.assertArrayEquals(new float[0], SimpleArrayUtils.toFloat(array), "Null argument");
     array = new double[] {1, 3, 7};
@@ -265,7 +265,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canConvertIntToFloat() {
+  void canConvertIntToFloat() {
     int[] array = null;
     Assertions.assertArrayEquals(new float[0], SimpleArrayUtils.toFloat(array), "Null argument");
     array = new int[] {1, 3, 7};
@@ -274,31 +274,31 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canCreateNewDoubleArray() {
+  void canCreateNewDoubleArray() {
     final double[] expected = {0.5, 1.5, 2.5};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newArray(3, 0.5, 1));
   }
 
   @Test
-  public void canCreateNewFloatArray() {
+  void canCreateNewFloatArray() {
     final float[] expected = {0.5f, 1.5f, 2.5f};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newArray(3, 0.5f, 1));
   }
 
   @Test
-  public void canCreateNewIntArray() {
+  void canCreateNewIntArray() {
     final int[] expected = {2, 5, 8};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newArray(3, 2, 3));
   }
 
   @Test
-  public void canCreateNewNaturalArray() {
+  void canCreateNewNaturalArray() {
     final int[] expected = {0, 1, 2};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.natural(3));
   }
 
   @Test
-  public void canEnsureStrictlyPositive() {
+  void canEnsureStrictlyPositive() {
     float[] data = {1, 2, 3, 4, 5};
     Assertions.assertSame(data, SimpleArrayUtils.ensureStrictlyPositive(data),
         "Positive data should be unchanged");
@@ -313,7 +313,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindMinAboveZero() {
+  void canFindMinAboveZero() {
     float[] data = {-1, 0, 1, 0.5f, 2};
     Assertions.assertEquals(0.5f, SimpleArrayUtils.minAboveZero(data),
         "Failed using standard array");
@@ -332,31 +332,31 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canCreateNewFilledDoubleArray() {
+  void canCreateNewFilledDoubleArray() {
     final double[] expected = {0.5, 0.5, 0.5};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newDoubleArray(3, 0.5));
   }
 
   @Test
-  public void canCreateNewFilledFloatArray() {
+  void canCreateNewFilledFloatArray() {
     final float[] expected = {0.5f, 0.5f, 0.5f};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newFloatArray(3, 0.5f));
   }
 
   @Test
-  public void canCreateNewFilledIntArray() {
+  void canCreateNewFilledIntArray() {
     final int[] expected = {2, 2, 2};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newIntArray(3, 2));
   }
 
   @Test
-  public void canCreateNewFilledByteArray() {
+  void canCreateNewFilledByteArray() {
     final byte[] expected = {2, 2, 2};
     Assertions.assertArrayEquals(expected, SimpleArrayUtils.newByteArray(3, (byte) 2));
   }
 
   @Test
-  public void canReverseIntArray() {
+  void canReverseIntArray() {
     for (int size = 0; size < 5; size++) {
       final int[] data = new int[size];
       final int[] expected = new int[size];
@@ -370,7 +370,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canReverseFloatArray() {
+  void canReverseFloatArray() {
     for (int size = 0; size < 5; size++) {
       final float[] data = new float[size];
       final float[] expected = new float[size];
@@ -384,7 +384,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canReverseDoubleArray() {
+  void canReverseDoubleArray() {
     for (int size = 0; size < 5; size++) {
       final double[] data = new double[size];
       final double[] expected = new double[size];
@@ -398,7 +398,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canReverseByteArray() {
+  void canReverseByteArray() {
     for (int size = 0; size < 5; size++) {
       final byte[] data = new byte[size];
       final byte[] expected = new byte[size];
@@ -412,7 +412,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canReverseShortArray() {
+  void canReverseShortArray() {
     for (int size = 0; size < 5; size++) {
       final short[] data = new short[size];
       final short[] expected = new short[size];
@@ -426,7 +426,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canTestDoubleIsInteger() {
+  void canTestDoubleIsInteger() {
     Assertions.assertTrue(SimpleArrayUtils.isInteger(new double[0]), "Empty array");
     final double[] data = new double[] {Integer.MIN_VALUE, 1, 2, Integer.MAX_VALUE};
     Assertions.assertTrue(SimpleArrayUtils.isInteger(data), "Full range int array");
@@ -437,7 +437,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canTestFloatIsInteger() {
+  void canTestFloatIsInteger() {
     Assertions.assertTrue(SimpleArrayUtils.isInteger(new float[0]), "Empty array");
     final float[] data = new float[] {1, 2, 3};
     Assertions.assertTrue(SimpleArrayUtils.isInteger(data), "Valid int array");
@@ -446,7 +446,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canTestIntIsUniform() {
+  void canTestIntIsUniform() {
     for (int size = 0; size < 2; size++) {
       Assertions.assertTrue(SimpleArrayUtils.isUniform(new int[size]), "Below min size");
     }
@@ -463,7 +463,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canTestDoubleIsUniform() {
+  void canTestDoubleIsUniform() {
     for (int size = 0; size < 3; size++) {
       Assertions.assertTrue(SimpleArrayUtils.isUniform(new double[size], 0), "Below min size");
     }
@@ -509,7 +509,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canMultiplyFloat() {
+  void canMultiplyFloat() {
     final float[] data = {1, 2, 3};
     final float[] expected = {2, 4, 6};
     SimpleArrayUtils.multiply(data, 2);
@@ -517,7 +517,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canMultiplyFloatByDouble() {
+  void canMultiplyFloatByDouble() {
     final float[] data = {1, 2, 3};
     final float[] expected = {2, 4, 6};
     SimpleArrayUtils.multiply(data, 2.0);
@@ -525,7 +525,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canMultiplyDouble() {
+  void canMultiplyDouble() {
     final double[] data = {1, 2, 3};
     final double[] expected = {2, 4, 6};
     SimpleArrayUtils.multiply(data, 2);
@@ -533,7 +533,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canAddFloat() {
+  void canAddFloat() {
     final float[] data = {1, 2, 3};
     final float[] expected = {3, 4, 5};
     SimpleArrayUtils.add(data, 2);
@@ -541,7 +541,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canAddDouble() {
+  void canAddDouble() {
     final double[] data = {1, 2, 3};
     final double[] expected = {3, 4, 5};
     SimpleArrayUtils.add(data, 2);
@@ -549,7 +549,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canAddInt() {
+  void canAddInt() {
     final int[] data = {1, 2, 3};
     final int[] expected = {3, 4, 5};
     SimpleArrayUtils.add(data, 2);
@@ -557,7 +557,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canSubtractInt() {
+  void canSubtractInt() {
     final int[] data = {3, 4, 5};
     final int[] expected = {1, 2, 3};
     SimpleArrayUtils.subtract(data, 2);
@@ -565,7 +565,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindIntMinIndex() {
+  void canFindIntMinIndex() {
     final int[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       data[i] = -1;
@@ -575,7 +575,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindFloatMinIndex() {
+  void canFindFloatMinIndex() {
     final float[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       data[i] = -1;
@@ -585,7 +585,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindDoubleMinIndex() {
+  void canFindDoubleMinIndex() {
     final double[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       data[i] = -1;
@@ -595,7 +595,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindIntMaxIndex() {
+  void canFindIntMaxIndex() {
     final int[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       data[i] = 1;
@@ -605,7 +605,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindFloatMaxIndex() {
+  void canFindFloatMaxIndex() {
     final float[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       data[i] = 1;
@@ -615,7 +615,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindDoubleMaxIndex() {
+  void canFindDoubleMaxIndex() {
     final double[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       data[i] = 1;
@@ -625,7 +625,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindIntMinMaxIndex() {
+  void canFindIntMinMaxIndex() {
     final int[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       final int j = (i + 1) % data.length;
@@ -638,7 +638,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindFloatMinMaxIndex() {
+  void canFindFloatMinMaxIndex() {
     final float[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       final int j = (i + 1) % data.length;
@@ -651,7 +651,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canFindDoubleMinMaxIndex() {
+  void canFindDoubleMinMaxIndex() {
     final double[] data = {0, 0, 0};
     for (int i = 0; i < data.length; i++) {
       final int j = (i + 1) % data.length;
@@ -664,7 +664,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canGetRanges() {
+  void canGetRanges() {
     testGetRanges(null, new int[0]);
     testGetRanges(new int[0], new int[0]);
     testGetRanges(new int[] {0}, new int[] {0, 0});
@@ -688,7 +688,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canGetRangesWithDuplicates() {
+  void canGetRangesWithDuplicates() {
     testGetRanges(new int[] {0, 0, 0}, new int[] {0, 0});
     testGetRanges(new int[] {1, 1}, new int[] {1, 1});
     testGetRanges(new int[] {0, 1, 1}, new int[] {0, 1});
@@ -705,7 +705,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canCheck2DSize() {
+  void canCheck2DSize() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> SimpleArrayUtils.check2DSize(-1, 1), "negative width");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -717,7 +717,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canHas2DFloatData() {
+  void canHas2DFloatData() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> SimpleArrayUtils.hasData2D(0, 0, (float[]) null), "null data");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -728,7 +728,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canHas2DDoubleData() {
+  void canHas2DDoubleData() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> SimpleArrayUtils.hasData2D(0, 0, (double[]) null), "null data");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -739,7 +739,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canHas2DIntData() {
+  void canHas2DIntData() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> SimpleArrayUtils.hasData2D(0, 0, (int[]) null), "null data");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -750,7 +750,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canHas2DByteData() {
+  void canHas2DByteData() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> SimpleArrayUtils.hasData2D(0, 0, (byte[]) null), "null data");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -761,7 +761,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canCheckIsArray() {
+  void canCheckIsArray() {
     Assertions.assertTrue(SimpleArrayUtils.isArray(new int[0]), "int[] data");
     Assertions.assertTrue(SimpleArrayUtils.isArray(new Object[0]), "Object[] data");
     Assertions.assertTrue(SimpleArrayUtils.isArray(new int[0][0]), "int[][] data");
@@ -770,7 +770,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canToString() {
+  void canToString() {
     Assertions.assertEquals("null", SimpleArrayUtils.toString(null));
     final String expected = "Not an array";
     Assertions.assertEquals(expected, SimpleArrayUtils.toString(expected));
@@ -802,7 +802,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canDeepCopyDouble2DArray() {
+  void canDeepCopyDouble2DArray() {
     final double[][] data = {{1, 2, 3}, {44, 55, 66}};
     final double[][] result = SimpleArrayUtils.deepCopy(data);
     Assertions.assertNotSame(result, data, "Same object");
@@ -810,7 +810,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canDeepCopyFloat2DArray() {
+  void canDeepCopyFloat2DArray() {
     final float[][] data = {{1, 2, 3}, {44, 55, 66}};
     final float[][] result = SimpleArrayUtils.deepCopy(data);
     Assertions.assertNotSame(result, data, "Same object");
@@ -818,7 +818,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canDeepCopyInt2DArray() {
+  void canDeepCopyInt2DArray() {
     final int[][] data = {{1, 2, 3}, {44, 55, 66}};
     final int[][] result = SimpleArrayUtils.deepCopy(data);
     Assertions.assertNotSame(result, data, "Same object");
@@ -826,7 +826,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canDeepCopyDouble3DArray() {
+  void canDeepCopyDouble3DArray() {
     final double[][][] data = {{{1, 2, 3}, {44, 55, 66}}, {{9, 8}, {4, 3}}};
     final double[][][] result = SimpleArrayUtils.deepCopy(data);
     Assertions.assertNotSame(result, data, "Same object");
@@ -834,7 +834,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canDeepCopyFloat3DArray() {
+  void canDeepCopyFloat3DArray() {
     final float[][][] data = {{{1, 2, 3}, {44, 55, 66}}, {{9, 8}, {4, 3}}};
     final float[][][] result = SimpleArrayUtils.deepCopy(data);
     Assertions.assertNotSame(result, data, "Same object");
@@ -842,7 +842,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canDeepCopyInt3DArray() {
+  void canDeepCopyInt3DArray() {
     final int[][][] data = {{{1, 2, 3}, {44, 55, 66}}, {{9, 8}, {4, 3}}};
     final int[][][] result = SimpleArrayUtils.deepCopy(data);
     Assertions.assertNotSame(result, data, "Same object");
@@ -850,7 +850,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canTestDoubleIsFinite() {
+  void canTestDoubleIsFinite() {
     Assertions.assertTrue(SimpleArrayUtils.isFinite(new double[0]), "zero length array");
     Assertions.assertTrue(SimpleArrayUtils.isFinite(new double[10]), "non-zero length array");
     for (final double value : new double[] {Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
@@ -861,7 +861,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canTestFloatIsFinite() {
+  void canTestFloatIsFinite() {
     Assertions.assertTrue(SimpleArrayUtils.isFinite(new float[0]), "zero length array");
     Assertions.assertTrue(SimpleArrayUtils.isFinite(new float[10]), "non-zero length array");
     for (final float value : new float[] {Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
@@ -872,49 +872,49 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canSwapIntData() {
+  void canSwapIntData() {
     final int[] data = {3, 4};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new int[] {4, 3}, data);
   }
 
   @Test
-  public void canSwapFloatData() {
+  void canSwapFloatData() {
     final float[] data = {3, 4};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new float[] {4, 3}, data);
   }
 
   @Test
-  public void canSwapDoubleData() {
+  void canSwapDoubleData() {
     final double[] data = {3, 4};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new double[] {4, 3}, data);
   }
 
   @Test
-  public void canSwapByteData() {
+  void canSwapByteData() {
     final byte[] data = {3, 4};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new byte[] {4, 3}, data);
   }
 
   @Test
-  public void canSwapShortData() {
+  void canSwapShortData() {
     final short[] data = {3, 4};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new short[] {4, 3}, data);
   }
 
   @Test
-  public void canSwapTData() {
+  void canSwapTData() {
     final String[] data = {"3", "4"};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new String[] {"4", "3"}, data);
   }
 
   @Test
-  public void canEnsureFloatSize() {
+  void canEnsureFloatSize() {
     int[] data = null;
     for (int i = 0; i < 3; i++) {
       data = SimpleArrayUtils.ensureSize(data, i);
@@ -927,7 +927,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canEnsureIntSize() {
+  void canEnsureIntSize() {
     float[] data = null;
     for (int i = 0; i < 3; i++) {
       data = SimpleArrayUtils.ensureSize(data, i);
@@ -940,7 +940,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canEnsureDoubleSize() {
+  void canEnsureDoubleSize() {
     double[] data = null;
     for (int i = 0; i < 3; i++) {
       data = SimpleArrayUtils.ensureSize(data, i);
@@ -953,7 +953,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canEnsurByteSize() {
+  void canEnsurByteSize() {
     byte[] data = null;
     for (int i = 0; i < 3; i++) {
       data = SimpleArrayUtils.ensureSize(data, i);
@@ -966,7 +966,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canEnsureShortSize() {
+  void canEnsureShortSize() {
     short[] data = null;
     for (int i = 0; i < 3; i++) {
       data = SimpleArrayUtils.ensureSize(data, i);
@@ -979,7 +979,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canGetIndex() {
+  void canGetIndex() {
     final Object o1 = new Object();
     final Object o2 = new Object();
     final Object[] array = {o1};
@@ -996,7 +996,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canApplyIntOperator() {
+  void canApplyIntOperator() {
     final int[] data = {1, 2, 3};
     final int[] expected = {2, 4, 6};
     SimpleArrayUtils.apply(data, v -> v * 2);
@@ -1004,7 +1004,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canApplyLongOperator() {
+  void canApplyLongOperator() {
     final long[] data = {1, 2, 3};
     final long[] expected = {2, 4, 6};
     SimpleArrayUtils.apply(data, v -> v * 2);
@@ -1012,7 +1012,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canApplyFloatOperator() {
+  void canApplyFloatOperator() {
     final float[] data = {1, 2, 3};
     final float[] expected = {2, 4, 6};
     SimpleArrayUtils.apply(data, v -> v * 2);
@@ -1020,7 +1020,7 @@ public class SimpleArrayUtilsTest {
   }
 
   @Test
-  public void canApplyDoubleOperator() {
+  void canApplyDoubleOperator() {
     final double[] data = {1, 2, 3};
     final double[] expected = {2, 4, 6};
     SimpleArrayUtils.apply(data, v -> v * 2);

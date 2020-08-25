@@ -35,15 +35,15 @@ import org.junit.jupiter.api.Test;
  * Test for {@link KuhnMunkresAssignment}.
  */
 @SuppressWarnings({"javadoc"})
-public class KuhnMunkresAssignmentTest {
+class KuhnMunkresAssignmentTest {
   @Test
-  public void testWithoutOverflow() {
+  void testWithoutOverflow() {
     Assertions.assertThrows(ArithmeticException.class,
         () -> KuhnMunkresAssignment.addWithoutOverflow(Integer.MAX_VALUE, 1));
   }
 
   @Test
-  public void testCreateThrows() {
+  void testCreateThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> KuhnMunkresAssignment.create(null), "null input");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -58,7 +58,7 @@ public class KuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testComputeThrows() {
+  void testComputeThrows() {
     Assertions.assertThrows(ArithmeticException.class,
         () -> KuhnMunkresAssignment
             .compute(new int[][] {{Integer.MIN_VALUE, Integer.MAX_VALUE}, {0, 0}}),
@@ -71,7 +71,7 @@ public class KuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testAssignment3x3Linear() {
+  void testAssignment3x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -88,7 +88,7 @@ public class KuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testAssignment2x3Linear() {
+  void testAssignment2x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -104,7 +104,7 @@ public class KuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testAssignment3x2Linear() {
+  void testAssignment3x2Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off

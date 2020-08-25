@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class CircularListTest {
+class CircularListTest {
   @Test
-  public void testCircularListSize1() {
+  void testCircularListSize1() {
     final int value = 42;
     final CircularList list = new CircularList(value);
     Assertions.assertEquals(1, list.size());
@@ -71,7 +71,7 @@ public class CircularListTest {
   }
 
   @Test
-  public void testCircularListSize2() {
+  void testCircularListSize2() {
     final int value1 = 42;
     final int value2 = 99;
     final CircularList list = new CircularList(value1);
@@ -120,7 +120,7 @@ public class CircularListTest {
   }
 
   @Test
-  public void testCircularListSize3() {
+  void testCircularListSize3() {
     final int value1 = 42;
     final int value2 = 99;
     final int value3 = 123;

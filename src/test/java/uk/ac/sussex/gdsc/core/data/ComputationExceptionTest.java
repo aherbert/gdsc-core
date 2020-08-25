@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ComputationExceptionTest {
+class ComputationExceptionTest {
   @Test
-  public void canConstruct() {
+  void canConstruct() {
     final String message = "Something";
     final Throwable cause = new ComputationException();
     Assertions.assertEquals(message, new ComputationException(message).getMessage());

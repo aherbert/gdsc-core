@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class NullTrackProgressTest {
+class NullTrackProgressTest {
 
   @Test
-  public void canCreateIfNull() {
+  void canCreateIfNull() {
     final TrackProgress progress = new TrackProgress() {
       @Override
       public void progress(double fraction) {}

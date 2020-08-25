@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class MathContextRounderTest {
+class MathContextRounderTest {
 
   @Test
-  public void testMathContextRounderWithPrecision() {
+  void testMathContextRounderWithPrecision() {
     final Rounder r = new MathContextRounder(3);
     Assertions.assertEquals(1.23, r.round(1.2345));
     Assertions.assertEquals(String.valueOf("1.23"), r.toString(1.2345));
@@ -46,7 +46,7 @@ public class MathContextRounderTest {
   }
 
   @Test
-  public void testMathContextRounderWithMathContext() {
+  void testMathContextRounderWithMathContext() {
     Assertions.assertThrows(NullPointerException.class, () -> new MathContextRounder(null));
     final Rounder r = new MathContextRounder(new MathContext(2, RoundingMode.CEILING));
     Assertions.assertEquals(1.3, r.round(1.2345));
@@ -56,7 +56,7 @@ public class MathContextRounderTest {
   }
 
   @Test
-  public void testMathContextRounderWithNaN() {
+  void testMathContextRounderWithNaN() {
     final Rounder r = new MathContextRounder(3);
     Assertions.assertEquals(Double.NaN, r.round(Double.NaN));
     Assertions.assertEquals(String.valueOf("NaN"), r.toString(Double.NaN));
@@ -65,7 +65,7 @@ public class MathContextRounderTest {
   }
 
   @Test
-  public void testMathContextRounderWithInfinite() {
+  void testMathContextRounderWithInfinite() {
     final Rounder r = new MathContextRounder(3);
     Assertions.assertEquals(Double.POSITIVE_INFINITY, r.round(Double.POSITIVE_INFINITY));
     Assertions.assertEquals(String.valueOf("Infinity"), r.toString(Double.POSITIVE_INFINITY));

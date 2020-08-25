@@ -35,7 +35,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ImageJUtilsTest {
+class ImageJUtilsTest {
   private static Logger logger;
 
   @BeforeAll
@@ -49,7 +49,7 @@ public class ImageJUtilsTest {
   }
 
   @Test
-  public void cannotIterateOverNullList() {
+  void cannotIterateOverNullList() {
     Assertions.assertThrows(NullPointerException.class, () -> {
       for (final int i : getIdList()) {
         // This will not run as an exception should be generated
@@ -63,7 +63,7 @@ public class ImageJUtilsTest {
   }
 
   @Test
-  public void cantIterateOver_getIdList() {
+  void cantIterateOver_getIdList() {
     for (final int i : ImageJUtils.getIdList()) {
       // This will not run as the ID list should be empty
       logger.info("Window ID = " + i);

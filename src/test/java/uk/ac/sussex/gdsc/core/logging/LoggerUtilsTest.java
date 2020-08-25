@@ -37,10 +37,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class LoggerUtilsTest {
+class LoggerUtilsTest {
 
   @Test
-  public void canCreateIfNull() {
+  void canCreateIfNull() {
     final Logger logger = Logger.getAnonymousLogger();
     Assertions.assertSame(logger, LoggerUtils.createIfNull(logger), "Failed to return same logger");
 
@@ -55,7 +55,7 @@ public class LoggerUtilsTest {
   }
 
   @Test
-  public void canGetUnconfiguredLogger() {
+  void canGetUnconfiguredLogger() {
     final Logger logger = LoggerUtils.getUnconfiguredLogger();
     final Handler[] handlers = logger.getHandlers();
     Assertions.assertEquals(0, handlers.length, "Should have no handlers");
@@ -64,7 +64,7 @@ public class LoggerUtilsTest {
   }
 
   @Test
-  public void canLogFormattedMessage() {
+  void canLogFormattedMessage() {
     final Logger logger = LoggerUtils.getUnconfiguredLogger();
     final ArrayList<LogRecord> records = new ArrayList<>();
     final Handler handler = new Handler() {

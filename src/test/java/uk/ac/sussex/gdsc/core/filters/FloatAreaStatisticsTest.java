@@ -54,7 +54,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({"javadoc"})
-public class FloatAreaStatisticsTest {
+class FloatAreaStatisticsTest {
   private static Logger logger;
 
   @BeforeAll
@@ -75,7 +75,7 @@ public class FloatAreaStatisticsTest {
   DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6);
 
   @Test
-  public void canComputeNoAreaResult() {
+  void canComputeNoAreaResult() {
     final float[] data = {0, 1, 2};
     final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 3, 1);
     final double[] expected = {0, Double.NaN, Double.NaN};
@@ -99,7 +99,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @Test
-  public void canComputeSinglePointStatistics() {
+  void canComputeSinglePointStatistics() {
     final float[] data = {0, 1, 2};
     final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 3, 1);
     Assertions.assertArrayEquals(new double[] {1, 0, 0}, a.getSingleResult(0, 0));
@@ -117,7 +117,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @Test
-  public void canComputeNoResidualsStatistics() {
+  void canComputeNoResidualsStatistics() {
     final float[] data = {2, 2, 2};
     final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 3, 1);
     Assertions.assertArrayEquals(new double[] {1, 2, 0}, a.getStatistics(0, 0, 0));
@@ -127,7 +127,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeGlobalStatistics(RandomSeed seed) {
+  void canComputeGlobalStatistics(RandomSeed seed) {
     final float[] data = createData(RngUtils.create(seed.getSeed()));
     final Statistics s = Statistics.create(data);
     final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, maxx, maxy);
@@ -147,7 +147,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeNxNRegionStatistics(RandomSeed seed) {
+  void canComputeNxNRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
@@ -183,7 +183,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeNxMRegionStatistics(RandomSeed seed) {
+  void canComputeNxMRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
@@ -221,7 +221,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeRectangleRegionStatistics(RandomSeed seed) {
+  void canComputeRectangleRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
@@ -260,7 +260,7 @@ public class FloatAreaStatisticsTest {
   }
 
   @Test
-  public void canComputeStatisticsWithinClippedBounds() {
+  void canComputeStatisticsWithinClippedBounds() {
     final float[] data = new float[] {1, 2, 3, 4};
     final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, 2, 2);
     final Statistics stats = Statistics.create(data);
@@ -329,14 +329,14 @@ public class FloatAreaStatisticsTest {
 
   @SpeedTag
   @SeededTest
-  public void simpleIsfasterAtLowDensityAndNLessThan10(RandomSeed seed) {
+  void simpleIsfasterAtLowDensityAndNLessThan10(RandomSeed seed) {
     // Test the speed for computing the noise around spots at a density of roughly 1 / 100 pixels.
     speedTest(seed, 1.0 / 100, false, 1, 10);
   }
 
   @SpeedTag
   @SeededTest
-  public void simpleIsfasterAtMediumDensityAndNLessThan5(RandomSeed seed) {
+  void simpleIsfasterAtMediumDensityAndNLessThan5(RandomSeed seed) {
     // Test the speed for computing the noise around each 3x3 box
     // using a region of 3x3 (size=1) to 9x9 (size=4)
     speedTest(seed, 1.0 / 9, false, 1, 4);
@@ -344,7 +344,7 @@ public class FloatAreaStatisticsTest {
 
   @SpeedTag
   @SeededTest
-  public void rollingIsfasterAtHighDensity(RandomSeed seed) {
+  void rollingIsfasterAtHighDensity(RandomSeed seed) {
     // Since this is a slow test
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 

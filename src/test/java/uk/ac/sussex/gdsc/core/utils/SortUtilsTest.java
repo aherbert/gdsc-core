@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class SortUtilsTest {
+class SortUtilsTest {
   @Test
-  public void canSortAscendingIndicesUsingIntValues() {
+  void canSortAscendingIndicesUsingIntValues() {
     final int[] indices = {0, 1, 2, 1};
     final int[] values = {44, 0, 1};
     final int[] expectedIndices = {1, 1, 2, 0};
@@ -44,7 +44,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingIndicesUsingFloatValues() {
+  void canSortAscendingIndicesUsingFloatValues() {
     final int[] indices = {0, 1, 2, 1};
     final float[] values = {44, -0F, 0F};
     final int[] expectedIndices = {1, 1, 2, 0};
@@ -53,7 +53,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingIndicesUsingDoubleValues() {
+  void canSortAscendingIndicesUsingDoubleValues() {
     final int[] indices = {0, 1, 2, 1};
     final double[] values = {44, -0D, 0D};
     final int[] expectedIndices = {1, 1, 2, 0};
@@ -62,7 +62,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingIndicesUsingIntValues() {
+  void canSortDescendingIndicesUsingIntValues() {
     final int[] indices = {0, 1, 2, 1};
     final int[] values = {44, 0, 1};
     final int[] expectedIndices = {0, 2, 1, 1};
@@ -71,7 +71,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingIndicesUsingFloatValues() {
+  void canSortDescendingIndicesUsingFloatValues() {
     final int[] indices = {0, 1, 2, 1};
     final float[] values = {44, -0F, 0F};
     final int[] expectedIndices = {0, 2, 1, 1};
@@ -80,7 +80,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingIndicesUsingDoubleValues() {
+  void canSortDescendingIndicesUsingDoubleValues() {
     final int[] indices = {0, 1, 2, 1};
     final double[] values = {44, -0D, 0D};
     final int[] expectedIndices = {0, 2, 1, 1};
@@ -89,7 +89,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataUsingIntDataIntValues() {
+  void canSortAscendingDataUsingIntDataIntValues() {
     final int[] data = {70, 80, 90};
     final int[] values = {44, 0, 1};
     final int[] expectedData = {80, 90, 70};
@@ -100,7 +100,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataUsingFloatDataFloatValues() {
+  void canSortAscendingDataUsingFloatDataFloatValues() {
     final float[] data = {70, 80, 90};
     final float[] values = {44, -0F, 0F};
     final float[] expectedData = {80, 90, 70};
@@ -111,7 +111,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataUsingDoubleDataDoubleValues() {
+  void canSortAscendingDataUsingDoubleDataDoubleValues() {
     final double[] data = {70, 80, 90};
     final double[] values = {44, -0D, 0D};
     final double[] expectedData = {80, 90, 70};
@@ -122,7 +122,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataUsingIntDataDoubleValues() {
+  void canSortAscendingDataUsingIntDataDoubleValues() {
     final int[] data = {70, 80, 90};
     final double[] values = {44, -0D, 0D};
     final int[] expectedData = {80, 90, 70};
@@ -133,7 +133,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataAndValuesUsingIntDataIntValues() {
+  void canSortAscendingDataAndValuesUsingIntDataIntValues() {
     final int[] data = {70, 80, 90};
     final int[] values = {44, 0, 1};
     final int[] expectedData = {80, 90, 70};
@@ -145,7 +145,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataAndValuesUsingFloatDataFloatValues() {
+  void canSortAscendingDataAndValuesUsingFloatDataFloatValues() {
     final float[] data = {70, 80, 90};
     final float[] values = {44, 0, 1};
     final float[] expectedData = {80, 90, 70};
@@ -157,7 +157,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataAndValuesUsingDoubleDataDoubleValues() {
+  void canSortAscendingDataAndValuesUsingDoubleDataDoubleValues() {
     final double[] data = {70, 80, 90};
     final double[] values = {44, 0, 1};
     final double[] expectedData = {80, 90, 70};
@@ -169,7 +169,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortAscendingDataAndValuesUsingIntDataDoubleValues() {
+  void canSortAscendingDataAndValuesUsingIntDataDoubleValues() {
     final int[] data = {70, 80, 90};
     final double[] values = {44, 0, 1};
     final int[] expectedData = {80, 90, 70};
@@ -181,7 +181,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataUsingIntDataIntValues() {
+  void canSortDescendingDataUsingIntDataIntValues() {
     final int[] data = {70, 80, 90};
     final int[] values = {44, 0, 1};
     final int[] expectedData = {70, 90, 80};
@@ -192,7 +192,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataUsingFloatDataFloatValues() {
+  void canSortDescendingDataUsingFloatDataFloatValues() {
     final float[] data = {70, 80, 90};
     final float[] values = {44, -0F, 0F};
     final float[] expectedData = {70, 90, 80};
@@ -203,7 +203,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataUsingDoubleDataDoubleValues() {
+  void canSortDescendingDataUsingDoubleDataDoubleValues() {
     final double[] data = {70, 80, 90};
     final double[] values = {44, -0D, 0D};
     final double[] expectedData = {70, 90, 80};
@@ -214,7 +214,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataUsingIntDataDoubleValues() {
+  void canSortDescendingDataUsingIntDataDoubleValues() {
     final int[] data = {70, 80, 90};
     final double[] values = {44, -0D, 0D};
     final int[] expectedData = {70, 90, 80};
@@ -225,7 +225,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataAndValuesUsingIntDataIntValues() {
+  void canSortDescendingDataAndValuesUsingIntDataIntValues() {
     final int[] data = {70, 80, 90};
     final int[] values = {44, 0, 1};
     final int[] expectedData = {70, 90, 80};
@@ -238,7 +238,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataAndValuesUsingFloatDataFloatValues() {
+  void canSortDescendingDataAndValuesUsingFloatDataFloatValues() {
     final float[] data = {70, 80, 90};
     final float[] values = {44, 0, 1};
     final float[] expectedData = {70, 90, 80};
@@ -251,7 +251,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataAndValuesUsingDoubleDataDoubleValues() {
+  void canSortDescendingDataAndValuesUsingDoubleDataDoubleValues() {
     final double[] data = {70, 80, 90};
     final double[] values = {44, 0, 1};
     final double[] expectedData = {70, 90, 80};
@@ -264,7 +264,7 @@ public class SortUtilsTest {
   }
 
   @Test
-  public void canSortDescendingDataAndValuesUsingIntDataDoubleValues() {
+  void canSortDescendingDataAndValuesUsingIntDataDoubleValues() {
     final int[] data = {70, 80, 90};
     final double[] values = {44, 0, 1};
     final int[] expectedData = {70, 90, 80};

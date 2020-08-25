@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link JonkerVolgenantAssignment}.
  */
 @SuppressWarnings({"javadoc"})
-public class JonkerVolgenantAssignmentTest {
+class JonkerVolgenantAssignmentTest {
   @Test
-  public void testComputeThrows() {
+  void testComputeThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> JonkerVolgenantAssignment.compute(null), "null input");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -52,7 +52,7 @@ public class JonkerVolgenantAssignmentTest {
   }
 
   @Test
-  public void testAssignment3x3Linear() {
+  void testAssignment3x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -69,7 +69,7 @@ public class JonkerVolgenantAssignmentTest {
   }
 
   @Test
-  public void testAssignment2x3Linear() {
+  void testAssignment2x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -85,7 +85,7 @@ public class JonkerVolgenantAssignmentTest {
   }
 
   @Test
-  public void testAssignment3x2Linear() {
+  void testAssignment3x2Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off

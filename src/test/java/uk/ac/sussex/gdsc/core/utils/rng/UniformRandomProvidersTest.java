@@ -35,29 +35,29 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-public class UniformRandomProvidersTest {
+class UniformRandomProvidersTest {
   private static final long SEED = ThreadLocalRandom.current().nextLong();
 
   @Test
-  public void testCreateUniformRandomProvider() {
+  void testCreateUniformRandomProvider() {
     Assertions.assertNotNull(UniformRandomProviders.create());
     assertSameOutput(UniformRandomProviders::create);
   }
 
   @Test
-  public void testCreateSplittableUniformRandomProvider() {
+  void testCreateSplittableUniformRandomProvider() {
     Assertions.assertNotNull(UniformRandomProviders.createSplittable());
     assertSameOutput(UniformRandomProviders::createSplittable);
   }
 
   @Test
-  public void testCreateJumpableUniformRandomProvider() {
+  void testCreateJumpableUniformRandomProvider() {
     Assertions.assertNotNull(UniformRandomProviders.createJumpable());
     assertSameOutput(UniformRandomProviders::createJumpable);
   }
 
   @Test
-  public void testCreateLongJumpableUniformRandomProvider() {
+  void testCreateLongJumpableUniformRandomProvider() {
     Assertions.assertNotNull(UniformRandomProviders.createLongJumpable());
     assertSameOutput(UniformRandomProviders::createLongJumpable);
   }

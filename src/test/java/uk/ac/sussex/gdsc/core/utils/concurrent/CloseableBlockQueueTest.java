@@ -45,21 +45,21 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class CloseableBlockQueueTest {
+class CloseableBlockQueueTest {
   @Test
-  public void constructorThrowsWithBadCapacity() {
+  void constructorThrowsWithBadCapacity() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> new CloseableBlockingQueue<>(-1));
     Assertions.assertThrows(IllegalArgumentException.class, () -> new CloseableBlockingQueue<>(0));
   }
 
   @Test
-  public void putThrowsWithNull() {
+  void putThrowsWithNull() {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(10);
     Assertions.assertThrows(NullPointerException.class, () -> queue.put(null));
   }
 
   @Test
-  public void canClear() throws InterruptedException {
+  void canClear() throws InterruptedException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(10);
     Assertions.assertEquals(0, queue.size());
     Assertions.assertFalse(queue.isClosed());
@@ -79,7 +79,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canClearAWrappedQueue() throws InterruptedException {
+  void canClearAWrappedQueue() throws InterruptedException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(3);
     queue.put(1);
     queue.put(2);
@@ -102,7 +102,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canClearUnblockWaitingThread()
+  void canClearUnblockWaitingThread()
       throws InterruptedException, ExecutionException, TimeoutException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(3);
     queue.put(1);
@@ -141,7 +141,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canClose() throws InterruptedException {
+  void canClose() throws InterruptedException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(10);
     Assertions.assertEquals(0, queue.size());
     Assertions.assertFalse(queue.isClosed());
@@ -176,7 +176,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canCloseAndClear() throws InterruptedException {
+  void canCloseAndClear() throws InterruptedException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(10);
     Assertions.assertEquals(0, queue.size());
     Assertions.assertFalse(queue.isClosed());
@@ -194,7 +194,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canCloseUnblockWaitingThread()
+  void canCloseUnblockWaitingThread()
       throws InterruptedException, ExecutionException, TimeoutException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(3);
     queue.put(1);
@@ -235,7 +235,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canCloseAndClearUnblockWaitingThread()
+  void canCloseAndClearUnblockWaitingThread()
       throws InterruptedException, ExecutionException, TimeoutException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(3);
     queue.put(1);
@@ -276,7 +276,7 @@ public class CloseableBlockQueueTest {
   }
 
   @Test
-  public void canPutAndTake() throws InterruptedException, ExecutionException, TimeoutException {
+  void canPutAndTake() throws InterruptedException, ExecutionException, TimeoutException {
     final CloseableBlockingQueue<Integer> queue = new CloseableBlockingQueue<>(10);
 
     final ExecutorService es = Executors.newCachedThreadPool();

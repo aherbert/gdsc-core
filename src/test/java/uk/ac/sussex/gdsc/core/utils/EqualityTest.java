@@ -49,7 +49,7 @@ import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
-public class EqualityTest {
+class EqualityTest {
   private static Logger logger;
 
   @BeforeAll
@@ -65,7 +65,7 @@ public class EqualityTest {
   static final int MAX_ITER = 2000000;
 
   @Test
-  public void doubleRelativeErrorIsCorrectUntilUlpsIsSmall() {
+  void doubleRelativeErrorIsCorrectUntilUlpsIsSmall() {
     final int precision = new BigDecimal(Double.toString(Double.MAX_VALUE)).precision();
     // TestLog.debug(logger,"Double max precision = %d", precision);
     for (int sig = 1; sig <= precision; sig++) {
@@ -115,7 +115,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void floatRelativeErrorIsCorrectUntilUlpsIsSmall() {
+  void floatRelativeErrorIsCorrectUntilUlpsIsSmall() {
     final int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
     // TestLog.debug(logger,"Float max precision = %d", precision);
     for (int sig = 1; sig <= precision; sig++) {
@@ -165,7 +165,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void doubleCanComputeRelativeErrorFromSignificantDigits() {
+  void doubleCanComputeRelativeErrorFromSignificantDigits() {
     for (int s = 1; s <= DoubleEquality.getMaxSignificantDigits(); s++) {
       final BigDecimal error = new BigDecimal("1e-" + (s - 1));
       final double e = error.doubleValue();
@@ -174,7 +174,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void floatCanComputeRelativeErrorFromSignificantDigits() {
+  void floatCanComputeRelativeErrorFromSignificantDigits() {
     for (int s = 1; s <= FloatEquality.getMaxSignificantDigits(); s++) {
       final BigDecimal error = new BigDecimal("1e-" + (s - 1));
       final float e = error.floatValue();
@@ -183,7 +183,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void doubleCanComputeEquality() {
+  void doubleCanComputeEquality() {
     final double maxRelativeError = 1e-3f;
     final double maxAbsoluteError = 1e-16f;
     final DoubleEquality equality = new DoubleEquality(maxRelativeError, maxAbsoluteError);
@@ -204,7 +204,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void floatCanComputeEquality() {
+  void floatCanComputeEquality() {
     final float maxRelativeError = 1e-3f;
     final float maxAbsoluteError = 1e-16f;
     final FloatEquality equality = new FloatEquality(maxRelativeError, maxAbsoluteError);
@@ -225,7 +225,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void canComputeComplement() {
+  void canComputeComplement() {
     // computeComplement(100f);
     // computeComplement(10f);
     // computeComplement(1f);
@@ -351,7 +351,7 @@ public class EqualityTest {
 
   @SpeedTag
   @SeededTest
-  public void floatRelativeIsSameSpeedAsDoubleRelative(RandomSeed seed) {
+  void floatRelativeIsSameSpeedAsDoubleRelative(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final float maxRelativeError = 1e-2f;

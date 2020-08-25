@@ -36,10 +36,10 @@ import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class KnnConcaveHull2dTest {
+class KnnConcaveHull2dTest {
 
   @Test
-  public void testClockwiseTurns() {
+  void testClockwiseTurns() {
     Assertions.assertEquals(0, AngleList.clockwiseTurns(Math.PI, Math.PI));
     Assertions.assertEquals(0, AngleList.clockwiseTurns(-Math.PI, Math.PI));
     Assertions.assertEquals(0.0, AngleList.clockwiseTurns(Math.PI, -Math.PI));
@@ -53,7 +53,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void testAngleListSortByAngle() {
+  void testAngleListSortByAngle() {
     final double[][] points = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0.5, 0.5}};
     final AngleList knn = new AngleList(4);
     for (int i = 0; i < 4; i++) {
@@ -76,7 +76,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void testAngleListSortByDistance() {
+  void testAngleListSortByDistance() {
     final double[][] points = {{1, 0}, {2, 0}, {3, 0}, {0, 0}};
     final AngleList knn = new AngleList(4);
     for (int i = 0; i < 3; i++) {
@@ -101,7 +101,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void testNumberOfNeighbours() {
+  void testNumberOfNeighbours() {
     final KnnConcaveHull2d.Builder builder = KnnConcaveHull2d.newBuilder();
     Assertions.assertEquals(3, builder.getK());
     Assertions.assertSame(builder, builder.setK(7));
@@ -111,7 +111,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void cannotComputeKnnConcaveHullFromNoCoords() {
+  void cannotComputeKnnConcaveHullFromNoCoords() {
     final double[] x = new double[] {};
     final double[] y = new double[] {};
     final Hull2d hull = KnnConcaveHull2d.create(x, y);
@@ -119,7 +119,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquare() {
+  void canComputeKnnConcaveHullFromSquare() {
     final double[] ex = new double[] {0, 10, 10, 0};
     final double[] ey = new double[] {0, 0, 10, 10};
     for (int i = 0; i < ex.length; i++) {
@@ -136,7 +136,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquareWithInternalPoint() {
+  void canComputeKnnConcaveHullFromSquareWithInternalPoint() {
     final double[] x = new double[] {0, 0, 10, 10, 5};
     final double[] y = new double[] {0, 10, 10, 0, 5};
     final double[] ex = new double[] {0, 10, 10, 0};
@@ -146,7 +146,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canComputeKnnConcaveHullFromSquareWithInternalPoint2() {
+  void canComputeKnnConcaveHullFromSquareWithInternalPoint2() {
     final double[] x = new double[] {0, 0, 5, 10, 10};
     final double[] y = new double[] {0, 10, 5, 10, 0};
     final double[] ex = new double[] {0, 10, 10, 0};
@@ -173,12 +173,12 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canBuildWithNoPoints() {
+  void canBuildWithNoPoints() {
     Assertions.assertNull(KnnConcaveHull2d.newBuilder().build());
   }
 
   @Test
-  public void canBuildWithOnePoint() {
+  void canBuildWithOnePoint() {
     final double[] x = new double[] {1.2345, 6.78};
     final Hull2d hull = KnnConcaveHull2d.newBuilder().add(x).build();
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -188,7 +188,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canClearBuilder() {
+  void canClearBuilder() {
     final KnnConcaveHull2d.Builder builder = KnnConcaveHull2d.newBuilder();
     builder.add(1, 2);
     final Hull2d hull1 = builder.build();
@@ -202,13 +202,13 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithNoPoints() {
+  void canCreateWithNoPoints() {
     final double[] x = new double[0];
     Assertions.assertNull(KnnConcaveHull2d.create(x, x));
   }
 
   @Test
-  public void canCreateWithOnePoint() {
+  void canCreateWithOnePoint() {
     final double[] x = new double[] {1.2345f};
     final Hull2d hull = KnnConcaveHull2d.create(x, x);
     Assertions.assertEquals(1, hull.getNumberOfVertices());
@@ -217,7 +217,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithTwoPoints() {
+  void canCreateWithTwoPoints() {
     final double[] x = new double[] {1.5f, 2.5f};
     final Hull2d hull = KnnConcaveHull2d.create(x, x);
     Assertions.assertEquals(2, hull.getNumberOfVertices());
@@ -226,7 +226,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithThreePoints() {
+  void canCreateWithThreePoints() {
     final double[] x = new double[] {1, 2, 2};
     final double[] y = new double[] {1, 1, 2};
     final Hull2d hull = KnnConcaveHull2d.create(x, y);
@@ -236,7 +236,7 @@ public class KnnConcaveHull2dTest {
   }
 
   @Test
-  public void canCreateWithManyPoints() {
+  void canCreateWithManyPoints() {
     final UnitCircleSampler sampler = UnitCircleSampler.of(RngUtils.create(126487618L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
@@ -261,7 +261,7 @@ public class KnnConcaveHull2dTest {
    * that should be inside the hull.
    */
   @Test
-  public void canCreateWithSeparatedClusters() {
+  void canCreateWithSeparatedClusters() {
     final double[] x = new double[] {0, 0, 1, 1, 0.5, 0.5, 0.5};
     final double[] y = new double[] {0, 1, 1, 0, 0.5, -0.5, 3};
     final Hull2d hull = KnnConcaveHull2d.create(x, y);
@@ -278,7 +278,7 @@ public class KnnConcaveHull2dTest {
    * that are on the boundary (are colinear with hull points) and test as outside the hull.
    */
   @Test
-  public void canCreateWithColinearPoints() {
+  void canCreateWithColinearPoints() {
     final double[] x = new double[] {0, 0, 1, 1, 3, 3};
     final double[] y = new double[] {0, 1, 1, 0, 0, 1};
     final Hull2d hull = KnnConcaveHull2d.create(x, y);

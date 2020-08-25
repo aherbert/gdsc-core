@@ -33,11 +33,11 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
-public class TriangleArrayTest {
+class TriangleArrayTest {
   final int[] testN = new int[] {0, 1, 2, 5};
 
   @Test
-  public void canComputeIndex() {
+  void canComputeIndex() {
     for (final int n : testN) {
       final TriangleArray a = new TriangleArray(n);
 
@@ -73,7 +73,7 @@ public class TriangleArrayTest {
   }
 
   @Test
-  public void indexNotReversible() {
+  void indexNotReversible() {
     final int n = 10;
     final TriangleArray a = new TriangleArray(n);
 
@@ -92,7 +92,7 @@ public class TriangleArrayTest {
   }
 
   @Test
-  public void safeIndexIsReversible() {
+  void safeIndexIsReversible() {
     final int n = 10;
     final TriangleArray a = new TriangleArray(n);
 
@@ -106,7 +106,7 @@ public class TriangleArrayTest {
   }
 
   @Test
-  public void canFastComputePostIndex() {
+  void canFastComputePostIndex() {
     final IndexSupplier msg = new IndexSupplier(2);
     for (final int n : testN) {
       final TriangleArray a = new TriangleArray(n);
@@ -122,7 +122,7 @@ public class TriangleArrayTest {
   }
 
   @Test
-  public void canFastComputePreIndex() {
+  void canFastComputePreIndex() {
     final IndexSupplier msg = new IndexSupplier(2);
     for (final int n : testN) {
       final TriangleArray a = new TriangleArray(n);
@@ -139,7 +139,7 @@ public class TriangleArrayTest {
   }
 
   @Test
-  public void canFastIterateNxN() {
+  void canFastIterateNxN() {
     for (final int n : testN) {
       final TriangleArray a = new TriangleArray(n);
 
@@ -158,7 +158,7 @@ public class TriangleArrayTest {
   }
 
   @Test
-  public void canCompareItoAnyJ() {
+  void canCompareItoAnyJ() {
     for (final int n : testN) {
       final TriangleArray a = new TriangleArray(n);
 

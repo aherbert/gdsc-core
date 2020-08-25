@@ -38,9 +38,9 @@ import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutMapper;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper.NonZeroLutMapper;
 
 @SuppressWarnings({"javadoc"})
-public class LutHelperTest {
+class LutHelperTest {
   @Test
-  public void canLutColour() {
+  void canLutColour() {
     Assertions.assertNull(LutColour.forNumber(-1));
     Assertions.assertNull(LutColour.forNumber(Integer.MAX_VALUE));
     Assertions.assertNull(LutColour.forName(null));
@@ -57,7 +57,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testLutColourDistinct() {
+  void testLutColourDistinct() {
     Assertions.assertFalse(LutColour.RED.isDistinct());
     Assertions.assertTrue(LutColour.INTENSE.isDistinct());
     Assertions.assertTrue(LutColour.PIMP.isDistinct());
@@ -66,7 +66,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void canCreateLut() {
+  void canCreateLut() {
     Assertions.assertNull(LutHelper.createLut(-1));
     Assertions.assertNull(LutHelper.createLut(Integer.MAX_VALUE));
     Assertions.assertThrows(NullPointerException.class, () -> LutHelper.createLut(null));
@@ -82,7 +82,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testGetColour8Bit() {
+  void testGetColour8Bit() {
     final LUT lut = LutHelper.createLut(LutColour.RED, true);
     Assertions.assertEquals(Color.black, LutHelper.getColour(lut, -1));
     Assertions.assertEquals(Color.black, LutHelper.getColour(lut, 0));
@@ -94,7 +94,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testGetColour16Bit() {
+  void testGetColour16Bit() {
     final LUT lut = LutHelper.createLut(LutColour.RED, false);
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> LutHelper.getColour(lut, 0, 10, 5));
@@ -121,7 +121,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testGetColour32Bit() {
+  void testGetColour32Bit() {
     final LUT lut = LutHelper.createLut(LutColour.RED, false);
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> LutHelper.getColour(lut, 0, 10.0f, 5.0f));
@@ -144,7 +144,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testGetNonZeroColour8Bit() {
+  void testGetNonZeroColour8Bit() {
     final LUT lut = LutHelper.createLut(LutColour.RED, true);
     Assertions.assertEquals(Color.black, LutHelper.getColour(lut, 0));
     final Color zero = LutHelper.getColour(lut, 1);
@@ -157,7 +157,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testGetNonZeroColour16Bit() {
+  void testGetNonZeroColour16Bit() {
     final LUT lut = LutHelper.createLut(LutColour.RED, true);
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> LutHelper.getNonZeroColour(lut, 0, 10, 5));
@@ -187,7 +187,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testGetNonZeroColour32Bit() {
+  void testGetNonZeroColour32Bit() {
     final LUT lut = LutHelper.createLut(LutColour.RED, true);
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> LutHelper.getNonZeroColour(lut, 0, 10.0f, 5.0f));
@@ -212,7 +212,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void testNullLutMapper() {
+  void testNullLutMapper() {
     final LutHelper.NullLutMapper mapper = new LutHelper.NullLutMapper();
     assertMapper(mapper, 0, 255);
     // No mapping of float input
@@ -226,7 +226,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void canMapTo0to255() {
+  void canMapTo0to255() {
     mapTo0to255(0, 0);
     mapTo0to255(0, 1);
     mapTo0to255(0, 255);
@@ -239,7 +239,7 @@ public class LutHelperTest {
   }
 
   @Test
-  public void canMapTo1to255() {
+  void canMapTo1to255() {
     mapTo1to255(1, 1);
     mapTo1to255(1, 2);
     mapTo1to255(1, 255);

@@ -48,7 +48,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
  * Test for a Linear Assignment Problem (LAP) algorithm.
  */
 @SuppressWarnings({"javadoc"})
-public class LinearAssignmentProblemTest {
+class LinearAssignmentProblemTest {
 
   /**
    * Define the assignment algorithm.
@@ -139,7 +139,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment3x3Zero(AssignmentAlgorithm algorithm) {
+  void testAssignment3x3Zero(AssignmentAlgorithm algorithm) {
     final int[][] cost = new int[3][3];
     final int[] assignments = algorithm.compute(cost);
     Assertions.assertEquals(3, assignments.length);
@@ -150,7 +150,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment3x3(AssignmentAlgorithm algorithm) {
+  void testAssignment3x3(AssignmentAlgorithm algorithm) {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -167,7 +167,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment3x3Rotated(AssignmentAlgorithm algorithm) {
+  void testAssignment3x3Rotated(AssignmentAlgorithm algorithm) {
     // As above but rotated
     //@formatter:off
     final int[][] cost = {
@@ -183,7 +183,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment2x3(AssignmentAlgorithm algorithm) {
+  void testAssignment2x3(AssignmentAlgorithm algorithm) {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -199,7 +199,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment3x2(AssignmentAlgorithm algorithm) {
+  void testAssignment3x2(AssignmentAlgorithm algorithm) {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -216,7 +216,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment3x3b(AssignmentAlgorithm algorithm) {
+  void testAssignment3x3b(AssignmentAlgorithm algorithm) {
     //@formatter:off
     final int[][] cost = {
         { 1, 2, 3 },
@@ -231,7 +231,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testAssignment3x3c(AssignmentAlgorithm algorithm) {
+  void testAssignment3x3c(AssignmentAlgorithm algorithm) {
     //@formatter:off
     final int[][] cost = {
         { 1, 10, 10 },
@@ -249,7 +249,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testRandomAssignment4x4(AssignmentAlgorithm algorithm) {
+  void testRandomAssignment4x4(AssignmentAlgorithm algorithm) {
     assertRandomAssignment(algorithm,
         new int[][] {{0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1}, {0, 3, 1, 2},
             {0, 3, 2, 1}, {1, 0, 2, 3}, {1, 0, 3, 2}, {1, 2, 0, 3}, {1, 2, 3, 0}, {1, 3, 0, 2},
@@ -260,7 +260,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testRandomAssignment4x4WithBinaryCost(AssignmentAlgorithm algorithm) {
+  void testRandomAssignment4x4WithBinaryCost(AssignmentAlgorithm algorithm) {
     final int costLimit = 2;
     assertRandomAssignment(algorithm, costLimit,
         new int[][] {{0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1}, {0, 3, 1, 2},
@@ -272,7 +272,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testRandomAssignment4x3(AssignmentAlgorithm algorithm) {
+  void testRandomAssignment4x3(AssignmentAlgorithm algorithm) {
     // As above but switch 3 to -1 for no assignment
     assertRandomAssignment(algorithm,
         new int[][] {{0, 1, 2, -1}, {0, 1, -1, 2}, {0, 2, 1, -1}, {0, 2, -1, 1}, {0, -1, 1, 2},
@@ -284,7 +284,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testRandomAssignment3x4(AssignmentAlgorithm algorithm) {
+  void testRandomAssignment3x4(AssignmentAlgorithm algorithm) {
     assertRandomAssignment(algorithm,
         new int[][] {{0, 1, 2}, {0, 1, 3}, {0, 2, 1}, {0, 2, 3}, {0, 3, 1}, {0, 3, 2}, {1, 0, 2},
             {1, 0, 3}, {1, 2, 0}, {1, 2, 3}, {1, 3, 0}, {1, 3, 2}, {2, 0, 1}, {2, 0, 3}, {2, 1, 0},
@@ -294,7 +294,7 @@ public class LinearAssignmentProblemTest {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(AlgorithmFactoryParams.class)
-  public void testRandomAssignment6x6(AssignmentAlgorithm algorithm) {
+  void testRandomAssignment6x6(AssignmentAlgorithm algorithm) {
     assertRandomAssignment(algorithm,
         new int[][] {{0, 1, 2, 3, 4, 5}, {0, 1, 2, 3, 5, 4}, {0, 1, 2, 4, 3, 5}, {0, 1, 2, 4, 5, 3},
             {0, 1, 2, 5, 3, 4}, {0, 1, 2, 5, 4, 3}, {0, 1, 3, 2, 4, 5}, {0, 1, 3, 2, 5, 4},
@@ -558,17 +558,17 @@ public class LinearAssignmentProblemTest {
   // The following tests on large data show the algorithms are consistent
 
   @Test
-  public void testIntAssignmentNxN() {
+  void testIntAssignmentNxN() {
     testIntAssignment(100, 100);
   }
 
   @Test
-  public void testIntAssignmentNxM() {
+  void testIntAssignmentNxM() {
     testIntAssignment(20, 100);
   }
 
   @Test
-  public void testIntAssignmentMxN() {
+  void testIntAssignmentMxN() {
     testIntAssignment(100, 20);
   }
 
@@ -587,17 +587,17 @@ public class LinearAssignmentProblemTest {
   }
 
   @Test
-  public void testDoubleAssignmentNxN() {
+  void testDoubleAssignmentNxN() {
     testDoubleAssignment(100, 100);
   }
 
   @Test
-  public void testDoubleAssignmentNxM() {
+  void testDoubleAssignmentNxM() {
     testDoubleAssignment(20, 100);
   }
 
   @Test
-  public void testDoubleAssignmentMxN() {
+  void testDoubleAssignmentMxN() {
     testDoubleAssignment(100, 20);
   }
 

@@ -53,10 +53,10 @@ import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
  * {@link CustomTricubicInterpolatingFunction}.
  */
 @SuppressWarnings({"javadoc"})
-public class CustomTricubicInterpolatingFunctionTest {
+class CustomTricubicInterpolatingFunctionTest {
 
   @Test
-  public void testSizeConstructor() {
+  void testSizeConstructor() {
     final int maxx = 2;
     final int maxy = 2;
     final int maxz = 2;
@@ -77,7 +77,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testEstimateSize() {
+  void testEstimateSize() {
     final int maxx = 2;
     final int maxy = 3;
     final int maxz = 4;
@@ -94,7 +94,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testSampleEdgeCases() {
+  void testSampleEdgeCases() {
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     final double[] _x = new double[] {0, 1};
     final double[] a = new double[64];
@@ -135,7 +135,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testProperties() {
+  void testProperties() {
     final int[] data = new int[] {2, 3, 4};
     for (int i = 0; i < 3; i++) {
       final int maxx = data[(0 + i) % 3];
@@ -175,7 +175,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testComputeCoefficients() {
+  void testComputeCoefficients() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final double[] beta = new double[64];
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
@@ -195,7 +195,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testCreate() {
+  void testCreate() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     // This is a test that checks the create method works with partial derivatives.
     // It is a reverse of the creation with the beta table directly.
@@ -265,7 +265,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     final double[] _x = new double[] {0, 1};
     final ValueProvider x = new DoubleArrayValueProvider(_x);
     final ValueProvider y = new DoubleArrayValueProvider(_x);
@@ -400,7 +400,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testIsUniformIsInteger() {
+  void testIsUniformIsInteger() {
     final ValueProvider tt = new DoubleArrayValueProvider(new double[] {0.5, 1.5, 2.5});
     final ValueProvider tf = new DoubleArrayValueProvider(new double[] {0.5, 2, 3.5});
     final ValueProvider ff = new DoubleArrayValueProvider(new double[] {0.5, 1.8, 3.5});
@@ -448,7 +448,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testCanConvertPrecision() {
+  void testCanConvertPrecision() {
     final ValueProvider x = new DoubleArrayValueProvider(new double[] {0, 1});
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     final double[] a = new double[64];
@@ -470,7 +470,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testIsValidPoint() {
+  void testIsValidPoint() {
     final ValueProvider x = new DoubleArrayValueProvider(new double[] {0, 1});
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     final double[] a = new double[64];
@@ -490,7 +490,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   @Test
-  public void testValueThrows() {
+  void testValueThrows() {
     final double[] a = new double[64];
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     splines[0][0][0] = createCustomTricubicFunction(a);

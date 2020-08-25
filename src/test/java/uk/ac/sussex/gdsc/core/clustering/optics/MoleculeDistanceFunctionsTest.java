@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class MoleculeDistanceFunctionsTest {
+class MoleculeDistanceFunctionsTest {
   @Test
-  public void test2d() {
+  void test2d() {
     final Molecule m1 = new Molecule(0, 1, 2);
     final Molecule m2 = new Molecule(0, 4, 3);
     final double expected = 3 * 3 + 1;
@@ -45,7 +45,7 @@ public class MoleculeDistanceFunctionsTest {
   }
 
   @Test
-  public void test3d() {
+  void test3d() {
     final Molecule m1 = new Molecule3d(0, 1, 2, 3);
     final Molecule m2 = new Molecule3d(0, 6, 5, 4);
     Assertions.assertEquals(5 * 5 + 3 * 3,

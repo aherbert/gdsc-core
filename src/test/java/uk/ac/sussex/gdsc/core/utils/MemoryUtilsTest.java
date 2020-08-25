@@ -34,22 +34,22 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 @SuppressWarnings({"javadoc"})
-public class MemoryUtilsTest {
+class MemoryUtilsTest {
 
   @Test
-  public void canRunGarbageCollector() {
+  void canRunGarbageCollector() {
     // Just test this does not error
     MemoryUtils.runGarbageCollector();
   }
 
   @Test
-  public void measureSizeThrows() {
+  void measureSizeThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> MemoryUtils.measureSize(0, Object::new));
   }
 
   @Test
-  public void canMeasureSize() {
+  void canMeasureSize() {
     final int arraySize = 100;
     final long size = MemoryUtils.measureSize(1000, () -> new int[arraySize]);
     // This is the expected raw byte size of the array. It does not include
@@ -67,7 +67,7 @@ public class MemoryUtilsTest {
    * Test the method to create a new capacity.
    */
   @Test
-  public void testCreateNewCapacity() {
+  void testCreateNewCapacity() {
     // Start from the default
     int capacity = 11;
     for (;;) {

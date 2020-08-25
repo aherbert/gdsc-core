@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ObjDoubleMinHeapTest {
+class ObjDoubleMinHeapTest {
   @Test
-  public void testEmpty() {
+  void testEmpty() {
     final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(5);
     Assertions.assertEquals(0, heap.getSize());
     Assertions.assertEquals(5, heap.getCapacity());
@@ -45,7 +45,7 @@ public class ObjDoubleMinHeapTest {
   }
 
   @Test
-  public void testNaN() {
+  void testNaN() {
     final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(5);
     Assertions.assertEquals(0, heap.getSize());
     heap.offer(Double.NaN, 42);
@@ -53,7 +53,7 @@ public class ObjDoubleMinHeapTest {
   }
 
   @Test
-  public void testPartial() {
+  void testPartial() {
     final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(5);
     heap.offer(1.1, 100);
     heap.offer(3.1, 200);
@@ -95,7 +95,7 @@ public class ObjDoubleMinHeapTest {
   }
 
   @Test
-  public void testFull() {
+  void testFull() {
     final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(3);
     heap.offer(1.1, 100);
     heap.offer(3.1, 200);
@@ -129,7 +129,7 @@ public class ObjDoubleMinHeapTest {
    * that maintain the internal structure not hit by the other tests.
    */
   @Test
-  public void testFullReverseOrder() {
+  void testFullReverseOrder() {
     final ObjDoubleMinHeap<Integer> heap = new ObjDoubleMinHeap<>(3);
     heap.offer(3.1, 100);
     heap.offer(2.1, 200);

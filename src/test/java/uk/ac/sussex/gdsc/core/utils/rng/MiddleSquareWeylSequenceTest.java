@@ -47,7 +47,7 @@ import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings("javadoc")
-public class MiddleSquareWeylSequenceTest {
+class MiddleSquareWeylSequenceTest {
 
   static class ReferenceSequenceParams implements ArgumentsProvider {
     @Override
@@ -85,14 +85,14 @@ public class MiddleSquareWeylSequenceTest {
 
   @ParameterizedTest(name = "{index}: {1}")
   @ArgumentsSource(ReferenceSequenceParams.class)
-  public void testReferenceSequence(int[] expectedSequence, MiddleSquareWeylSequence rng) {
+  void testReferenceSequence(int[] expectedSequence, MiddleSquareWeylSequence rng) {
     for (int i = 0; i < expectedSequence.length; i++) {
       Assertions.assertEquals(expectedSequence[i], rng.nextInt());
     }
   }
 
   @Test
-  public void testIncrementsAreUnique() {
+  void testIncrementsAreUnique() {
     final int[] increments = MiddleSquareWeylSequence.getIncrements();
     Assertions.assertEquals(1024, increments.length);
     // Check the permutations are unique.
@@ -116,7 +116,7 @@ public class MiddleSquareWeylSequenceTest {
    * Check the long is two int values joined together.
    */
   @SeededTest
-  public void testNextLong(RandomSeed randomSeed) {
+  void testNextLong(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
@@ -130,7 +130,7 @@ public class MiddleSquareWeylSequenceTest {
    * Check the boolean is a sign test on the int value.
    */
   @SeededTest
-  public void testNextBooleanIsSignTest(RandomSeed randomSeed) {
+  void testNextBooleanIsSignTest(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
@@ -143,7 +143,7 @@ public class MiddleSquareWeylSequenceTest {
    * Check the float is the upper 24-bits from the int value multiplied by a constant.
    */
   @SeededTest
-  public void testNextFloatIs24BitProduct(RandomSeed randomSeed) {
+  void testNextFloatIs24BitProduct(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
@@ -156,7 +156,7 @@ public class MiddleSquareWeylSequenceTest {
    * Check the double is the upper 53-bits from the long value multiplied by a constant.
    */
   @SeededTest
-  public void testNextDoubleIs53BitProduct(RandomSeed randomSeed) {
+  void testNextDoubleIs53BitProduct(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
@@ -169,7 +169,7 @@ public class MiddleSquareWeylSequenceTest {
   // A fixed seed is used to avoid flaky tests.
 
   @Test
-  public void testNextInt() {
+  void testNextInt() {
     // Test some simple seeds here
     for (final long seed : new long[] {-1L, 0L, 1L, 789314346434L}) {
       final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
@@ -184,7 +184,7 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testNextDouble() {
+  void testNextDouble() {
     final long seed = 45678912654654L;
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     int bitCount = 0;
@@ -199,7 +199,7 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testNextBoolean() {
+  void testNextBoolean() {
     final long seed = 76832468234L;
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     int bitCount = 0;
@@ -214,7 +214,7 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testNextFloat() {
+  void testNextFloat() {
     final long seed = -4154967231346L;
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     int bitCount = 0;
@@ -229,7 +229,7 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testNextBytes() {
+  void testNextBytes() {
     final long seed = -789451658841221355L;
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     for (final int range : new int[] {16, 18}) {
@@ -277,7 +277,7 @@ public class MiddleSquareWeylSequenceTest {
   // Range methods uniformity tested using Chi-squared
 
   @Test
-  public void testNextIntInRange() {
+  void testNextIntInRange() {
     final long seed = 7891211456668865L;
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
@@ -311,7 +311,7 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testNextLongInRange() {
+  void testNextLongInRange() {
     final long seed = -487564654766323L;
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
@@ -351,19 +351,19 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testNextIntUsingZeroThrows() {
+  void testNextIntUsingZeroThrows() {
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> rng.nextInt(0));
   }
 
   @Test
-  public void testNextLongUsingZeroThrows() {
+  void testNextLongUsingZeroThrows() {
     final UniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> rng.nextLong(0));
   }
 
   @SeededTest
-  public void testSaveAndRestoreState(RandomSeed randomSeed) {
+  void testSaveAndRestoreState(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final RestorableUniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     final RandomProviderState state = rng.saveState();
@@ -376,14 +376,14 @@ public class MiddleSquareWeylSequenceTest {
   }
 
   @Test
-  public void testRestoreUsingBadStateThrows() {
+  void testRestoreUsingBadStateThrows() {
     final RestorableUniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(0);
     final RandomProviderState state = null;
     Assertions.assertThrows(IllegalArgumentException.class, () -> rng.restoreState(state));
   }
 
   @SeededTest
-  public void testSplit(RandomSeed randomSeed) {
+  void testSplit(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final SplittableUniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = rng1.split();

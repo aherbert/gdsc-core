@@ -44,9 +44,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviderUsageDecorator.SizeCounter;
 
 @SuppressWarnings("javadoc")
-public class UniformRandomProviderUsageDecoratorTest {
+class UniformRandomProviderUsageDecoratorTest {
   @Test
-  public void testSizeCounterToBigInteger() {
+  void testSizeCounterToBigInteger() {
     Assertions.assertEquals(BigInteger.ZERO, SizeCounter.toBigInteger(0));
     Assertions.assertEquals(BigInteger.ONE, SizeCounter.toBigInteger(1));
     Assertions.assertEquals(new BigInteger(Long.toUnsignedString(-1)),
@@ -54,7 +54,7 @@ public class UniformRandomProviderUsageDecoratorTest {
   }
 
   @Test
-  public void testSizeCounterAddUnsigned() {
+  void testSizeCounterAddUnsigned() {
     final SizeCounter count = new SizeCounter();
     Assertions.assertEquals(BigInteger.ZERO, count.value());
 
@@ -78,7 +78,7 @@ public class UniformRandomProviderUsageDecoratorTest {
   }
 
   @Test
-  public void testSizeCounterAdd() {
+  void testSizeCounterAdd() {
     final SizeCounter count1 = new SizeCounter();
     final SizeCounter count2 = new SizeCounter();
 
@@ -92,7 +92,7 @@ public class UniformRandomProviderUsageDecoratorTest {
   }
 
   @Test
-  public void testNextBytes() {
+  void testNextBytes() {
     assertBytesInvocations(UniformRandomProviderUsageDecorator::getNextBytesCount,
         UniformRandomProviderUsageDecorator::getNextBytesSize,
         UniformRandomProviderUsageDecorator::getNextBytesSizeAsLong,
@@ -100,7 +100,7 @@ public class UniformRandomProviderUsageDecoratorTest {
   }
 
   @Test
-  public void testNextBytesRange() {
+  void testNextBytesRange() {
     assertBytesInvocations(UniformRandomProviderUsageDecorator::getNextBytesRangeCount,
         UniformRandomProviderUsageDecorator::getNextBytesRangeSize,
         UniformRandomProviderUsageDecorator::getNextBytesRangeSizeAsLong,
@@ -140,44 +140,44 @@ public class UniformRandomProviderUsageDecoratorTest {
   }
 
   @Test
-  public void testNextInt() {
+  void testNextInt() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextIntCount,
         UniformRandomProvider::nextInt);
   }
 
   @Test
-  public void testNextIntRange() {
+  void testNextIntRange() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextIntRangeCount,
         rng -> rng.nextInt(678));
   }
 
   @Test
-  public void testNextLong() {
+  void testNextLong() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextLongCount,
         UniformRandomProvider::nextLong);
   }
 
   @Test
-  public void testNextLongRange() {
+  void testNextLongRange() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextLongRangeCount,
         rng -> rng.nextLong(133L));
   }
 
 
   @Test
-  public void testNextBoolean() {
+  void testNextBoolean() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextBooleanCount,
         UniformRandomProvider::nextBoolean);
   }
 
   @Test
-  public void testNextFloat() {
+  void testNextFloat() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextFloatCount,
         UniformRandomProvider::nextFloat);
   }
 
   @Test
-  public void testNextDouble() {
+  void testNextDouble() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextDoubleCount,
         UniformRandomProvider::nextDouble);
   }
@@ -205,7 +205,7 @@ public class UniformRandomProviderUsageDecoratorTest {
   }
 
   @Test
-  public void testAdd() {
+  void testAdd() {
     final UniformRandomProviderUsageDecorator rng1 =
         new UniformRandomProviderUsageDecorator(SplitMix.new64(0));
     final UniformRandomProviderUsageDecorator rng2 =
@@ -245,7 +245,7 @@ public class UniformRandomProviderUsageDecoratorTest {
 
   @Test
   @Disabled("This is for testing and contains no assertions")
-  public void testSampling() {
+  void testSampling() {
     final UniformRandomProviderUsageDecorator rng =
         new UniformRandomProviderUsageDecorator(SplitMix.new64(0));
     final Logger logger = Logger.getLogger(getClass().getName());

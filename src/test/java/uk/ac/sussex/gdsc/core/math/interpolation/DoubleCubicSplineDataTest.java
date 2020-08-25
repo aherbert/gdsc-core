@@ -36,9 +36,9 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
  * Test for {@link DoubleCubicSplineData}.
  */
 @SuppressWarnings({"javadoc"})
-public class DoubleCubicSplineDataTest {
+class DoubleCubicSplineDataTest {
   @Test
-  public void testToArray() {
+  void testToArray() {
     final double[] exp = SimpleArrayUtils.newArray(64, 1.0, 1.0);
     final DoubleCubicSplineData data = new DoubleCubicSplineData(exp);
     final double[] obs = new double[64];
@@ -47,7 +47,7 @@ public class DoubleCubicSplineDataTest {
   }
 
   @Test
-  public void testScale() {
+  void testScale() {
     final double[] exp = SimpleArrayUtils.newArray(64, 1.0, 1.0);
     final int scale = 3;
     final DoubleCubicSplineData data = new DoubleCubicSplineData(exp).scale(scale);
@@ -58,7 +58,7 @@ public class DoubleCubicSplineDataTest {
   }
 
   @Test
-  public void testCubicSplineConstructor() {
+  void testCubicSplineConstructor() {
     final CubicSplinePosition x = new CubicSplinePosition(0.25);
     final CubicSplinePosition y = new CubicSplinePosition(0.5);
     final CubicSplinePosition z = new CubicSplinePosition(0.125);

@@ -38,21 +38,21 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings("javadoc")
-public class NumberUtilsTest {
+class NumberUtilsTest {
 
   @Test
-  public void testMakeIntInRangeWithRangeZeroThrows() {
+  void testMakeIntInRangeWithRangeZeroThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.makeIntInRange(0, 0));
   }
 
   @Test
-  public void testMakeIntInRangeWithNegativeRangeThrows() {
+  void testMakeIntInRangeWithNegativeRangeThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> NumberUtils.makeIntInRange(0, -1));
   }
 
   @Test
-  public void testMakeIntInRange() {
+  void testMakeIntInRange() {
     final int allBits = 0xffffffff;
     final int noBits = 0;
     for (int i = 0; i < 31; i++) {
@@ -77,7 +77,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testMakeIntInRangeIsUniform() {
+  void testMakeIntInRangeIsUniform() {
     final int bins = 37; // prime
     final int[] h = new int[bins];
 
@@ -108,19 +108,19 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testMakeLongInRangeWithRangeZeroThrows() {
+  void testMakeLongInRangeWithRangeZeroThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> NumberUtils.makeLongInRange(0L, 0L));
   }
 
   @Test
-  public void testMakeLongInRangeWithNegativeRangeThrows() {
+  void testMakeLongInRangeWithNegativeRangeThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> NumberUtils.makeLongInRange(0L, -1L));
   }
 
   @Test
-  public void testMakeLongInRange() {
+  void testMakeLongInRange() {
     final long allBits = 0xffffffffffffffffL;
     final long noBits = 0;
     for (int i = 0; i < 63; i++) {
@@ -145,7 +145,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testMakeLongInRangeIsUniform() {
+  void testMakeLongInRangeIsUniform() {
     final long bins = 37; // prime
     final int[] h = new int[(int) bins];
 
@@ -231,7 +231,7 @@ public class NumberUtilsTest {
    * [0,2^k).
    */
   // @Test
-  public void testBias() {
+  void testBias() {
     final int range = 16; // 2^4
     for (int n = 1; n <= range; n++) {
       // Output number of samples expected for each value in range [0,n)
@@ -313,7 +313,7 @@ public class NumberUtilsTest {
    *      Interval</a>
    */
   @Test
-  public void testFenceComputation() {
+  void testFenceComputation() {
     final long base = 1L << 32;
     for (int power = 1; power <= 31; power++) {
       final long upper = 1L << power;
@@ -337,7 +337,7 @@ public class NumberUtilsTest {
   }
 
   // @Test
-  public void outputBiasTable() {
+  void outputBiasTable() {
     outputBiasTable(31, 31);
   }
 
@@ -431,7 +431,7 @@ public class NumberUtilsTest {
    * <p>This loops over all possible integers doing long modulus arithmetic so is slow.
    */
   // @Test
-  public void outputRejectionTable() {
+  void outputRejectionTable() {
     System.out.printf("|| || ||2^31|| ||2^32|| ||%n");
     System.out.printf("||Lower||Upper||mean||max||mean||max||%n");
     final long range31 = 1L << 31;
@@ -463,7 +463,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testMultiply() {
+  void testMultiply() {
     final long[] values = {0L, 0xffL, 0xffffL, 0xffffffffL, 0xffff00000000L, 0xffffffff00000000L,
         0xffffffffffffffffL};
 
@@ -475,7 +475,7 @@ public class NumberUtilsTest {
   }
 
   @SeededTest
-  public void testMultiply(RandomSeed seed) {
+  void testMultiply(RandomSeed seed) {
     final long[] values = new long[10];
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = 0; i < values.length; i++) {
@@ -505,7 +505,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testComputeLcgAdvance() {
+  void testComputeLcgAdvance() {
     final long m = 6364136223846793005L;
     final long c = 1442695040888963407L;
 
@@ -567,7 +567,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testComputeLcgAdvancePow2() {
+  void testComputeLcgAdvancePow2() {
     final long m = 6364136223846793005L;
     final long c = 1442695040888963407L;
 
@@ -582,7 +582,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testLcgAdvance() {
+  void testLcgAdvance() {
     final long m = 6364136223846793005L;
     final long c = 1442695040888963407L;
 
@@ -641,7 +641,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testLcgAdvancePow2() {
+  void testLcgAdvancePow2() {
     final long m = 6364136223846793005L;
     final long c = 1442695040888963407L;
 
@@ -658,7 +658,7 @@ public class NumberUtilsTest {
   }
 
   @SeededTest
-  public void testComputeInverseLong(RandomSeed seed) {
+  void testComputeInverseLong(RandomSeed seed) {
     Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.computeInverse(0L));
 
     // Known constants taken from the Mixers class
@@ -674,7 +674,7 @@ public class NumberUtilsTest {
   }
 
   @SeededTest
-  public void testComputeInverseInt(RandomSeed seed) {
+  void testComputeInverseInt(RandomSeed seed) {
     Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.computeInverse(0));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -687,7 +687,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testMakeSignedDouble() {
+  void testMakeSignedDouble() {
     // upper 53-bits for the magnitiude; another bit is used to select the sign
     final long sign = 1L << 10;
     Assertions.assertEquals(0.0, NumberUtils.makeSignedDouble(0L));
@@ -700,7 +700,7 @@ public class NumberUtilsTest {
   }
 
   @Test
-  public void testMakeNormalDouble() {
+  void testMakeNormalDouble() {
     // Assume bottom 12-bits are discarded
     Assertions.assertEquals(1.0, NumberUtils.makeNormalDouble(0L));
     Assertions.assertEquals(Math.nextDown(2.0), NumberUtils.makeNormalDouble(0xfffffffffffff000L));

@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class LoOpTest {
+class LoOpTest {
   @Test
-  public void testExecutorService() {
+  void testExecutorService() {
     final float[] x = {0};
     final LoOp loop = new LoOp(x, x);
     Assertions.assertNull(loop.getExecutorService());
@@ -50,7 +50,7 @@ public class LoOpTest {
     Assertions.assertNull(loop.getExecutorService());
   }
 
-  public void testLoop2d() throws InterruptedException, ExecutionException {
+  void testLoop2d() throws InterruptedException, ExecutionException {
     final float[] x = {0, 0, 0, 0, 5};
     final LoOp loop = new LoOp(x, x);
     final double[] scores = loop.run(4, 1.5);
@@ -61,7 +61,7 @@ public class LoOpTest {
   }
 
   @Test
-  public void testLoop3d() throws InterruptedException, ExecutionException {
+  void testLoop3d() throws InterruptedException, ExecutionException {
     final float[] x = {0, 0, 0, 0, 5};
     final LoOp loop = new LoOp(x, x, x);
     final double[] scores = loop.run(4, 1.5);

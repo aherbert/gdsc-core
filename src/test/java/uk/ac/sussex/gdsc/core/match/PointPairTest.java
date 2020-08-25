@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link PointPair}.
  */
 @SuppressWarnings({"javadoc"})
-public class PointPairTest {
+class PointPairTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final Coordinate point1 = new BasePoint(0, 1);
     final Coordinate point2 = new BasePoint(2, 4);
     final PointPair pair = new PointPair(point1, point2);
@@ -46,7 +46,7 @@ public class PointPairTest {
   }
 
   @Test
-  public void testDistance() {
+  void testDistance() {
     final float x1 = 0.678f;
     final float y1 = 2.23434f;
     final float z1 = 3.234f;
@@ -69,7 +69,7 @@ public class PointPairTest {
   }
 
   @Test
-  public void testDistanceWithNullPoint() {
+  void testDistanceWithNullPoint() {
     final float x1 = 0.678f;
     final float y1 = 2.23434f;
     final float z1 = 3.234f;

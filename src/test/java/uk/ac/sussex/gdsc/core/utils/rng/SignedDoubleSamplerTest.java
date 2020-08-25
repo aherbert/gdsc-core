@@ -36,9 +36,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings("javadoc")
-public class SignedDoubleSamplerTest {
+class SignedDoubleSamplerTest {
   @SeededTest
-  public void testSampler(RandomSeed seed) {
+  void testSampler(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
     final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());

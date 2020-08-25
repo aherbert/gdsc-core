@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link MutableFractionalAssignment}.
  */
 @SuppressWarnings({"javadoc"})
-public class MutableFractionalAssignmentTest {
+class MutableFractionalAssignmentTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final int targetId = 1454945;
     final int predictedId = 7686;
     final double distance = 2342.78998;
@@ -51,7 +51,7 @@ public class MutableFractionalAssignmentTest {
   }
 
   @Test
-  public void canUpdate() {
+  void canUpdate() {
     int targetId = 1454945;
     int predictedId = 7686;
     double distance = 2342.78998;

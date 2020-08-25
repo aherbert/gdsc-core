@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
  * <p>The ordering of the computation is set to multiply by the power ZYX.
  */
 @SuppressWarnings({"javadoc"})
-public class CubicSplineDataInlineTest {
+class CubicSplineDataInlineTest {
   private static Logger logger;
 
   @BeforeAll
@@ -199,7 +199,7 @@ public class CubicSplineDataInlineTest {
   private final Level level = Level.FINEST;
 
   @Test
-  public void canConstructInlineCubicSplineData() {
+  void canConstructInlineCubicSplineData() {
     // DoubleCubicSplineData
     Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineCubicSplineCoefficients());

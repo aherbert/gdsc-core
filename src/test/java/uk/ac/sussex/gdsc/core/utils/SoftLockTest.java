@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class SoftLockTest {
+class SoftLockTest {
   @Test
-  public void canSoftLock() {
+  void canSoftLock() {
     final SoftLock lock = new SoftLock();
     Assertions.assertFalse(lock.isLocked(), "Initial state");
     Assertions.assertTrue(lock.acquire(), "Aquire when unlocked");

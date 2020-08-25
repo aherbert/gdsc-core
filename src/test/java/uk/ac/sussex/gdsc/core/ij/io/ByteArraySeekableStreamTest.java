@@ -37,15 +37,15 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class ByteArraySeekableStreamTest {
+class ByteArraySeekableStreamTest {
 
   @Test
-  public void testThrowsWithNullBytes() {
+  void testThrowsWithNullBytes() {
     Assertions.assertThrows(NullPointerException.class, () -> ByteArraySeekableStream.wrap(null));
   }
 
   @SeededTest
-  public void canReadSingleByte(RandomSeed seed) {
+  void canReadSingleByte(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 2);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
@@ -59,7 +59,7 @@ public class ByteArraySeekableStreamTest {
   }
 
   @SeededTest
-  public void canReadMultiByte(RandomSeed seed) throws IOException {
+  void canReadMultiByte(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 2);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
@@ -75,7 +75,7 @@ public class ByteArraySeekableStreamTest {
   }
 
   @SeededTest
-  public void canSeek(RandomSeed seed) throws IOException {
+  void canSeek(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
@@ -93,7 +93,7 @@ public class ByteArraySeekableStreamTest {
   }
 
   @SeededTest
-  public void canSkip(RandomSeed seed) {
+  void canSkip(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
@@ -110,7 +110,7 @@ public class ByteArraySeekableStreamTest {
   }
 
   @SeededTest
-  public void canCopy(RandomSeed seed) {
+  void canCopy(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {

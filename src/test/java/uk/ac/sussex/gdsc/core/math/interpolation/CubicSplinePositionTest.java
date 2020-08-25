@@ -36,9 +36,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link CubicSplinePosition}.
  */
 @SuppressWarnings({"javadoc"})
-public class CubicSplinePositionTest {
+class CubicSplinePositionTest {
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     final double x = 0.5;
     Assertions.assertNotNull(new CubicSplinePosition(x));
 
@@ -57,7 +57,7 @@ public class CubicSplinePositionTest {
   }
 
   @Test
-  public void testProperties() {
+  void testProperties() {
     for (int i = 0; i <= 5; i++) {
       final double x = (double) i / 5;
       final CubicSplinePosition p = new CubicSplinePosition(x);

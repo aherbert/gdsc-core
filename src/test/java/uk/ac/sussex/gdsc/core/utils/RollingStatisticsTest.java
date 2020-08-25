@@ -42,16 +42,16 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class RollingStatisticsTest {
+class RollingStatisticsTest {
   @Test
-  public void testEmptyValues() {
+  void testEmptyValues() {
     final RollingStatistics observed = new RollingStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     check(expected, observed);
   }
 
   @Test
-  public void testSingleValues() {
+  void testSingleValues() {
     final RollingStatistics observed = new RollingStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     observed.add(Math.PI);
@@ -60,13 +60,13 @@ public class RollingStatisticsTest {
   }
 
   @Test
-  public void testSumOfSquaresThrows() {
+  void testSumOfSquaresThrows() {
     final RollingStatistics observed = new RollingStatistics();
     Assertions.assertThrows(NotImplementedException.class, () -> observed.getSumOfSquares());
   }
 
   @Test
-  public void testAddDoubleArrayWithZeroRange() {
+  void testAddDoubleArrayWithZeroRange() {
     final RollingStatistics observed = new RollingStatistics();
     final double[] data = new double[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -78,7 +78,7 @@ public class RollingStatisticsTest {
   }
 
   @Test
-  public void testAddFloatArrayWithZeroRange() {
+  void testAddFloatArrayWithZeroRange() {
     final RollingStatistics observed = new RollingStatistics();
     final float[] data = new float[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -90,7 +90,7 @@ public class RollingStatisticsTest {
   }
 
   @Test
-  public void testAddIntArrayWithZeroRange() {
+  void testAddIntArrayWithZeroRange() {
     final RollingStatistics observed = new RollingStatistics();
     final int[] data = new int[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -102,7 +102,7 @@ public class RollingStatisticsTest {
   }
 
   @SeededTest
-  public void canAddMultipleValues(RandomSeed seed) {
+  void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final RollingStatistics observed = new RollingStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
@@ -120,7 +120,7 @@ public class RollingStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeStatistics(RandomSeed seed) {
+  void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     RollingStatistics observed;
@@ -186,7 +186,7 @@ public class RollingStatisticsTest {
   }
 
   @Test
-  public void canAddStatistics() {
+  void canAddStatistics() {
     final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
     final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);
@@ -214,7 +214,7 @@ public class RollingStatisticsTest {
   }
 
   @Test
-  public void canComputeWithLargeNumbers() {
+  void canComputeWithLargeNumbers() {
     // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
     final double[] v = new double[] {4, 7, 13, 16};
     final RollingStatistics o = new RollingStatistics();

@@ -51,16 +51,16 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
  * Test for {@link AucCalculator}.
  */
 @SuppressWarnings({"javadoc"})
-public class ClosestPairCalculatorTest {
+class ClosestPairCalculatorTest {
   @Test
-  public void testGetSize() {
+  void testGetSize() {
     Assertions.assertEquals(0, ClosestPairCalculator.getSize(null));
     Assertions.assertEquals(1,
         ClosestPairCalculator.getSize(Arrays.asList(new Point2D.Double(1, 2))));
   }
 
   @Test
-  public void testToRandomAccess() {
+  void testToRandomAccess() {
     final Point2D[] raw = new Point2D[] {new Point2D.Double(1, 2), new Point2D.Double(3, 4)};
 
     final Collection<Point2D> points = new TreeSet<>(ClosestPairCalculatorTest::compare);
@@ -78,7 +78,7 @@ public class ClosestPairCalculatorTest {
   }
 
   @Test
-  public void testIdRecursion() {
+  void testIdRecursion() {
     // Mimic the id increase during recursion in the worst case scenario.
     // As long as the value does not wrap an unsigned 32-bit integer this is OK as
     // negative values are still unique from the unallocated Id of zero.
@@ -96,7 +96,7 @@ public class ClosestPairCalculatorTest {
   }
 
   @Test
-  public void testBadArguments() {
+  void testBadArguments() {
     // Valid arguments
     final Point2D[] raw = new Point2D[] {new Point2D.Double(1, 2), new Point2D.Double(3, 4)};
     final List<Point2D> points = Arrays.asList(raw);
@@ -129,7 +129,7 @@ public class ClosestPairCalculatorTest {
   }
 
   @Test
-  public void testClosestPairOfThree() {
+  void testClosestPairOfThree() {
     final Point2D p1 = new Point2D.Double(0, 0);
     final Point2D p2 = new Point2D.Double(1, 0);
     final Point2D p3 = new Point2D.Double(4, 0);
@@ -158,22 +158,22 @@ public class ClosestPairCalculatorTest {
   }
 
   @SeededTest
-  public void testClosestPairPartitioned2(RandomSeed seed) {
+  void testClosestPairPartitioned2(RandomSeed seed) {
     assertClosestPairPartitioned(2, seed);
   }
 
   @SeededTest
-  public void testClosestPairPartitioned3(RandomSeed seed) {
+  void testClosestPairPartitioned3(RandomSeed seed) {
     assertClosestPairPartitioned(3, seed);
   }
 
   @SeededTest
-  public void testClosestPairPartitioned10(RandomSeed seed) {
+  void testClosestPairPartitioned10(RandomSeed seed) {
     assertClosestPairPartitioned(10, seed);
   }
 
   @SeededTest
-  public void testClosestPairPartitioned100(RandomSeed seed) {
+  void testClosestPairPartitioned100(RandomSeed seed) {
     assertClosestPairPartitioned(100, seed);
   }
 
@@ -200,7 +200,7 @@ public class ClosestPairCalculatorTest {
   }
 
   @SeededTest
-  public void testClosestPairAllVsAll10(RandomSeed seed) {
+  void testClosestPairAllVsAll10(RandomSeed seed) {
     assertClosestPairAllVsAll(10, seed);
   }
 
@@ -244,12 +244,12 @@ public class ClosestPairCalculatorTest {
   }
 
   @SeededTest
-  public void testClosestPairBelowAlgorithmSwicthPoint(RandomSeed seed) {
+  void testClosestPairBelowAlgorithmSwicthPoint(RandomSeed seed) {
     assertClosestPair(3, seed);
   }
 
   @SeededTest
-  public void testClosestPairAboveAlgorithmSwicthPoint(RandomSeed seed) {
+  void testClosestPairAboveAlgorithmSwicthPoint(RandomSeed seed) {
     assertClosestPair(ClosestPairCalculator.ALGORITHM_SWITCH, seed);
   }
 

@@ -45,27 +45,27 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ConcurrentMonoStackTest {
+class ConcurrentMonoStackTest {
   @Test
-  public void putThrowsWithNull() {
+  void putThrowsWithNull() {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertThrows(NullPointerException.class, () -> queue.push(null));
   }
 
   @Test
-  public void insertThrowsWithNull() {
+  void insertThrowsWithNull() {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertThrows(NullPointerException.class, () -> queue.insert(null));
   }
 
   @Test
-  public void offerThrowsWithNull() {
+  void offerThrowsWithNull() {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertThrows(NullPointerException.class, () -> queue.offer(null));
   }
 
   @Test
-  public void canClear() throws InterruptedException {
+  void canClear() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertEquals(0, queue.size());
     Assertions.assertFalse(queue.isClosed());
@@ -85,7 +85,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canClearUnblockWaitingThread()
+  void canClearUnblockWaitingThread()
       throws InterruptedException, ExecutionException, TimeoutException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     queue.push(1);
@@ -121,7 +121,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canClose() throws InterruptedException {
+  void canClose() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertEquals(0, queue.size());
     Assertions.assertFalse(queue.isClosed());
@@ -156,7 +156,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canCloseAndClear() throws InterruptedException {
+  void canCloseAndClear() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertEquals(0, queue.size());
     Assertions.assertFalse(queue.isClosed());
@@ -174,7 +174,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canPopIfClosed() throws InterruptedException {
+  void canPopIfClosed() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     queue.push(1);
     Assertions.assertEquals(1, queue.size());
@@ -189,7 +189,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canPollIfClosed() throws InterruptedException {
+  void canPollIfClosed() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     queue.push(1);
     Assertions.assertEquals(1, queue.size());
@@ -204,7 +204,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canPeekIfClosed() throws InterruptedException {
+  void canPeekIfClosed() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     queue.push(1);
     Assertions.assertEquals(1, queue.size());
@@ -221,7 +221,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canCloseUnblockWaitingThread()
+  void canCloseUnblockWaitingThread()
       throws InterruptedException, ExecutionException, TimeoutException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     queue.push(1);
@@ -260,7 +260,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canCloseAndClearUnblockWaitingThread()
+  void canCloseAndClearUnblockWaitingThread()
       throws InterruptedException, ExecutionException, TimeoutException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     queue.push(1);
@@ -299,7 +299,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canPutAndTake() throws InterruptedException, ExecutionException, TimeoutException {
+  void canPutAndTake() throws InterruptedException, ExecutionException, TimeoutException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
 
     final ExecutorService es = Executors.newCachedThreadPool();
@@ -393,7 +393,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canInsert() throws InterruptedException {
+  void canInsert() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertTrue(queue.insert(1));
     Assertions.assertEquals(1, queue.size());
@@ -407,7 +407,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canOffer() throws InterruptedException {
+  void canOffer() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     Assertions.assertTrue(queue.offer(1));
     Assertions.assertEquals(1, queue.size());
@@ -427,7 +427,7 @@ public class ConcurrentMonoStackTest {
   }
 
   @Test
-  public void canPeak() throws InterruptedException {
+  void canPeak() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     for (int i = 1; i < 3; i++) {
       Assertions.assertTrue(queue.insert(i));

@@ -35,20 +35,20 @@ import org.junit.jupiter.api.Test;
  * Test for {@link DoubleKuhnMunkresAssignment}.
  */
 @SuppressWarnings({"javadoc"})
-public class DoubleKuhnMunkresAssignmentTest {
+class DoubleKuhnMunkresAssignmentTest {
   @Test
-  public void testWithoutOverflow() {
+  void testWithoutOverflow() {
     Assertions.assertThrows(ArithmeticException.class,
         () -> DoubleKuhnMunkresAssignment.addWithoutOverflow(Double.MAX_VALUE, Double.MAX_VALUE));
   }
 
   @Test
-  public void testSubtractToZero() {
+  void testSubtractToZero() {
     Assertions.assertEquals(0f, DoubleKuhnMunkresAssignment.subtractToZero(0.3f, 0.4f));
   }
 
   @Test
-  public void testCreateThrows() {
+  void testCreateThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> DoubleKuhnMunkresAssignment.create(null), "null input");
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -63,7 +63,7 @@ public class DoubleKuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testComputeThrows() {
+  void testComputeThrows() {
     Assertions.assertThrows(ArithmeticException.class,
         () -> DoubleKuhnMunkresAssignment
             .compute(new double[][] {{-Double.MAX_VALUE, Double.MAX_VALUE}, {0, 0}}),
@@ -86,7 +86,7 @@ public class DoubleKuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testAssignment3x3Linear() {
+  void testAssignment3x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -103,7 +103,7 @@ public class DoubleKuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testAssignment2x3Linear() {
+  void testAssignment2x3Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off
@@ -119,7 +119,7 @@ public class DoubleKuhnMunkresAssignmentTest {
   }
 
   @Test
-  public void testAssignment3x2Linear() {
+  void testAssignment3x2Linear() {
     // Data from Bourgeois and Lassalle (1971)
     // Communications of the ACM Volume 14, Issue 12, 802-804.
     //@formatter:off

@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings("javadoc")
-public class RandomUtilsTest {
+class RandomUtilsTest {
   @Test
-  public void testShuffleDouble() {
+  void testShuffleDouble() {
     final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final double[] data = SimpleArrayUtils.newArray(length, 0.0, 1.0);
@@ -54,7 +54,7 @@ public class RandomUtilsTest {
   }
 
   @Test
-  public void testShuffleFloat() {
+  void testShuffleFloat() {
     final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final float[] data = SimpleArrayUtils.newArray(length, 0.0f, 1.0f);
@@ -71,7 +71,7 @@ public class RandomUtilsTest {
   }
 
   @Test
-  public void testShuffleInt() {
+  void testShuffleInt() {
     final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final int[] data = SimpleArrayUtils.natural(length);
@@ -88,7 +88,7 @@ public class RandomUtilsTest {
   }
 
   @Test
-  public void testShuffleObject() {
+  void testShuffleObject() {
     final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final Integer[] data = IntStream.range(0, length).boxed().toArray(Integer[]::new);
@@ -105,7 +105,7 @@ public class RandomUtilsTest {
   }
 
   @Test
-  public void testSample() {
+  void testSample() {
     final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final int lower = 10;

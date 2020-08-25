@@ -50,7 +50,7 @@ import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class OpticsResultTest {
+class OpticsResultTest {
   /**
    * An interface for a fake Hull.
    */
@@ -126,7 +126,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testSteepDownArea() {
+  void testSteepDownArea() {
     final int start = 13;
     final int end = 42;
     final double max = 56.890;
@@ -144,7 +144,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testSteepUpArea() {
+  void testSteepUpArea() {
     final int start = 13;
     final int end = 42;
     final double max = 56.890;
@@ -159,7 +159,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testProfiles() {
+  void testProfiles() {
     final float distance = 2;
     final int minPoints = 3;
     final OpticsOrder[] opticsResults = new OpticsOrder[5];
@@ -201,7 +201,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testOpticsResult() {
+  void testOpticsResult() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om = new OpticsManager(x, y, 0);
@@ -277,7 +277,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testScrambleClusters() {
+  void testScrambleClusters() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om = new OpticsManager(x, y, new float[x.length], 0);
@@ -304,7 +304,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testScrambleClustersWithNoClusters() {
+  void testScrambleClustersWithNoClusters() {
     final float[] x = {0, 1};
     final float[] y = {0, 0};
     final OpticsManager om = new OpticsManager(x, y, 0);
@@ -329,7 +329,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testComputeHulls3d() {
+  void testComputeHulls3d() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om2 = new OpticsManager(x, y, 0);
@@ -354,7 +354,7 @@ public class OpticsResultTest {
   // it. Check the clustering results change.
 
   @Test
-  public void testHierarchicalResults() {
+  void testHierarchicalResults() {
     final UniformRandomProvider rng = RngUtils.create(123L);
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
@@ -473,7 +473,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testReachabilityLimits() {
+  void testReachabilityLimits() {
     final UniformRandomProvider rng = RngUtils.create(123L);
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
@@ -535,7 +535,7 @@ public class OpticsResultTest {
   }
 
   @Test
-  public void testOpticsXiOptions() {
+  void testOpticsXiOptions() {
     final UniformRandomProvider rng = RngUtils.create(123L);
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create

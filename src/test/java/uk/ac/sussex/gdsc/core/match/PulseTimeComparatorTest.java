@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link PulseTimeComparator}.
  */
 @SuppressWarnings({"javadoc"})
-public class PulseTimeComparatorTest {
+class PulseTimeComparatorTest {
   @Test
-  public void canCompare() {
+  void canCompare() {
     // Compare using start
     assertOverlap(0, 1, 1, 1, 1);
     assertOverlap(-1, 1, 1, 2, 2);

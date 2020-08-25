@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Test the {@link LocalCollectors}.
  */
 @SuppressWarnings({"javadoc"})
-public class LocalCollectorsTest {
+class LocalCollectorsTest {
 
   @Test
-  public void testToLocalList() {
+  void testToLocalList() {
     final Collector<Integer, ?, LocalList<Integer>> c = LocalCollectors.toLocalList();
 
     final LocalList<Integer> list = IntStream.range(0, 100).parallel().boxed().collect(c);

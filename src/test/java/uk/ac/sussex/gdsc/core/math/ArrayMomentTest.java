@@ -57,7 +57,7 @@ import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
  * Test for {@link ArrayMoment}.
  */
 @SuppressWarnings({"javadoc"})
-public class ArrayMomentTest {
+class ArrayMomentTest {
   static final int MAX_INT = 65335; // Unsigned 16-bit int
   static final int MAX_INT_2 = MAX_INT / 2;
 
@@ -78,7 +78,7 @@ public class ArrayMomentTest {
   // XXX RollingArrayMoment
 
   @Test
-  public void testRollingArrayMomentSingleDouble() {
+  void testRollingArrayMomentSingleDouble() {
     final RollingArrayMoment m = new RollingArrayMoment();
     m.add(1);
     final double[] zero = new double[1];
@@ -100,12 +100,12 @@ public class ArrayMomentTest {
   }
 
   @Test
-  public void testRollingMomentSmallResults() {
+  void testRollingMomentSmallResults() {
     assertSmallResults(new RollingArrayMoment());
   }
 
   @SeededTest
-  public void canComputeRollingMomentDouble(RandomSeed seed) {
+  void canComputeRollingMomentDouble(RandomSeed seed) {
     canComputeMoment("Single", new double[] {Math.PI}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -129,7 +129,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingMomentFloat(RandomSeed seed) {
+  void canComputeRollingMomentFloat(RandomSeed seed) {
     canComputeMoment("Single", new float[] {(float) Math.PI}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -153,7 +153,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingMomentInt(RandomSeed seed) {
+  void canComputeRollingMomentInt(RandomSeed seed) {
     canComputeMoment("Single", new int[] {-42}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -171,7 +171,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingMomentShort(RandomSeed seed) {
+  void canComputeRollingMomentShort(RandomSeed seed) {
     canComputeMoment("Single", new short[] {-42}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -189,7 +189,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingMomentByte(RandomSeed seed) {
+  void canComputeRollingMomentByte(RandomSeed seed) {
     canComputeMoment("Single", new byte[] {-42}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -207,7 +207,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingMomentShortUnsigned(RandomSeed seed) {
+  void canComputeRollingMomentShortUnsigned(RandomSeed seed) {
     canComputeMomentUnsigned("Single", new short[] {-42}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -225,7 +225,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingMomentByteUnsigned(RandomSeed seed) {
+  void canComputeRollingMomentByteUnsigned(RandomSeed seed) {
     canComputeMomentUnsigned("Single", new byte[] {-42}, new RollingArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -243,7 +243,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeRollingArrayMomentDouble(RandomSeed seed) {
+  void canComputeRollingArrayMomentDouble(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final double[][] d = new double[3][];
 
@@ -260,7 +260,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canCombineRollingArrayMomentDouble(RandomSeed seed) {
+  void canCombineRollingArrayMomentDouble(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final double[][] d = new double[50][];
 
@@ -305,12 +305,12 @@ public class ArrayMomentTest {
   // XXX SimpleArrayMoment
 
   @Test
-  public void testSimpleMomentSmallResults() {
+  void testSimpleMomentSmallResults() {
     assertSmallResults(new SimpleArrayMoment());
   }
 
   @Test
-  public void testSimpleArrayMomentSingleDouble() {
+  void testSimpleArrayMomentSingleDouble() {
     final SimpleArrayMoment m = new SimpleArrayMoment();
     m.add(1);
     final double[] zero = new double[1];
@@ -332,7 +332,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentDouble(RandomSeed seed) {
+  void canComputeSimpleMomentDouble(RandomSeed seed) {
     canComputeMoment("Single", new double[] {Math.PI}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -356,7 +356,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentFloat(RandomSeed seed) {
+  void canComputeSimpleMomentFloat(RandomSeed seed) {
     canComputeMoment("Single", new float[] {(float) Math.PI}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -380,7 +380,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentInt(RandomSeed seed) {
+  void canComputeSimpleMomentInt(RandomSeed seed) {
     canComputeMoment("Single", new int[] {-42}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -398,7 +398,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentShort(RandomSeed seed) {
+  void canComputeSimpleMomentShort(RandomSeed seed) {
     canComputeMoment("Single", new short[] {-42}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -416,7 +416,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentByte(RandomSeed seed) {
+  void canComputeSimpleMomentByte(RandomSeed seed) {
     canComputeMoment("Single", new byte[] {-42}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -434,7 +434,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentShortUnsigned(RandomSeed seed) {
+  void canComputeSimpleMomentShortUnsigned(RandomSeed seed) {
     canComputeMomentUnsigned("Single", new short[] {-42}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -452,7 +452,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeSimpleMomentByteUnsigned(RandomSeed seed) {
+  void canComputeSimpleMomentByteUnsigned(RandomSeed seed) {
     canComputeMomentUnsigned("Single", new byte[] {-42}, new SimpleArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -471,7 +471,7 @@ public class ArrayMomentTest {
 
 
   @SeededTest
-  public void canComputeSimpleArrayMomentInt(RandomSeed seed) {
+  void canComputeSimpleArrayMomentInt(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[][] d = new int[3][];
 
@@ -488,7 +488,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canCombineSimpleArrayMomentInt(RandomSeed seed) {
+  void canCombineSimpleArrayMomentInt(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[][] d = new int[50][];
 
@@ -533,12 +533,12 @@ public class ArrayMomentTest {
   // XXX IntegerArrayMoment
 
   @Test
-  public void testIntegerMomentSmallResults() {
+  void testIntegerMomentSmallResults() {
     assertSmallResults(new IntegerArrayMoment());
   }
 
   @Test
-  public void testIntegerArrayMomentThrows() {
+  void testIntegerArrayMomentThrows() {
     final IntegerArrayMoment m = new IntegerArrayMoment();
     Assertions.assertThrows(NotImplementedException.class, () -> m.add(1.23));
     Assertions.assertThrows(NotImplementedException.class, () -> m.add(new double[] {1.23}));
@@ -546,7 +546,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeIntegerMomentInt(RandomSeed seed) {
+  void canComputeIntegerMomentInt(RandomSeed seed) {
     canComputeMoment("Single", new int[] {-42}, new IntegerArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -564,7 +564,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeIntegerMomentShort(RandomSeed seed) {
+  void canComputeIntegerMomentShort(RandomSeed seed) {
     canComputeMoment("Single", new short[] {-42}, new IntegerArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -582,7 +582,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeIntegerMomentByte(RandomSeed seed) {
+  void canComputeIntegerMomentByte(RandomSeed seed) {
     canComputeMoment("Single", new byte[] {-42}, new IntegerArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -600,7 +600,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeIntegerMomentShortUnsigned(RandomSeed seed) {
+  void canComputeIntegerMomentShortUnsigned(RandomSeed seed) {
     canComputeMomentUnsigned("Single", new short[] {-42}, new IntegerArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -618,7 +618,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeIntegerMomentByteUnsigned(RandomSeed seed) {
+  void canComputeIntegerMomentByteUnsigned(RandomSeed seed) {
     canComputeMomentUnsigned("Single", new byte[] {-42}, new IntegerArrayMoment());
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -637,7 +637,7 @@ public class ArrayMomentTest {
 
 
   @SeededTest
-  public void canComputeIntegerArrayMomentInt(RandomSeed seed) {
+  void canComputeIntegerArrayMomentInt(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[][] d = new int[3][];
 
@@ -654,7 +654,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canCombineIntegerArrayMomentInt(RandomSeed seed) {
+  void canCombineIntegerArrayMomentInt(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int[][] d = new int[50][];
 
@@ -698,7 +698,7 @@ public class ArrayMomentTest {
   }
 
   @Test
-  public void canTestIfValidIntegerData() {
+  void canTestIfValidIntegerData() {
     // If the sum of squares is above Long.MAX_VALUE (2^63 - 1) then expected false.
 
     // 2^16^2 * 2^31-1 = 2^32 * 2^31-1 < 2^63 : This is OK
@@ -1045,7 +1045,7 @@ public class ArrayMomentTest {
   }
 
   @SeededTest
-  public void canComputeMomentForLargeSeries(RandomSeed seed) {
+  void canComputeMomentForLargeSeries(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());

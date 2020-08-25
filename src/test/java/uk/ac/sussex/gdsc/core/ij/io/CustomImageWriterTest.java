@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class CustomImageWriterTest {
+class CustomImageWriterTest {
   @Test
-  public void testBadPixelsThrows() {
+  void testBadPixelsThrows() {
     final FileInfo fi = new FileInfo();
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final CustomImageWriter writer = new CustomImageWriter(fi);
@@ -51,7 +51,7 @@ public class CustomImageWriterTest {
   }
 
   @Test
-  public void testBadFileTypeThrows() {
+  void testBadFileTypeThrows() {
     final FileInfo fi = new FileInfo();
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final CustomImageWriter writer = new CustomImageWriter(fi);

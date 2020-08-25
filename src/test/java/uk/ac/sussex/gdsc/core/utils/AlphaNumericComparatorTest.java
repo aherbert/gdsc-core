@@ -37,9 +37,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class AlphaNumericComparatorTest {
+class AlphaNumericComparatorTest {
   @Test
-  public void canSortStrings() {
+  void canSortStrings() {
     final String first = "aaa";
     final String second = "bb";
     final String[] data = new String[] {second, first};
@@ -48,7 +48,7 @@ public class AlphaNumericComparatorTest {
   }
 
   @Test
-  public void canSortStringsWithNumbers() {
+  void canSortStringsWithNumbers() {
     final String first = "a2.txt";
     final String second = "a10.txt";
     final String[] data = new String[] {second, first};
@@ -57,7 +57,7 @@ public class AlphaNumericComparatorTest {
   }
 
   @Test
-  public void canSortStringsWithNull() {
+  void canSortStringsWithNull() {
     final String first = "a2.txt";
     final String second = null;
     final String[] data = new String[] {second, first};
@@ -76,7 +76,7 @@ public class AlphaNumericComparatorTest {
   }
 
   @Test
-  public void canSortStringsWithLeadingZeros() {
+  void canSortStringsWithLeadingZeros() {
     final String first = "a002.txt";
     final String second = "a20.txt";
     final String[] data = new String[] {second, first};
@@ -85,7 +85,7 @@ public class AlphaNumericComparatorTest {
   }
 
   @SeededTest
-  public void canSortStringsWithTextAndNumbers(RandomSeed seed) {
+  void canSortStringsWithTextAndNumbers(RandomSeed seed) {
     // This hits all the edge cases in the code.
     // The array order as declared is correct.
     final String zero = "0";

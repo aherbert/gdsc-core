@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class TimeClusterComparatorTest {
+class TimeClusterComparatorTest {
 
   @Test
-  public void canSortClusters() {
+  void canSortClusters() {
     // Sort order is size, X, Y, sumW, startTime, endTime.
     // Build a list of differing size, then x, then y, then weight, then startTime, then endTime.
     final ArrayList<TimeCluster> list = new ArrayList<>();

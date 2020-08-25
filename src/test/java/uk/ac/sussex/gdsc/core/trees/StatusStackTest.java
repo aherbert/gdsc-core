@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class StatusStackTest {
+class StatusStackTest {
   @Test
-  public void testStack() {
+  void testStack() {
     final StatusStack stack = new StatusStack(3);
     stack.push(Status.ALLVISITED);
     stack.push(Status.RIGHTVISITED);

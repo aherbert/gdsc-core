@@ -44,7 +44,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 @SuppressWarnings("javadoc")
-public class Pcg32Test {
+class Pcg32Test {
 
   static class ReferenceSequenceParams implements ArgumentsProvider {
     @Override
@@ -118,7 +118,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {1}")
   @ArgumentsSource(ReferenceSequenceParams.class)
-  public void testReferenceSequence(int[] expectedSequence, Pcg32 rng) {
+  void testReferenceSequence(int[] expectedSequence, Pcg32 rng) {
     for (int i = 0; i < expectedSequence.length; i++) {
       Assertions.assertEquals(expectedSequence[i], rng.nextInt());
     }
@@ -129,7 +129,7 @@ public class Pcg32Test {
    */
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextLong(PcgFactory constructor) {
+  void testNextLong(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = constructor.create(seed);
@@ -144,7 +144,7 @@ public class Pcg32Test {
    */
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextBooleanIsSignTest(PcgFactory constructor) {
+  void testNextBooleanIsSignTest(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = constructor.create(seed);
@@ -158,7 +158,7 @@ public class Pcg32Test {
    */
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextFloatIs24BitProduct(PcgFactory constructor) {
+  void testNextFloatIs24BitProduct(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = constructor.create(seed);
@@ -172,7 +172,7 @@ public class Pcg32Test {
    */
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextDoubleIs53BitProduct(PcgFactory constructor) {
+  void testNextDoubleIs53BitProduct(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = constructor.create(seed);
@@ -187,7 +187,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextInt(PcgFactory constructor) {
+  void testNextInt(PcgFactory constructor) {
     final long seed = 2378923479523479L;
     final Pcg32 rng = constructor.create(seed);
     int bitCount = 0;
@@ -201,7 +201,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextDouble(PcgFactory constructor) {
+  void testNextDouble(PcgFactory constructor) {
     final long seed = 789432646432165L;
     final Pcg32 rng = constructor.create(seed);
     int bitCount = 0;
@@ -217,7 +217,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextBoolean(PcgFactory constructor) {
+  void testNextBoolean(PcgFactory constructor) {
     final long seed = 456129879875161546L;
     final Pcg32 rng = constructor.create(seed);
     int bitCount = 0;
@@ -233,7 +233,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextFloat(PcgFactory constructor) {
+  void testNextFloat(PcgFactory constructor) {
     final long seed = 123489743213246946L;
     final Pcg32 rng = constructor.create(seed);
     int bitCount = 0;
@@ -249,7 +249,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextBytes(PcgFactory constructor) {
+  void testNextBytes(PcgFactory constructor) {
     final long seed = -1514989856145479866L;
     final Pcg32 rng = constructor.create(seed);
     for (final int range : new int[] {16, 18}) {
@@ -298,7 +298,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextIntInRange(PcgFactory constructor) {
+  void testNextIntInRange(PcgFactory constructor) {
     final long seed = -7891452149463L;
     final Pcg32 rng = constructor.create(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
@@ -333,7 +333,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextLongInRange(PcgFactory constructor) {
+  void testNextLongInRange(PcgFactory constructor) {
     final long seed = 1451657946515648L;
     final Pcg32 rng = constructor.create(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
@@ -368,7 +368,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testAdvance(PcgFactory constructor) {
+  void testAdvance(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = constructor.create(seed);
@@ -385,7 +385,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testAdvanceBackwards(PcgFactory constructor) {
+  void testAdvanceBackwards(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     for (final int range : new int[] {1, 10, 32}) {
@@ -406,7 +406,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testCopyAndJump(PcgFactory constructor) {
+  void testCopyAndJump(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = rng1.copyAndJump();
@@ -418,21 +418,21 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextIntUsingZeroThrows(PcgFactory constructor) {
+  void testNextIntUsingZeroThrows(PcgFactory constructor) {
     final Pcg32 rng = constructor.create(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> rng.nextInt(0));
   }
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testNextLongUsingZeroThrows(PcgFactory constructor) {
+  void testNextLongUsingZeroThrows(PcgFactory constructor) {
     final Pcg32 rng = constructor.create(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> rng.nextLong(0));
   }
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testSaveAndRestoreState(PcgFactory constructor) {
+  void testSaveAndRestoreState(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     final Pcg32 rng = constructor.create(seed);
     final RandomProviderState state = rng.saveState();
@@ -446,7 +446,7 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testRestoreUsingBadStateThrows(PcgFactory constructor) {
+  void testRestoreUsingBadStateThrows(PcgFactory constructor) {
     final Pcg32 rng = constructor.create(0);
     final RandomProviderState state = null;
     Assertions.assertThrows(IllegalArgumentException.class, () -> rng.restoreState(state));
@@ -454,14 +454,14 @@ public class Pcg32Test {
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testCopy(PcgFactory constructor) {
+  void testCopy(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     assertDuplicate(constructor.create(seed), Pcg32::copy, true);
   }
 
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
-  public void testSplit(PcgFactory constructor) {
+  void testSplit(PcgFactory constructor) {
     final long seed = ThreadLocalRandom.current().nextLong();
     assertDuplicate(constructor.create(seed), Pcg32::split, false);
   }

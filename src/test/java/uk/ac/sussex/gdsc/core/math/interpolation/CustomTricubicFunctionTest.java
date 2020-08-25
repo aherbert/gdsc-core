@@ -38,9 +38,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link CustomTricubicFunction}.
  */
 @SuppressWarnings({"javadoc"})
-public class CustomTricubicFunctionTest {
+class CustomTricubicFunctionTest {
   @Test
-  public void canGetCoefficients() {
+  void canGetCoefficients() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final float[] fa = new float[64];
     final double[] da = new double[64];
@@ -76,7 +76,7 @@ public class CustomTricubicFunctionTest {
   }
 
   @Test
-  public void canConvert() {
+  void canConvert() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
     final float[] fa = new float[64];
     final double[] da = new double[64];
@@ -105,7 +105,7 @@ public class CustomTricubicFunctionTest {
   }
 
   @Test
-  public void testValueThrows() {
+  void testValueThrows() {
 
     final double[] df_da = new double[3];
     final double[] d2f_da2 = new double[3];
@@ -181,7 +181,7 @@ public class CustomTricubicFunctionTest {
   }
 
   @Test
-  public void testCreateThrows() {
+  void testCreateThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       CustomTricubicFunctionUtils.create((double[]) null);
     });
@@ -197,7 +197,7 @@ public class CustomTricubicFunctionTest {
   }
 
   @Test
-  public void testAreEqual() {
+  void testAreEqual() {
     Assertions.assertTrue(CustomTricubicFunction.areEqual(1, 2, 0, 1));
     Assertions.assertTrue(CustomTricubicFunction.areEqual(2, 1, 0, 1));
     Assertions.assertFalse(CustomTricubicFunction.areEqual(1, 2, 0, 0.5));
@@ -209,14 +209,14 @@ public class CustomTricubicFunctionTest {
   }
 
   @Test
-  public void testIsBoundary() {
+  void testIsBoundary() {
     Assertions.assertTrue(CustomTricubicFunction.isBoundary(new CubicSplinePosition(0)));
     Assertions.assertFalse(CustomTricubicFunction.isBoundary(new CubicSplinePosition(0.5)));
     Assertions.assertTrue(CustomTricubicFunction.isBoundary(new CubicSplinePosition(1)));
   }
 
   @Test
-  public void testSearch() {
+  void testSearch() {
 
     // An ascending table of coefficients should have the max in the upper corner
     // (1,1,1).

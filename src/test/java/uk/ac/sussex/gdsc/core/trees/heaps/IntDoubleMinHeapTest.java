@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.trees.heaps.IntDoubleMinHeap;
 
 @SuppressWarnings({"javadoc"})
-public class IntDoubleMinHeapTest {
+class IntDoubleMinHeapTest {
   @Test
-  public void testEmpty() {
+  void testEmpty() {
     final IntDoubleMinHeap heap = new IntDoubleMinHeap(5);
     Assertions.assertEquals(0, heap.getSize());
     Assertions.assertEquals(5, heap.getCapacity());
@@ -46,7 +46,7 @@ public class IntDoubleMinHeapTest {
   }
 
   @Test
-  public void testNaN() {
+  void testNaN() {
     final IntDoubleMinHeap heap = new IntDoubleMinHeap(5);
     Assertions.assertEquals(0, heap.getSize());
     heap.offer(Double.NaN, 42);
@@ -54,7 +54,7 @@ public class IntDoubleMinHeapTest {
   }
 
   @Test
-  public void testPartial() {
+  void testPartial() {
     final IntDoubleMinHeap heap = new IntDoubleMinHeap(5);
     heap.offer(1.1, 100);
     heap.offer(3.1, 200);
@@ -93,7 +93,7 @@ public class IntDoubleMinHeapTest {
   }
 
   @Test
-  public void testFull() {
+  void testFull() {
     final IntDoubleMinHeap heap = new IntDoubleMinHeap(3);
     heap.offer(1.1, 100);
     heap.offer(3.1, 200);
@@ -127,7 +127,7 @@ public class IntDoubleMinHeapTest {
    * that maintain the internal structure not hit by the other tests.
    */
   @Test
-  public void testFullReverseOrder() {
+  void testFullReverseOrder() {
     final IntDoubleMinHeap heap = new IntDoubleMinHeap(3);
     heap.offer(3.1, 100);
     heap.offer(2.1, 200);

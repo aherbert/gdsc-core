@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class AddMultiplyTypeConverterTest {
+class AddMultiplyTypeConverterTest {
 
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     for (final double d : new double[] {Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY}) {
       Assertions.assertThrows(ConversionException.class,
@@ -45,7 +45,7 @@ public class AddMultiplyTypeConverterTest {
   }
 
   @Test
-  public void testConverter() {
+  void testConverter() {
     final AddMultiplyTypeConverter<String> c =
         new AddMultiplyTypeConverter<>("Counts", "Electrons", -100, 2.5);
     Assertions.assertEquals("(x + -100.0) * 2.5", c.getFunction());

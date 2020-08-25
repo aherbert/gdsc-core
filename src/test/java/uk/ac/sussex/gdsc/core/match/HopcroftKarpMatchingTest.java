@@ -41,9 +41,9 @@ import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
  * Test for {@link HopcroftKarpMatching}.
  */
 @SuppressWarnings({"javadoc"})
-public class HopcroftKarpMatchingTest {
+class HopcroftKarpMatchingTest {
   @Test
-  public void testCheckValidIndex() {
+  void testCheckValidIndex() {
     HopcroftKarpMatching.checkValidIndex(1, "test");
     HopcroftKarpMatching.checkValidIndex(Integer.MAX_VALUE - 1, "test");
 
@@ -55,7 +55,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void testIncreaseCapacity() {
+  void testIncreaseCapacity() {
     Assertions.assertEquals(Integer.MAX_VALUE,
         HopcroftKarpMatching.increaseCapacity(Integer.MAX_VALUE - 2));
     Assertions.assertEquals(Integer.MAX_VALUE,
@@ -76,7 +76,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void testGetSize() {
+  void testGetSize() {
     Assertions.assertEquals(0, HopcroftKarpMatching.getSize(null));
     final IntList list = new IntList(1);
     Assertions.assertEquals(0, HopcroftKarpMatching.getSize(list));
@@ -85,7 +85,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void testIntLst() {
+  void testIntLst() {
     final IntList list = new IntList(1);
     for (int i = 1; i <= 10; i++) {
       list.add(i);
@@ -100,7 +100,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void testIntQueue() {
+  void testIntQueue() {
     final IntQueue queue = new IntQueue(1);
     for (int i = 1; i <= 10; i++) {
       queue.add(i);
@@ -119,7 +119,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void computeWithPairData() {
+  void computeWithPairData() {
     // @formatter:off
     // U : 1   2
     //      \ / \
@@ -148,7 +148,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void computeWithLargePairData() {
+  void computeWithLargePairData() {
     // @formatter:off
     // U : 10  2
     //      \ / \
@@ -164,7 +164,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void computeWithTripletData() {
+  void computeWithTripletData() {
     // @formatter:off
     // U : 1   2   3   4
     //      \ / \ / \ /
@@ -191,7 +191,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void computeWithNetworkData() {
+  void computeWithNetworkData() {
     // Data from Wikipedia:
     // https://en.wikipedia.org/wiki/Hopcroft%E2%80%93Karp_algorithm#/media/File:HopcroftKarpExample.png
     final HopcroftKarpMatching matching = new HopcroftKarpMatching();
@@ -213,7 +213,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void computeWithDuplicateNetworkData() {
+  void computeWithDuplicateNetworkData() {
     // Data from Wikipedia:
     // https://en.wikipedia.org/wiki/Hopcroft%E2%80%93Karp_algorithm#/media/File:HopcroftKarpExample.png
     final HopcroftKarpMatching matching = new HopcroftKarpMatching();
@@ -246,7 +246,7 @@ public class HopcroftKarpMatchingTest {
   }
 
   @Test
-  public void computeWithSparseData() {
+  void computeWithSparseData() {
     final HopcroftKarpMatching matching = new HopcroftKarpMatching();
     matching.addEdge(1, 1);
     matching.addEdge(1, 2);

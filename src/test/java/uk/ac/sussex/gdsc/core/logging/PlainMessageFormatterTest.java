@@ -35,10 +35,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class PlainMessageFormatterTest {
+class PlainMessageFormatterTest {
 
   @Test
-  public void canFormatPlainString() {
+  void canFormatPlainString() {
     final String msg = "Simple message";
     final LogRecord lr = new LogRecord(Level.SEVERE, msg);
     final PlainMessageFormatter formatter = new PlainMessageFormatter();
@@ -58,7 +58,7 @@ public class PlainMessageFormatterTest {
   }
 
   @Test
-  public void canFormatPlainStringWithException() {
+  void canFormatPlainStringWithException() {
     final String msg = "Simple message";
     final LogRecord lr = new LogRecord(Level.INFO, msg);
     final Exception ex = new Exception("Something bad");
@@ -78,7 +78,7 @@ public class PlainMessageFormatterTest {
   }
 
   @Test
-  public void canFormatParametersString() {
+  void canFormatParametersString() {
     final PlainMessageFormatter formatter = new PlainMessageFormatter();
     final Object[] parameters = new Object[] {"Test", "the", "parameters", "string"};
     final LogRecord lr = new LogRecord(Level.INFO, "");

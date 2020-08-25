@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings({"javadoc"})
-public class FloatStackTrivalueProviderTest {
+class FloatStackTrivalueProviderTest {
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     final int maxx = 5;
     final int maxy = 4;
     Assertions.assertThrows(DataException.class,
@@ -48,7 +48,7 @@ public class FloatStackTrivalueProviderTest {
 
   @SuppressWarnings("null")
   @Test
-  public void canProvideData() {
+  void canProvideData() {
     final int maxx = 5;
     final int maxy = 4;
     final int maxz = 3;
@@ -98,7 +98,7 @@ public class FloatStackTrivalueProviderTest {
   }
 
   @Test
-  public void canConvertToArray() {
+  void canConvertToArray() {
     final int maxx = 5;
     final int maxy = 4;
     final int maxz = 3;

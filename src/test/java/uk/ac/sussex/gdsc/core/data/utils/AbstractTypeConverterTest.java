@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class AbstractTypeConverterTest {
+class AbstractTypeConverterTest {
 
   private static class DummyTypeConverter extends AbstractTypeConverter<TimeUnit> {
 
@@ -62,7 +62,7 @@ public class AbstractTypeConverterTest {
   }
 
   @Test
-  public void testConstructorWithNull() {
+  void testConstructorWithNull() {
     final TimeUnit from = TimeUnit.MILLISECONDS;
     final TimeUnit to = TimeUnit.SECONDS;
     Assertions.assertThrows(ConversionException.class, () -> new DummyTypeConverter(null, to));
@@ -77,7 +77,7 @@ public class AbstractTypeConverterTest {
   }
 
   @Test
-  public void testConverter() {
+  void testConverter() {
     final TypeConverter<TimeUnit> c =
         new DummyTypeConverter(TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
     Assertions.assertEquals("SECONDS = f(x=MILLISECONDS) = dummy", c.toString());

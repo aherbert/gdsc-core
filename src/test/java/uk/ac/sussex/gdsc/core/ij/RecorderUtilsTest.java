@@ -37,7 +37,7 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 @SuppressWarnings({"javadoc"})
-public class RecorderUtilsTest {
+class RecorderUtilsTest {
   // We need an instance otherwise the static method calls to
   // Recorder.setCommand() are ignored.
   static Recorder recorder = null;
@@ -58,7 +58,7 @@ public class RecorderUtilsTest {
   }
 
   @Test
-  public void canResetRecorderWithPlainValues() {
+  void canResetRecorderWithPlainValues() {
     initialise();
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         null);
@@ -75,7 +75,7 @@ public class RecorderUtilsTest {
   }
 
   @Test
-  public void canResetRecorderWithQuotedValues() {
+  void canResetRecorderWithQuotedValues() {
     initialise();
     canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"),
         toArray("3 3", "4 4"), null);
@@ -156,7 +156,7 @@ public class RecorderUtilsTest {
   }
 
   @Test
-  public void resetRecorderIgnoresInvalidKeys() {
+  void resetRecorderIgnoresInvalidKeys() {
     initialise();
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         toArray("e", "f"));

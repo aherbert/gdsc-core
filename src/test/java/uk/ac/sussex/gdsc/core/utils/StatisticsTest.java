@@ -46,16 +46,16 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class StatisticsTest {
+class StatisticsTest {
   @Test
-  public void testEmptyValues() {
+  void testEmptyValues() {
     final Statistics observed = new Statistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     check(expected, observed);
   }
 
   @Test
-  public void testSingleValues() {
+  void testSingleValues() {
     final Statistics observed = new Statistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     observed.add(Math.PI);
@@ -64,7 +64,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void canAddNullArray() {
+  void canAddNullArray() {
     final Statistics observed = new Statistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     observed.add((double[]) null);
@@ -74,7 +74,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void canAddNullArrayUsingRange() {
+  void canAddNullArrayUsingRange() {
     final Statistics observed = new Statistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     final int from = 0;
@@ -86,7 +86,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testAddDoubleArrayWithBadRangeThrows() {
+  void testAddDoubleArrayWithBadRangeThrows() {
     final Statistics observed = new Statistics();
     final int size = 3;
     final double[] data = new double[size];
@@ -99,7 +99,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testAddFloatArrayWithBadRangeThrows() {
+  void testAddFloatArrayWithBadRangeThrows() {
     final Statistics observed = new Statistics();
     final int size = 3;
     final float[] data = new float[size];
@@ -112,7 +112,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testAddIntArrayWithBadRangeThrows() {
+  void testAddIntArrayWithBadRangeThrows() {
     final Statistics observed = new Statistics();
     final int size = 3;
     final int[] data = new int[size];
@@ -125,7 +125,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testAddDoubleArrayWithZeroRange() {
+  void testAddDoubleArrayWithZeroRange() {
     final Statistics observed = new Statistics();
     final double[] data = new double[3];
     observed.add(data, 1, 1);
@@ -133,7 +133,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testAddFloatArrayWithZeroRange() {
+  void testAddFloatArrayWithZeroRange() {
     final Statistics observed = new Statistics();
     final float[] data = new float[3];
     observed.add(data, 1, 1);
@@ -141,7 +141,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testAddIntArrayWithZeroRange() {
+  void testAddIntArrayWithZeroRange() {
     final Statistics observed = new Statistics();
     final int[] data = new int[3];
     observed.add(data, 1, 1);
@@ -149,7 +149,7 @@ public class StatisticsTest {
   }
 
   @SeededTest
-  public void canAddMultipleValues(RandomSeed seed) {
+  void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final Statistics observed = new Statistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
@@ -167,7 +167,7 @@ public class StatisticsTest {
   }
 
   @SeededTest
-  public void canComputeStatistics(RandomSeed seed) {
+  void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     Statistics observed;
@@ -236,7 +236,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void canAddStatistics() {
+  void canAddStatistics() {
     final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
     final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);
@@ -260,7 +260,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void cannotComputeWithLargeNumbers() {
+  void cannotComputeWithLargeNumbers() {
     // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
     final double[] v = new double[] {4, 7, 13, 16};
     final Statistics o = new Statistics();
@@ -284,7 +284,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void canSafeAdd() throws InterruptedException, ExecutionException {
+  void canSafeAdd() throws InterruptedException, ExecutionException {
     final ExecutorService es = Executors.newFixedThreadPool(6);
     final float[][] fdata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
     final double[][] ddata = {{0, 1, 2, 3}, {4, 5, 6}, {7, 8}};
@@ -357,7 +357,7 @@ public class StatisticsTest {
   }
 
   @Test
-  public void testConfidenceInterval() {
+  void testConfidenceInterval() {
     final Statistics stats = new Statistics();
     Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.0));
     Assertions.assertEquals(Double.POSITIVE_INFINITY, stats.getConfidenceInterval(0.01));

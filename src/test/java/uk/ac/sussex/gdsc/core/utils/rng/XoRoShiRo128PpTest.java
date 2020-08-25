@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-public class XoRoShiRo128PpTest {
+class XoRoShiRo128PpTest {
   @Test
-  public void testZeroSeed() {
+  void testZeroSeed() {
     final XoRoShiRo128PP rng1 = new XoRoShiRo128PP(0);
     final XoRoShiRo128PP rng2 = new XoRoShiRo128PP(0, 0);
     boolean zeroOutput = true;
@@ -54,7 +54,7 @@ public class XoRoShiRo128PpTest {
    * seed).
    */
   @Test
-  public void testPartialZeroSeed() {
+  void testPartialZeroSeed() {
     final XoRoShiRo128PP rng1 = new XoRoShiRo128PP(0);
     final XoRoShiRo128PP rng2 = new XoRoShiRo128PP(0, 1);
     Assertions.assertNotEquals(rng1.nextLong(), rng2.nextLong());
@@ -64,7 +64,7 @@ public class XoRoShiRo128PpTest {
   }
 
   @Test
-  public void testCopy() {
+  void testCopy() {
     final XoRoShiRo128PP rng1 = new XoRoShiRo128PP(ThreadLocalRandom.current().nextLong());
     // Create some state
     rng1.nextInt();
@@ -79,7 +79,7 @@ public class XoRoShiRo128PpTest {
   }
 
   @Test
-  public void testSplit() {
+  void testSplit() {
     final long seed0 = ThreadLocalRandom.current().nextLong();
     final long seed1 = seed0 + 2637846284L;
 

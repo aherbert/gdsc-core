@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class DoubleArrayPredicatesTest {
+class DoubleArrayPredicatesTest {
   @Test
-  public void testEquals() {
+  void testEquals() {
     final BiPredicate<double[], double[]> twod = DoubleArrayPredicates.EQUALS_2D;
     final BiPredicate<double[], double[]> threed = DoubleArrayPredicates.EQUALS_3D;
     final BiPredicate<double[], double[]> nd = DoubleArrayPredicates.EQUALS_ND;
@@ -80,7 +80,7 @@ public class DoubleArrayPredicatesTest {
   }
 
   @Test
-  public void testCreateSquareEuclideanDistanceFunction() {
+  void testCreateSquareEuclideanDistanceFunction() {
     Assertions.assertSame(DoubleArrayPredicates.EQUALS_ND, DoubleArrayPredicates.equals(1));
     Assertions.assertSame(DoubleArrayPredicates.EQUALS_2D, DoubleArrayPredicates.equals(2));
     Assertions.assertSame(DoubleArrayPredicates.EQUALS_3D, DoubleArrayPredicates.equals(3));

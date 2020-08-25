@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link Pulse}.
  */
 @SuppressWarnings({"javadoc"})
-public class PulseTest {
+class PulseTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -63,7 +63,7 @@ public class PulseTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -95,7 +95,7 @@ public class PulseTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -109,7 +109,7 @@ public class PulseTest {
   }
 
   @Test
-  public void testCalculateOverlap() {
+  void testCalculateOverlap() {
     assertOverlap(0, 1, 1, 10, 10);
     assertOverlap(0, 10, 10, 1, 1);
     assertOverlap(1, 1, 1, 1, 1);
@@ -128,7 +128,7 @@ public class PulseTest {
   }
 
   @Test
-  public void testScore() {
+  void testScore() {
     final float x = 0f;
     final float y = 0f;
     final int start = 1;

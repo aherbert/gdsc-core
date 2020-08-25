@@ -39,7 +39,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class SeekableStreamTest {
+class SeekableStreamTest {
 
   private static class DumbSeekableStream extends SeekableStream {
     private long pos;
@@ -69,7 +69,7 @@ public class SeekableStreamTest {
   }
 
   @Test
-  public void testReadThrowsNegativeLength() throws IOException {
+  void testReadThrowsNegativeLength() throws IOException {
     try (SeekableStream ss = new DumbSeekableStream()) {
       final byte[] b = new byte[10];
       Assertions.assertThrows(IndexOutOfBoundsException.class, () -> ss.readFully(b, -1));
@@ -80,7 +80,7 @@ public class SeekableStreamTest {
   }
 
   @Test
-  public void testCopy() throws IOException {
+  void testCopy() throws IOException {
     try (SeekableStream ss = new DumbSeekableStream()) {
       Assertions.assertFalse(ss.canCopy());
       Assertions.assertThrows(IOException.class, () -> ss.copy());
@@ -88,7 +88,7 @@ public class SeekableStreamTest {
   }
 
   @Test
-  public void testSeekWithInt() throws IOException {
+  void testSeekWithInt() throws IOException {
     try (SeekableStream ss = new DumbSeekableStream()) {
       for (final int pos : new int[] {Integer.MAX_VALUE, Integer.MIN_VALUE, -1, 0, 1}) {
         ss.seek(pos);
@@ -98,7 +98,7 @@ public class SeekableStreamTest {
   }
 
   @Test
-  public void testReadFullyThrowsWithUnderflow() throws IOException {
+  void testReadFullyThrowsWithUnderflow() throws IOException {
     final byte[] bytes1 = new byte[5];
     final byte[] bytes2 = new byte[10];
     try (SeekableStream ss = create(bytes1)) {
@@ -107,7 +107,7 @@ public class SeekableStreamTest {
   }
 
   @SeededTest
-  public void testReadBytesWithUnderflow(RandomSeed seed) throws IOException {
+  void testReadBytesWithUnderflow(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes1 = randomBytes(rng, 5);
     final byte[] bytes2 = new byte[10];
@@ -118,7 +118,7 @@ public class SeekableStreamTest {
   }
 
   @SeededTest
-  public void testReadFully(RandomSeed seed) throws IOException {
+  void testReadFully(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes1 = randomBytes(rng, 5);
     final byte[] bytes2 = new byte[5];
@@ -137,7 +137,7 @@ public class SeekableStreamTest {
   }
 
   @SeededTest
-  public void testReadBytes(RandomSeed seed) throws IOException {
+  void testReadBytes(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes1 = randomBytes(rng, 5);
     final byte[] bytes2 = new byte[5];

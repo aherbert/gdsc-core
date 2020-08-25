@@ -36,9 +36,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-public class SplittablesTest {
+class SplittablesTest {
   @Test
-  public void testOfInt() {
+  void testOfInt() {
     final long seed = 12345;
     final int lower = 43;
     final int upper = 678;
@@ -70,7 +70,7 @@ public class SplittablesTest {
   }
 
   @Test
-  public void testOfDouble() {
+  void testOfDouble() {
     final long seed = 12345;
     final double lower = 43;
     final double upper = 678;

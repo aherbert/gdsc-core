@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-public class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
+class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   @Test
-  public void testInverseCumulativeProbabiity() {
+  void testInverseCumulativeProbabiity() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
     final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
@@ -49,7 +49,7 @@ public class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   }
 
   @Test
-  public void testSetTrials() {
+  void testSetTrials() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
     final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
@@ -66,7 +66,7 @@ public class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   }
 
   @Test
-  public void testSetProbabilityOfSuccess() {
+  void testSetProbabilityOfSuccess() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
     final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
@@ -84,7 +84,7 @@ public class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   }
 
   @Test
-  public void testUpdateDistribution() {
+  void testUpdateDistribution() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
     final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);

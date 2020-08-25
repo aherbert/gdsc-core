@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link BasePoint}.
  */
 @SuppressWarnings({"javadoc"})
-public class BasePointTest {
+class BasePointTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -57,7 +57,7 @@ public class BasePointTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -81,7 +81,7 @@ public class BasePointTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -93,7 +93,7 @@ public class BasePointTest {
   }
 
   @Test
-  public void testShift() {
+  void testShift() {
     final float x = 4.567f;
     final float y = 9.958f;
     final float z = 456.21323f;
@@ -111,7 +111,7 @@ public class BasePointTest {
   }
 
   @Test
-  public void testDistance() {
+  void testDistance() {
     final float x1 = 0.678f;
     final float y1 = 2.23434f;
     final float z1 = 3.234f;

@@ -38,9 +38,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.Entropy.EntropyDigest;
 
 @SuppressWarnings("javadoc")
-public class EntropyTest {
+class EntropyTest {
   @Test
-  public void testPerfectEntropy() {
+  void testPerfectEntropy() {
     final long[] counts = {10, 10};
     Assertions.assertEquals(1, Entropy.bits(counts), 1e-6, "Failed using long[]");
     final int[] counts2 = {10, 10};
@@ -50,7 +50,7 @@ public class EntropyTest {
   }
 
   @Test
-  public void testZeroEntropy() {
+  void testZeroEntropy() {
     final long[] counts = {0, 10};
     Assertions.assertEquals(0, Entropy.bits(counts), "Failed using long[]");
     final int[] counts2 = {0, 10};
@@ -60,7 +60,7 @@ public class EntropyTest {
   }
 
   @Test
-  public void testIgnoresNegativeCounts() {
+  void testIgnoresNegativeCounts() {
     final double e = Entropy.bits(9, 5, 3, 2, 13, 5);
     final double o1 = Entropy.bits(9, 5, -4, 3, 2, 13, 5, -3);
     Assertions.assertEquals(e, o1, "Failed using int...");
@@ -69,7 +69,7 @@ public class EntropyTest {
   }
 
   @Test
-  public void testRandomBytes() {
+  void testRandomBytes() {
     final long seed = 7238949279L;
     final int samples = 1024;
 
@@ -87,7 +87,7 @@ public class EntropyTest {
   }
 
   @Test
-  public void testRandomBits() {
+  void testRandomBits() {
     final long seed = 789743214L;
     final int samples = 256;
 
@@ -145,7 +145,7 @@ public class EntropyTest {
 
   @Test
   @Disabled("This has no assertions")
-  public void testRngEntropy() {
+  void testRngEntropy() {
     final long seed = ThreadLocalRandom.current().nextLong();
     for (final UniformRandomProvider rng : new UniformRandomProvider[] {SplitMix.new64(seed),
         SplitMix.new32(seed), Pcg32.xshrr(seed), Pcg32.xshrs(seed),

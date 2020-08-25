@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class OpticsClusterTest {
+class OpticsClusterTest {
   @Test
-  public void testNoLevel() {
+  void testNoLevel() {
     final int start = 13;
     final int end = 42;
     final int clusterId = 6;
@@ -53,7 +53,7 @@ public class OpticsClusterTest {
   }
 
   @Test
-  public void testChildren() {
+  void testChildren() {
     final int start = 13;
     final int end = 42;
     final int clusterId = 3;

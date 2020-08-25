@@ -44,7 +44,7 @@ import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({"javadoc"})
-public class PartialSortTest {
+class PartialSortTest {
   private static Logger logger;
 
   @BeforeAll
@@ -80,7 +80,7 @@ public class PartialSortTest {
   int[] testM = new int[] {50, 100};
 
   @SeededTest
-  public void bottomNofMIsCorrect(RandomSeed seed) {
+  void bottomNofMIsCorrect(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int size : testN) {
       for (final int total : testM) {
@@ -99,19 +99,19 @@ public class PartialSortTest {
   }
 
   @Test
-  public void bottomCanHandleNullData() {
+  void bottomCanHandleNullData() {
     final double[] o = PartialSort.bottom((double[]) null, 5);
     Assertions.assertEquals(0, o.length);
   }
 
   @Test
-  public void bottomCanHandleEmptyData() {
+  void bottomCanHandleEmptyData() {
     final double[] o = PartialSort.bottom(ArrayUtils.EMPTY_DOUBLE_ARRAY, 5);
     Assertions.assertEquals(0, o.length);
   }
 
   @Test
-  public void bottomCanHandleIncompleteData() {
+  void bottomCanHandleIncompleteData() {
     final double[] d = {1, 3, 2};
     final double[] e = {1, 2, 3};
     final double[] o = PartialSort.bottom(d, 5);
@@ -119,7 +119,7 @@ public class PartialSortTest {
   }
 
   @Test
-  public void bottomCanHandleNaNData() {
+  void bottomCanHandleNaNData() {
     final double[] d = {1, 2, Double.NaN, 3};
     final double[] e = {1, 2, 3};
     final double[] o = PartialSort.bottom(d, 5);
@@ -243,7 +243,7 @@ public class PartialSortTest {
   }
 
   @SeededTest
-  public void topNofMIsCorrect(RandomSeed seed) {
+  void topNofMIsCorrect(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int size : testN) {
       for (final int total : testM) {
@@ -263,19 +263,19 @@ public class PartialSortTest {
   }
 
   @Test
-  public void topCanHandleNullData() {
+  void topCanHandleNullData() {
     final double[] o = PartialSort.top((double[]) null, 5);
     Assertions.assertEquals(0, o.length);
   }
 
   @Test
-  public void topCanHandleEmptyData() {
+  void topCanHandleEmptyData() {
     final double[] o = PartialSort.top(ArrayUtils.EMPTY_DOUBLE_ARRAY, 5);
     Assertions.assertEquals(0, o.length);
   }
 
   @Test
-  public void topCanHandleIncompleteData() {
+  void topCanHandleIncompleteData() {
     final double[] d = {1, 3, 2};
     final double[] e = {3, 2, 1};
     final double[] o = PartialSort.top(d, 5);
@@ -283,7 +283,7 @@ public class PartialSortTest {
   }
 
   @Test
-  public void topCanHandleNaNData() {
+  void topCanHandleNaNData() {
     final double[] d = {1, 2, Double.NaN, 3};
     final double[] e = {3, 2, 1};
     final double[] o = PartialSort.top(d, 5);

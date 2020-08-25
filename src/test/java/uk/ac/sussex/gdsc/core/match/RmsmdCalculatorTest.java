@@ -53,9 +53,9 @@ import uk.ac.sussex.gdsc.test.utils.TimingService;
  * Test for {@link RmsmdCalculator}.
  */
 @SuppressWarnings({"javadoc"})
-public class RmsmdCalculatorTest {
+class RmsmdCalculatorTest {
   @Test
-  public void testBadArguments() {
+  void testBadArguments() {
     final List<double[]> c2 = Arrays.asList(new double[2]);
     final List<double[]> empty = Collections.emptyList();
     final List<double[]> c3 = Arrays.asList(new double[3]);
@@ -70,7 +70,7 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
-  public void testRmsmd() {
+  void testRmsmd() {
     // From the RMSMD paper
     //@formatter:off
     final List<double[]> s = Arrays.asList(
@@ -92,7 +92,7 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
-  public void testRmsmdWithObjects() {
+  void testRmsmdWithObjects() {
     // From the RMSMD paper
     //@formatter:off
     final List<BasePoint> s = Arrays.asList(
@@ -115,7 +115,7 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
-  public void testRmsmdWithCustomDistanceFunction() {
+  void testRmsmdWithCustomDistanceFunction() {
     // From the RMSMD paper
     //@formatter:off
     final List<double[]> s = Arrays.asList(
@@ -138,7 +138,7 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
-  public void testRmsmd3d() {
+  void testRmsmd3d() {
     //@formatter:off
     final List<double[]> s = Arrays.asList(
         new double[] {0, 200, 460},
@@ -159,7 +159,7 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
-  public void testRmsmdNd() {
+  void testRmsmdNd() {
     //@formatter:off
     final List<double[]> s = Arrays.asList(
         new double[] {0, 0, 200, 460},
@@ -180,7 +180,7 @@ public class RmsmdCalculatorTest {
   }
 
   @Test
-  public void testSumMinimumDistance() {
+  void testSumMinimumDistance() {
     // From the RMSMD paper
     //@formatter:off
     final double[][] s = new double[][] {
@@ -214,17 +214,17 @@ public class RmsmdCalculatorTest {
   }
 
   @SeededTest
-  public void testRmsmd1dWithKdTree(RandomSeed seed) {
+  void testRmsmd1dWithKdTree(RandomSeed seed) {
     assertRmsmdNdWithKdTree(seed, 1);
   }
 
   @SeededTest
-  public void testRmsmd2dWithKdTree(RandomSeed seed) {
+  void testRmsmd2dWithKdTree(RandomSeed seed) {
     assertRmsmdNdWithKdTree(seed, 2);
   }
 
   @SeededTest
-  public void testRmsmd3dWithKdTree(RandomSeed seed) {
+  void testRmsmd3dWithKdTree(RandomSeed seed) {
     assertRmsmdNdWithKdTree(seed, 3);
   }
 
@@ -257,7 +257,7 @@ public class RmsmdCalculatorTest {
    */
   @SpeedTag
   @SeededTest
-  public void testSumMinimumDistanceSpeed(RandomSeed seed) {
+  void testSumMinimumDistanceSpeed(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     // 2^11 = 2048

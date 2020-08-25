@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class IntHistogramTest {
+class IntHistogramTest {
   @Test
-  public void canCreateHistogram() {
+  void canCreateHistogram() {
     final int offset = 3;
     final int[] histogram = {0, 6, 7, 8, 0};
     final IntHistogram h = new IntHistogram(histogram, offset);
@@ -46,7 +46,7 @@ public class IntHistogramTest {
   }
 
   @Test
-  public void canCopy() {
+  void canCopy() {
     final int offset = 3;
     final int[] histogram = {0, 6, 7, 8, 0};
     final IntHistogram h = new IntHistogram(histogram, offset);

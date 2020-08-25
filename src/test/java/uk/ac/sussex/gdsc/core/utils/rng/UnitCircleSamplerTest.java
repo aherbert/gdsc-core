@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-public class UnitCircleSamplerTest {
+class UnitCircleSamplerTest {
   @Test
-  public void testSamples() {
+  void testSamples() {
     final UniformRandomProvider rng = SplitMix.new64(0);
     final UnitCircleSampler s = UnitCircleSampler.of(rng);
     final UnitCircleSampler s2 = s.withUniformRandomProvider(rng);

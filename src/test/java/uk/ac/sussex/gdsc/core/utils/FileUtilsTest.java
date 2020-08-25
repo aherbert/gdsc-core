@@ -43,9 +43,9 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class FileUtilsTest {
+class FileUtilsTest {
   @Test
-  public void canCreateParent() throws IOException {
+  void canCreateParent() throws IOException {
     final Path tmpDir = Files.createTempDirectory("FileUtilTest");
     final Path filename = Paths.get(tmpDir.toString(), "parentDir", "filename");
     final Path parent = filename.getParent();
@@ -60,7 +60,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canCreateParentIgnoresNullParent() throws IOException {
+  void canCreateParentIgnoresNullParent() throws IOException {
     final Path filename = Paths.get("filename");
     final Path parent = filename.getParent();
     Assertions.assertNull(parent, "Parent should be null");
@@ -68,7 +68,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canCreateParentWrapsSecurityException() throws IOException {
+  void canCreateParentWrapsSecurityException() throws IOException {
     // Check there is no security manager
     Assumptions.assumeTrue(System.getSecurityManager() == null, "Require no security manager");
 
@@ -108,7 +108,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canRemoveExtension() {
+  void canRemoveExtension() {
     canRemoveExtension("", null);
     canRemoveExtension("", "");
     canRemoveExtension("/", "/");
@@ -136,7 +136,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canGetExtensionAndLength() {
+  void canGetExtensionAndLength() {
     canGetExtensionAndLength("", null);
     canGetExtensionAndLength("", "");
     canGetExtensionAndLength("", "/");
@@ -166,7 +166,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canReplaceExtension() {
+  void canReplaceExtension() {
     // Basic use case
     canReplaceExtension("file.ext", "file", "ext");
     canReplaceExtension("file.ext", "file.txt", "ext");
@@ -199,7 +199,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canAddExtensionIfAbsentExtension() {
+  void canAddExtensionIfAbsentExtension() {
     canAddExtensionIfAbsentExtension("", null, null);
     canAddExtensionIfAbsentExtension("", "", "");
     canAddExtensionIfAbsentExtension("/", "/", "");
@@ -223,7 +223,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void canGetName() {
+  void canGetName() {
     canGetName("", null);
     canGetName("", "");
     canGetName("", "/");

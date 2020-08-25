@@ -37,14 +37,14 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class MinMax3dTest {
+class MinMax3dTest {
   @Test
-  public void testEmpty() {
+  void testEmpty() {
     Assertions.assertNull(new MinMax3d().getBounds());
   }
 
   @SeededTest
-  public void testBounds(RandomSeed seed) {
+  void testBounds(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final MinMax3d mm = new MinMax3d();
     for (final int n : new int[] {1, 5, 10}) {

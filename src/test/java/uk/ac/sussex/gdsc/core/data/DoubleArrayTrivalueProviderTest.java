@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class DoubleArrayTrivalueProviderTest {
+class DoubleArrayTrivalueProviderTest {
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     final int maxx = 5;
     final int maxy = 4;
     final int maxz = 3;
@@ -51,7 +51,7 @@ public class DoubleArrayTrivalueProviderTest {
   }
 
   @Test
-  public void canProvideData() {
+  void canProvideData() {
     final int maxx = 5;
     final int maxy = 4;
     final int maxz = 3;

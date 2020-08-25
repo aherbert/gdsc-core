@@ -37,9 +37,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings("javadoc")
-public class MarsagliaTsangGammaSamplerTest {
+class MarsagliaTsangGammaSamplerTest {
   @SeededTest
-  public void testGammaSampler(RandomSeed seed) {
+  void testGammaSampler(RandomSeed seed) {
     final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
     final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
     final double shape = 6.11;
@@ -54,7 +54,7 @@ public class MarsagliaTsangGammaSamplerTest {
   }
 
   @SeededTest
-  public void testGammaSamplerAtShapeLimit(RandomSeed seed) {
+  void testGammaSamplerAtShapeLimit(RandomSeed seed) {
     final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
     final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
     final double shape = 1.0;
@@ -70,7 +70,7 @@ public class MarsagliaTsangGammaSamplerTest {
   }
 
   @SeededTest
-  public void testGammaSamplerUseProperties(RandomSeed seed) {
+  void testGammaSamplerUseProperties(RandomSeed seed) {
     final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
     final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
     final double shape = 6.11;

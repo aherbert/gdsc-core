@@ -36,9 +36,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link RadialStatisticsUtils}.
  */
 @SuppressWarnings({"javadoc"})
-public class RadialStatisticsUtilsTest {
+class RadialStatisticsUtilsTest {
   @Test
-  public void testRadialSumThrows() {
+  void testRadialSumThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> RadialStatisticsUtils.radialSum(4, new float[0][0]));
     Assertions.assertThrows(IllegalArgumentException.class,
@@ -49,7 +49,7 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void canComputeRadialSum() {
+  void canComputeRadialSum() {
     assertEquals("3", new double[] {1, 8, 0}, RadialStatisticsUtils.radialSum(3, ones(3)));
     assertEquals("4", new double[] {1, 8, 7}, RadialStatisticsUtils.radialSum(4, ones(4)));
     assertEquals("5", new double[] {1, 8, 16, 0, 0}, RadialStatisticsUtils.radialSum(5, ones(5)));
@@ -57,13 +57,13 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void canComputeRadialSum16() {
+  void canComputeRadialSum16() {
     assertEquals("16", new double[] {1, 8, 16, 20, 24, 40, 36, 48, 38, 16, 8, 1},
         RadialStatisticsUtils.radialSum(16, ones(16)));
   }
 
   @Test
-  public void canComputeRadialSum512() {
+  void canComputeRadialSum512() {
     assertEquals("512", new double[] {1, 8, 16, 20, 24, 40, 36, 48, 56, 56, 68, 64, 80, 92, 88, 96,
         96, 116, 120, 120, 124, 144, 136, 140, 152, 168, 176, 164, 168, 192, 188, 208, 200, 208,
         228, 208, 232, 228, 256, 248, 236, 272, 264, 288, 276, 272, 296, 292, 312, 304, 336, 324,
@@ -89,13 +89,13 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void testRadialCountThrows() {
+  void testRadialCountThrows() {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> RadialStatisticsUtils.radialCount(0));
   }
 
   @Test
-  public void canComputeRadialCount() {
+  void canComputeRadialCount() {
     assertEquals("3", new int[] {1, 8, 0}, RadialStatisticsUtils.radialCount(3));
     assertEquals("4", new int[] {1, 8, 7}, RadialStatisticsUtils.radialCount(4));
     assertEquals("5", new int[] {1, 8, 16, 0, 0}, RadialStatisticsUtils.radialCount(5));
@@ -103,13 +103,13 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void canComputeRadialCount16() {
+  void canComputeRadialCount16() {
     assertEquals("16", new int[] {1, 8, 16, 20, 24, 40, 36, 48, 38, 16, 8, 1},
         RadialStatisticsUtils.radialCount(16));
   }
 
   @Test
-  public void canComputeRadialCount512() {
+  void canComputeRadialCount512() {
     assertEquals("512", new int[] {1, 8, 16, 20, 24, 40, 36, 48, 56, 56, 68, 64, 80, 92, 88, 96, 96,
         116, 120, 120, 124, 144, 136, 140, 152, 168, 176, 164, 168, 192, 188, 208, 200, 208, 228,
         208, 232, 228, 256, 248, 236, 272, 264, 288, 276, 272, 296, 292, 312, 304, 336, 324, 312,
@@ -135,13 +135,13 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void canComputeRadialSum8x8() {
+  void canComputeRadialSum8x8() {
     assertEquals("8x8", new double[] {37, 296, 592, 740, 338, 77},
         RadialStatisticsUtils.radialSum(8, sequence(8)));
   }
 
   @Test
-  public void canComputeRadialSum32x32() {
+  void canComputeRadialSum32x32() {
     assertEquals("32x32",
         new double[] {529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624, 35972,
             33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1},
@@ -149,7 +149,7 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void canComputeRadialSumAndCount32() {
+  void canComputeRadialSumAndCount32() {
     final double[][] sum =
         RadialStatisticsUtils.radialSumAndCount(32, sequence(32), sequence(32, 43));
     assertEquals(
@@ -165,7 +165,7 @@ public class RadialStatisticsUtilsTest {
   }
 
   @Test
-  public void canComputeRadialSumAndCountMulti32() {
+  void canComputeRadialSumAndCountMulti32() {
     final double[][] sum = RadialStatisticsUtils.radialSum(32, sequence(32), sequence(32, 43));
     assertEquals(
         "sum1", new double[] {529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624,

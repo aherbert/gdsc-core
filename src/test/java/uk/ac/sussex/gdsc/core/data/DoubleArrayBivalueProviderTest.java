@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class DoubleArrayBivalueProviderTest {
+class DoubleArrayBivalueProviderTest {
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     final int maxx = 5;
     final int maxy = 4;
     Assertions.assertThrows(DataException.class,
@@ -46,7 +46,7 @@ public class DoubleArrayBivalueProviderTest {
   }
 
   @Test
-  public void canProvideData() {
+  void canProvideData() {
     final int maxx = 5;
     final int maxy = 4;
     final double[][] data = new double[maxx][maxy];

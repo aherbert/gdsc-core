@@ -39,9 +39,9 @@ import uk.ac.sussex.gdsc.core.math.hull.Hull;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class DbscanResultTest {
+class DbscanResultTest {
   @Test
-  public void testDbscanResult() {
+  void testDbscanResult() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om = new OpticsManager(x, y, 0);
@@ -106,7 +106,7 @@ public class DbscanResultTest {
   }
 
   @Test
-  public void testScrambleClusters() {
+  void testScrambleClusters() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om = new OpticsManager(x, y, new float[x.length], 0);
@@ -133,7 +133,7 @@ public class DbscanResultTest {
   }
 
   @Test
-  public void testScrambleClustersWithNoClusters() {
+  void testScrambleClustersWithNoClusters() {
     final float[] x = {0, 1};
     final float[] y = {0, 0};
     final OpticsManager om = new OpticsManager(x, y, 0);
@@ -158,7 +158,7 @@ public class DbscanResultTest {
   }
 
   @Test
-  public void testComputeHulls3d() {
+  void testComputeHulls3d() {
     final float[] x = {0, 1, 0, 1, 100, 10, 11, 10, 11, 12};
     final float[] y = {0, 0, 1, 1, 100, 10, 10, 11, 11, 12};
     final OpticsManager om2 = new OpticsManager(x, y, 0);

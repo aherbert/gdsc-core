@@ -40,9 +40,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class StoredDataStatisticsTest {
+class StoredDataStatisticsTest {
   @Test
-  public void testEmptyValues() {
+  void testEmptyValues() {
     final StoredDataStatistics observed = new StoredDataStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     check(expected, observed);
@@ -51,7 +51,7 @@ public class StoredDataStatisticsTest {
   }
 
   @Test
-  public void testSingleValues() {
+  void testSingleValues() {
     final StoredDataStatistics observed = new StoredDataStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     final DescriptiveStatistics stats1 = observed.getStatistics();
@@ -62,7 +62,7 @@ public class StoredDataStatisticsTest {
   }
 
   @Test
-  public void testAddDoubleArrayWithZeroRange() {
+  void testAddDoubleArrayWithZeroRange() {
     final StoredDataStatistics observed = new StoredDataStatistics();
     final double[] data = new double[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -74,7 +74,7 @@ public class StoredDataStatisticsTest {
   }
 
   @Test
-  public void testAddFloatArrayWithZeroRange() {
+  void testAddFloatArrayWithZeroRange() {
     final StoredDataStatistics observed = new StoredDataStatistics();
     final float[] data = new float[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -86,7 +86,7 @@ public class StoredDataStatisticsTest {
   }
 
   @Test
-  public void testAddIntArrayWithZeroRange() {
+  void testAddIntArrayWithZeroRange() {
     final StoredDataStatistics observed = new StoredDataStatistics();
     final int[] data = new int[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -98,7 +98,7 @@ public class StoredDataStatisticsTest {
   }
 
   @SeededTest
-  public void canAddMultipleValues(RandomSeed seed) {
+  void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final StoredDataStatistics observed = new StoredDataStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
@@ -116,7 +116,7 @@ public class StoredDataStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeStatistics(RandomSeed seed) {
+  void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     StoredDataStatistics observed;
@@ -203,7 +203,7 @@ public class StoredDataStatisticsTest {
   }
 
   @Test
-  public void canAddStatistics() {
+  void canAddStatistics() {
     final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
     final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);
@@ -229,7 +229,7 @@ public class StoredDataStatisticsTest {
   }
 
   @Test
-  public void canConstructWithData() {
+  void canConstructWithData() {
     // This requires that the constructor correctly initialises the storage
     StoredDataStatistics stats;
     stats = StoredDataStatistics.create(new double[] {1, 2, 3});

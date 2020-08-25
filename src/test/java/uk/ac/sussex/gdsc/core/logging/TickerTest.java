@@ -37,10 +37,10 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class TickerTest {
+class TickerTest {
 
   @Test
-  public void canCreateDefaultTicker() {
+  void canCreateDefaultTicker() {
     final long total = 10;
     final boolean threadSafe = false;
 
@@ -103,7 +103,7 @@ public class TickerTest {
   }
 
   @Test
-  public void throwsWithBadInterval() {
+  void throwsWithBadInterval() {
     final long total = 10;
     final boolean threadSafe = false;
     // Do nothing
@@ -149,22 +149,22 @@ public class TickerTest {
   }
 
   @Test
-  public void canCreateTickerForIntegerTotal() {
+  void canCreateTickerForIntegerTotal() {
     testTicker(10, false);
   }
 
   @Test
-  public void canCreateTickerForIntegerTotalThreadSafe() {
+  void canCreateTickerForIntegerTotalThreadSafe() {
     testTicker(10, true);
   }
 
   @Test
-  public void canCreateTickerForLongTotal() {
+  void canCreateTickerForLongTotal() {
     testTicker(Integer.MAX_VALUE + 1L, false);
   }
 
   @Test
-  public void canCreateTickerForLongTotalThreadSafe() {
+  void canCreateTickerForLongTotalThreadSafe() {
     testTicker(Integer.MAX_VALUE + 1L, true);
   }
 
@@ -278,12 +278,12 @@ public class TickerTest {
   }
 
   @Test
-  public void testThreadSafeTickerForIntegerTotal() throws InterruptedException {
+  void testThreadSafeTickerForIntegerTotal() throws InterruptedException {
     testThreadSafeTicker(Integer.MAX_VALUE);
   }
 
   @Test
-  public void testThreadSafeTickerForLongTotal() throws InterruptedException {
+  void testThreadSafeTickerForLongTotal() throws InterruptedException {
     testThreadSafeTicker(Integer.MAX_VALUE + 1L);
   }
 

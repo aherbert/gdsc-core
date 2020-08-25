@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link RankedScoreCalculator}.
  */
 @SuppressWarnings({"javadoc"})
-public class RankedScoreCalulatorTest {
+class RankedScoreCalulatorTest {
   @Test
-  public void testToFractionClassificationResult() {
+  void testToFractionClassificationResult() {
     final double[] score = {787.98, 5657.898};
     final int numberOfActual = 56;
     final FractionClassificationResult result =
@@ -50,7 +50,7 @@ public class RankedScoreCalulatorTest {
   }
 
   @Test
-  public void testToClassificationResult() {
+  void testToClassificationResult() {
     final double[] score = {787.98, 5657.898, 678, 345};
     final int numberOfActual = 56;
     final ClassificationResult result =
@@ -63,7 +63,7 @@ public class RankedScoreCalulatorTest {
   }
 
   @Test
-  public void testGetMatchScore() {
+  void testGetMatchScore() {
     final FractionalAssignment[] assignments = createAssignments(
         // id 0
         0, 0, 0, 3,
@@ -77,7 +77,7 @@ public class RankedScoreCalulatorTest {
   }
 
   @Test
-  public void testPrecisionRecallCurve() {
+  void testPrecisionRecallCurve() {
     // 3 predictions to test each edge case.
     final int numberOfPredictions = 3;
     final FractionalAssignment[] assignments = createAssignments(
@@ -127,7 +127,7 @@ public class RankedScoreCalulatorTest {
   }
 
   @Test
-  public void canCreateCalculatorAndGetAssignments() {
+  void canCreateCalculatorAndGetAssignments() {
     final FractionalAssignment[] assignments = createAssignments(
         // distance 0.5
         0, 1, 0.5, 3,
@@ -150,7 +150,7 @@ public class RankedScoreCalulatorTest {
   }
 
   @Test
-  public void testScoreWithSingleMatches() {
+  void testScoreWithSingleMatches() {
     final FractionalAssignment[] assignments = createAssignments(
         // distance 0 is matched
         0, 0, 0, 0.6,
@@ -181,7 +181,7 @@ public class RankedScoreCalulatorTest {
   }
 
   @Test
-  public void testScoreWithMultipleMatches() {
+  void testScoreWithMultipleMatches() {
     final FractionalAssignment[] assignments = createAssignments(
         // distance 0 is matched
         0, 0, 0, 0.6,

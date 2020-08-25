@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link MatchResult}.
  */
 @SuppressWarnings({"javadoc"})
-public class MatchResultTest {
+class MatchResultTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final int tp = 5;
     final int fp = 1;
     final int fn = 3;

@@ -35,14 +35,14 @@ import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings("javadoc")
-public class RandomGeneratorAdaptorTest {
+class RandomGeneratorAdaptorTest {
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> new RandomGeneratorAdapter(null));
   }
 
   @Test
-  public void testSetSeedThrows() {
+  void testSetSeedThrows() {
     final SplitMix rng = SplitMix.new64(0);
     Assertions.assertThrows(NotImplementedException.class,
         () -> new RandomGeneratorAdapter(rng).setSeed(0), "Should throw with int seed");
@@ -53,7 +53,7 @@ public class RandomGeneratorAdaptorTest {
   }
 
   @SeededTest
-  public void testNextMethods(RandomSeed randomSeed) {
+  void testNextMethods(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
     final SplitMix rng1 = SplitMix.new64(seed);
     final RandomGeneratorAdapter rng2 = new RandomGeneratorAdapter(SplitMix.new64(seed));

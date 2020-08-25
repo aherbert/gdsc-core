@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class CollectionUtilsTest {
+class CollectionUtilsTest {
 
   enum SimpleEnum {
     A, B, C, D, E, F, G, H, I, J, K, L, M
@@ -50,7 +50,7 @@ public class CollectionUtilsTest {
   private static final SimpleEnum G = SimpleEnum.G;
 
   @Test
-  public void testContainsAny() {
+  void testContainsAny() {
     // 2 args
     Assertions.assertTrue(CollectionUtils.containsAny(EnumSet.of(A), A, B));
     Assertions.assertTrue(CollectionUtils.containsAny(EnumSet.of(B), A, B));
@@ -88,7 +88,7 @@ public class CollectionUtilsTest {
   }
 
   @Test
-  public void testContainsAll() {
+  void testContainsAll() {
     // 2 args
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A), A, B));
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(B), A, B));
@@ -131,7 +131,7 @@ public class CollectionUtilsTest {
   }
 
   @Test
-  public void canGetSize() {
+  void canGetSize() {
     Assertions.assertEquals(0, CollectionUtils.getSize(null));
     Assertions.assertEquals(3, CollectionUtils.getSize(Arrays.asList(1, 2, 3)));
   }

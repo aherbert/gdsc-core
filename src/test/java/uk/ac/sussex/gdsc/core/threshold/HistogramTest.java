@@ -36,9 +36,9 @@ import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class HistogramTest {
+class HistogramTest {
   @Test
-  public void canCreateHistogram() {
+  void canCreateHistogram() {
     final int[] histogram = {0, 6, 7, 8, 0};
     final Histogram h = new Histogram(histogram);
     Assertions.assertEquals(1, h.minBin);
@@ -49,7 +49,7 @@ public class HistogramTest {
   }
 
   @Test
-  public void canCopy() {
+  void canCopy() {
     final int[] histogram = {0, 6, 7, 8, 0};
     final Histogram h = new Histogram(histogram);
     final Histogram h2 = h.copy();
@@ -59,13 +59,13 @@ public class HistogramTest {
   }
 
   @Test
-  public void canBuildHistogramWithNoData() {
+  void canBuildHistogramWithNoData() {
     assertBuildHistogram(new int[1], new int[1]);
     assertBuildHistogram(new int[1], new int[1], null);
   }
 
   @Test
-  public void canBuildHistogram() {
+  void canBuildHistogram() {
     assertBuildHistogram(new int[] {3, 4, 5, 6}, new int[] {1, 0, 1, 1}, 3, 5, 6);
     assertBuildHistogram(new int[] {3, 4, 5, 6}, new int[] {1, 0, 2, 1}, 3, 5, 5, 6);
     assertBuildHistogram(new int[] {3, 4, 5, 6}, new int[] {2, 0, 1, 1}, 3, 3, 5, 6);
@@ -98,14 +98,14 @@ public class HistogramTest {
   }
 
   @Test
-  public void canCompact() {
+  void canCompact() {
     final int[] histogram = {0, 6, 7, 8, 0};
     final Histogram h = new Histogram(histogram);
     Assertions.assertSame(h, h.compact(3));
   }
 
   @Test
-  public void testGetThreshold() {
+  void testGetThreshold() {
     final int[] histogram = {4, 1, 5, 1, 0, 1, 0, 1, 1};
     for (int i = 0; i < 3; i++) {
       final Histogram h = new Histogram(histogram);

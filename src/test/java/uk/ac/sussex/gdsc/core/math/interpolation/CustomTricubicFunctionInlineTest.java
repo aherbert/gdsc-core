@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
  * version. This includes scaling the power table by 2,3,6 for computation of the gradients.
  */
 @SuppressWarnings({"javadoc"})
-public class CustomTricubicFunctionInlineTest {
+class CustomTricubicFunctionInlineTest {
   private static Logger logger;
 
   @BeforeAll
@@ -265,7 +265,7 @@ public class CustomTricubicFunctionInlineTest {
    * CubicSplinePosition)}.
    */
   @Test
-  public void canConstructInlineValue0() {
+  void canConstructInlineValue0() {
     Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue0());
   }
@@ -276,7 +276,7 @@ public class CustomTricubicFunctionInlineTest {
    * CubicSplinePosition, double[])}.
    */
   @Test
-  public void canConstructInlineValue1() {
+  void canConstructInlineValue1() {
     Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue1());
   }
@@ -287,7 +287,7 @@ public class CustomTricubicFunctionInlineTest {
    * CubicSplinePosition, double[], double[])}.
    */
   @Test
-  public void canConstructInlineValue2() {
+  void canConstructInlineValue2() {
     Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue2());
   }

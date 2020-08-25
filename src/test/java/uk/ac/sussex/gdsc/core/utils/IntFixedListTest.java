@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class IntFixedListTest {
+class IntFixedListTest {
   @Test
-  public void testAddGetSet() {
+  void testAddGetSet() {
     final int capacity = 5;
     final IntFixedList list = new IntFixedList(capacity);
     Assertions.assertEquals(capacity, list.capacity());
@@ -49,7 +49,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testAddArray() {
+  void testAddArray() {
     final IntFixedList list = new IntFixedList(10);
     final int[] data = {42, 7, 13};
     list.add(data);
@@ -65,7 +65,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testAddIntFixedList() {
+  void testAddIntFixedList() {
     final IntFixedList list = new IntFixedList(10);
     final IntFixedList list2 = new IntFixedList(10);
     final int[] data = {42, 7, 13};
@@ -84,7 +84,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testCopy() {
+  void testCopy() {
     final IntFixedList list = new IntFixedList(10);
     final int[] data = {42, 7, 13};
     list.add(data);
@@ -95,7 +95,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testClear() {
+  void testClear() {
     final IntFixedList list = new IntFixedList(10);
     final int[] data = {42, 7, 13};
     list.add(data);
@@ -105,7 +105,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testToArray() {
+  void testToArray() {
     final IntFixedList list = new IntFixedList(10);
     Assertions.assertArrayEquals(new int[0], list.toArray());
     final int[] data = {42, 7, 13};
@@ -114,7 +114,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testRemove() {
+  void testRemove() {
     final IntFixedList list = new IntFixedList(10);
     final int[] data = {42, 7, 13};
     list.add(data);
@@ -125,7 +125,7 @@ public class IntFixedListTest {
   }
 
   @Test
-  public void testRemoveIf() {
+  void testRemoveIf() {
     final IntFixedList list = new IntFixedList(10);
     final int[] data = {42, 7, 13};
     list.add(data);

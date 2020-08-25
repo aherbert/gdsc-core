@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class SampleModeTest {
+class SampleModeTest {
   @Test
-  public void testForOridinal() {
+  void testForOridinal() {
     final SampleMode[] values = SampleMode.values();
     for (int i = 0; i < values.length; i++) {
       Assertions.assertEquals(values[i], SampleMode.forOrdinal(i));

@@ -52,7 +52,7 @@ import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
  * Test the DensityCounter.
  */
 @SuppressWarnings({"javadoc"})
-public class DensityCounterTest {
+class DensityCounterTest {
   private static Logger logger;
 
   @BeforeAll
@@ -74,7 +74,7 @@ public class DensityCounterTest {
   int speedTestSize = 5;
 
   @SeededTest
-  public void countAllWithSimpleMatches(RandomSeed seed) {
+  void countAllWithSimpleMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -92,7 +92,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllWithSingleThreadMatches(RandomSeed seed) {
+  void countAllWithSingleThreadMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -110,7 +110,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllWithMultiThreadSycnMatches(RandomSeed seed) {
+  void countAllWithMultiThreadSycnMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -129,7 +129,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllWithMultiThreadNonSyncMatches(RandomSeed seed) {
+  void countAllWithMultiThreadNonSyncMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -148,7 +148,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllAroundMoleculesWithSimpleMatches(RandomSeed seed) {
+  void countAllAroundMoleculesWithSimpleMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -167,7 +167,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllAroundMoleculesWithSingleThreadMatches(RandomSeed seed) {
+  void countAllAroundMoleculesWithSingleThreadMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -186,7 +186,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllAroundMoleculesWithMultiThreadMatches(RandomSeed seed) {
+  void countAllAroundMoleculesWithMultiThreadMatches(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -226,7 +226,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllSpeedTest(RandomSeed seed) {
+  void countAllSpeedTest(RandomSeed seed) {
     // Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     // Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
@@ -341,7 +341,7 @@ public class DensityCounterTest {
   }
 
   @SeededTest
-  public void countAllAroundMoleculesSpeedTest(RandomSeed seed) {
+  void countAllAroundMoleculesSpeedTest(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());

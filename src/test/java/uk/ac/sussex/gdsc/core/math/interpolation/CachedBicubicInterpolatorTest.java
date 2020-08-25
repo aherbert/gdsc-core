@@ -39,9 +39,9 @@ import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
  * Test for {@link CachedBicubicInterpolator}.
  */
 @SuppressWarnings({"javadoc"})
-public class CachedBicubicInterpolatorTest {
+class CachedBicubicInterpolatorTest {
   @Test
-  public void testGetValue() {
+  void testGetValue() {
 
     // Test data
     final float[] fdata = new float[4 * 4];

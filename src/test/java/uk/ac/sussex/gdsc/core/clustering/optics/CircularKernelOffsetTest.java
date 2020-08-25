@@ -39,7 +39,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
-public class CircularKernelOffsetTest {
+class CircularKernelOffsetTest {
   private static Logger logger;
 
   @BeforeAll
@@ -53,7 +53,7 @@ public class CircularKernelOffsetTest {
   }
 
   @Test
-  public void canBuildCircularKernelAtDifferentResolutions() {
+  void canBuildCircularKernelAtDifferentResolutions() {
     // Note: The radius of the default circle is 1 =>
     // Circle Area = pi
     // Square Area = 4

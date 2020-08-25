@@ -38,16 +38,16 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class ExtendedStatisticsTest {
+class ExtendedStatisticsTest {
   @Test
-  public void testEmptyValues() {
+  void testEmptyValues() {
     final ExtendedStatistics observed = new ExtendedStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     check(expected, observed);
   }
 
   @Test
-  public void testSingleValues() {
+  void testSingleValues() {
     final ExtendedStatistics observed = new ExtendedStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     observed.add(Math.PI);
@@ -56,7 +56,7 @@ public class ExtendedStatisticsTest {
   }
 
   @Test
-  public void testAddDoubleArrayWithZeroRange() {
+  void testAddDoubleArrayWithZeroRange() {
     final ExtendedStatistics observed = new ExtendedStatistics();
     final double[] data = new double[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -68,7 +68,7 @@ public class ExtendedStatisticsTest {
   }
 
   @Test
-  public void testAddFloatArrayWithZeroRange() {
+  void testAddFloatArrayWithZeroRange() {
     final ExtendedStatistics observed = new ExtendedStatistics();
     final float[] data = new float[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -80,7 +80,7 @@ public class ExtendedStatisticsTest {
   }
 
   @Test
-  public void testAddIntArrayWithZeroRange() {
+  void testAddIntArrayWithZeroRange() {
     final ExtendedStatistics observed = new ExtendedStatistics();
     final int[] data = new int[] {1, 2, 3};
     observed.add(data, 1, 1);
@@ -92,7 +92,7 @@ public class ExtendedStatisticsTest {
   }
 
   @SeededTest
-  public void canAddMultipleValues(RandomSeed seed) {
+  void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final ExtendedStatistics observed = new ExtendedStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
@@ -110,7 +110,7 @@ public class ExtendedStatisticsTest {
   }
 
   @SeededTest
-  public void canComputeStatistics(RandomSeed seed) {
+  void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     ExtendedStatistics observed;
@@ -181,7 +181,7 @@ public class ExtendedStatisticsTest {
   }
 
   @Test
-  public void canAddStatistics() {
+  void canAddStatistics() {
     final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(75, 4, 1);
     final int[] d3 = SimpleArrayUtils.newArray(33, 4, -1);

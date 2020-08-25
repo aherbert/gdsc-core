@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class FloatDistanceFunctionsTest {
+class FloatDistanceFunctionsTest {
   @Test
-  public void testSquareEuclideanDistance() {
+  void testSquareEuclideanDistance() {
     final FloatDistanceFunction twod = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     final FloatDistanceFunction threed = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
     final FloatDistanceFunction nd = FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND;
@@ -46,7 +46,7 @@ public class FloatDistanceFunctionsTest {
   }
 
   @Test
-  public void testSquareEuclideanDistanceToRectangle() {
+  void testSquareEuclideanDistanceToRectangle() {
     final FloatDistanceFunction twod = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     final FloatDistanceFunction threed = FloatDistanceFunctions.SQUARED_EUCLIDEAN_3D;
     final FloatDistanceFunction nd = FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND;
@@ -73,7 +73,7 @@ public class FloatDistanceFunctionsTest {
   }
 
   @Test
-  public void testCreateSquareEuclideanDistanceFunction() {
+  void testCreateSquareEuclideanDistanceFunction() {
     Assertions.assertSame(FloatDistanceFunctions.SQUARED_EUCLIDEAN_ND,
         FloatDistanceFunctions.squaredEuclidean(1));
     Assertions.assertSame(FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D,

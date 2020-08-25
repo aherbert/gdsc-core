@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class ConversionExceptionTest {
+class ConversionExceptionTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     ConversionException e = new ConversionException();
     Assertions.assertNull(e.getMessage());
 

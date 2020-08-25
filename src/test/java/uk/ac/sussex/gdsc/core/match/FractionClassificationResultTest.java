@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link FractionClassificationResult}.
  */
 @SuppressWarnings({"javadoc"})
-public class FractionClassificationResultTest {
+class FractionClassificationResultTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final double tp = 5.12;
     final double fp = 1.11;
     final double tn = 2.32;
@@ -87,7 +87,7 @@ public class FractionClassificationResultTest {
   }
 
   @Test
-  public void canCreateWithoutNumberOfPositivesOrNegatives() {
+  void canCreateWithoutNumberOfPositivesOrNegatives() {
     final double tp = 5.12;
     final double fp = 1.11;
     final double tn = 2.32;
@@ -98,7 +98,7 @@ public class FractionClassificationResultTest {
   }
 
   @Test
-  public void testMatthewsCorrelationCoefficientWithZeroDistance() {
+  void testMatthewsCorrelationCoefficientWithZeroDistance() {
     final double tp = 0;
     final double fp = 0;
     final double tn = 0;

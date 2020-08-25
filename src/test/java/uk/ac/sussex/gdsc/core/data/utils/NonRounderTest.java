@@ -35,10 +35,10 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class NonRounderTest {
+class NonRounderTest {
 
   @SeededTest
-  public void testNonRounder(RandomSeed seed) {
+  void testNonRounder(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final Rounder r = NonRounder.INSTANCE;
     for (int i = 0; i < 10; i++) {

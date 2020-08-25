@@ -32,17 +32,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class FloatUnaryOperatorTest {
+class FloatUnaryOperatorTest {
 
   @Test
-  public void canApplyAsFloat() {
+  void canApplyAsFloat() {
     final FloatUnaryOperator fun = f -> f + 1;
     Assertions.assertEquals(3, fun.applyAsFloat(2));
     Assertions.assertEquals(3.5f, fun.applyAsFloat(2.5f));
   }
 
   @Test
-  public void testIdentity() {
+  void testIdentity() {
     final FloatUnaryOperator fun = FloatUnaryOperator.identity();
     for (final float f : new float[] {1, 2, 3, 5.67f}) {
       Assertions.assertEquals(f, fun.applyAsFloat(f));
@@ -50,7 +50,7 @@ public class FloatUnaryOperatorTest {
   }
 
   @Test
-  public void testCompose() {
+  void testCompose() {
     final FloatUnaryOperator multiply = f -> f * 9 / 5;
     final FloatUnaryOperator add = f -> f + 32;
     final FloatUnaryOperator fun = add.compose(multiply);
@@ -60,7 +60,7 @@ public class FloatUnaryOperatorTest {
   }
 
   @Test
-  public void testAndThen() {
+  void testAndThen() {
     final FloatUnaryOperator multiply = f -> f * 9 / 5;
     final FloatUnaryOperator add = f -> f + 32;
     final FloatUnaryOperator fun = multiply.andThen(add);

@@ -43,13 +43,13 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
  * Test for {@link QuadraticUtils}.
  */
 @SuppressWarnings({"javadoc"})
-public class QuadraticUtilsTest {
+class QuadraticUtilsTest {
 
   // It is fine to use a,b,c for a quadratic ax^2 + bx + c
   // CHECKSTYLE.OFF: ParameterName
 
   @SeededTest
-  public void canGetDeterminant3x3(RandomSeed seed) {
+  void canGetDeterminant3x3(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
     for (int i = 0; i < 5; i++) {
@@ -68,7 +68,7 @@ public class QuadraticUtilsTest {
   }
 
   @SeededTest
-  public void canSolveQuadratic(RandomSeed seed) {
+  void canSolveQuadratic(RandomSeed seed) {
     final double a = 3;
     final double b = -2;
     final double c = -4;
@@ -114,7 +114,7 @@ public class QuadraticUtilsTest {
   }
 
   @Test
-  public void solveUsingColocatedPointsReturnsNull() {
+  void solveUsingColocatedPointsReturnsNull() {
     final double a = 3;
     final double b = -2;
     final double c = -4;
@@ -124,7 +124,7 @@ public class QuadraticUtilsTest {
   }
 
   @Test
-  public void canFindMinMaxQuadratic() {
+  void canFindMinMaxQuadratic() {
     final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
     TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1), areClose);
     TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1), areClose);
@@ -141,7 +141,7 @@ public class QuadraticUtilsTest {
   }
 
   @Test
-  public void findMinMaxUsingColocatedPointsThrows() {
+  void findMinMaxUsingColocatedPointsThrows() {
     final double a = 3;
     final double b = -2;
     final double c = -4;
@@ -151,7 +151,7 @@ public class QuadraticUtilsTest {
   }
 
   @Test
-  public void findMinMaxUsingColinearPointsThrows() {
+  void findMinMaxUsingColinearPointsThrows() {
     final double a = 0;
     final double b = 1;
     final double c = 0;

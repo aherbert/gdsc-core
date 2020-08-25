@@ -41,9 +41,9 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviders;
 
 @SuppressWarnings({"javadoc"})
-public class ProjectedMoleculeSpaceTest {
+class ProjectedMoleculeSpaceTest {
   @Test
-  public void testToString() {
+  void testToString() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     final UniformRandomProvider rg = UniformRandomProviders.create(123);
@@ -52,7 +52,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testComputeWithSize1() {
+  void testComputeWithSize1() {
     final float[] x = {0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     final UniformRandomProvider rg = UniformRandomProviders.create(123);
@@ -69,7 +69,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testComputeWithSize2() {
+  void testComputeWithSize2() {
     final float[] x = {0, 0};
     final OpticsManager om = new OpticsManager(x, x, 1);
     final UniformRandomProvider rg = UniformRandomProviders.create(123);
@@ -91,7 +91,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testComputeWithMinSplitSizeOf1() {
+  void testComputeWithMinSplitSizeOf1() {
     final float[] x = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     final OpticsManager om = new OpticsManager(x, x, 10);
     final UniformRandomProvider rg = UniformRandomProviders.create(123);
@@ -111,7 +111,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testSplitRandomly() {
+  void testSplitRandomly() {
     final int[] ind = {0, 1, 2, 3, 4, 5};
     final int begin = 1;
     final int end = 5;
@@ -159,7 +159,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testSplitByDistance() {
+  void testSplitByDistance() {
     final int[] ind = {0, 1, 2, 3, 4, 5};
     final int begin = 1;
     final int end = 5;
@@ -200,7 +200,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testSampleNeighboursUsingMedian() {
+  void testSampleNeighboursUsingMedian() {
     final float[] x = {0, 1, 2, 3, 4, 5};
     final float[] y = new float[x.length];
     final OpticsManager om = new OpticsManager(x, y, 10);
@@ -218,7 +218,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testSampleNeighboursUsingRandomWithMinNeighbours() {
+  void testSampleNeighboursUsingRandomWithMinNeighbours() {
     final float[] x = {0, 1, 2, 3, 4, 5};
     final float[] y = new float[x.length];
     final OpticsManager om = new OpticsManager(x, y, 10);
@@ -236,7 +236,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testSampleNeighboursUsingRandom() {
+  void testSampleNeighboursUsingRandom() {
     final float[] x = {0, 1, 2, 3, 4, 5};
     final float[] y = new float[x.length];
     final OpticsManager om = new OpticsManager(x, y, 10);
@@ -254,7 +254,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testSampleNeighboursUsingAll() {
+  void testSampleNeighboursUsingAll() {
     final float[] x = {0, 1, 2, 3, 4, 5};
     final float[] y = new float[x.length];
     final OpticsManager om = new OpticsManager(x, y, 10);
@@ -317,7 +317,7 @@ public class ProjectedMoleculeSpaceTest {
   }
 
   @Test
-  public void testFindNeighbours() {
+  void testFindNeighbours() {
     final float[] x = {0, 1, 3};
     final OpticsManager om = new OpticsManager(x, x, 10);
     final UniformRandomProvider rg = UniformRandomProviders.create(123);

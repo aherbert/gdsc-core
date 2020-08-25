@@ -76,7 +76,7 @@ import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
  * Test for {@link CustomTricubicInterpolator}.
  */
 @SuppressWarnings({"javadoc"})
-public class CustomTricubicInterpolatorTest {
+class CustomTricubicInterpolatorTest {
   private static Logger logger;
 
   @BeforeAll
@@ -93,7 +93,7 @@ public class CustomTricubicInterpolatorTest {
   private final double gradientDelta = 0.00001;
 
   @SeededTest
-  public void canConstructInterpolatingFunction(RandomSeed seed) {
+  void canConstructInterpolatingFunction(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     final int x = 4;
@@ -136,7 +136,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void constructWithXArrayOfLength1Throws() {
+  void constructWithXArrayOfLength1Throws() {
     final int x = 1;
     final int y = 2;
     final int z = 2;
@@ -150,7 +150,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void constructWithYArrayOfLength1Throws() {
+  void constructWithYArrayOfLength1Throws() {
     final int x = 2;
     final int y = 1;
     final int z = 2;
@@ -164,7 +164,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void constructWithZArrayOfLength1Throws() {
+  void constructWithZArrayOfLength1Throws() {
     final int x = 2;
     final int y = 2;
     final int z = 1;
@@ -178,7 +178,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canDetectIfUniform() {
+  void canDetectIfUniform() {
     final int x = 3;
     final int y = 3;
     final int z = 3;
@@ -219,7 +219,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canDetectIfInteger() {
+  void canDetectIfInteger() {
     final int x = 3;
     final int y = 3;
     final int z = 3;
@@ -255,12 +255,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithNonIntegerAxis(RandomSeed seed) {
+  void canInterpolateWithNonIntegerAxis(RandomSeed seed) {
     canInterpolate(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithIntegerAxis(RandomSeed seed) {
+  void canInterpolateWithIntegerAxis(RandomSeed seed) {
     canInterpolate(seed, true);
   }
 
@@ -405,7 +405,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateUsingPrecomputedPoints(RandomSeed seed) {
+  void canInterpolateUsingPrecomputedPoints(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
@@ -447,12 +447,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canInterpolateSingleNodeWithScale() {
+  void canInterpolateSingleNodeWithScale() {
     canInterpolateSingleNode(0.5, 1, 2);
   }
 
   @Test
-  public void canInterpolateSingleNodeWithNoScale() {
+  void canInterpolateSingleNodeWithNoScale() {
     canInterpolateSingleNode(1, 1, 1);
   }
 
@@ -495,12 +495,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canInterpolateSingleNodeWithOffsetWithScale() {
+  void canInterpolateSingleNodeWithOffsetWithScale() {
     canInterpolateSingleNodeWithOffset(0.5, 1, 2);
   }
 
   @Test
-  public void canInterpolateSingleNodeWithOffsetWithNoScale() {
+  void canInterpolateSingleNodeWithOffsetWithNoScale() {
     canInterpolateSingleNodeWithOffset(1, 1, 1);
   }
 
@@ -646,12 +646,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsWithNonIntegerAxis(RandomSeed seed) {
+  void canInterpolateWithGradientsWithNonIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradients(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsWithIntegerAxis(RandomSeed seed) {
+  void canInterpolateWithGradientsWithIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradients(seed, false);
   }
 
@@ -798,12 +798,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedPointsWithNonIntegerAxis(RandomSeed seed) {
+  void canInterpolateWithGradientsUsingPrecomputedPointsWithNonIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedPoints(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedPointsWithIntegerAxis(RandomSeed seed) {
+  void canInterpolateWithGradientsUsingPrecomputedPointsWithIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedPoints(seed, true);
   }
 
@@ -914,13 +914,13 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithNonIntegerAxis(
+  void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithNonIntegerAxis(
       RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithIntegerAxis(
+  void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithIntegerAxis(
       RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(seed, true);
   }
@@ -1011,7 +1011,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canComputeNoInterpolation() {
+  void canComputeNoInterpolation() {
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1155,7 +1155,7 @@ public class CustomTricubicInterpolatorTest {
 
   @SpeedTag
   @SeededTest
-  public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed) {
+  void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
@@ -1215,12 +1215,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canComputeNonIntegerGridWithExecutorService() {
+  void canComputeNonIntegerGridWithExecutorService() {
     canComputeWithExecutorService(1, 0.5, 2.0);
   }
 
   @Test
-  public void canComputeIntegerGridWithExecutorService() {
+  void canComputeIntegerGridWithExecutorService() {
     canComputeWithExecutorService(1, 1, 1);
   }
 
@@ -1261,17 +1261,17 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canSampleInterpolatedFunctionWithN1() {
+  void canSampleInterpolatedFunctionWithN1() {
     canSampleInterpolatedFunction(1);
   }
 
   @Test
-  public void canSampleInterpolatedFunctionWithN2() {
+  void canSampleInterpolatedFunctionWithN2() {
     canSampleInterpolatedFunction(2);
   }
 
   @Test
-  public void canSampleInterpolatedFunctionWithN3() {
+  void canSampleInterpolatedFunctionWithN3() {
     canSampleInterpolatedFunction(3);
   }
 
@@ -1315,22 +1315,22 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canDynamicallySampleFunctionWithN2() {
+  void canDynamicallySampleFunctionWithN2() {
     canDynamicallySampleFunction(2, false);
   }
 
   @Test
-  public void canDynamicallySampleFunctionWithN3() {
+  void canDynamicallySampleFunctionWithN3() {
     canDynamicallySampleFunction(3, false);
   }
 
   @Test
-  public void canDynamicallySampleFunctionWithN2WithExecutorService() {
+  void canDynamicallySampleFunctionWithN2WithExecutorService() {
     canDynamicallySampleFunction(2, true);
   }
 
   @Test
-  public void canDynamicallySampleFunctionWithN3WithExecutorService() {
+  void canDynamicallySampleFunctionWithN3WithExecutorService() {
     canDynamicallySampleFunction(3, true);
   }
 
@@ -1383,12 +1383,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canExternaliseDoubleFunction() throws IOException {
+  void canExternaliseDoubleFunction() throws IOException {
     canExternaliseFunction(false);
   }
 
   @Test
-  public void canExternaliseFloatFunction() throws IOException {
+  void canExternaliseFloatFunction() throws IOException {
     canExternaliseFunction(true);
   }
 
@@ -1443,7 +1443,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
+  void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
@@ -1494,7 +1494,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
+  void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
@@ -1565,7 +1565,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void searchSplineImprovesFunctionValue(RandomSeed seed) {
+  void searchSplineImprovesFunctionValue(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
@@ -1611,7 +1611,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canFindOptimum(RandomSeed seed) {
+  void canFindOptimum(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
@@ -1657,7 +1657,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void testBuilder() {
+  void testBuilder() {
     final int x = 6;
     final int y = 5;
     final int z = 4;
@@ -1731,7 +1731,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void testCreateThrows() {
+  void testCreateThrows() {
     final TrivalueProvider fp = new DoubleArrayTrivalueProvider(createData(4, 4, 4, null));
     Assertions.assertNotNull(CustomTricubicInterpolator.create(fp));
 
@@ -1821,7 +1821,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void testSampleThrows() {
+  void testSampleThrows() {
 
     final double[][][] fval = createData(2, 2, 2, null);
     final DoubleArrayTrivalueProvider f = new DoubleArrayTrivalueProvider(fval);
@@ -1895,7 +1895,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void testInterpolateThrows() {
+  void testInterpolateThrows() {
 
     final TrivalueProvider fp = new DoubleArrayTrivalueProvider(createData(2, 2, 2, null));
     final ValueProvider x1 = new DoubleArrayValueProvider(SimpleArrayUtils.newArray(1, 0, 1.0));
@@ -1924,7 +1924,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void testCanGetNumberOfTasks() {
+  void testCanGetNumberOfTasks() {
     final long nNodes = Integer.MAX_VALUE;
     final long taskSize = 1;
     final long[] result = CustomTricubicInterpolator.getTaskSizeAndNumberOfTasks(nNodes, taskSize);

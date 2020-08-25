@@ -36,9 +36,9 @@ import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class FloatHistogramTest {
+class FloatHistogramTest {
   @Test
-  public void canCreateHistogram() {
+  void canCreateHistogram() {
     final float[] value = {1.1f, 2, 5, 8, 9};
     final int[] histogram = {0, 6, 7, 8, 0};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -50,7 +50,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCopy() {
+  void canCopy() {
     final float[] value = {1.1f, 2, 5, 8, 9};
     final int[] histogram = {0, 6, 7, 8, 0};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -62,13 +62,13 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canBuildFloatHistogramWithNoData() {
+  void canBuildFloatHistogramWithNoData() {
     assertBuildFloatHistogram(new float[1], new int[1]);
     assertBuildFloatHistogram(new float[1], new int[1], null);
   }
 
   @Test
-  public void canBuildFloatHistogram() {
+  void canBuildFloatHistogram() {
     assertBuildFloatHistogram(new float[] {3, 5, 6}, new int[] {1, 1, 1}, 3, 5, 6);
     assertBuildFloatHistogram(new float[] {3, 5, 6}, new int[] {1, 2, 1}, 3, 5, 5, 6);
     assertBuildFloatHistogram(new float[] {3, 5, 6}, new int[] {2, 1, 1}, 3, 3, 5, 6);
@@ -128,7 +128,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactEmpty() {
+  void canCompactEmpty() {
     final float[] value = {13};
     final int[] histogram = {0};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -137,7 +137,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToHistogram() {
+  void canCompactToHistogram() {
     final float[] value = {2, 3, 4};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -150,7 +150,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToIntHistogram() {
+  void canCompactToIntHistogram() {
     final float[] value = {-4, -3, -2};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -164,7 +164,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToIntHistogram2() {
+  void canCompactToIntHistogram2() {
     final float[] value = {2, 3, 4};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -178,7 +178,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToFloatHistogram() {
+  void canCompactToFloatHistogram() {
     final float[] value = {2, 3, 7};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -191,7 +191,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToFloatHistogram2() {
+  void canCompactToFloatHistogram2() {
     final float[] value = {2, 3.5f, 4};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -204,7 +204,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToFloatHistogram3() {
+  void canCompactToFloatHistogram3() {
     final float[] value = {2.5f, 3, 10.5f};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -217,7 +217,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void canCompactToFloatHistogram4() {
+  void canCompactToFloatHistogram4() {
     final float[] value = {2, 3, 10.5f};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -230,7 +230,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void testCompactThrows() {
+  void testCompactThrows() {
     final float[] value = {2.5f, 3, 10.5f};
     final int[] histogram = {1, 2, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -239,7 +239,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void testGetThresholdWithNoHistogramRange() {
+  void testGetThresholdWithNoHistogramRange() {
     final float[] value = {2, 3, 10};
     final int[] histogram = {0, 1, 0};
     final FloatHistogram h = new FloatHistogram(value, histogram);
@@ -247,7 +247,7 @@ public class FloatHistogramTest {
   }
 
   @Test
-  public void testGetThreshold() {
+  void testGetThreshold() {
     final float[] value = {2, 3, 4, 5, 6, 7, 8, 9, 10};
     final int[] histogram = {0, 1, 5, 1, 0, 1, 0, 1, 1};
     final FloatHistogram h = new FloatHistogram(value, histogram);

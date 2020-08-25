@@ -46,7 +46,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
-public class DensityManagerTest {
+class DensityManagerTest {
   private static Logger logger;
 
   @BeforeAll
@@ -64,7 +64,7 @@ public class DensityManagerTest {
   int[] ns = new int[] {1000, 2000, 4000};
 
   @SeededTest
-  public void densityWithTriangleMatchesDensity(RandomSeed seed) {
+  void densityWithTriangleMatchesDensity(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
@@ -79,7 +79,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void densityWithGridMatchesDensity(RandomSeed seed) {
+  void densityWithGridMatchesDensity(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
@@ -94,7 +94,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void densityWithGridFasterThanDensityTriangle(RandomSeed seed) {
+  void densityWithGridFasterThanDensityTriangle(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -122,7 +122,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void densityWithGridFasterThanDensity(RandomSeed seed) {
+  void densityWithGridFasterThanDensity(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -150,7 +150,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void sumWithGridMatchesSum(RandomSeed seed) {
+  void sumWithGridMatchesSum(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
@@ -165,7 +165,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void sumWithGridFasterThanSum(RandomSeed seed) {
+  void sumWithGridFasterThanSum(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -193,7 +193,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void blockDensityMatchesBlockDensity2(RandomSeed seed) {
+  void blockDensityMatchesBlockDensity2(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
@@ -208,7 +208,7 @@ public class DensityManagerTest {
   }
 
   @SeededTest
-  public void blockDensity2MatchesBlockDensity3(RandomSeed seed) {
+  void blockDensity2MatchesBlockDensity3(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
@@ -224,7 +224,7 @@ public class DensityManagerTest {
 
   @Disabled("This is not always true. The two are comparable in speed.")
   @SeededTest
-  public void blockDensityFasterThanBlockDensity2(RandomSeed seed) {
+  void blockDensityFasterThanBlockDensity2(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
@@ -254,7 +254,7 @@ public class DensityManagerTest {
 
   @SpeedTag
   @SeededTest
-  public void blockDensity2FasterThanBlockDensity3(RandomSeed seed) {
+  void blockDensity2FasterThanBlockDensity3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());

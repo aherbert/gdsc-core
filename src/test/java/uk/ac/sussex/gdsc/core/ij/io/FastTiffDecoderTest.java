@@ -79,16 +79,16 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
  * ImageJ.
  */
 @SuppressWarnings({"javadoc"})
-public class FastTiffDecoderTest {
+class FastTiffDecoderTest {
 
   @Test
-  public void testSafeDivide() {
+  void testSafeDivide() {
     Assertions.assertEquals(0, FastTiffDecoder.safeDivide(1.0, 0.0));
     Assertions.assertEquals(0.5, FastTiffDecoder.safeDivide(1.0, 2.0));
   }
 
   @SeededTest
-  public void canGetOrigin(RandomSeed seed) {
+  void canGetOrigin(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
 
     for (int i = 0; i < 5; i++) {
@@ -131,7 +131,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void canGetOriginSkipsBadPatterns() {
+  void canGetOriginSkipsBadPatterns() {
     final char start = '[';
     final char delimiter = ',';
     final char end = ']';
@@ -157,7 +157,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testHandleEof() throws EOFException {
+  void testHandleEof() throws EOFException {
     FastTiffDecoder.handleEof(0);
     Assertions.assertThrows(EOFException.class, () -> FastTiffDecoder.handleEof(-1));
     FastTiffDecoder.handleEof(678768, 678768);
@@ -165,7 +165,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testCreateTiffDecoder() throws IOException {
+  void testCreateTiffDecoder() throws IOException {
     final byte ii = 73;
     final byte mm = 77;
     final byte magic = 42;
@@ -193,7 +193,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testSeek() throws IOException {
+  void testSeek() throws IOException {
     final byte[] bytes = {73, 73, 42, 0};
     final long[] position = new long[1];
     @SuppressWarnings("resource")
@@ -209,7 +209,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testSaveImageDescription() throws IOException {
+  void testSaveImageDescription() throws IOException {
     final byte[] bytes = {73, 73, 42, 0};
     @SuppressWarnings("resource")
     final SeekableStream ss = new DummySeekableStream(bytes);
@@ -233,7 +233,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testStandardTiffMetadata() throws IOException {
+  void testStandardTiffMetadata() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new ByteProcessor(width, height));
@@ -330,7 +330,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testDecodeCompositeImage() throws IOException {
+  void testDecodeCompositeImage() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImageStack stack = new ImageStack(width, height);
@@ -402,7 +402,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testInchUnit() throws IOException {
+  void testInchUnit() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new ShortProcessor(width, height));
@@ -442,7 +442,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testUmUnit() throws IOException {
+  void testUmUnit() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new ByteProcessor(width, height));
@@ -478,7 +478,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testRbg() throws IOException {
+  void testRbg() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new ColorProcessor(width, height));
@@ -514,7 +514,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGrey8() throws IOException {
+  void testGrey8() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new ByteProcessor(width, height));
@@ -550,7 +550,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGrey16Stack() throws IOException {
+  void testGrey16Stack() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImageStack stack = new ImageStack(width, height);
@@ -598,7 +598,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void test72Dpi() throws IOException {
+  void test72Dpi() throws IOException {
     final int width = 5;
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new FloatProcessor(width, height));
@@ -641,7 +641,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetName() {
+  void testGetName() {
     Assertions.assertEquals("NewSubfileType",
         FastTiffDecoder.getName(FastTiffDecoder.NEW_SUBFILE_TYPE));
     Assertions.assertEquals("ImageWidth", FastTiffDecoder.getName(FastTiffDecoder.IMAGE_WIDTH));
@@ -685,7 +685,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetFieldTypeName() {
+  void testGetFieldTypeName() {
     Assertions.assertEquals("byte", FastTiffDecoder.getFieldTypeName(FastTiffDecoder.BYTE));
     Assertions.assertEquals("ASCII string",
         FastTiffDecoder.getFieldTypeName(FastTiffDecoder.ASCII_STRING));
@@ -697,7 +697,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetFieldTypeSize() {
+  void testGetFieldTypeSize() {
     Assertions.assertEquals(1, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.BYTE));
     Assertions.assertEquals(1, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.ASCII_STRING));
     Assertions.assertEquals(2, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.WORD));
@@ -707,7 +707,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetBytesPerPixel() {
+  void testGetBytesPerPixel() {
     final int width = 3;
     final int height = 5;
     final int size = width * height;
@@ -733,7 +733,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testNumberOfImages() {
+  void testNumberOfImages() {
     NumberOfImages no = new NumberOfImages(1);
     Assertions.assertEquals(1, no.getImageCount());
     Assertions.assertEquals(0, no.getError());
@@ -746,7 +746,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testImageJnImages() {
+  void testImageJnImages() {
     // Ignore nImages=1
     Assertions.assertEquals(1, FastTiffDecoder.getImageJnImages("images=1\n"));
     Assertions.assertEquals(2, FastTiffDecoder.getImageJnImages("images=2\n"));
@@ -758,7 +758,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetGapInfo() {
+  void testGetGapInfo() {
     final ExtendedFileInfo[] fi =
         {new ExtendedFileInfo(), new ExtendedFileInfo(), new ExtendedFileInfo()};
     // Regular spacing
@@ -773,7 +773,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testIndexMap() {
+  void testIndexMap() {
     // Map is channel, slice, frame, position, offset
     // There is no checking of the input data so we can use the same CZTPO
 
@@ -847,7 +847,7 @@ public class FastTiffDecoderTest {
   // For the remaining metadata create dummy image and check it is read the same as ImageJ.
 
   @Test
-  public void testBadIfd() throws IOException {
+  void testBadIfd() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a valid tiff first.
     writer.beginIfd(9);
@@ -917,7 +917,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testMultiIfd() throws IOException {
+  void testMultiIfd() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a valid tiff first.
     writer.beginIfd(9);
@@ -993,7 +993,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testNonImageJ16bitLut() throws IOException {
+  void testNonImageJ16bitLut() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a valid tiff first.
     writer.beginIfd(9);
@@ -1027,7 +1027,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testReadMicroManagerSummaryMetadata() throws IOException {
+  void testReadMicroManagerSummaryMetadata() throws IOException {
     final String metaData = "Hello world";
     final DummyTiffWriter writer = new DummyTiffWriter(true, metaData);
     // Write a valid tiff.
@@ -1061,7 +1061,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetIndexMap() throws IOException {
+  void testGetIndexMap() throws IOException {
     // Write a valid OME tiff.
     final String metaData = "Dummy OME-TIFF";
     final DummyTiffWriter writer = new DummyTiffWriter(true, metaData);
@@ -1196,7 +1196,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetNumberOfImagesFromEstimate() throws IOException {
+  void testGetNumberOfImagesFromEstimate() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a valid tiff first.
     writer.beginIfd(9);
@@ -1260,7 +1260,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testReadNihHeader() throws IOException {
+  void testReadNihHeader() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a valid tiff first.
     writer.beginIfd(10);
@@ -1365,7 +1365,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testReadImageJExtraMetadata() throws IOException {
+  void testReadImageJExtraMetadata() throws IOException {
     Assertions.assertTrue(FastTiffDecoder.empty(null));
     Assertions.assertTrue(FastTiffDecoder.empty(new int[0]));
 
@@ -1480,7 +1480,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testReadImageJExtraMetadataWithNoCounts() throws IOException {
+  void testReadImageJExtraMetadataWithNoCounts() throws IOException {
     Assertions.assertTrue(FastTiffDecoder.empty(null));
     Assertions.assertTrue(FastTiffDecoder.empty(new int[0]));
 
@@ -1520,7 +1520,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testReadStripOffsetsAndCounts() throws IOException {
+  void testReadStripOffsetsAndCounts() throws IOException {
     DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a valid tiff first.
     writer.beginIfd(9);
@@ -1650,7 +1650,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testPhotoInterpAndBitsPerSample() throws IOException {
+  void testPhotoInterpAndBitsPerSample() throws IOException {
     int count = 1;
     int[] values = {8, 16, 32, 12, 1};
     int[] expected = {FileInfo.GRAY8, FileInfo.GRAY16_UNSIGNED, FileInfo.GRAY32_INT,
@@ -1721,7 +1721,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testSamplesPerPixel() throws IOException {
+  void testSamplesPerPixel() throws IOException {
     final int[] photo = {0, 0, 0, 5, 0, 5, 0, 0};
     final int[] bits = {8, 16, 8, 8, 16, 16, 32, 32};
     final int[] samples = {3, 3, 4, 4, 4, 4, 3, 4};
@@ -1746,7 +1746,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testPlanar() throws IOException {
+  void testPlanar() throws IOException {
     final int[] bits = {16, 8, 16, 8, 8, 8, 8};
     final int[] samples = {3, 3, 3, 3, 1, 1, 4};
     final int[] planar = {2, 2, 1, 1, 2, 1, 1};
@@ -1782,7 +1782,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testCompression() throws IOException {
+  void testCompression() throws IOException {
     int[] values = {5, 32773, 32946, 8, 0, 1, 7, 5, 0};
     final int[] predictor = {0, 0, 0, 0, 0, 0, 0, 2, 2};
     final int[] expected = {FileInfo.LZW, FileInfo.PACK_BITS, FileInfo.ZIP, FileInfo.ZIP,
@@ -1822,7 +1822,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testMetadata() throws IOException {
+  void testMetadata() throws IOException {
     DummyTiffWriter writer = new DummyTiffWriter(true);
     final String software = "This program";
     final String dateTime = "2001-01-01";
@@ -1881,7 +1881,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testTileWidth() {
+  void testTileWidth() {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     writer.beginIfd(1);
     writer.writeEntry(FastTiffDecoder.TILE_WIDTH, FastTiffDecoder.SHORT, 1, 500);
@@ -1893,7 +1893,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testSampleFormat() throws IOException {
+  void testSampleFormat() throws IOException {
     final int[] bits = {32, 32, 16, 16};
     final int[] format = {FastTiffDecoder.FLOATING_POINT, 0, FastTiffDecoder.SIGNED, 0};
     final int[] expected = {FileInfo.GRAY32_FLOAT, FileInfo.GRAY32_INT, FileInfo.GRAY16_SIGNED,
@@ -1927,7 +1927,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testImageDescription() throws IOException {
+  void testImageDescription() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     final String s1 = "Should be read";
     final String s2 = "Should be ignored";
@@ -1963,7 +1963,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testOrientation() throws IOException {
+  void testOrientation() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     // Write a dummy tiff with the orientataion tag
     writer.beginIfd(1);
@@ -1982,7 +1982,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testMetamorph() throws IOException {
+  void testMetamorph() throws IOException {
     DummyTiffWriter writer = new DummyTiffWriter(true);
     writer.beginIfd(1);
     writer.writeEntry(FastTiffDecoder.METAMORPH1, FastTiffDecoder.SHORT, 1, 1);
@@ -2029,7 +2029,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testIplab() throws IOException {
+  void testIplab() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     writer.beginIfd(1);
     writer.writeEntry(FastTiffDecoder.IPLAB, FastTiffDecoder.SHORT, 11, 42);
@@ -2046,7 +2046,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testMicroManagerMetaData() throws IOException {
+  void testMicroManagerMetaData() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     final String s1 = "data1";
     final String s2 = "data2";
@@ -2072,7 +2072,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testBadTagInIfd() throws IOException {
+  void testBadTagInIfd() throws IOException {
     final int[] tags = {10000, 10001, 32768};
     final int[] lengths = {2, 1, 2};
     for (int i = 0; i < tags.length; i++) {
@@ -2094,7 +2094,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetNumberOfImagesNonImageJ() throws IOException {
+  void testGetNumberOfImagesNonImageJ() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     writer.beginIfd(3);
     writer.writeEntry(FastTiffDecoder.IMAGE_WIDTH, FastTiffDecoder.SHORT, 0, 10);
@@ -2141,7 +2141,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetNumberOfImagesNonImageJWithExtraIfdData() throws IOException {
+  void testGetNumberOfImagesNonImageJWithExtraIfdData() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true);
     final int width = 10;
     final int height = 15;
@@ -2209,7 +2209,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetPixelSize() throws IOException {
+  void testGetPixelSize() throws IOException {
     // Create two IFDs with a set pixel type.
     // Then estimate the number of images with an imaginary file size.
     final int width = 10;
@@ -2264,7 +2264,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testGetPixelSizeThrows() {
+  void testGetPixelSizeThrows() {
     // Create 2 IFDs with a pixel type that is not supported.
     final long dummyEstimatedSize = 999;
     final int height = 15;
@@ -2318,7 +2318,7 @@ public class FastTiffDecoderTest {
   }
 
   @Test
-  public void testTrackProgress() throws IOException {
+  void testTrackProgress() throws IOException {
     final DummyTiffWriter writer = new DummyTiffWriter(true, 2048);
     final int count = 64;
     for (int i = 0; i <= count; i++) {

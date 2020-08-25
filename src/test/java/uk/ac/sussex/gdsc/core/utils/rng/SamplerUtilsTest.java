@@ -39,9 +39,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings("javadoc")
-public class SamplerUtilsTest {
+class SamplerUtilsTest {
   @Test
-  public void testCreateDiscreteSamples() {
+  void testCreateDiscreteSamples() {
     final int size = 10;
     final int start = 5;
     final int increment = 2;
@@ -52,7 +52,7 @@ public class SamplerUtilsTest {
   }
 
   @Test
-  public void testCreateContinuousSamples() {
+  void testCreateContinuousSamples() {
     final int size = 10;
     final double start = 5.43;
     final double increment = 2.11;
@@ -64,7 +64,7 @@ public class SamplerUtilsTest {
   }
 
   @Test
-  public void testCreateGaussianSampler() {
+  void testCreateGaussianSampler() {
     final UniformRandomProvider rng = new SplitMix64(0L);
     final double mean = 1.23;
     final double standardDeviation = 4.56;
@@ -74,7 +74,7 @@ public class SamplerUtilsTest {
   }
 
   @Test
-  public void testCreateGammaSampler() {
+  void testCreateGammaSampler() {
     final UniformRandomProvider rng = new SplitMix64(0L);
     final double shape = 1.23;
     final double scale = 4.56;
@@ -83,7 +83,7 @@ public class SamplerUtilsTest {
   }
 
   @Test
-  public void testCreateBinomialSampler() {
+  void testCreateBinomialSampler() {
     final UniformRandomProvider rng = new SplitMix64(0L);
     final int trials = 14;
     final double probabilityOfSuccess = 0.789;
@@ -93,7 +93,7 @@ public class SamplerUtilsTest {
   }
 
   @Test
-  public void testCreateGeometricSampler() {
+  void testCreateGeometricSampler() {
     final UniformRandomProvider rng = new SplitMix64(0L);
     final double probabilityOfSuccess = 0.789;
     final DiscreteSampler sampler = SamplerUtils.createGeometricSampler(rng, probabilityOfSuccess);
@@ -101,7 +101,7 @@ public class SamplerUtilsTest {
   }
 
   @Test
-  public void testCreateGeometricSamplerFromMean() {
+  void testCreateGeometricSamplerFromMean() {
     final UniformRandomProvider rng = new SplitMix64(0L);
     final double mean = 456.322;
     final DiscreteSampler sampler = SamplerUtils.createGeometricSamplerFromMean(rng, mean);

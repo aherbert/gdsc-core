@@ -43,11 +43,11 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
-public class FloatNdTreeTest {
+class FloatNdTreeTest {
   private static final int BUCKET_SIZE = 24;
 
   @Test
-  public void testEmptyTree() {
+  void testEmptyTree() {
     final FloatKdTree tree = KdTrees.newFloatKdTree(2);
     Assertions.assertEquals(2, tree.dimensions());
     Assertions.assertEquals(0, tree.size());
@@ -69,19 +69,19 @@ public class FloatNdTreeTest {
   }
 
   @Test
-  public void testComputeKnnWithSmallTree() {
+  void testComputeKnnWithSmallTree() {
     final float[][] data = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
     assertComputeKnn(data);
   }
 
   @Test
-  public void testComputeKnnWithSingleTree() {
+  void testComputeKnnWithSingleTree() {
     final float[][] data = new float[][] {{0, 0}};
     assertComputeKnn(data);
   }
 
   @Test
-  public void testComputeKnnWithSingularity() {
+  void testComputeKnnWithSingularity() {
     final LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 3);
     final float[] point1 = new float[2];
     // Create some data.
@@ -93,12 +93,12 @@ public class FloatNdTreeTest {
   }
 
   @SeededTest
-  public void testComputeKnn(RandomSeed seed) {
+  void testComputeKnn(RandomSeed seed) {
     assertComputeKnn(seed, false);
   }
 
   @SeededTest
-  public void testComputeKnnWithDuplicates(RandomSeed seed) {
+  void testComputeKnnWithDuplicates(RandomSeed seed) {
     assertComputeKnn(seed, true);
   }
 
@@ -203,7 +203,7 @@ public class FloatNdTreeTest {
    * Test that the distance function can be used with a singularity to exclude points.
    */
   @Test
-  public void testSingularityWithDistanceAboveRange() {
+  void testSingularityWithDistanceAboveRange() {
     final LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 3);
     final float[] point1 = {0, 0};
     final float[] point2 = {5, 4};
@@ -252,7 +252,7 @@ public class FloatNdTreeTest {
   }
 
   @Test
-  public void testComputeKnnWithNaN() {
+  void testComputeKnnWithNaN() {
     final LocalList<float[]> list = new LocalList<>(BUCKET_SIZE * 2);
     final float[] point1 = {0, 0};
     final float[] point2 = {Float.NaN, Float.NaN};
@@ -295,7 +295,7 @@ public class FloatNdTreeTest {
   }
 
   @Test
-  public void testAddIfAbsent() {
+  void testAddIfAbsent() {
     assertAddIfAbsent(2);
     assertAddIfAbsent(3);
     assertAddIfAbsent(4);
@@ -319,7 +319,7 @@ public class FloatNdTreeTest {
   }
 
   @Test
-  public void testForEach() {
+  void testForEach() {
     final FloatKdTree tree = KdTrees.newFloatKdTree(2);
     final IndexSupplier msg = new IndexSupplier(1, "item ", "");
     for (final int size : new int[] {0, 1, 4, 16, 64, 256}) {

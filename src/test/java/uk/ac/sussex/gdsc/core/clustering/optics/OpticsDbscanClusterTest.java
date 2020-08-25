@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class OpticsDbscanClusterTest {
+class OpticsDbscanClusterTest {
   @Test
-  public void testNoLevel() {
+  void testNoLevel() {
     final int start = 13;
     final int end = 42;
     final int clusterId = 6;

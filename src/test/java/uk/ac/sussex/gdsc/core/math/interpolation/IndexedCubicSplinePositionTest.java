@@ -35,12 +35,12 @@ import org.junit.jupiter.api.Test;
  * Test for {@link IndexedCubicSplinePosition}.
  */
 @SuppressWarnings({"javadoc"})
-public class IndexedCubicSplinePositionTest {
+class IndexedCubicSplinePositionTest {
   // Note: Avoids testing the super-class methods again. Only those new to this
   // class.
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     final int index = 0;
     final double x = 0.5;
     Assertions.assertNotNull(new IndexedCubicSplinePosition(index, x));
@@ -51,7 +51,7 @@ public class IndexedCubicSplinePositionTest {
   }
 
   @Test
-  public void testProperties() {
+  void testProperties() {
     final double x = 0.5;
     for (int i = 0; i <= 5; i++) {
       final IndexedCubicSplinePosition p = new IndexedCubicSplinePosition(i, x);

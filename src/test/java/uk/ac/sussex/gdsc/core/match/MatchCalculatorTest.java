@@ -41,7 +41,7 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
  * Test for {@link MatchCalculator}.
  */
 @SuppressWarnings({"javadoc"})
-public class MatchCalculatorTest {
+class MatchCalculatorTest {
 
   interface Calculator {
     MatchResult analyseResults(Coordinate[] actualPoints, Coordinate[] predictedPoints,
@@ -109,44 +109,44 @@ public class MatchCalculatorTest {
   }
 
   @Test
-  public void testAnalyseResults2DWithNullPoints() {
+  void testAnalyseResults2DWithNullPoints() {
     assertAnalyseResults2DWithNullPoints(Calculator2D.INSTANCE);
   }
 
   @Test
-  public void testAnalyseResults2DWithNoPoints() {
+  void testAnalyseResults2DWithNoPoints() {
     assertAnalyseResults2DWithNoPoints(Calculator2D.INSTANCE);
   }
 
   @Test
-  public void testAnalyseResults2DWithNoMatches() {
+  void testAnalyseResults2DWithNoMatches() {
     assertAnalyseResults2DWithNoMatches(Calculator2D.INSTANCE);
   }
 
   @Test
-  public void testAnalyseResults2D() {
+  void testAnalyseResults2D() {
     assertAnalyseResults2D(Calculator2D.INSTANCE);
   }
 
   // Exercise the 3D methods with 2D data
 
   @Test
-  public void testAnalyseResults3DWithNullPoints() {
+  void testAnalyseResults3DWithNullPoints() {
     assertAnalyseResults2DWithNullPoints(Calculator3D.INSTANCE);
   }
 
   @Test
-  public void testAnalyseResults3DWithNoPoints() {
+  void testAnalyseResults3DWithNoPoints() {
     assertAnalyseResults2DWithNoPoints(Calculator3D.INSTANCE);
   }
 
   @Test
-  public void testAnalyseResults3DWithNoMatches() {
+  void testAnalyseResults3DWithNoMatches() {
     assertAnalyseResults2DWithNoMatches(Calculator3D.INSTANCE);
   }
 
   @Test
-  public void testAnalyseResults3D() {
+  void testAnalyseResults3D() {
     assertAnalyseResults2D(Calculator3D.INSTANCE);
   }
 
@@ -357,7 +357,7 @@ public class MatchCalculatorTest {
   }
 
   @Test
-  public void testCreateEdgeFunction() {
+  void testCreateEdgeFunction() {
     final double distanceThreshold = 2;
     final ToDoubleBiFunction<Pulse, Pulse> edges =
         MatchCalculator.createEdgeFunction(distanceThreshold);
@@ -384,7 +384,7 @@ public class MatchCalculatorTest {
   }
 
   @Test
-  public void testAnalyseResults2DWithPulses() {
+  void testAnalyseResults2DWithPulses() {
     // This uses the same algorithm.
     // Just hit the case where the matches are known and check the score is computed correctly.
     // @formatter:off

@@ -41,9 +41,9 @@ import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 
 @SuppressWarnings({"javadoc"})
-public class FhtTest {
+class FhtTest {
   @Test
-  public void canCheckPowerOf2() {
+  void canCheckPowerOf2() {
     Assertions.assertFalse(Fht.isPowerOf2(1), "1");
     Assertions.assertFalse(Fht.isPowerOf2(Integer.MAX_VALUE), "" + Integer.MAX_VALUE);
     int value = 2;
@@ -57,7 +57,7 @@ public class FhtTest {
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     final ImageProcessor ip = new FloatProcessor(4, 3);
     Assertions.assertThrows(IllegalArgumentException.class, () -> new Fht(ip, false));
     Assertions.assertThrows(IllegalArgumentException.class, () -> new Fht(new float[9], 3, false));
@@ -69,32 +69,32 @@ public class FhtTest {
   }
 
   @Test
-  public void canConjugateMultiply() {
+  void canConjugateMultiply() {
     canCompute(0, false);
   }
 
   @Test
-  public void canMultiply() {
+  void canMultiply() {
     canCompute(1, false);
   }
 
   @Test
-  public void canDivide() {
+  void canDivide() {
     canCompute(2, false);
   }
 
   @Test
-  public void canFastConjugateMultiply() {
+  void canFastConjugateMultiply() {
     canCompute(0, true);
   }
 
   @Test
-  public void canFastMultiply() {
+  void canFastMultiply() {
     canCompute(1, true);
   }
 
   @Test
-  public void canFastDivide() {
+  void canFastDivide() {
     canCompute(2, true);
   }
 
@@ -168,7 +168,7 @@ public class FhtTest {
   }
 
   @Test
-  public void canSwapQuadrants() {
+  void canSwapQuadrants() {
     final int size = 16;
     final FloatProcessor fp1 =
         new FloatProcessor(size, size, SimpleArrayUtils.newArray(size * size, 0, 1f));
@@ -194,7 +194,7 @@ public class FhtTest {
   }
 
   @Test
-  public void canGetComplexTransform() {
+  void canGetComplexTransform() {
     final int size = 16;
     final FloatProcessor fp1 = createProcessor(size, 5, 7, 4, 6);
     final FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
@@ -223,7 +223,7 @@ public class FhtTest {
   }
 
   @Test
-  public void canCopy() {
+  void canCopy() {
     final int size = 16;
     final FloatProcessor fp = createProcessor(size, 5, 7, 4, 6);
     final Fht fht1 = new Fht(fp);
@@ -232,7 +232,7 @@ public class FhtTest {
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     final int size = 4;
     final FloatProcessor fp = new FloatProcessor(size, size);
     final Fht fht = new Fht(fp);

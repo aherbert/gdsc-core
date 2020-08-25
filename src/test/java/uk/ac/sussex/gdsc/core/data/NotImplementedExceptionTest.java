@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class NotImplementedExceptionTest {
+class NotImplementedExceptionTest {
   @Test
-  public void canConstruct() {
+  void canConstruct() {
     final String message = "Something";
     final Throwable cause = new NotImplementedException();
     Assertions.assertEquals(message, new NotImplementedException(message).getMessage());

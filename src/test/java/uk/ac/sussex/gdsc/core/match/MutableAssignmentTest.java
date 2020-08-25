@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  * Test for {@link MutableAssignment}.
  */
 @SuppressWarnings({"javadoc"})
-public class MutableAssignmentTest {
+class MutableAssignmentTest {
   @Test
-  public void canCreate() {
+  void canCreate() {
     final int targetId = 1454945;
     final int predictedId = 7686;
     final double distance = 2342.78998;
@@ -48,7 +48,7 @@ public class MutableAssignmentTest {
   }
 
   @Test
-  public void canUpdate() {
+  void canUpdate() {
     int targetId = 1454945;
     int predictedId = 7686;
     double distance = 2342.78998;

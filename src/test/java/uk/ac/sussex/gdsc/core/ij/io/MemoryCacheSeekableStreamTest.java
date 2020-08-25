@@ -40,15 +40,15 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class MemoryCacheSeekableStreamTest {
+class MemoryCacheSeekableStreamTest {
 
   @Test
-  public void testThrowsWithNullInputStream() {
+  void testThrowsWithNullInputStream() {
     Assertions.assertThrows(NullPointerException.class, () -> new MemoryCacheSeekableStream(null));
   }
 
   @Test
-  public void testThrowsWithOutOfBounds() throws IOException {
+  void testThrowsWithOutOfBounds() throws IOException {
     try (SeekableStream ss = create(new byte[10])) {
       final byte[] bytes = new byte[5];
       Assertions.assertThrows(IndexOutOfBoundsException.class, () -> ss.read(bytes, -1, 1));
@@ -58,7 +58,7 @@ public class MemoryCacheSeekableStreamTest {
   }
 
   @SeededTest
-  public void canReadSingleByte(RandomSeed seed) throws IOException {
+  void canReadSingleByte(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 2);
     try (SeekableStream ss = create(bytes)) {
@@ -72,7 +72,7 @@ public class MemoryCacheSeekableStreamTest {
   }
 
   @SeededTest
-  public void canReadMultiByte(RandomSeed seed) throws IOException {
+  void canReadMultiByte(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 2);
     try (SeekableStream ss = create(bytes)) {
@@ -88,7 +88,7 @@ public class MemoryCacheSeekableStreamTest {
   }
 
   @SeededTest
-  public void canReadBytesLargerThanBlockSize(RandomSeed seed) throws IOException {
+  void canReadBytesLargerThanBlockSize(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     // Block size is 1024 so create more than that but read less
     final byte[] bytes = randomBytes(rng, 1024 * 3);
@@ -115,7 +115,7 @@ public class MemoryCacheSeekableStreamTest {
   }
 
   @SeededTest
-  public void canSeek(RandomSeed seed) throws IOException {
+  void canSeek(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (SeekableStream ss = create(bytes)) {
@@ -136,7 +136,7 @@ public class MemoryCacheSeekableStreamTest {
   }
 
   @SeededTest
-  public void canSkip(RandomSeed seed) throws IOException {
+  void canSkip(RandomSeed seed) throws IOException {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final byte[] bytes = randomBytes(rng, 20);
     try (SeekableStream ss = create(bytes)) {

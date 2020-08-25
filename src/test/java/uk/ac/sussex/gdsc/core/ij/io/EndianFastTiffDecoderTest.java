@@ -38,15 +38,15 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class EndianFastTiffDecoderTest {
+class EndianFastTiffDecoderTest {
 
   @SeededTest
-  public void testLittleEndianFastTiffDecoder(RandomSeed seed) throws IOException {
+  void testLittleEndianFastTiffDecoder(RandomSeed seed) throws IOException {
     testEndianFastTiffDecoder(seed, true);
   }
 
   @SeededTest
-  public void testBigEndianFastTiffDecoder(RandomSeed seed) throws IOException {
+  void testBigEndianFastTiffDecoder(RandomSeed seed) throws IOException {
     testEndianFastTiffDecoder(seed, false);
   }
 

@@ -36,9 +36,9 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
  * Test for {@link FloatCubicSplineData}.
  */
 @SuppressWarnings({"javadoc"})
-public class FloatCubicSplineDataTest {
+class FloatCubicSplineDataTest {
   @Test
-  public void testToArray() {
+  void testToArray() {
     final float[] exp = SimpleArrayUtils.newArray(64, 1.0f, 1.0f);
     final FloatCubicSplineData data = new FloatCubicSplineData(exp);
     final float[] obs = new float[64];
@@ -47,7 +47,7 @@ public class FloatCubicSplineDataTest {
   }
 
   @Test
-  public void testScale() {
+  void testScale() {
     final float[] exp = SimpleArrayUtils.newArray(64, 1.0f, 1.0f);
     final int scale = 3;
     final FloatCubicSplineData data = new FloatCubicSplineData(exp).scale(scale);
@@ -58,7 +58,7 @@ public class FloatCubicSplineDataTest {
   }
 
   @Test
-  public void testCubicSplineConstructor() {
+  void testCubicSplineConstructor() {
     final CubicSplinePosition x = new CubicSplinePosition(0.25);
     final CubicSplinePosition y = new CubicSplinePosition(0.5);
     final CubicSplinePosition z = new CubicSplinePosition(0.125);

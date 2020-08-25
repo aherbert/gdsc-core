@@ -38,9 +38,9 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings("javadoc")
-public class MixersTest {
+class MixersTest {
   @SeededTest
-  public void testXor(RandomSeed seed) {
+  void testXor(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 500; i++) {
       final int x = rng.nextInt();
@@ -52,7 +52,7 @@ public class MixersTest {
   }
 
   @SeededTest
-  public void testReverseXorRightShift(RandomSeed seed) {
+  void testReverseXorRightShift(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
@@ -66,7 +66,7 @@ public class MixersTest {
   }
 
   @SeededTest
-  public void testReverseXorLeftShift(RandomSeed seed) {
+  void testReverseXorLeftShift(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
@@ -80,12 +80,12 @@ public class MixersTest {
   }
 
   @SeededTest
-  public void testRxsmxs(RandomSeed seed) {
+  void testRxsmxs(RandomSeed seed) {
     assertUnmixer(seed, Mixers::rxsmxs, Mixers::rxsmxsUnmix);
   }
 
   @SeededTest
-  public void testRrmxmx(RandomSeed seed) {
+  void testRrmxmx(RandomSeed seed) {
     assertUnmixer(seed, Mixers::rrmxmx, Mixers::rrmxmxUnmix);
   }
 
@@ -112,7 +112,7 @@ public class MixersTest {
   }
 
   @Test
-  public void testRxsmxsOutput() {
+  void testRxsmxsOutput() {
     // Code generated using the reference c code obtained from:
     // https://mostlymangling.blogspot.com/2018/07/on-mixing-functions-in-fast-splittable.html
     final long[] values =
@@ -130,7 +130,7 @@ public class MixersTest {
   }
 
   @Test
-  public void testRrxmrrxmsx0Output() {
+  void testRrxmrrxmsx0Output() {
     // Code generated using the reference c code obtained from:
     // http://mostlymangling.blogspot.com/2019/01/better-stronger-mixer-and-test-procedure.html
     final long[] values =
@@ -148,7 +148,7 @@ public class MixersTest {
   }
 
   @Test
-  public void testMurmur3IntOutput() {
+  void testMurmur3IntOutput() {
     // Code generated using the original c code:
     // https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp
     final int[] values = {0x44d89774, 0xe7488b4e, 0x6c1465b4, 0xef03ae52, 0x5b2fd1f4, 0x184498c9,
@@ -161,7 +161,7 @@ public class MixersTest {
   }
 
   @Test
-  public void testMurmur3LongOutput() {
+  void testMurmur3LongOutput() {
     // Code generated using the reference c code provided by David Stafford:
     // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
     final long[] values =
@@ -179,7 +179,7 @@ public class MixersTest {
   }
 
   @Test
-  public void testStafford1Output() {
+  void testStafford1Output() {
     // Code generated using the reference c code provided by David Stafford:
     // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
     final long[] values =
@@ -197,7 +197,7 @@ public class MixersTest {
   }
 
   @Test
-  public void testStafford13Output() {
+  void testStafford13Output() {
     // Code generated using the reference c code provided by David Stafford:
     // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
     final long[] values =

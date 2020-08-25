@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class MultiplyAddTypeConverterTest {
+class MultiplyAddTypeConverterTest {
 
   @Test
-  public void testConstructorThrows() {
+  void testConstructorThrows() {
     for (final double d : new double[] {Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY}) {
       Assertions.assertThrows(ConversionException.class,
@@ -45,7 +45,7 @@ public class MultiplyAddTypeConverterTest {
   }
 
   @Test
-  public void testConverter() {
+  void testConverter() {
     final MultiplyAddTypeConverter<String> c =
         new MultiplyAddTypeConverter<>("Celcius", "Fahrenheit", 1.8, 32);
     Assertions.assertEquals("x * 1.8 + 32.0", c.getFunction());

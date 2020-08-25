@@ -39,7 +39,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-public class FilteredNonMaximumSuppressionTest {
+class FilteredNonMaximumSuppressionTest {
   static final int ITER = 5;
 
   // int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
@@ -102,7 +102,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void testCopy() {
+  void testCopy() {
     final boolean[] flags = {true, false};
     for (final boolean f1 : flags) {
       for (final boolean f2 : flags) {
@@ -134,7 +134,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void testGetHeightThreshold() {
+  void testGetHeightThreshold() {
     final FilteredNonMaximumSuppression nms = new FilteredNonMaximumSuppression();
     Assertions.assertEquals(0, nms.getHeightThreshold());
     nms.setBackground(10);
@@ -149,7 +149,7 @@ public class FilteredNonMaximumSuppressionTest {
 
   // XXX: Copy from here..
   @Test
-  public void floatMaxFindCanFilter() {
+  void floatMaxFindCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -173,7 +173,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void floatMaxFindInternalCanFilter() {
+  void floatMaxFindInternalCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -200,7 +200,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void floatMaxFindInternalWithBorderCanFilter() {
+  void floatMaxFindInternalWithBorderCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -227,7 +227,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void floatBlockFindCanFilter() {
+  void floatBlockFindCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -255,7 +255,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void floatBlockFindInternalCanFilter() {
+  void floatBlockFindInternalCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -286,7 +286,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void floatBlockFind3x3CanFilter() {
+  void floatBlockFind3x3CanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -314,7 +314,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void floatBlockFind3x3InternalCanFilter() {
+  void floatBlockFind3x3InternalCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -345,7 +345,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @SeededTest
-  public void floatBlockFind3x3InternalIgnoresBadBorder(RandomSeed seed) {
+  void floatBlockFind3x3InternalIgnoresBadBorder(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int maxx = 13;
     final int maxy = 17;
@@ -357,7 +357,7 @@ public class FilteredNonMaximumSuppressionTest {
 
   // XXX: Copy methods up to here for 'int' versions
   @Test
-  public void intMaxFindCanFilter() {
+  void intMaxFindCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -381,7 +381,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void intMaxFindInternalCanFilter() {
+  void intMaxFindInternalCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -408,7 +408,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void intMaxFindInternalWithBorderCanFilter() {
+  void intMaxFindInternalWithBorderCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -435,7 +435,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void intBlockFindCanFilter() {
+  void intBlockFindCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -463,7 +463,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void intBlockFindInternalCanFilter() {
+  void intBlockFindInternalCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -494,7 +494,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void intBlockFind3x3CanFilter() {
+  void intBlockFind3x3CanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -522,7 +522,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @Test
-  public void intBlockFind3x3InternalCanFilter() {
+  void intBlockFind3x3InternalCanFilter() {
     final int maxx = 40;
     final int maxy = 41;
     //@formatter:off
@@ -553,7 +553,7 @@ public class FilteredNonMaximumSuppressionTest {
   }
 
   @SeededTest
-  public void intBlockFind3x3InternalIgnoresBadBorder(RandomSeed seed) {
+  void intBlockFind3x3InternalIgnoresBadBorder(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int maxx = 13;
     final int maxy = 17;

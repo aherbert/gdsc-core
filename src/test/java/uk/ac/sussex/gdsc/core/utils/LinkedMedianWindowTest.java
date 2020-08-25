@@ -47,7 +47,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
-public class LinkedMedianWindowTest {
+class LinkedMedianWindowTest {
   private static Logger logger;
 
   @BeforeAll
@@ -83,7 +83,7 @@ public class LinkedMedianWindowTest {
   int[] speedIncrement = new int[] {1, 2, 4, 6, 8, 12, 16, 24, 32, 48};
 
   @Test
-  public void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsAboveMedian() {
+  void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsAboveMedian() {
     final double[] data = new double[] {1, 2, 3, 4, 5};
 
     final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
@@ -102,7 +102,7 @@ public class LinkedMedianWindowTest {
   }
 
   @Test
-  public void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsBelowMedian() {
+  void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsBelowMedian() {
     final double[] data = new double[] {4, 5, 6, 7, 8};
 
     final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
@@ -121,7 +121,7 @@ public class LinkedMedianWindowTest {
   }
 
   @Test
-  public void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsMedianOrAbove() {
+  void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsMedianOrAbove() {
     final double[] data = new double[] {1, 2, 3, 4, 5};
 
     final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
@@ -140,7 +140,7 @@ public class LinkedMedianWindowTest {
   }
 
   @Test
-  public void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsMedianOrBelow() {
+  void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsMedianOrBelow() {
     final double[] data = new double[] {1, 2, 3, 4, 5};
 
     final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
@@ -159,7 +159,7 @@ public class LinkedMedianWindowTest {
   }
 
   @SeededTest
-  public void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed) {
+  void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final double[] data = MedianWindowTest.createRandomData(rg, dataSize);
     final UpdateableSupplier msg = new UpdateableSupplier();
@@ -193,7 +193,7 @@ public class LinkedMedianWindowTest {
   }
 
   @SeededTest
-  public void canComputeMedianForSparseDataUsingDynamicLinkedList(RandomSeed seed) {
+  void canComputeMedianForSparseDataUsingDynamicLinkedList(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
@@ -229,7 +229,7 @@ public class LinkedMedianWindowTest {
   }
 
   @Test
-  public void canComputeMedianForDuplicateDataUsingDynamicLinkedList() {
+  void canComputeMedianForDuplicateDataUsingDynamicLinkedList() {
     final MedianWindowTest mwt = new MedianWindowTest();
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
@@ -266,7 +266,7 @@ public class LinkedMedianWindowTest {
 
   @SpeedTag
   @SeededTest
-  public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed) {
+  void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
     for (final int radius : speedRadii) {
       for (final int increment : speedIncrement) {
