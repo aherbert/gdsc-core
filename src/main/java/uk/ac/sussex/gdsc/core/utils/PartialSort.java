@@ -594,8 +594,8 @@ public final class PartialSort {
 
       // Scan
       while (index < size) {
-        // Replace if lower
-        if (queue[0] > list[index]) {
+        // Replace if higher
+        if (queue[0] < list[index]) {
           queue[0] = list[index];
           topDownHeapify(0);
         }
