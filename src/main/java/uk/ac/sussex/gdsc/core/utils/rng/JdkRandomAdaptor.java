@@ -47,7 +47,8 @@ public class JdkRandomAdaptor extends Random {
   private final UniformRandomProvider rng;
 
   /**
-   * Creates a generator of strings.
+   * Creates a <code>java.util.Random</code> using the provided random generatoras the source of
+   * randomness.
    *
    * <p>The sampling works using the {@code UniformRandomProvider#nextInt(int)} method so a native
    * generator of ints is best.
