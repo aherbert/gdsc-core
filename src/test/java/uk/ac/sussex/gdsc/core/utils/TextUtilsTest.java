@@ -36,6 +36,31 @@ import org.junit.jupiter.api.Test;
 class TextUtilsTest {
 
   @Test
+  void canWrap() {
+    Assertions.assertNull(TextUtils.wrap(null, 100));
+    final String str = "This is some text";
+    Assertions.assertEquals("This is some text", TextUtils.wrap(str, 100));
+    Assertions.assertEquals("This is some text", TextUtils.wrap(str, 100, "\n", false));
+    Assertions.assertEquals("This is\nsome text", TextUtils.wrap(str, 10, "\n", false));
+    Assertions.assertEquals("xxxxxxxx", TextUtils.wrap("xxxxxxxx", 4, "\n", false));
+    Assertions.assertEquals("xxxx\nxxxx", TextUtils.wrap("xxxxxxxx", 4, "\n", true));
+  }
+
+  @Test
+  void testPleural() {
+    Assertions.assertEquals("0 bugs", TextUtils.pleural(0, "bug"));
+    Assertions.assertEquals("1 bug", TextUtils.pleural(1, "bug"));
+    Assertions.assertEquals("10 bugs", TextUtils.pleural(10, "bug"));
+  }
+
+  @Test
+  void testPleuralise() {
+    Assertions.assertEquals("mice", TextUtils.pleuralise(0, "mouse", "mice"));
+    Assertions.assertEquals("mouse", TextUtils.pleuralise(1, "mouse", "mice"));
+    Assertions.assertEquals("mice", TextUtils.pleuralise(10, "mouse", "mice"));
+  }
+
+  @Test
   void canConvertMillisToString() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> TextUtils.millisToString(-1));
     // Milliseconds reported exactly

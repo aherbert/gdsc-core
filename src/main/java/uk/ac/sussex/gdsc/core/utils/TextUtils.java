@@ -71,8 +71,8 @@ public final class TextUtils {
    * <p>Leading spaces on a new line are stripped. Trailing spaces are not stripped.
    *
    * <pre>
-   * WordUtils.wrap(null, *) = null
-   * WordUtils.wrap("", *) = ""
+   * TextUtils.wrap(null, *) = null
+   * TextUtils.wrap("", *) = ""
    * </pre>
    *
    * @param str the String to be word wrapped, may be null
@@ -89,8 +89,8 @@ public final class TextUtils {
    * <p>Leading spaces on a new line are stripped. Trailing spaces are not stripped.
    *
    * <pre>
-   * WordUtils.wrap(null, *, *, *) = null
-   * WordUtils.wrap("", *, *, *) = ""
+   * TextUtils.wrap(null, *, *, *) = null
+   * TextUtils.wrap("", *, *, *) = ""
    * </pre>
    *
    * @param str the String to be word wrapped, may be null
@@ -103,21 +103,6 @@ public final class TextUtils {
   @SuppressWarnings("deprecation")
   public static String wrap(String str, int wrapLength, String newLineStr, boolean wrapLongWords) {
     return WordUtils.wrap(str, wrapLength, newLineStr, wrapLongWords);
-  }
-
-  /**
-   * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s
-   * where necessary to nouns:
-   *
-   * <pre>
-   * System.out.printf(&quot;Created %d thing%s\n&quot;, n, TextUtils.pleural(n));
-   * </pre>
-   *
-   * @param n The number of things
-   * @return "s" or empty string
-   */
-  public static String pleural(int n) {
-    return (Math.abs(n) == 1) ? "" : "s";
   }
 
   /**
