@@ -65,6 +65,120 @@ class EqualityTest {
   static final int MAX_ITER = 2000000;
 
   @Test
+  void doubleCanSetAbsoluteError() {
+    final DoubleEquality eq = new DoubleEquality(0, 0);
+    Assertions.assertEquals(0, eq.getMaxRelativeError());
+    Assertions.assertEquals(0, eq.getMaxAbsoluteError());
+    Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(1, 1.001));
+    eq.setMaxAbsoluteError(0.01);
+    Assertions.assertEquals(0, eq.getMaxRelativeError());
+    Assertions.assertEquals(0.01, eq.getMaxAbsoluteError());
+    Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(1, 1.001));
+  }
+
+  @Test
+  void doubleCanSetRelativeError() {
+    final DoubleEquality eq = new DoubleEquality(0, 0);
+    Assertions.assertEquals(0, eq.getMaxRelativeError());
+    Assertions.assertEquals(0, eq.getMaxAbsoluteError());
+    Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(1, 1.001));
+    eq.setMaxRelativeError(0.01);
+    Assertions.assertEquals(0.01, eq.getMaxRelativeError());
+    Assertions.assertEquals(0, eq.getMaxAbsoluteError());
+    Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(1, 1.001));
+  }
+
+  @Test
+  void floatCanSetAbsoluteError() {
+    final FloatEquality eq = new FloatEquality(0, 0);
+    Assertions.assertEquals(0, eq.getMaxRelativeError());
+    Assertions.assertEquals(0, eq.getMaxAbsoluteError());
+    Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(1f, 1.001f));
+    eq.setMaxAbsoluteError(0.01f);
+    Assertions.assertEquals(0f, eq.getMaxRelativeError());
+    Assertions.assertEquals(0.01f, eq.getMaxAbsoluteError());
+    Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(1f, 1.001f));
+  }
+
+  @Test
+  void floatCanSetRelativeError() {
+    final FloatEquality eq = new FloatEquality(0, 0);
+    Assertions.assertEquals(0, eq.getMaxRelativeError());
+    Assertions.assertEquals(0, eq.getMaxAbsoluteError());
+    Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(1f, 1.001f));
+    eq.setMaxRelativeError(0.01f);
+    Assertions.assertEquals(0.01f, eq.getMaxRelativeError());
+    Assertions.assertEquals(0f, eq.getMaxAbsoluteError());
+    Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(1f, 1.001f));
+  }
+
+  @Test
+  void doubleCanComputeAlmostEqualComplement() {
+    final double d1 = 1;
+    final double d2 = Math.nextUp(d1);
+    final double d3 = Math.nextUp(d2);
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d1, d1, 0L, 0));
+    Assertions.assertFalse(DoubleEquality.almostEqualComplement(d1, d2, 0L, 0));
+    Assertions.assertFalse(DoubleEquality.almostEqualComplement(d2, d1, 0L, 0));
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d1, d2, 1L, 0));
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d2, d1, 1L, 0));
+    Assertions.assertFalse(DoubleEquality.almostEqualComplement(d1, d3, 1L, 0));
+    Assertions.assertFalse(DoubleEquality.almostEqualComplement(d3, d1, 1L, 0));
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d1, d3, 2L, 0));
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d3, d1, 2L, 0));
+    Assertions.assertFalse(DoubleEquality.almostEqualComplement(d1, d3, 0L, 1e-16));
+    Assertions.assertFalse(DoubleEquality.almostEqualComplement(d3, d1, 0L, 1e-16));
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d1, d3, 0L, 1e-15));
+    Assertions.assertTrue(DoubleEquality.almostEqualComplement(d3, d1, 0L, 1e-15));
+  }
+
+  @Test
+  void floatCanComputeAlmostEqualComplement() {
+    final float d1 = 1;
+    final float d2 = Math.nextUp(d1);
+    final float d3 = Math.nextUp(d2);
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d1, d1, 0, 0));
+    Assertions.assertFalse(FloatEquality.almostEqualComplement(d1, d2, 0, 0));
+    Assertions.assertFalse(FloatEquality.almostEqualComplement(d2, d1, 0, 0));
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d1, d2, 1, 0));
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d2, d1, 1, 0));
+    Assertions.assertFalse(FloatEquality.almostEqualComplement(d1, d3, 1, 0));
+    Assertions.assertFalse(FloatEquality.almostEqualComplement(d3, d1, 1, 0));
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d1, d3, 2, 0));
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d3, d1, 2, 0));
+    Assertions.assertFalse(FloatEquality.almostEqualComplement(d1, d3, 0, 1e-7f));
+    Assertions.assertFalse(FloatEquality.almostEqualComplement(d3, d1, 0, 1e-7f));
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d1, d3, 0, 1e-6f));
+    Assertions.assertTrue(FloatEquality.almostEqualComplement(d3, d1, 0, 1e-6f));
+  }
+
+  @Test
+  void doubleCanCompareComplement() {
+    final double d1 = 1;
+    final double d2 = Math.nextUp(d1);
+    final double d3 = Math.nextUp(d2);
+    Assertions.assertEquals(-1, DoubleEquality.compareComplement(d1, d2, 0));
+    Assertions.assertEquals(1, DoubleEquality.compareComplement(d2, d1, 0));
+    Assertions.assertEquals(0, DoubleEquality.compareComplement(d1, d2, 1));
+    Assertions.assertEquals(-1, DoubleEquality.compareComplement(d1, d3, 1));
+    Assertions.assertEquals(1, DoubleEquality.compareComplement(d3, d1, 1));
+    Assertions.assertEquals(0, DoubleEquality.compareComplement(d1, d3, 2));
+  }
+
+  @Test
+  void floatCanCompareComplement() {
+    final float d1 = 1;
+    final float d2 = Math.nextUp(d1);
+    final float d3 = Math.nextUp(d2);
+    Assertions.assertEquals(-1, FloatEquality.compareComplement(d1, d2, 0));
+    Assertions.assertEquals(1, FloatEquality.compareComplement(d2, d1, 0));
+    Assertions.assertEquals(0, FloatEquality.compareComplement(d1, d2, 1));
+    Assertions.assertEquals(-1, FloatEquality.compareComplement(d1, d3, 1));
+    Assertions.assertEquals(1, FloatEquality.compareComplement(d3, d1, 1));
+    Assertions.assertEquals(0, FloatEquality.compareComplement(d1, d3, 2));
+  }
+
+  @Test
   void doubleRelativeErrorIsCorrectUntilUlpsIsSmall() {
     final int precision = new BigDecimal(Double.toString(Double.MAX_VALUE)).precision();
     // TestLog.debug(logger,"Double max precision = %d", precision);
@@ -166,6 +280,9 @@ class EqualityTest {
 
   @Test
   void doubleCanComputeRelativeErrorFromSignificantDigits() {
+    Assertions.assertEquals(0, DoubleEquality.getRelativeErrorTerm(0));
+    Assertions.assertEquals(0,
+        DoubleEquality.getRelativeErrorTerm(DoubleEquality.getMaxSignificantDigits() + 1));
     for (int s = 1; s <= DoubleEquality.getMaxSignificantDigits(); s++) {
       final BigDecimal error = new BigDecimal("1e-" + (s - 1));
       final double e = error.doubleValue();
@@ -175,6 +292,9 @@ class EqualityTest {
 
   @Test
   void floatCanComputeRelativeErrorFromSignificantDigits() {
+    Assertions.assertEquals(0, FloatEquality.getRelativeErrorTerm(0));
+    Assertions.assertEquals(0,
+        FloatEquality.getRelativeErrorTerm(FloatEquality.getMaxSignificantDigits() + 1));
     for (int s = 1; s <= FloatEquality.getMaxSignificantDigits(); s++) {
       final BigDecimal error = new BigDecimal("1e-" + (s - 1));
       final float e = error.floatValue();
