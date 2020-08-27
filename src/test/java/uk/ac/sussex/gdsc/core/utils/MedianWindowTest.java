@@ -477,6 +477,16 @@ class MedianWindowTest {
     return data;
   }
 
+  static double[] createNaNDataDouble(UniformRandomProvider rng, int size, int start) {
+    final double[] data = new double[size];
+    for (int i = start; i < data.length; i++) {
+      data[i] = i;
+    }
+    Arrays.fill(data, 0, start, Double.NaN);
+    RandomUtils.shuffle(data, rng);
+    return data;
+  }
+
   static double[] createRandomDataFloat(UniformRandomProvider random, int size) {
     final double[] data = new double[size];
     for (int i = 0; i < data.length; i++) {
@@ -499,6 +509,16 @@ class MedianWindowTest {
         value++;
       }
     }
+    RandomUtils.shuffle(data, rng);
+    return data;
+  }
+
+  static float[] createNaNDataFloat(UniformRandomProvider rng, int size, int start) {
+    final float[] data = new float[size];
+    for (int i = start; i < data.length; i++) {
+      data[i] = i;
+    }
+    Arrays.fill(data, 0, start, Float.NaN);
     RandomUtils.shuffle(data, rng);
     return data;
   }

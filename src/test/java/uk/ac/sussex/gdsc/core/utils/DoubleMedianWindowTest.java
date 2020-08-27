@@ -58,6 +58,7 @@ class DoubleMedianWindowTest {
   private int dataSize = 2000;
   private int[] radii = new int[] {0, 1, 2, 4, 8, 16};
   private double[] values = new double[] {0, -1.1, 2.2};
+  private boolean[] sortedScans = {true, false};
 
   @Test
   void testWrap() {
@@ -70,6 +71,15 @@ class DoubleMedianWindowTest {
       Assertions.assertEquals(0, mw.getPosition());
       Assertions.assertEquals(radius, mw.getRadius(), "Radius is not clipped to length");
       Assertions.assertFalse(mw.isSortedScan());
+    }
+  }
+
+  @Test
+  void canComputeForArrayLength1() {
+    final double[] data = {42};
+    for (final int radius : radii) {
+      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
+      Assertions.assertEquals(data[0], mw.getMedian());
     }
   }
 
@@ -143,15 +153,45 @@ class DoubleMedianWindowTest {
     }
   }
 
+  @SeededTest
+  void canComputeMedianForNaNDataUsingSingleIncrement(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    for (final int start : new int[] {2, 5, 10, 40}) {
+      canComputeMedianForDataUsingSingleIncrement(
+          MedianWindowTest.createNaNDataDouble(rng, 50, start));
+    }
+  }
+
+  @SeededTest
+  void canComputeMedianForNaNDataUsingSetPosition(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    for (final int start : new int[] {2, 5, 10, 40}) {
+      canComputeMedianForDataUsingSetPosition(MedianWindowTest.createNaNDataDouble(rng, 50, start));
+    }
+  }
+
+  @SeededTest
+  void canComputeMedianForNaNDataUsingBigIncrement(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    for (final int start : new int[] {2, 5, 10, 40}) {
+      canComputeMedianForDataUsingBigIncrement(
+          MedianWindowTest.createNaNDataDouble(rng, 50, start));
+    }
+  }
+
   private void canComputeMedianForDataUsingSingleIncrement(double[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i++) {
-        final double median = mw.getMedian();
-        mw.increment();
-        final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+      for (boolean sortedScan : sortedScans) {
+        final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
+        mw.setSortedScan(sortedScan);
+        Assertions.assertEquals(sortedScan, mw.isSortedScan());
+        for (int i = 0; i < data.length; i++) {
+          final double median = mw.getMedian();
+          mw.increment();
+          final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+        }
       }
     }
   }
@@ -159,12 +199,34 @@ class DoubleMedianWindowTest {
   private void canComputeMedianForDataUsingSetPosition(double[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i += 10) {
-        mw.setPosition(i);
-        final double median = mw.getMedian();
-        final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+      for (boolean sortedScan : sortedScans) {
+        final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
+        mw.setSortedScan(sortedScan);
+        Assertions.assertEquals(sortedScan, mw.isSortedScan());
+        for (int i = 0; i < data.length; i += 10) {
+          mw.setPosition(i);
+          Assertions.assertEquals(i, mw.getPosition());
+          final double median = mw.getMedian();
+          final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+          mw.setPosition(i);
+          Assertions.assertEquals(median, mw.getMedian());
+          mw.setPosition(i + 1);
+          mw.setPosition(i);
+          Assertions.assertEquals(median, mw.getMedian());
+        }
+        for (int i = data.length - 1; i >= 0; i -= 10) {
+          mw.setPosition(i);
+          Assertions.assertEquals(i, mw.getPosition());
+          final double median = mw.getMedian();
+          final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+          mw.setPosition(i);
+          Assertions.assertEquals(median, mw.getMedian());
+          mw.setPosition(i - 1);
+          mw.setPosition(i);
+          Assertions.assertEquals(median, mw.getMedian());
+        }
       }
     }
   }
@@ -173,12 +235,16 @@ class DoubleMedianWindowTest {
     final UpdateableSupplier msg = new UpdateableSupplier();
     final int increment = 10;
     for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i += increment) {
-        final double median = mw.getMedian();
-        mw.increment(increment);
-        final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+      for (boolean sortedScan : sortedScans) {
+        final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
+        mw.setSortedScan(sortedScan);
+        Assertions.assertEquals(sortedScan, mw.isSortedScan());
+        for (int i = 0; i < data.length; i += increment) {
+          final double median = mw.getMedian();
+          mw.increment(increment);
+          final double median2 = MedianWindowTest.calculateMedian(data, i, radius);
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+        }
       }
     }
   }

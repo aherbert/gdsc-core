@@ -203,7 +203,8 @@ public class DoubleMedianWindow {
     }
 
     // The position should always be above the cache position
-    assert cachePosition < position : "Cache position is greater than the position";
+    assert cache == null
+        || cachePosition < position : "Cache position is greater than the position";
 
     // The cache contains the sorted window from the cachePosition. The cache should cover
     // a set of the data that requires updating:
