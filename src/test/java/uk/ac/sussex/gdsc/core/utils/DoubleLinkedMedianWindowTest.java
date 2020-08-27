@@ -47,12 +47,12 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
-class LinkedMedianWindowTest {
+class DoubleLinkedMedianWindowTest {
   private static Logger logger;
 
   @BeforeAll
   public static void beforeAll() {
-    logger = Logger.getLogger(LinkedMedianWindowTest.class.getName());
+    logger = Logger.getLogger(DoubleLinkedMedianWindowTest.class.getName());
   }
 
   @AfterAll
