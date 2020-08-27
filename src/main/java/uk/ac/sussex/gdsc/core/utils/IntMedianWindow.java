@@ -135,18 +135,18 @@ public class IntMedianWindow {
   }
 
   /**
-   * Checks if is valid position.
+   * Checks if the current position is valid.
    *
-   * @return True if the current position is valid
+   * @return True if the current position is valid.
    */
   public boolean isValidPosition() {
     return position < data.length;
   }
 
   /**
-   * Checks if is sorted scan.
+   * Checks if using the sorted scan method.
    *
-   * @return true if using the sorted scan method
+   * @return true if using the sorted scan method.
    */
   public boolean isSortedScan() {
     return sortedScan;
@@ -179,6 +179,11 @@ public class IntMedianWindow {
     return median;
   }
 
+  /**
+   * Update the median.
+   *
+   * @return the median
+   */
   private float updateMedian() {
     invalid = false;
     if (position >= data.length) {
@@ -198,7 +203,8 @@ public class IntMedianWindow {
     }
 
     // The position should always be above the cache position
-    assert cachePosition < position : "Cache position is greater than the position";
+    assert cache == null
+        || cachePosition < position : "Cache position is greater than the position";
 
     // The cache contains the sorted window from the cachePosition. The cache should cover
     // a set of the data that requires updating:
@@ -245,8 +251,7 @@ public class IntMedianWindow {
 
         int pos = 0;
         int add = cacheEnd;
-        for (int remove = 0; remove < dataToRemove.length; remove++) {
-          final int toRemove = dataToRemove[remove];
+        for (final double toRemove : dataToRemove) {
           final int add2 = add;
 
           // Find the number in the cache
@@ -258,15 +263,9 @@ public class IntMedianWindow {
             }
           }
 
-          if (add == add2) {
-            // This is bad. Just recompute the entire cache
-            // System.out.println("IntMedianWindow : Failed to replace data in the cache")
-            cache = new int[newLength];
-            for (int i = newStart, j = 0; i < newEnd; i++, j++) {
-              cache[j] = data[i];
-            }
-            break;
-          }
+          // It should not be possible to fail to replace the item.
+          // This occurs in the Double/Float equivalents when NaNs are present in the data.
+          assert add != add2;
         }
       } else {
         // Iterate over numbers to remove
@@ -293,15 +292,9 @@ public class IntMedianWindow {
             }
           }
 
-          if (add == add2) {
-            // This is bad. Just recompute the entire cache
-            // System.out.println("IntMedianWindow : Failed to replace data in the cache")
-            cache = new int[newLength];
-            for (int i = newStart, j = 0; i < newEnd; i++, j++) {
-              cache[j] = data[i];
-            }
-            break;
-          }
+          // It should not be possible to fail to replace the item.
+          // This occurs in the Double/Float equivalents when NaNs are present in the data.
+          assert add != add2;
         }
       }
     }

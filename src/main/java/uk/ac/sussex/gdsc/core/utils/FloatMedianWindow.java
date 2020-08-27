@@ -135,18 +135,18 @@ public class FloatMedianWindow {
   }
 
   /**
-   * Checks if is valid position.
+   * Checks if the current position is valid.
    *
-   * @return True if the current position is valid
+   * @return True if the current position is valid.
    */
   public boolean isValidPosition() {
     return position < data.length;
   }
 
   /**
-   * Checks if is sorted scan.
+   * Checks if using the sorted scan method.
    *
-   * @return true if using the sorted scan method
+   * @return true if using the sorted scan method.
    */
   public boolean isSortedScan() {
     return sortedScan;
@@ -179,6 +179,11 @@ public class FloatMedianWindow {
     return median;
   }
 
+  /**
+   * Update the median.
+   *
+   * @return the median
+   */
   private float updateMedian() {
     invalid = false;
     if (position >= data.length) {
@@ -198,7 +203,8 @@ public class FloatMedianWindow {
     }
 
     // The position should always be above the cache position
-    assert cachePosition < position : "Cache position is greater than the position";
+    assert cache == null
+        || cachePosition < position : "Cache position is greater than the position";
 
     // The cache contains the sorted window from the cachePosition. The cache should cover
     // a set of the data that requires updating:
@@ -258,8 +264,8 @@ public class FloatMedianWindow {
           }
 
           if (add == add2) {
-            // This is bad. Just recompute the entire cache
-            // System.out.println("FloatMedianWindow : Failed to replace data in the cache")
+            // This is bad. Just recompute the entire cache.
+            // Occurs when NaNs are present in the data.
             cache = new float[newLength];
             for (int i = newStart, j = 0; i < newEnd; i++, j++) {
               cache[j] = data[i];
@@ -293,8 +299,8 @@ public class FloatMedianWindow {
           }
 
           if (add == add2) {
-            // This is bad. Just recompute the entire cache
-            // System.out.println("FloatMedianWindow : Failed to replace data in the cache")
+            // This is bad. Just recompute the entire cache.
+            // Occurs when NaNs are present in the data.
             cache = new float[newLength];
             for (int i = newStart, j = 0; i < newEnd; i++, j++) {
               cache[j] = data[i];

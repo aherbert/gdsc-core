@@ -415,28 +415,28 @@ class MedianWindowTest {
     return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
   }
 
-  static double calculateMedian(float[] data, int position, int radius) {
+  static float calculateMedian(float[] data, int position, int radius) {
     final int start = FastMath.max(0, position - radius);
     final int end = FastMath.min(position + radius + 1, data.length);
-    final double[] cache = new double[end - start];
+    final float[] cache = new float[end - start];
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];
     }
     // TestLog.debugln(logger,Arrays.toString(cache));
     Arrays.sort(cache);
-    return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
+    return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5f;
   }
 
-  static double calculateMedian(int[] data, int position, int radius) {
+  static float calculateMedian(int[] data, int position, int radius) {
     final int start = FastMath.max(0, position - radius);
     final int end = FastMath.min(position + radius + 1, data.length);
-    final double[] cache = new double[end - start];
+    final int[] cache = new int[end - start];
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];
     }
     // TestLog.debugln(logger,Arrays.toString(cache));
     Arrays.sort(cache);
-    return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
+    return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5f;
   }
 
   static double calculateMedian2(double[] data, int position, int radius) {
@@ -487,22 +487,22 @@ class MedianWindowTest {
     return data;
   }
 
-  static double[] createRandomDataFloat(UniformRandomProvider random, int size) {
-    final double[] data = new double[size];
+  static float[] createRandomDataFloat(UniformRandomProvider random, int size) {
+    final float[] data = new float[size];
     for (int i = 0; i < data.length; i++) {
       data[i] = random.nextFloat() * size;
     }
     return data;
   }
 
-  static double[] createDuplicateDataFloat(int size, double value) {
-    final double[] data = new double[size];
+  static float[] createDuplicateDataFloat(int size, float value) {
+    final float[] data = new float[size];
     Arrays.fill(data, value);
     return data;
   }
 
-  static double[] createSparseDataFloat(UniformRandomProvider rng, int size, double value) {
-    final double[] data = new double[size];
+  static float[] createSparseDataFloat(UniformRandomProvider rng, int size, float value) {
+    final float[] data = new float[size];
     for (int i = 0; i < data.length; i++) {
       data[i] = value;
       if (i % 32 == 0) {
@@ -523,22 +523,22 @@ class MedianWindowTest {
     return data;
   }
 
-  static double[] createRandomDataInt(UniformRandomProvider random, int size) {
-    final double[] data = new double[size];
+  static int[] createRandomDataInt(UniformRandomProvider random, int size) {
+    final int[] data = new int[size];
     for (int i = 0; i < data.length; i++) {
-      data[i] = random.nextInt() * size;
+      data[i] = random.nextInt(size);
     }
     return data;
   }
 
-  static double[] createDuplicateDataInt(int size, double value) {
-    final double[] data = new double[size];
+  static int[] createDuplicateDataInt(int size, int value) {
+    final int[] data = new int[size];
     Arrays.fill(data, value);
     return data;
   }
 
-  static double[] createSparseDataInt(UniformRandomProvider rng, int size, double value) {
-    final double[] data = new double[size];
+  static int[] createSparseDataInt(UniformRandomProvider rng, int size, int value) {
+    final int[] data = new int[size];
     for (int i = 0; i < data.length; i++) {
       data[i] = value;
       if (i % 32 == 0) {

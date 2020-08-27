@@ -264,7 +264,8 @@ public class DoubleMedianWindow {
           }
 
           if (add == add2) {
-            // This is bad. Just recompute the entire cache
+            // This is bad. Just recompute the entire cache.
+            // Occurs when NaNs are present in the data.
             cache = new double[newLength];
             for (int i = newStart, j = 0; i < newEnd; i++, j++) {
               cache[j] = data[i];
@@ -298,7 +299,8 @@ public class DoubleMedianWindow {
           }
 
           if (add == add2) {
-            // This is bad. Just recompute the entire cache
+            // This is bad. Just recompute the entire cache.
+            // Occurs when NaNs are present in the data.
             cache = new double[newLength];
             for (int i = newStart, j = 0; i < newEnd; i++, j++) {
               cache[j] = data[i];
