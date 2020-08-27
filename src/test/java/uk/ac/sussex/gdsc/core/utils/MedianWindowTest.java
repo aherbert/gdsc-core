@@ -39,7 +39,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -81,19 +80,18 @@ class MedianWindowTest {
     }
   }
 
-  int dataSize = 2000;
-  int[] radii = new int[] {0, 1, 2, 4, 8, 16};
-  double[] values = new double[] {0, -1.1, 2.2};
-  int[] speedRadii = new int[] {16, 32, 64};
-  int testSpeedRadius = speedRadii[speedRadii.length - 1];
-  int[] speedIncrement = new int[] {1, 2, 4, 8, 16};
+  private int dataSize = 2000;
+  private int[] radii = new int[] {0, 1, 2, 4, 8, 16};
+  private int[] speedRadii = new int[] {16, 32, 64};
+  private int testSpeedRadius = speedRadii[speedRadii.length - 1];
+  private int[] speedIncrement = new int[] {1, 2, 4, 8, 16};
 
   @SeededTest
   void testClassCanComputeActualMedian(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final UpdateableSupplier msg = new UpdateableSupplier();
 
-    double[] data = createRandomData(rg, dataSize);
+    double[] data = createRandomDataDouble(rg, dataSize);
     for (final int radius : radii) {
       for (int i = 0; i < data.length; i++) {
         final double median = calculateMedian(data, i, radius);
@@ -101,218 +99,13 @@ class MedianWindowTest {
         Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
       }
     }
-    data = createRandomData(rg, dataSize + 1);
+    data = createRandomDataDouble(rg, dataSize + 1);
     for (final int radius : radii) {
       for (int i = 0; i < data.length; i++) {
         final double median = calculateMedian(data, i, radius);
         final double median2 = calculateMedian2(data, i, radius);
         Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
       }
-    }
-  }
-
-  @SeededTest
-  void canComputeMedianForRandomDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    canComputeMedianForDataUsingSingleIncrement(createRandomData(rg, dataSize));
-  }
-
-  @SeededTest
-  void canComputeMedianForRandomDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    canComputeMedianForDataUsingSetPosition(createRandomData(rg, dataSize));
-  }
-
-  @SeededTest
-  void canComputeMedianForRandomDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    canComputeMedianForDataUsingBigIncrement(createRandomData(rg, dataSize));
-  }
-
-  @Test
-  void canComputeMedianForDuplicateDataUsingSingleIncrement() {
-    for (final double value : values) {
-      canComputeMedianForDataUsingSingleIncrement(createDuplicateData(dataSize, value));
-    }
-  }
-
-  @Test
-  void canComputeMedianForDuplicateDataUsingSetPosition() {
-    for (final double value : values) {
-      canComputeMedianForDataUsingSetPosition(createDuplicateData(dataSize, value));
-    }
-  }
-
-  @Test
-  void canComputeMedianForDuplicateDataUsingBigIncrement() {
-    for (final double value : values) {
-      canComputeMedianForDataUsingBigIncrement(createDuplicateData(dataSize, value));
-    }
-  }
-
-  @SeededTest
-  void canComputeMedianForSparseDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
-    for (final double value : values) {
-      canComputeMedianForDataUsingSingleIncrement(createSparseData(rng, dataSize, value));
-    }
-  }
-
-  @SeededTest
-  void canComputeMedianForSparseDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
-    for (final double value : values) {
-      canComputeMedianForDataUsingSetPosition(createSparseData(rng, dataSize, value));
-    }
-  }
-
-  @SeededTest
-  void canComputeMedianForSparseDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
-    for (final double value : values) {
-      canComputeMedianForDataUsingBigIncrement(createSparseData(rng, dataSize, value));
-    }
-  }
-
-  private void canComputeMedianForDataUsingSingleIncrement(double[] data) {
-    final UpdateableSupplier msg = new UpdateableSupplier();
-    for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i++) {
-        final double median = mw.getMedian();
-        mw.increment();
-        final double median2 = calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
-      }
-    }
-  }
-
-  private void canComputeMedianForDataUsingSetPosition(double[] data) {
-    final UpdateableSupplier msg = new UpdateableSupplier();
-    for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i += 10) {
-        mw.setPosition(i);
-        final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
-      }
-    }
-  }
-
-  private void canComputeMedianForDataUsingBigIncrement(double[] data) {
-    final UpdateableSupplier msg = new UpdateableSupplier();
-    final int increment = 10;
-    for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i += increment) {
-        final double median = mw.getMedian();
-        mw.increment(increment);
-        final double median2 = calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
-      }
-    }
-  }
-
-  @Test
-  void cannotComputeMedianBackToInputArrayUsingSingleIncrement() {
-    final double[] data = SimpleArrayUtils.newArray(dataSize, 0.0, 1);
-    for (final int radius : radii) {
-      if (radius <= 1) {
-        continue;
-      }
-
-      final double[] in = data.clone();
-      final double[] e = new double[in.length];
-      DoubleMedianWindow mw = new DoubleMedianWindow(in, radius);
-      for (int i = 0; i < data.length; i++) {
-        e[i] = mw.getMedian();
-        mw.increment();
-      }
-      // Must create a new window
-      mw = new DoubleMedianWindow(in, radius);
-      for (int i = 0; i < data.length; i++) {
-        // Write back to the input array
-        in[i] = mw.getMedian();
-        mw.increment();
-      }
-      Assertions.assertThrows(AssertionError.class, () -> {
-        Assertions.assertArrayEquals(e, in);
-      }, () -> String.format("Radius = %s", radius));
-    }
-  }
-
-  @SeededTest
-  void canIncrementThroughTheDataArray(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    final double[] data = createRandomData(rg, 300);
-    final UpdateableSupplier msg = new UpdateableSupplier();
-    for (final int radius : radii) {
-      DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      int index = 0;
-      while (mw.isValidPosition()) {
-        final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, index, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
-
-        mw.increment();
-        index++;
-      }
-      Assertions.assertEquals(index, data.length, "Not all data interated");
-
-      mw = new DoubleMedianWindow(data, radius);
-      index = 0;
-      do {
-        final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, index, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
-
-        index++;
-      } while (mw.increment());
-      Assertions.assertEquals(index, data.length, "Not all data interated");
-    }
-  }
-
-  @SeededTest
-  void canIncrementThroughTheDataArrayUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    final double[] data = createRandomData(rg, 300);
-    final UpdateableSupplier msg = new UpdateableSupplier();
-    final int increment = 10;
-    for (final int radius : radii) {
-      final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      int index = 0;
-      while (mw.isValidPosition()) {
-        final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, index, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
-
-        mw.increment(increment);
-        index += increment;
-      }
-    }
-  }
-
-  @SeededTest
-  void returnNaNForInvalidPositions(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    final double[] data = createRandomData(rg, 300);
-    for (final int radius : radii) {
-      DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      for (int i = 0; i < data.length; i++) {
-        mw.increment();
-      }
-      Assertions.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
-
-      mw = new DoubleMedianWindow(data, radius);
-      while (mw.isValidPosition()) {
-        mw.increment();
-      }
-      Assertions.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
-
-      mw = new DoubleMedianWindow(data, radius);
-      mw.setPosition(data.length + 10);
-      Assertions.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
     }
   }
 
@@ -334,7 +127,7 @@ class MedianWindowTest {
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     for (int i = 0; i < iterations; i++) {
-      data[i] = createRandomData(rg, dataSize);
+      data[i] = createRandomDataDouble(rg, dataSize);
     }
 
     final double[] m1 = new double[dataSize];
@@ -417,8 +210,8 @@ class MedianWindowTest {
     final double[][] data = new double[iterations][];
     final float[][] data2 = new float[iterations][];
     for (int i = 0; i < iterations; i++) {
-      data[i] = createRandomData(rg, dataSize);
-      data2[i] = copyData(data[i]);
+      data[i] = createRandomDataDouble(rg, dataSize);
+      data2[i] = copyDataFloat(data[i]);
     }
 
     final double[] m1 = new double[dataSize];
@@ -527,7 +320,7 @@ class MedianWindowTest {
     final double[][] data = new double[iterations][];
     final int[][] data2 = new int[iterations][];
     for (int i = 0; i < iterations; i++) {
-      data[i] = createRandomData(rg, dataSize);
+      data[i] = createRandomDataDouble(rg, dataSize);
       data2[i] = copyDataInt(data[i]);
     }
 
@@ -622,6 +415,30 @@ class MedianWindowTest {
     return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
   }
 
+  static double calculateMedian(float[] data, int position, int radius) {
+    final int start = FastMath.max(0, position - radius);
+    final int end = FastMath.min(position + radius + 1, data.length);
+    final double[] cache = new double[end - start];
+    for (int i = start, j = 0; i < end; i++, j++) {
+      cache[j] = data[i];
+    }
+    // TestLog.debugln(logger,Arrays.toString(cache));
+    Arrays.sort(cache);
+    return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
+  }
+
+  static double calculateMedian(int[] data, int position, int radius) {
+    final int start = FastMath.max(0, position - radius);
+    final int end = FastMath.min(position + radius + 1, data.length);
+    final double[] cache = new double[end - start];
+    for (int i = start, j = 0; i < end; i++, j++) {
+      cache[j] = data[i];
+    }
+    // TestLog.debugln(logger,Arrays.toString(cache));
+    Arrays.sort(cache);
+    return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
+  }
+
   static double calculateMedian2(double[] data, int position, int radius) {
     // Verify the internal median method using the Apache commons maths library
     final int start = FastMath.max(0, position - radius);
@@ -634,7 +451,7 @@ class MedianWindowTest {
     return p.evaluate(cache, 50);
   }
 
-  static double[] createRandomData(UniformRandomProvider random, int size) {
+  static double[] createRandomDataDouble(UniformRandomProvider random, int size) {
     final double[] data = new double[size];
     for (int i = 0; i < data.length; i++) {
       data[i] = random.nextDouble() * size;
@@ -642,13 +459,13 @@ class MedianWindowTest {
     return data;
   }
 
-  double[] createDuplicateData(int size, double value) {
+  static double[] createDuplicateDataDouble(int size, double value) {
     final double[] data = new double[size];
     Arrays.fill(data, value);
     return data;
   }
 
-  static double[] createSparseData(UniformRandomProvider rng, int size, double value) {
+  static double[] createSparseDataDouble(UniformRandomProvider rng, int size, double value) {
     final double[] data = new double[size];
     for (int i = 0; i < data.length; i++) {
       data[i] = value;
@@ -660,15 +477,63 @@ class MedianWindowTest {
     return data;
   }
 
-  static float[] copyData(double[] data) {
-    final float[] data2 = new float[data.length];
+  static double[] createRandomDataFloat(UniformRandomProvider random, int size) {
+    final double[] data = new double[size];
     for (int i = 0; i < data.length; i++) {
-      data2[i] = (float) data[i];
+      data[i] = random.nextFloat() * size;
     }
-    return data2;
+    return data;
   }
 
-  static int[] copyDataInt(double[] data) {
+  static double[] createDuplicateDataFloat(int size, double value) {
+    final double[] data = new double[size];
+    Arrays.fill(data, value);
+    return data;
+  }
+
+  static double[] createSparseDataFloat(UniformRandomProvider rng, int size, double value) {
+    final double[] data = new double[size];
+    for (int i = 0; i < data.length; i++) {
+      data[i] = value;
+      if (i % 32 == 0) {
+        value++;
+      }
+    }
+    RandomUtils.shuffle(data, rng);
+    return data;
+  }
+
+  static double[] createRandomDataInt(UniformRandomProvider random, int size) {
+    final double[] data = new double[size];
+    for (int i = 0; i < data.length; i++) {
+      data[i] = random.nextInt() * size;
+    }
+    return data;
+  }
+
+  static double[] createDuplicateDataInt(int size, double value) {
+    final double[] data = new double[size];
+    Arrays.fill(data, value);
+    return data;
+  }
+
+  static double[] createSparseDataInt(UniformRandomProvider rng, int size, double value) {
+    final double[] data = new double[size];
+    for (int i = 0; i < data.length; i++) {
+      data[i] = value;
+      if (i % 32 == 0) {
+        value++;
+      }
+    }
+    RandomUtils.shuffle(data, rng);
+    return data;
+  }
+
+  private static float[] copyDataFloat(double[] data) {
+    return SimpleArrayUtils.toFloat(data);
+  }
+
+  private static int[] copyDataInt(double[] data) {
     final int[] data2 = new int[data.length];
     for (int i = 0; i < data.length; i++) {
       data2[i] = (int) data[i];

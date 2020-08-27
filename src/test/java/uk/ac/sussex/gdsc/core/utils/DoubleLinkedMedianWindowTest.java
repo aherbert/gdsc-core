@@ -177,7 +177,7 @@ class DoubleLinkedMedianWindowTest {
   @SeededTest
   void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    final double[] data = MedianWindowTest.createRandomData(rg, dataSize);
+    final double[] data = MedianWindowTest.createRandomDataDouble(rg, dataSize);
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
       final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
@@ -213,7 +213,7 @@ class DoubleLinkedMedianWindowTest {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
-      final double[] data = MedianWindowTest.createSparseData(rng, dataSize, value);
+      final double[] data = MedianWindowTest.createSparseDataDouble(rng, dataSize, value);
       for (final int radius : radii) {
         final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
         final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);
@@ -246,10 +246,9 @@ class DoubleLinkedMedianWindowTest {
 
   @Test
   void canComputeMedianForDuplicateDataUsingDynamicLinkedList() {
-    final MedianWindowTest mwt = new MedianWindowTest();
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
-      final double[] data = mwt.createDuplicateData(dataSize, value);
+      final double[] data = MedianWindowTest.createDuplicateDataDouble(dataSize, value);
       for (final int radius : radii) {
         final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
         final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);
@@ -367,7 +366,7 @@ class DoubleLinkedMedianWindowTest {
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     for (int i = 0; i < iterations; i++) {
-      data[i] = MedianWindowTest.createRandomData(rg, dataSize);
+      data[i] = MedianWindowTest.createRandomDataDouble(rg, dataSize);
     }
 
     final double[] m1 = new double[dataSize];
