@@ -28,8 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,13 +40,103 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.Permission;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
 class FileUtilsTest {
+  private static final String HEADER = "my header";
+
+  @Test
+  void canSaveStringData() throws IOException {
+    final LocalList<String> expected = new LocalList<>();
+    expected.add(HEADER);
+    assertSaveData(null, (d, filename) -> FileUtils.save(filename, HEADER), expected);
+  }
+
+  @SeededTest
+  void canSaveDoubleData(RandomSeed seed) throws IOException {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    double[] data = new double[10];
+    final LocalList<String> expected = new LocalList<>(data.length + 1);
+    for (int i = 0; i < data.length; i++) {
+      data[i] = rng.nextDouble();
+      expected.add(String.valueOf(data[i]));
+    }
+    assertSaveData(data, (d, filename) -> FileUtils.save(d, filename), expected);
+    expected.add(0, HEADER);
+    assertSaveData(data, (d, filename) -> FileUtils.save(HEADER, d, filename), expected);
+    expected.clear();
+    data = null;
+    assertSaveData(data, (d, filename) -> FileUtils.save(d, filename), expected);
+    expected.add(HEADER);
+    assertSaveData(data, (d, filename) -> FileUtils.save(HEADER, d, filename), expected);
+  }
+
+  @SeededTest
+  void canSaveFloatData(RandomSeed seed) throws IOException {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    float[] data = new float[10];
+    final LocalList<String> expected = new LocalList<>(data.length + 1);
+    for (int i = 0; i < data.length; i++) {
+      data[i] = rng.nextFloat();
+      expected.add(String.valueOf(data[i]));
+    }
+    assertSaveData(data, (d, filename) -> FileUtils.save(d, filename), expected);
+    expected.add(0, HEADER);
+    assertSaveData(data, (d, filename) -> FileUtils.save(HEADER, d, filename), expected);
+    expected.clear();
+    data = null;
+    assertSaveData(data, (d, filename) -> FileUtils.save(d, filename), expected);
+    expected.add(HEADER);
+    assertSaveData(data, (d, filename) -> FileUtils.save(HEADER, d, filename), expected);
+  }
+
+  @SeededTest
+  void canSaveIntData(RandomSeed seed) throws IOException {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    int[] data = new int[10];
+    final LocalList<String> expected = new LocalList<>(data.length + 1);
+    for (int i = 0; i < data.length; i++) {
+      data[i] = rng.nextInt();
+      expected.add(String.valueOf(data[i]));
+    }
+    assertSaveData(data, (d, filename) -> FileUtils.save(d, filename), expected);
+    expected.add(0, HEADER);
+    assertSaveData(data, (d, filename) -> FileUtils.save(HEADER, d, filename), expected);
+    expected.clear();
+    data = null;
+    assertSaveData(data, (d, filename) -> FileUtils.save(d, filename), expected);
+    expected.add(HEADER);
+    assertSaveData(data, (d, filename) -> FileUtils.save(HEADER, d, filename), expected);
+  }
+
+  private static <T> void assertSaveData(T data, BiPredicate<T, String> save, List<String> expected)
+      throws IOException {
+    final Path filename = Files.createTempFile("FileUtilTest", ".dat");
+    Assertions.assertTrue(save.test(data, filename.toString()));
+    // Check
+    final List<String> lines =
+        org.apache.commons.io.FileUtils.readLines(filename.toFile(), StandardCharsets.ISO_8859_1);
+    Assertions.assertEquals(expected, lines);
+    Files.delete(filename);
+  }
+
+  @Test
+  void canAddFileSeparator() {
+    Assertions.assertEquals("tmp" + File.separatorChar, FileUtils.addFileSeparator("tmp"));
+    Assertions.assertEquals("tmp/", FileUtils.addFileSeparator("tmp/"));
+    Assertions.assertEquals("tmp\\", FileUtils.addFileSeparator("tmp\\"));
+  }
+
   @Test
   void canCreateParent() throws IOException {
     final Path tmpDir = Files.createTempDirectory("FileUtilTest");
@@ -249,5 +342,15 @@ class FileUtilsTest {
    */
   private static String sanitise(String path) {
     return (path != null) ? path.replace('/', File.separatorChar) : null;
+  }
+
+  @Test
+  void canSkip() throws IOException {
+    final ByteArrayInputStream in = new ByteArrayInputStream(new byte[10]);
+    FileUtils.skip(in, 0);
+    Assertions.assertEquals(10, in.available());
+    FileUtils.skip(in, 5);
+    Assertions.assertEquals(5, in.available());
+    Assertions.assertThrows(EOFException.class, () -> FileUtils.skip(in, 6));
   }
 }
