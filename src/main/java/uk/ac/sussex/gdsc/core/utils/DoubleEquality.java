@@ -52,20 +52,8 @@ public class DoubleEquality {
     }
   }
 
-  /** The default relative error. */
-  public static final double RELATIVE_ERROR = 1e-2;
-  /** The default absolute error. */
-  public static final double ABSOLUTE_ERROR = 1e-10;
-
   private double maxRelativeError;
   private double maxAbsoluteError;
-
-  /**
-   * Instantiates a new double equality.
-   */
-  public DoubleEquality() {
-    this(RELATIVE_ERROR, ABSOLUTE_ERROR);
-  }
 
   /**
    * Instantiates a new double equality.
@@ -88,22 +76,6 @@ public class DoubleEquality {
    */
   public boolean almostEqualRelativeOrAbsolute(double v1, double v2) {
     return almostEqualRelativeOrAbsolute(v1, v2, maxRelativeError, maxAbsoluteError);
-  }
-
-  /**
-   * Compares two double arrays are within the configured errors.
-   *
-   * @param v1 the first value
-   * @param v2 the second value
-   * @return True if equal
-   */
-  public boolean almostEqualRelativeOrAbsolute(double[] v1, double[] v2) {
-    for (int i = 0; i < v1.length; i++) {
-      if (!almostEqualRelativeOrAbsolute(v1[i], v2[i], maxRelativeError, maxAbsoluteError)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   /**
@@ -152,25 +124,7 @@ public class DoubleEquality {
     if (diff == 0) {
       return 0;
     }
-    if (Math.abs(v2) > Math.abs(v1)) {
-      return Math.abs(diff / v2);
-    }
-    return Math.abs(diff / v1);
-  }
-
-  /**
-   * Compute the maximum relative error between two double arrays.
-   *
-   * @param v1 the first value
-   * @param v2 the second value
-   * @return The relative error
-   */
-  public static double relativeError(double[] v1, double[] v2) {
-    double max = 0;
-    for (int i = 0; i < v1.length; i++) {
-      max = Math.max(max, relativeError(v1[i], v2[i]));
-    }
-    return max;
+    return Math.abs(diff) / max(Math.abs(v1), Math.abs(v2));
   }
 
   /**
@@ -282,23 +236,6 @@ public class DoubleEquality {
    */
   public double getMaxAbsoluteError() {
     return maxAbsoluteError;
-  }
-
-  /**
-   * Compute the number of representable doubles until a difference in significant digits. This is
-   * only approximate since the ULP depend on the doubles being compared.
-   *
-   * <p>The number of doubles are computed between Math.power(10, sig-1) and 1 + Math.power(10,
-   * sig-1)
-   *
-   * @param significantDigits The significant digits
-   * @return The number of representable doubles (Units in the Last Place)
-   */
-  public static long getUlps(int significantDigits) {
-    final long value1 = (long) Math.pow(10.0, significantDigits - 1.0);
-    final long value2 = value1 + 1;
-    final long ulps = Double.doubleToRawLongBits(value2) - Double.doubleToRawLongBits(value1);
-    return (ulps < 0) ? 0 : ulps;
   }
 
   /**
