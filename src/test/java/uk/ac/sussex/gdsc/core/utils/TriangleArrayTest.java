@@ -37,9 +37,16 @@ class TriangleArrayTest {
   final int[] testN = new int[] {0, 1, 2, 5};
 
   @Test
+  void testConstructorThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new TriangleArray(-1));
+  }
+
+  @Test
   void canComputeIndex() {
     for (final int n : testN) {
       final TriangleArray a = new TriangleArray(n);
+      Assertions.assertEquals(n, a.getSize());
+      Assertions.assertEquals(n * (n - 1) / 2, a.getLength());
 
       final int[] count = new int[a.getLength()];
       int[] ij = new int[2];
@@ -148,10 +155,12 @@ class TriangleArrayTest {
           final int k = a.toSafeIndex(i, j);
           final int k2 = a.precursorToIndex(precursor, j);
           Assertions.assertEquals(k, k2);
+          Assertions.assertEquals(k, TriangleArray.toSafeIndex(n, i, j));
         }
         for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++) {
           final int k = a.toSafeIndex(i, j);
           Assertions.assertEquals(k, index);
+          Assertions.assertEquals(k, TriangleArray.toSafeIndex(n, i, j));
         }
       }
     }
@@ -166,6 +175,8 @@ class TriangleArrayTest {
         a.setup(i);
         for (int j = 0; j < n; j++) {
           if (i == j) {
+            final int index = i;
+            Assertions.assertThrows(IllegalArgumentException.class, () -> a.toIndex(index));
             continue;
           }
           final int k = a.toSafeIndex(i, j);
