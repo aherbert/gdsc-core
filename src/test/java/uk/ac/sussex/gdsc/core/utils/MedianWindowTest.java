@@ -111,41 +111,6 @@ class MedianWindowTest {
     }
   }
 
-  @Test
-  void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsAboveMedian() {
-    final double[] data = new double[] {1, 2, 3, 4, 5};
-
-    final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
-    double median = mw.getMedian();
-    double median2 = calculateMedian(data, 2, 2);
-    Assertions.assertEquals(median2, median, 1e-6, "Before insert");
-
-    mw.add(6);
-    median = mw.getMedian();
-    data[0] = 6;
-    median2 = calculateMedian(data, 2, 2);
-    Assertions.assertEquals(median2, median, 1e-6, "After insert");
-  }
-
-  @SeededTest
-  void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    final double[] data = createRandomData(rg, dataSize);
-    final UpdateableSupplier msg = new UpdateableSupplier();
-    for (final int radius : radii) {
-      final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
-      final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);
-      for (int i = radius, j = startData.length; j < data.length; i++, j++) {
-        final double median = mw.getMedian();
-        mw.add(data[j]);
-        final double median2 = calculateMedian(data, i, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", i, radius,
-        // median2, median));
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
-      }
-    }
-  }
-
   @SeededTest
   void canComputeMedianForRandomDataUsingSingleIncrement(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());

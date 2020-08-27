@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * Provides a rolling median on a fixed size data set. The median is maintained using a
  * double-linked list data structure.
@@ -283,13 +281,18 @@ public class DoubleLinkedMedianWindow {
    * is t=0. Time points after that have a positive index. The maximum allowed index is the data
    * length-1.
    *
-   * @param start the start
-   * @param end the end
+   * <p>The input indices are clipped to the range {@code [0, size)}.
+   *
+   * <p>If {@code start > end} the result is NaN.
+   *
+   * @param start the start (inclusive)
+   * @param end the end (inclusive)
    * @return the median
+   * @see #getSize()
    */
   public double getMedian(int start, int end) {
-    final int rangeEnd = FastMath.min(data.length - 1, Math.abs(end));
-    final int rangeStart = FastMath.max(0, Math.abs(start));
+    final int rangeEnd = MathUtils.clip(0, data.length - 1, end);
+    final int rangeStart = MathUtils.clip(0, data.length - 1, start);
 
     final int length = rangeEnd - rangeStart + 1;
     if (length == 0) {
@@ -321,20 +324,30 @@ public class DoubleLinkedMedianWindow {
   /**
    * Compute the median for the input data using the oldest n data points.
    *
+   * <p>The input number is clipped to the size.
+   *
    * @param oldestN the oldest N
    * @return the median
+   * @throws IllegalArgumentException if the number of data points is not strictly positive
+   * @see #getSize()
    */
   public double getMedianOldest(int oldestN) {
+    ValidationUtils.checkStrictlyPositive(oldestN);
     return getMedian(0, oldestN - 1);
   }
 
   /**
    * Compute the median for the input data using the youngest n data points.
    *
+   * <p>The input number is clipped to the size.
+   *
    * @param youngestN the youngest N
    * @return the median
+   * @throws IllegalArgumentException if the number of data points is not strictly positive
+   * @see #getSize()
    */
   public double getMedianYoungest(int youngestN) {
+    ValidationUtils.checkStrictlyPositive(youngestN);
     final int end = data.length - 1;
     return getMedian(end - youngestN + 1, end);
   }

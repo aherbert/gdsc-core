@@ -83,6 +83,22 @@ class DoubleLinkedMedianWindowTest {
   int[] speedIncrement = new int[] {1, 2, 4, 6, 8, 12, 16, 24, 32, 48};
 
   @Test
+  void testConstructor() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DoubleLinkedMedianWindow(null));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DoubleLinkedMedianWindow(new double[0]));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DoubleLinkedMedianWindow(new double[2]), "Length must be odd");
+    for (int i = 1; i < 6; i += 2) {
+      DoubleLinkedMedianWindow mw =
+          new DoubleLinkedMedianWindow(SimpleArrayUtils.newArray(i, 0.0, 1));
+      Assertions.assertEquals(i, mw.getSize());
+      Assertions.assertEquals(i / 2, mw.getMedian());
+    }
+  }
+
+  @Test
   void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsAboveMedian() {
     final double[] data = new double[] {1, 2, 3, 4, 5};
 
@@ -262,6 +278,73 @@ class DoubleLinkedMedianWindowTest {
         }
       }
     }
+  }
+
+  @SeededTest
+  void canComputeMedianForRange(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    double[] data = new double[] {1, 2, 3, 4, 5};
+
+    final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
+    // Extremes
+    Assertions.assertEquals(Double.NaN, mw.getMedian(1, 0));
+    Assertions.assertEquals(data[0], mw.getMedian(0, Integer.MIN_VALUE));
+    Assertions.assertEquals(data[2], mw.getMedian(0, 10));
+    Assertions.assertEquals(data[4], mw.getMedian(10, 10));
+    for (int i = 0; i < data.length; i++) {
+      Assertions.assertEquals(data[i], mw.getMedian(i, i));
+    }
+
+    double median = mw.getMedian();
+    double median2 = MedianWindowTest.calculateMedian(data, 2, 2);
+    Assertions.assertEquals(median2, median, 1e-6, "Before insert");
+    median = mw.getMedian(1, 3);
+    median2 = MedianWindowTest.calculateMedian(data, 2, 1);
+    Assertions.assertEquals(median2, median, 1e-6, "Before insert");
+    data = Arrays.copyOf(data, 15);
+    for (int i = 5, j = 1; i < data.length; i++, j++) {
+      final double value = 1 + rng.nextInt(10);
+      mw.add(value);
+      data[i] = value;
+      median = mw.getMedian(0, 4);
+      median2 = MedianWindowTest.calculateMedian(data, j + 2, 2);
+      Assertions.assertEquals(median2, median, 1e-6);
+      median = mw.getMedian(0, 2);
+      median2 = MedianWindowTest.calculateMedian(data, j + 1, 1);
+      Assertions.assertEquals(median2, median, 1e-6);
+      median = mw.getMedian(1, 3);
+      median2 = MedianWindowTest.calculateMedian(data, j + 2, 1);
+      Assertions.assertEquals(median2, median, 1e-6);
+      median = mw.getMedian(2, 4);
+      median2 = MedianWindowTest.calculateMedian(data, j + 3, 1);
+      Assertions.assertEquals(median2, median, 1e-6);
+    }
+  }
+
+  @Test
+  void canComputeOldest() {
+    final double[] data = new double[] {1, 2, 3, 4, 5};
+    final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> mw.getMedianOldest(0));
+    Assertions.assertEquals(data[0], mw.getMedianOldest(1));
+    Assertions.assertEquals((data[0] + data[1]) * 0.5, mw.getMedianOldest(2));
+    Assertions.assertEquals(data[1], mw.getMedianOldest(3));
+    Assertions.assertEquals((data[1] + data[2]) * 0.5, mw.getMedianOldest(4));
+    Assertions.assertEquals(data[2], mw.getMedianOldest(5));
+    Assertions.assertEquals(data[2], mw.getMedianOldest(6));
+  }
+
+  @Test
+  void canComputeYoungest() {
+    final double[] data = new double[] {1, 2, 3, 4, 5};
+    final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(data);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> mw.getMedianYoungest(0));
+    Assertions.assertEquals(data[4], mw.getMedianYoungest(1));
+    Assertions.assertEquals((data[4] + data[3]) * 0.5, mw.getMedianYoungest(2));
+    Assertions.assertEquals(data[3], mw.getMedianYoungest(3));
+    Assertions.assertEquals((data[3] + data[2]) * 0.5, mw.getMedianYoungest(4));
+    Assertions.assertEquals(data[2], mw.getMedianYoungest(5));
+    Assertions.assertEquals(data[2], mw.getMedianYoungest(6));
   }
 
   @SpeedTag
