@@ -118,13 +118,30 @@ class BooleanArrayTest {
   }
 
   private static void check(LocalList<Boolean> expected, BooleanArray observed) {
+    check(expected, observed, false);
+  }
+
+  private static void check(LocalList<Boolean> expected, BooleanArray observed, boolean sort) {
     Assertions.assertEquals(expected.size(), observed.size(), "size");
     final boolean[] d2 = observed.toArray();
     Assertions.assertEquals(expected.size(), d2.length, "length");
     for (int i = 0; i < d2.length; i++) {
-      Assertions.assertEquals(expected.unsafeGet(i), d2[i]);
       Assertions.assertEquals(observed.get(i), d2[i]);
       Assertions.assertEquals(observed.getf(i), d2[i]);
+    }
+    if (sort) {
+      expected.sort(Boolean::compare);
+      LocalList<Boolean> proxy = new LocalList<>();
+      for (int i = 0; i < d2.length; i++) {
+        proxy.add(d2[i]);
+      }
+      proxy.sort(Boolean::compare);
+      for (int i = 0; i < d2.length; i++) {
+        d2[i] = proxy.unsafeGet(i);
+      }
+    }
+    for (int i = 0; i < d2.length; i++) {
+      Assertions.assertEquals(expected.unsafeGet(i), d2[i]);
     }
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> observed.get(observed.size()));
   }
@@ -153,7 +170,7 @@ class BooleanArrayTest {
 
   @Test
   void canSafeAdd() throws InterruptedException, ExecutionException {
-    final ExecutorService es = Executors.newFixedThreadPool(6);
+    final ExecutorService es = Executors.newFixedThreadPool(3);
     final boolean[][] ddata = {{true, true, false, false}, {true, false, false}, {false, true}};
     final boolean[] data = {true, true, false, false, true, false, false, false, true};
     final BooleanArray[] sdata = new BooleanArray[3];
@@ -193,7 +210,7 @@ class BooleanArrayTest {
         expected.add(value);
       }
     }
-    check(expected, observed);
+    check(expected, observed, true);
   }
 
   private static void await(CountDownLatch count) {
