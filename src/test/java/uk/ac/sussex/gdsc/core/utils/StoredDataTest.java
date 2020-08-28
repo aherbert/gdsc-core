@@ -95,7 +95,7 @@ class StoredDataTest {
   }
 
   @SeededTest
-  void canComputeStatistics(RandomSeed seed) {
+  void canAdd(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     StoredData observed;
