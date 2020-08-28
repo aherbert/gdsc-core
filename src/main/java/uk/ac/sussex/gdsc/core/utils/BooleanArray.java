@@ -107,7 +107,6 @@ public class BooleanArray {
     if (size == values.length) {
       checkCapacity(1);
     }
-    checkCapacity(1);
     values[size++] = value;
   }
 
