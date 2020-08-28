@@ -48,6 +48,18 @@ public class BooleanArray {
   }
 
   /**
+   * Instantiates a new boolean array.
+   *
+   * @param data the data
+   * @return the boolean array
+   */
+  public static BooleanArray create(boolean[] data) {
+    final BooleanArray object = new BooleanArray(0);
+    object.add(data);
+    return object;
+  }
+
+  /**
    * Ensure that the specified number of elements can be added to the array.
    *
    * <p>This is not synchronized. However any class using the safeAdd() methods in different threads
@@ -203,6 +215,15 @@ public class BooleanArray {
    */
   public void clear() {
     size = 0;
+  }
+
+  /**
+   * Get the capacity of the array.
+   *
+   * @return the capacity
+   */
+  public int capacity() {
+    return values.length;
   }
 
   /**
