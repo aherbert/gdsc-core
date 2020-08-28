@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
@@ -38,20 +37,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
-class CorrelatorTest {
+class FastCorrelatorTest {
 
   @Test
   void testEmptyValues() {
-    final Correlator observed = new Correlator();
+    final FastCorrelator observed = new FastCorrelator();
     final SimpleCorrelator expected = new SimpleCorrelator();
     check(expected, observed);
-    final Correlator observed2 = new Correlator(10);
+    final FastCorrelator observed2 = new FastCorrelator();
     check(expected, observed2);
   }
 
   @Test
   void testSingleValues() {
-    final Correlator observed = new Correlator();
+    final FastCorrelator observed = new FastCorrelator();
     final SimpleCorrelator expected = new SimpleCorrelator();
     observed.add(1, 2);
     expected.add(1, 2);
@@ -60,7 +59,7 @@ class CorrelatorTest {
 
   @Test
   void testNullValues() {
-    final Correlator observed = new Correlator();
+    final FastCorrelator observed = new FastCorrelator();
     final int[] data = {1, 2, 3};
     observed.add(null, data);
     Assertions.assertEquals(0, observed.getN());
@@ -76,19 +75,21 @@ class CorrelatorTest {
   void canComputeCorrelation(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     SimpleCorrelator expected;
-    Correlator observed;
-    final int size = 13;
+    FastCorrelator observed;
     for (int i = 0; i < 10; i++) {
       expected = new SimpleCorrelator();
-      observed = new Correlator(size);
+      observed = new FastCorrelator();
+      final FastCorrelator observed2 = new FastCorrelator();
       for (int j = 0; j < 100; j++) {
         final int v1 = j + rng.nextInt(20);
         final int v2 = j + rng.nextInt(300);
         expected.add(v1, v2);
         observed.add(v1, v2);
+        observed2.add((long) v1, v2);
         // The SimpleCorrelator can fail (NaN) with no variation in x so build up data
         if (j > 10) {
           check(expected, observed);
+          check(expected, observed2);
         }
       }
     }
@@ -101,67 +102,60 @@ class CorrelatorTest {
     for (int i = 0; i < v1.length; i++) {
       expected.add(v1[i], v2[i]);
     }
-    observed = new Correlator(size);
+    observed = new FastCorrelator();
     observed.add(v1, v2);
     check(expected, observed);
 
-    Assertions.assertEquals(expected.getCorrelation(), Correlator.correlation(v1, v2), 1e-10);
+    Assertions.assertEquals(expected.getCorrelation(), FastCorrelator.correlation(v1, v2), 1e-10);
 
     expected = new SimpleCorrelator();
     final int length = v1.length / 2;
     for (int i = 0; i < length; i++) {
       expected.add(v1[i], v2[i]);
     }
-    observed = new Correlator(size);
+    observed = new FastCorrelator();
     observed.add(v1, v2, length);
     check(expected, observed);
 
-    Assertions.assertEquals(expected.getCorrelation(), Correlator.correlation(v1, v2, length),
+    Assertions.assertEquals(expected.getCorrelation(), FastCorrelator.correlation(v1, v2, length),
         1e-10);
   }
 
-  private static void check(SimpleCorrelator expected, Correlator observed) {
-    Assertions.assertArrayEquals(expected.getX(), observed.getX(), "X");
-    Assertions.assertArrayEquals(expected.getY(), observed.getY(), "Y");
+  private static void check(SimpleCorrelator expected, FastCorrelator observed) {
     Assertions.assertEquals(expected.getSumX(), observed.getSumX(), "SumX");
     Assertions.assertEquals(expected.getSumY(), observed.getSumY(), "SumY");
     Assertions.assertEquals(expected.getN(), observed.getN(), "N");
     Assertions.assertEquals(expected.getCorrelation(), observed.getCorrelation(), 1e-10,
-        () -> "Correlation " + Arrays.toString(observed.getX()) + ":"
-            + Arrays.toString(observed.getY()));
-    Assertions.assertEquals(expected.getCorrelation(), observed.getFastCorrelation(), 1e-10,
-        "FastCorrelation");
+        "Correlation");
+    Assertions.assertEquals(expected.getSumXX(), observed.getSumSquaredX(), "SumXX");
+    Assertions.assertEquals(expected.getSumYY(), observed.getSumSquaredY(), "SumYY");
+    Assertions.assertEquals(expected.getSumXY(), observed.getSumXbyY(), "SumXY");
   }
 
   @Test
   void canClear() {
-    final Correlator data = new Correlator();
+    final FastCorrelator data = new FastCorrelator();
     Assertions.assertEquals(0, data.getN());
     data.add(1, 2);
     data.add(3, 4);
     Assertions.assertEquals(2, data.getN());
     Assertions.assertEquals(4, data.getSumX());
     Assertions.assertEquals(6, data.getSumY());
-    Assertions.assertArrayEquals(new int[] {1, 3}, data.getX());
-    Assertions.assertArrayEquals(new int[] {2, 4}, data.getY());
     data.clear();
     Assertions.assertEquals(0, data.getN());
     Assertions.assertEquals(0, data.getSumX());
     Assertions.assertEquals(0, data.getSumY());
-    final int[] empty = {};
-    Assertions.assertArrayEquals(empty, data.getX());
-    Assertions.assertArrayEquals(empty, data.getY());
   }
 
   @Test
   void testCorrelationWithNoValues() {
     int[] data = {1, 2, 3};
-    Assertions.assertEquals(Double.NaN, Correlator.correlation(data, null));
-    Assertions.assertEquals(Double.NaN, Correlator.correlation(null, data));
-    Assertions.assertEquals(Double.NaN, Correlator.correlation(data, null, 3));
-    Assertions.assertEquals(Double.NaN, Correlator.correlation(null, data, 3));
-    Assertions.assertEquals(Double.NaN, Correlator.correlation(data, data, 0));
+    Assertions.assertEquals(Double.NaN, FastCorrelator.correlation(data, null));
+    Assertions.assertEquals(Double.NaN, FastCorrelator.correlation(null, data));
+    Assertions.assertEquals(Double.NaN, FastCorrelator.correlation(data, null, 3));
+    Assertions.assertEquals(Double.NaN, FastCorrelator.correlation(null, data, 3));
+    Assertions.assertEquals(Double.NaN, FastCorrelator.correlation(data, data, 0));
     data = new int[0];
-    Assertions.assertEquals(Double.NaN, Correlator.correlation(data, data));
+    Assertions.assertEquals(Double.NaN, FastCorrelator.correlation(data, data));
   }
 }
