@@ -40,31 +40,11 @@ public class BooleanArray {
 
   /**
    * Instantiates a new boolean array.
-   */
-  public BooleanArray() {
-    values = new boolean[10];
-  }
-
-  /**
-   * Instantiates a new boolean array.
    *
    * @param capacity the capacity
    */
   public BooleanArray(int capacity) {
     values = new boolean[capacity];
-  }
-
-  /**
-   * Instantiates a new boolean array.
-   *
-   * @param data the data
-   * @param clone the clone
-   */
-  public BooleanArray(boolean[] data, boolean clone) {
-    if (data != null) {
-      values = (clone) ? data.clone() : data;
-      size = data.length;
-    }
   }
 
   /**
@@ -79,9 +59,10 @@ public class BooleanArray {
   private void checkCapacity(int length) {
     final int minCapacity = size + length;
     final int oldCapacity = values.length;
-    if (minCapacity > oldCapacity) {
+    // Overflow safe
+    if (minCapacity - oldCapacity > 0) {
       int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
+      if (newCapacity - minCapacity < 0) {
         newCapacity = minCapacity;
       }
       final boolean[] newValues = new boolean[newCapacity];
@@ -111,6 +92,9 @@ public class BooleanArray {
    * @param value the value
    */
   public void add(final boolean value) {
+    if (size == values.length) {
+      checkCapacity(1);
+    }
     checkCapacity(1);
     values[size++] = value;
   }
@@ -120,8 +104,10 @@ public class BooleanArray {
    *
    * @param n The number of times
    * @param value The value
+   * @throws IllegalArgumentException if the number of times is not positive
    */
   public void add(int n, boolean value) {
+    ValidationUtils.checkPositive(n, "number of times");
     checkCapacity(n);
     for (int i = 0; i < n; i++) {
       values[this.size++] = value;
