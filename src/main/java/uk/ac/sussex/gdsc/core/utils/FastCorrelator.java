@@ -285,7 +285,8 @@ public class FastCorrelator {
     final BigInteger varianceX = nsumxx.subtract(sumxB.multiply(sumxB));
     final BigInteger varianceY = nsumyy.subtract(sumyB.multiply(sumyB));
 
-    return coVariance.doubleValue() / Math.sqrt(varianceX.multiply(varianceY).doubleValue());
+    return MathUtils.div0(coVariance.doubleValue(),
+        Math.sqrt(varianceX.multiply(varianceY).doubleValue()));
   }
 
   /**

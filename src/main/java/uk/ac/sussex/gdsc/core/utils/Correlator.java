@@ -67,7 +67,9 @@ public class Correlator {
    * @param v2 the second value
    */
   public void add(final int v1, final int v2) {
-    checkCapacity(1);
+    if (count == x.length) {
+      checkCapacity(1);
+    }
     addData(v1, v2);
   }
 
@@ -113,9 +115,11 @@ public class Correlator {
    */
   private void checkCapacity(int length) {
     final int minCapacity = count + length;
-    if (minCapacity > x.length) {
-      int newCapacity = (x.length * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
+    final int oldCapacity = x.length;
+    // Overflow safe
+    if (minCapacity - oldCapacity > 0) {
+      int newCapacity = (oldCapacity * 3) / 2 + 1;
+      if (newCapacity - minCapacity < 0) {
         newCapacity = minCapacity;
       }
       int[] newValues = new int[newCapacity];
