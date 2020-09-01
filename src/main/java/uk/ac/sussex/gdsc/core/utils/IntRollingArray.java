@@ -93,7 +93,7 @@ public class IntRollingArray {
     if (repeats >= capacity) {
       // Saturate
       Arrays.fill(data, number);
-      sum = (long) repeats * number;
+      sum = (long) capacity * number;
       index = 0;
       count = capacity;
     } else {
@@ -175,11 +175,18 @@ public class IntRollingArray {
   }
 
   /**
-   * Convert to an array.
+   * Convert to an array. The data is returned oldest first.
    *
    * @return the array
    */
   public int[] toArray() {
+    if (isFull()) {
+      final int[] result = new int[count];
+      final int size = data.length - index;
+      System.arraycopy(data, index, result, 0, size);
+      System.arraycopy(data, 0, result, size, data.length - size);
+      return result;
+    }
     return Arrays.copyOf(data, count);
   }
 }
