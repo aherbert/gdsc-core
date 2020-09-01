@@ -97,7 +97,7 @@ public class BooleanRollingArray {
     if (n >= capacity) {
       // Saturate
       Arrays.fill(data, value);
-      sum = (value) ? n : 0;
+      sum = (value) ? capacity : 0;
       index = 0;
       count = capacity;
     } else {
@@ -153,11 +153,18 @@ public class BooleanRollingArray {
   }
 
   /**
-   * Convert to an array.
+   * Convert to an array. The data is returned oldest first.
    *
    * @return the array
    */
   public boolean[] toArray() {
+    if (isFull()) {
+      final boolean[] result = new boolean[count];
+      final int size = data.length - index;
+      System.arraycopy(data, index, result, 0, size);
+      System.arraycopy(data, 0, result, size, data.length - size);
+      return result;
+    }
     return Arrays.copyOf(data, count);
   }
 }
