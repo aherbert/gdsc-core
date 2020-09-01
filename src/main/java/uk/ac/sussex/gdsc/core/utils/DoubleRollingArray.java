@@ -89,11 +89,11 @@ public class DoubleRollingArray {
    * @param number the number
    * @param repeats the repeats (n)
    */
-  public void add(int number, int repeats) {
+  public void add(double number, int repeats) {
     if (repeats >= capacity) {
       // Saturate
       Arrays.fill(data, number);
-      sum = (double) repeats * number;
+      sum = capacity * number;
       index = 0;
       count = capacity;
     } else {
@@ -175,11 +175,18 @@ public class DoubleRollingArray {
   }
 
   /**
-   * Convert to an array.
+   * Convert to an array. The data is returned oldest first.
    *
    * @return the array
    */
   public double[] toArray() {
+    if (isFull()) {
+      final double[] result = new double[count];
+      final int size = data.length - index;
+      System.arraycopy(data, index, result, 0, size);
+      System.arraycopy(data, 0, result, size, data.length - size);
+      return result;
+    }
     return Arrays.copyOf(data, count);
   }
 }
