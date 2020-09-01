@@ -91,7 +91,7 @@ class FloatLinkedMedianWindowTest {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> new FloatLinkedMedianWindow(new float[2]), "Length must be odd");
     for (int i = 1; i < 6; i += 2) {
-      FloatLinkedMedianWindow mw =
+      final FloatLinkedMedianWindow mw =
           new FloatLinkedMedianWindow(SimpleArrayUtils.newArray(i, 0.0f, 1));
       Assertions.assertEquals(i, mw.getSize());
       Assertions.assertEquals(i / 2, mw.getMedian());

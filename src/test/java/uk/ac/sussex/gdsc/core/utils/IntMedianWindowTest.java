@@ -55,10 +55,10 @@ class IntMedianWindowTest {
     }
   }
 
-  private int dataSize = 2000;
-  private int[] radii = new int[] {0, 1, 2, 4, 8, 16};
-  private int[] values = new int[] {0, -1, 2};
-  private boolean[] sortedScans = {true, false};
+  private final int dataSize = 2000;
+  private final int[] radii = new int[] {0, 1, 2, 4, 8, 16};
+  private final int[] values = new int[] {0, -1, 2};
+  private final boolean[] sortedScans = {true, false};
 
   @Test
   void testWrap() {
@@ -86,8 +86,7 @@ class IntMedianWindowTest {
   @SeededTest
   void canComputeMedianForRandomDataUsingSingleIncrement(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
-    canComputeMedianForDataUsingSingleIncrement(
-        MedianWindowTest.createRandomDataInt(rg, dataSize));
+    canComputeMedianForDataUsingSingleIncrement(MedianWindowTest.createRandomDataInt(rg, dataSize));
   }
 
   @SeededTest
@@ -156,7 +155,7 @@ class IntMedianWindowTest {
   private void canComputeMedianForDataUsingSingleIncrement(int[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final IntMedianWindow mw = new IntMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
@@ -173,7 +172,7 @@ class IntMedianWindowTest {
   private void canComputeMedianForDataUsingSetPosition(int[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final IntMedianWindow mw = new IntMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
@@ -209,7 +208,7 @@ class IntMedianWindowTest {
     final UpdateableSupplier msg = new UpdateableSupplier();
     final int increment = 10;
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final IntMedianWindow mw = new IntMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());

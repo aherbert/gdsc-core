@@ -81,7 +81,7 @@ class DoubleRollingArrayTest {
     Assertions.assertEquals(array.getCount() == array.getCapacity(), array.isFull());
     Assertions.assertArrayEquals(data, array.toArray());
     double total = 0;
-    for (double value : data) {
+    for (final double value : data) {
       total += value;
     }
     Assertions.assertEquals(total, array.computeAndGetSum());

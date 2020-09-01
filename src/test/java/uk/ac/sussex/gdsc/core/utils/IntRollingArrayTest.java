@@ -81,7 +81,7 @@ class IntRollingArrayTest {
     Assertions.assertEquals(array.getCount() == array.getCapacity(), array.isFull());
     Assertions.assertArrayEquals(data, array.toArray());
     int total = 0;
-    for (int value : data) {
+    for (final int value : data) {
       total += value;
     }
     Assertions.assertEquals(total, array.computeAndGetSum());

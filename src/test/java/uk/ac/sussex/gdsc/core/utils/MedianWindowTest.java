@@ -80,11 +80,11 @@ class MedianWindowTest {
     }
   }
 
-  private int dataSize = 2000;
-  private int[] radii = new int[] {0, 1, 2, 4, 8, 16};
-  private int[] speedRadii = new int[] {16, 32, 64};
-  private int testSpeedRadius = speedRadii[speedRadii.length - 1];
-  private int[] speedIncrement = new int[] {1, 2, 4, 8, 16};
+  private final int dataSize = 2000;
+  private final int[] radii = new int[] {0, 1, 2, 4, 8, 16};
+  private final int[] speedRadii = new int[] {16, 32, 64};
+  private final int testSpeedRadius = speedRadii[speedRadii.length - 1];
+  private final int[] speedIncrement = new int[] {1, 2, 4, 8, 16};
 
   @SeededTest
   void testClassCanComputeActualMedian(RandomSeed seed) {

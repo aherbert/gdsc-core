@@ -131,7 +131,7 @@ class BooleanArrayTest {
     }
     if (sort) {
       expected.sort(Boolean::compare);
-      LocalList<Boolean> proxy = new LocalList<>();
+      final LocalList<Boolean> proxy = new LocalList<>();
       for (int i = 0; i < d2.length; i++) {
         proxy.add(d2[i]);
       }

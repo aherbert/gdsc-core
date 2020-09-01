@@ -91,7 +91,7 @@ class DoubleLinkedMedianWindowTest {
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> new DoubleLinkedMedianWindow(new double[2]), "Length must be odd");
     for (int i = 1; i < 6; i += 2) {
-      DoubleLinkedMedianWindow mw =
+      final DoubleLinkedMedianWindow mw =
           new DoubleLinkedMedianWindow(SimpleArrayUtils.newArray(i, 0.0, 1));
       Assertions.assertEquals(i, mw.getSize());
       Assertions.assertEquals(i / 2, mw.getMedian());

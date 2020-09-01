@@ -55,10 +55,10 @@ class DoubleMedianWindowTest {
     }
   }
 
-  private int dataSize = 2000;
-  private int[] radii = new int[] {0, 1, 2, 4, 8, 16};
-  private double[] values = new double[] {0, -1.1, 2.2};
-  private boolean[] sortedScans = {true, false};
+  private final int dataSize = 2000;
+  private final int[] radii = new int[] {0, 1, 2, 4, 8, 16};
+  private final double[] values = new double[] {0, -1.1, 2.2};
+  private final boolean[] sortedScans = {true, false};
 
   @Test
   void testWrap() {
@@ -182,7 +182,7 @@ class DoubleMedianWindowTest {
   private void canComputeMedianForDataUsingSingleIncrement(double[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
@@ -199,7 +199,7 @@ class DoubleMedianWindowTest {
   private void canComputeMedianForDataUsingSetPosition(double[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
@@ -235,7 +235,7 @@ class DoubleMedianWindowTest {
     final UpdateableSupplier msg = new UpdateableSupplier();
     final int increment = 10;
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());

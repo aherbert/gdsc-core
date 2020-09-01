@@ -55,10 +55,10 @@ class FloatMedianWindowTest {
     }
   }
 
-  private int dataSize = 2000;
-  private int[] radii = new int[] {0, 1, 2, 4, 8, 16};
-  private float[] values = new float[] {0, -1.1f, 2.2f};
-  private boolean[] sortedScans = {true, false};
+  private final int dataSize = 2000;
+  private final int[] radii = new int[] {0, 1, 2, 4, 8, 16};
+  private final float[] values = new float[] {0, -1.1f, 2.2f};
+  private final boolean[] sortedScans = {true, false};
 
   @Test
   void testWrap() {
@@ -174,15 +174,14 @@ class FloatMedianWindowTest {
   void canComputeMedianForNaNDataUsingBigIncrement(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int start : new int[] {2, 5, 10, 40}) {
-      canComputeMedianForDataUsingBigIncrement(
-          MedianWindowTest.createNaNDataFloat(rng, 50, start));
+      canComputeMedianForDataUsingBigIncrement(MedianWindowTest.createNaNDataFloat(rng, 50, start));
     }
   }
 
   private void canComputeMedianForDataUsingSingleIncrement(float[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final FloatMedianWindow mw = new FloatMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
@@ -199,7 +198,7 @@ class FloatMedianWindowTest {
   private void canComputeMedianForDataUsingSetPosition(float[] data) {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final FloatMedianWindow mw = new FloatMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
@@ -235,7 +234,7 @@ class FloatMedianWindowTest {
     final UpdateableSupplier msg = new UpdateableSupplier();
     final int increment = 10;
     for (final int radius : radii) {
-      for (boolean sortedScan : sortedScans) {
+      for (final boolean sortedScan : sortedScans) {
         final FloatMedianWindow mw = new FloatMedianWindow(data, radius);
         mw.setSortedScan(sortedScan);
         Assertions.assertEquals(sortedScan, mw.isSortedScan());
