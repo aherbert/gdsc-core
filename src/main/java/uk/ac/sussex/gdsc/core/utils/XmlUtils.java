@@ -144,7 +144,7 @@ public final class XmlUtils {
                 singleLine = true;
               } else {
                 // For larger amounts of text, wrap lines to a maximum line length.
-                sb.append(NEW_LINE).append(lineWrap(textBetweenElements, lineLength, indent, null))
+                sb.append(NEW_LINE).append(lineWrap(textBetweenElements, lineLength, indent))
                     .append(NEW_LINE);
               }
               i = nextStartElementPos - 1;
@@ -173,7 +173,7 @@ public final class XmlUtils {
    * @param sb the string builder
    * @param numChars the number of characters
    */
-  static void appendWhitespace(StringBuilder sb, int numChars) {
+  private static void appendWhitespace(StringBuilder sb, int numChars) {
     for (int i = 0; i < numChars; i++) {
       sb.append(' ');
     }
@@ -186,44 +186,87 @@ public final class XmlUtils {
    * @param lineLength the maximum length of each line in the returned string (not including indent
    *        if specified)
    * @param indent optional number of whitespace characters to prepend to each line before the text
-   * @param linePrefix optional string to append to the indent (before the text)
    * @return the supplied text wrapped so that no line exceeds the specified line length + indent,
    *         optionally with indent and prefix applied to each line.
    */
-  public static String lineWrap(String text, int lineLength, Integer indent, String linePrefix) {
+  static String lineWrap(String text, int lineLength, int indent) {
     if (text == null) {
       return null;
     }
 
-    final StringBuilder sb = new StringBuilder();
+    final int length = text.length();
+    final StringBuilder sb = new StringBuilder(length);
+    final int maxLineLength = Math.max(0, lineLength);
+    // Scan for whitespace. These are allowed cut points.
     int lineStartPos = 0;
     int lineEndPos;
-    boolean firstLine = true;
-    while (lineStartPos < text.length()) {
-      if (firstLine) {
-        firstLine = false;
-      } else {
-        sb.append(NEW_LINE);
+    while (lineStartPos < length) {
+      // Trim
+      while (lineStartPos < length && isWhitespace(text.charAt(lineStartPos))) {
+        lineStartPos++;
+      }
+      if (lineStartPos == length) {
+        break;
       }
 
-      if (lineStartPos + lineLength > text.length()) {
-        lineEndPos = text.length() - 1;
+      lineEndPos = lineStartPos + maxLineLength;
+      if (lineEndPos >= length) {
+        lineEndPos = length;
       } else {
-        lineEndPos = lineStartPos + lineLength - 1;
-        while (lineEndPos > lineStartPos
-            && (text.charAt(lineEndPos) != ' ' && text.charAt(lineEndPos) != '\t')) {
+        // End position is inside the string.
+        // Scan back for a cut.
+        while (lineEndPos > lineStartPos && !isWhitespace(text.charAt(lineEndPos))) {
           lineEndPos--;
         }
-      }
-      appendWhitespace(sb, indent);
-      if (linePrefix != null) {
-        sb.append(linePrefix);
+
+        if (lineEndPos == lineStartPos) {
+          // No whitespace for a cut. Scan forward. This may scan to the end of the string.
+          lineEndPos = lineStartPos + maxLineLength + 1;
+          while (lineEndPos < length && !isWhitespace(text.charAt(lineEndPos))) {
+            lineEndPos++;
+          }
+        }
       }
 
-      sb.append(text.substring(lineStartPos, lineEndPos + 1));
+      if (sb.length() != 0) {
+        // Not the first line
+        sb.append(NEW_LINE);
+      }
+      appendWhitespace(sb, indent);
+
+      trimAndAppend(sb, text, lineStartPos, lineEndPos);
       lineStartPos = lineEndPos + 1;
     }
     return sb.toString();
+  }
+
+  /**
+   * Checks if the character is whitespace.
+   *
+   * @param ch the character
+   * @return true if is whitespace
+   */
+  private static boolean isWhitespace(char ch) {
+    // Simple whitespace detection
+    return ch == ' ' || ch == '\t';
+  }
+
+  /**
+   * Append the substring to the string builder. Performs a right trim before the append.
+   *
+   * <p>Warning: This assumes that {@code start < end} and the character at the start position
+   * is not whitespace.
+   *
+   * @param sb the string builder
+   * @param text the text
+   * @param start the start
+   * @param end the end
+   */
+  private static void trimAndAppend(StringBuilder sb, String text, int start, int end) {
+    while (isWhitespace(text.charAt(end - 1))) {
+      end--;
+    }
+    sb.append(text.substring(start, end));
   }
 
   /**
