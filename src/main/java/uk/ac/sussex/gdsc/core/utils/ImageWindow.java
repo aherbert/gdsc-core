@@ -93,7 +93,7 @@ public class ImageWindow {
    * @param windowFunction the window function
    * @return the image
    */
-  public float[] applySeperable(float[] image, final int maxx, final int maxy,
+  public float[] applySeparable(float[] image, final int maxx, final int maxy,
       WindowMethod windowFunction) {
     Objects.requireNonNull(windowFunction, "Window function must not be null");
     if (windowFunction == WindowMethod.NONE) {
