@@ -44,7 +44,12 @@ import java.io.Reader;
  *      Stack Overflow: Byte order mark screws up file reading in java</a>
  */
 public class UnicodeReader extends Reader {
+  /** The size of the byte-order-mark (BOM). */
   private static final int BOM_SIZE = 4;
+  /** A byte that is not present in any BOM. */
+  private static final byte IGNORE = (byte) 0xAA;
+
+  /** The reader. */
   private final InputStreamReader reader;
 
   /**
@@ -56,7 +61,8 @@ public class UnicodeReader extends Reader {
    * @throws IOException If an I/O error occurs.
    */
   public UnicodeReader(InputStream in, String defaultEncoding) throws IOException {
-    final byte[] bom = new byte[BOM_SIZE];
+    // Avoid zero fill and any byte we are trying to match
+    final byte[] bom = {IGNORE, IGNORE, IGNORE, IGNORE};
     String encoding;
     int unread;
     final PushbackInputStream pushbackStream = new PushbackInputStream(in, BOM_SIZE);
@@ -89,8 +95,6 @@ public class UnicodeReader extends Reader {
     // Unread bytes if necessary and skip BOM marks.
     if (unread > 0) {
       pushbackStream.unread(bom, (read - unread), unread);
-    } else if (unread < -1) {
-      pushbackStream.unread(bom, 0, 0);
     }
 
     // Use given encoding.

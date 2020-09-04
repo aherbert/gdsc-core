@@ -130,4 +130,18 @@ class UnicodeReaderTest {
       Assertions.assertEquals(expected, new String(cbuf, 0, count));
     }
   }
+
+  @Test
+  void canReadIncompleteBom() throws IOException {
+    // This is missing the final 0x00 for UTF-32LE
+    final byte[] bytes = {(byte) 0xFF, (byte) 0xFE, (byte) 0x00};
+    final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+    try (UnicodeReader reader = new UnicodeReader(in, null)) {
+      Assertions.assertEquals(StandardCharsets.UTF_16LE, Charset.forName(reader.getEncoding()));
+      final String expected = new String(new byte[1], StandardCharsets.UTF_16LE);
+      final char[] cbuf = new char[1 + bytes.length];
+      final int count = reader.read(cbuf, 0, cbuf.length);
+      Assertions.assertEquals(expected, new String(cbuf, 0, count));
+    }
+  }
 }
