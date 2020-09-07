@@ -60,10 +60,10 @@ public class StoredData implements DoubleData {
   }
 
   /**
-   * Instantiates a new stored data statistics.
+   * Instantiates a new stored data.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the stored data
    */
   public static StoredData create(float[] data) {
     final StoredData object = new StoredData();
@@ -72,10 +72,10 @@ public class StoredData implements DoubleData {
   }
 
   /**
-   * Instantiates a new stored data statistics.
+   * Instantiates a new stored data.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the stored data
    */
   public static StoredData create(double[] data) {
     final StoredData object = new StoredData();
@@ -84,10 +84,10 @@ public class StoredData implements DoubleData {
   }
 
   /**
-   * Instantiates a new stored data statistics.
+   * Instantiates a new stored data.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the stored data
    */
   public static StoredData create(int[] data) {
     final StoredData object = new StoredData();
