@@ -105,8 +105,8 @@ public class ImageWindow {
     double[] localWx = this.wx;
     double[] localWy = this.wy;
 
-    if (localWindowFunction != windowFunction || localWx == null || localWx.length != maxx
-        || localWy == null || localWy.length != maxy) {
+    if (localWindowFunction != windowFunction || getLength(localWx) != maxx
+        || getLength(localWy) != maxy) {
       // Compute
       switch (windowFunction) {
         case HANNING:
@@ -202,7 +202,7 @@ public class ImageWindow {
    */
   public static float[] applyWindowSeparable(float[] image, final int maxx, final int maxy,
       double[] wx, double[] wy) {
-    if (wx == null || wx.length != maxx || wy == null || wy.length != maxy) {
+    if (getLength(wx) != maxx || getLength(wy) != maxy) {
       throw new IllegalArgumentException("Window function must match image dimensions");
     }
 
@@ -231,7 +231,7 @@ public class ImageWindow {
    */
   public static void applyWindowSeparableInPlace(float[] image, int maxx, int maxy, double[] wx,
       double[] wy) {
-    if (wx == null || wx.length != maxx || wy == null || wy.length != maxy) {
+    if (getLength(wx) != maxx || getLength(wy) != maxy) {
       throw new IllegalArgumentException("Window function must match image dimensions");
     }
 
@@ -481,5 +481,15 @@ public class ImageWindow {
       return 0;
     }
     return Math.min((2.0 * edge) / (size - 1), 1.0);
+  }
+
+  /**
+   * Gets the length of the data. Returns zero for a null array.
+   *
+   * @param data the data
+   * @return the length
+   */
+  private static int getLength(double[] data) {
+    return data == null ? 0 : data.length;
   }
 }
