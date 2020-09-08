@@ -398,13 +398,23 @@ public class NoiseEstimator {
   /**
    * Compute the pseudo-residuals of the input data.
    *
-   * <p>The pseudo residual \f$ R(x,y) \f$ of the image \f$ I(x,y) \f$ are defined by \f$ R(x,y) = 4
-   * * I(x,y) - (I(x+1,y) + I(x-1,y) + I(x,y+1) + I(x,y-1))\f$ and normalized so that \f$
-   * \mathbb{E}[R(x,y)^2] = \mathbb{E}[I(x,y)^2].
+   * <p>The pseudo residual {@code R(x,y)} of the image {@code I(x,y)} are defined by:
+   *
+   * <pre>
+   * {@code R(x,y) = 4 * I(x,y) - (I(x+1,y) + I(x-1,y) + I(x,y+1) + I(x,y-1))}
+   * </pre>
+   *
+   * <p>and normalized so that {@code
+   * E[R(x,y)^2] = E[I(x,y)^2]} with {@code E} the expected value.
    *
    * @return The pseudo residuals
    */
   float[] computePseudoResiduals() {
+    // Cannot use mirroring if the size is less than 2
+    if (maxx < 2 || maxy < 2) {
+      return new float[0];
+    }
+
     final float[] newResiduals = new float[maxx * maxy];
 
     int index = 0;
