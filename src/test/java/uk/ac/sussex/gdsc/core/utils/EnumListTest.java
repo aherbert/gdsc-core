@@ -85,15 +85,27 @@ class EnumListTest {
     // getOrDefault
     E defaultValue = (values.length == 0) ? null : values[values.length - 1];
     Assertions.assertEquals(defaultValue, list.getOrDefault(-1, defaultValue),
-        "Should get default with get(-1)");
+        "Should get default with getOrDefault(-1)");
     Assertions.assertEquals(defaultValue, list.getOrDefault(values.length, defaultValue),
-        "Should get default with get(values.length)");
+        "Should get default with getOrDefault(values.length)");
+    if (values.length != 0) {
+      Assertions.assertEquals(values[0], list.getOrDefault(0, null),
+          "Should get first with getOrDefault(0)");
+      Assertions.assertEquals(values[values.length - 1], list.getOrDefault(values.length - 1, null),
+          "Should get last with getOrDefault(values.length - 1)");
+    }
 
     // getOrFirst
     defaultValue = (values.length == 0) ? null : values[0];
-    Assertions.assertEquals(defaultValue, list.getOrFirst(-1), "Should get first with get(-1)");
+    Assertions.assertEquals(defaultValue, list.getOrFirst(-1),
+        "Should get first with getOrFirst(-1)");
     Assertions.assertEquals(defaultValue, list.getOrFirst(values.length),
-        "Should get first with get(values.length)");
+        "Should get first with getOrFirst(values.length)");
+    if (values.length != 0) {
+      Assertions.assertEquals(values[0], list.getOrFirst(0), "Should get first with getOrFirst(0)");
+      Assertions.assertEquals(values[values.length - 1], list.getOrFirst(values.length - 1),
+          "Should get last with getOrFirst(values.length - 1)");
+    }
 
     if (defaultValue != null) {
       final EnumList<E> list2 = EnumList.forEnum(defaultValue);
