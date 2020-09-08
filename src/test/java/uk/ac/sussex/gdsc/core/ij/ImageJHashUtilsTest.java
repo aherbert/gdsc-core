@@ -35,6 +35,7 @@ import ij.process.FloatProcessor;
 import ij.process.ShortProcessor;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -44,6 +45,16 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 class ImageJHashUtilsTest {
 
   int size = 50;
+
+  @Test
+  void testBadPixelsThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> ImageJHashUtils.getPixelsFunnel(null));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> ImageJHashUtils.getPixelsFunnel(new Object()));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> ImageJHashUtils.getPixelsFunnel(new double[10]));
+  }
 
   @SeededTest
   void canDigestByteProcessor(RandomSeed seed) {
