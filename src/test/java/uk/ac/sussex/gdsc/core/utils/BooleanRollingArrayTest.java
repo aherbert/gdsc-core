@@ -71,6 +71,8 @@ class BooleanRollingArrayTest {
     assertArray(array, 3, 2, new boolean[] {false, true, true});
     array.add(false, 10);
     assertArray(array, 3, 0, new boolean[] {false, false, false});
+    array.add(true, 10);
+    assertArray(array, 3, 3, new boolean[] {true, true, true});
   }
 
   private static void assertArray(BooleanRollingArray array, int count, int trueCount,
