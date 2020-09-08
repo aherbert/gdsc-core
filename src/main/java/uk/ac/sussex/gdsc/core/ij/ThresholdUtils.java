@@ -47,7 +47,8 @@ public final class ThresholdUtils {
   /**
    * Creates a mask using the specified thresholding method.
    *
-   * <p>The mask stack must be an 8 or 16 bit image.
+   * <p>The mask stack must be an 8 or 16 bit image. Supports a rectangular ROI set on the
+   * ImageStack.
    *
    * @param imageStack the image stack
    * @param method the method
@@ -65,35 +66,28 @@ public final class ThresholdUtils {
     final int size = imageStack.getWidth() * imageStack.getHeight();
 
     // Support ROIs
-    ImageProcessor ip = imageStack.getProcessor(1);
-    final ImageProcessor mask = ip.getMask();
-    final Rectangle rectangle = ip.getRoi();
-    final int rx = rectangle.x;
-    final int ry = rectangle.y;
-    final int rw = rectangle.width;
-    final int rh = rectangle.height;
+    final Rectangle rectangle = imageStack.getRoi();
 
-    if (mask != null) {
-      final byte[] mpixels = (byte[]) mask.getPixels();
+    if (rectangle.equals(new Rectangle(rectangle.width, rectangle.height))) {
+      // Full region ROI
       for (int s = 1; s <= imageStack.getSize(); s++) {
-        ip = imageStack.getProcessor(s);
+        final ImageProcessor ip = imageStack.getProcessor(s);
         final byte[] bp = new byte[size];
-        for (int y = ry, my = 0; y < (ry + rh); y++, my++) {
-          int index = y * width + rx;
-          int mi = my * rw;
-          for (int x = rx; x < (rx + rw); x++) {
-            if (mpixels[mi] != 0 && ip.get(index) > threshold) {
-              bp[index] = (byte) 255;
-            }
-            index++;
-            mi++;
+        for (int index = 0; index < size; index++) {
+          if (ip.get(index) > threshold) {
+            bp[index] = (byte) 255;
           }
         }
         maskStack.addSlice(null, bp);
       }
     } else {
+      // Sub-region ROI
+      final int rx = rectangle.x;
+      final int ry = rectangle.y;
+      final int rw = rectangle.width;
+      final int rh = rectangle.height;
       for (int s = 1; s <= imageStack.getSize(); s++) {
-        ip = imageStack.getProcessor(s);
+        final ImageProcessor ip = imageStack.getProcessor(s);
         final byte[] bp = new byte[size];
         for (int y = ry; y < (ry + rh); y++) {
           int index = y * width + rx;
