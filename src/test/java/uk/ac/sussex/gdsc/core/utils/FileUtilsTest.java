@@ -43,6 +43,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -59,7 +61,7 @@ class FileUtilsTest {
   void canSaveStringData() throws IOException {
     final LocalList<String> expected = new LocalList<>();
     expected.add(HEADER);
-    assertSaveData(null, (d, filename) -> FileUtils.save(filename, HEADER), expected);
+    assertSaveData(HEADER, (d, filename) -> FileUtils.save(filename, d), expected);
   }
 
   @SeededTest
@@ -121,7 +123,7 @@ class FileUtilsTest {
 
   private static <T> void assertSaveData(T data, BiPredicate<T, String> save, List<String> expected)
       throws IOException {
-    final Path filename = Files.createTempFile("FileUtilTest", ".dat");
+    final Path filename = Files.createTempFile("FileUtilsTest", ".dat");
     Assertions.assertTrue(save.test(data, filename.toString()));
     // Check
     final List<String> lines =
@@ -139,7 +141,7 @@ class FileUtilsTest {
 
   @Test
   void canCreateParent() throws IOException {
-    final Path tmpDir = Files.createTempDirectory("FileUtilTest");
+    final Path tmpDir = Files.createTempDirectory("FileUtilsTest");
     final Path filename = Paths.get(tmpDir.toString(), "parentDir", "filename");
     final Path parent = filename.getParent();
     Assertions.assertFalse(Files.exists(parent), "Child's parent should not exist");
@@ -150,6 +152,8 @@ class FileUtilsTest {
     FileUtils.createParent(filename);
     Assertions.assertTrue(Files.exists(parent), "Child's parent should have been created");
     Assertions.assertFalse(Files.exists(filename), "Child should not exist");
+    // Clean up
+    org.apache.commons.io.FileUtils.deleteDirectory(tmpDir.toFile());
   }
 
   @Test
@@ -165,11 +169,12 @@ class FileUtilsTest {
     // Check there is no security manager
     Assumptions.assumeTrue(System.getSecurityManager() == null, "Require no security manager");
 
+    Path tmpDir = null;
     try {
       // First create the temp directory
       final Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ);
-      final Path tmpDir =
-          Files.createTempDirectory("FileUtilTest", PosixFilePermissions.asFileAttribute(perms));
+      tmpDir =
+          Files.createTempDirectory("FileUtilsTest", PosixFilePermissions.asFileAttribute(perms));
 
       // Set a dummy manager that will deny access
       System.setSecurityManager(new SecurityManager() {
@@ -195,6 +200,10 @@ class FileUtilsTest {
     } finally {
       // Reset to no security manager
       System.setSecurityManager(null);
+      // Clean up
+      if (tmpDir != null) {
+        org.apache.commons.io.FileUtils.deleteDirectory(tmpDir.toFile());
+      }
     }
 
     Assertions.assertNull(System.getSecurityManager(), "Failed to reset security manager");
@@ -352,5 +361,44 @@ class FileUtilsTest {
     FileUtils.skip(in, 5);
     Assertions.assertEquals(5, in.available());
     Assertions.assertThrows(EOFException.class, () -> FileUtils.skip(in, 6));
+  }
+
+  @Test
+  void canFailToSaveStringData() throws IOException {
+    assertFailToSaveData(HEADER, (d, filename) -> FileUtils.save(filename, d));
+  }
+
+  @Test
+  void canFailToSaveDoubleData() throws IOException {
+    final double[] data = {1, 2, 3};
+    assertFailToSaveData(data, (d, filename) -> FileUtils.save(d, filename));
+  }
+
+  @Test
+  void canFailToSaveFloatData() throws IOException {
+    final float[] data = {1, 2, 3};
+    assertFailToSaveData(data, (d, filename) -> FileUtils.save(d, filename));
+  }
+
+  @Test
+  void canFailToSaveIntData() throws IOException {
+    final int[] data = {1, 2, 3};
+    assertFailToSaveData(data, (d, filename) -> FileUtils.save(d, filename));
+  }
+
+  private static <T> void assertFailToSaveData(T data, BiPredicate<T, String> save)
+      throws IOException {
+    final Logger logger = Logger.getLogger(FileUtils.class.getName());
+    final Level level = logger.getLevel();
+    logger.setLevel(Level.OFF);
+    try {
+      final Path filename = Files.createTempFile("FileUtilsTest", ".dat");
+      File file = filename.toFile();
+      file.setWritable(false, false);
+      Assertions.assertFalse(save.test(data, filename.toString()));
+      Files.delete(filename);
+    } finally {
+      logger.setLevel(level);
+    }
   }
 }
