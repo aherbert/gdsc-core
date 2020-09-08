@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
 import java.security.MessageDigest;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 
 /**
@@ -188,7 +189,8 @@ public class ImageJDigest {
    * @param pixels the pixels
    * @return the pixels digester
    */
-  private PixelsDigester getPixelsDigester(Object pixels) {
+  @VisibleForTesting
+  PixelsDigester getPixelsDigester(Object pixels) {
     if (pixels instanceof byte[]) {
       return new BytePixelsDigester(messageDigest);
     }

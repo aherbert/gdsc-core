@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import ij.ImageStack;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
@@ -35,8 +36,10 @@ import ij.process.ShortProcessor;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -45,6 +48,17 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 @SuppressWarnings({"javadoc"})
 class ImageJDigestTest {
   int size = 50;
+
+  @Test
+  void testBadPixelsThrows() {
+    final ImageJDigest digest = new ImageJDigest();
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> digest.getPixelsDigester(null));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> digest.getPixelsDigester(new Object()));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> digest.getPixelsDigester(new double[10]));
+  }
 
   @SeededTest
   void canDigestByteProcessor(RandomSeed seed) {
@@ -108,6 +122,24 @@ class ImageJDigestTest {
       out.writeInt(data[i]);
     }
     final String e = DigestUtils.md5Hex(bos.toByteArray());
+    Assertions.assertEquals(e, o);
+  }
+
+  @SeededTest
+  void canDigestStack(RandomSeed seed) {
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final byte[] data1 = new byte[size];
+    final byte[] data2 = new byte[size];
+    r.nextBytes(data1);
+    r.nextBytes(data2);
+
+    final ImageStack stack = new ImageStack(size, 1, 2);
+    stack.setPixels(data1, 1);
+    stack.setPixels(data2, 2);
+    final String o = new ImageJDigest().digest(stack);
+    final byte[] allData = Arrays.copyOf(data1, size * 2);
+    System.arraycopy(data2, 0, allData, size, size);
+    final String e = DigestUtils.md5Hex(allData);
     Assertions.assertEquals(e, o);
   }
 }
