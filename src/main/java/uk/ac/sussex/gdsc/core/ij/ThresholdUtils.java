@@ -65,7 +65,7 @@ public final class ThresholdUtils {
     final int size = imageStack.getWidth() * imageStack.getHeight();
 
     // Support ROIs
-    final ImageProcessor ip = imageStack.getProcessor(1);
+    ImageProcessor ip = imageStack.getProcessor(1);
     final ImageProcessor mask = ip.getMask();
     final Rectangle rectangle = ip.getRoi();
     final int rx = rectangle.x;
@@ -76,6 +76,7 @@ public final class ThresholdUtils {
     if (mask != null) {
       final byte[] mpixels = (byte[]) mask.getPixels();
       for (int s = 1; s <= imageStack.getSize(); s++) {
+        ip = imageStack.getProcessor(s);
         final byte[] bp = new byte[size];
         for (int y = ry, my = 0; y < (ry + rh); y++, my++) {
           int index = y * width + rx;
@@ -92,6 +93,7 @@ public final class ThresholdUtils {
       }
     } else {
       for (int s = 1; s <= imageStack.getSize(); s++) {
+        ip = imageStack.getProcessor(s);
         final byte[] bp = new byte[size];
         for (int y = ry; y < (ry + rh); y++) {
           int index = y * width + rx;
