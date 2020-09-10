@@ -211,7 +211,7 @@ class AlignImagesFftTest {
   }
 
   @Test
-  void testAlignWithLargeImage() {
+  void testAlignWithTargetLargerThanReference() {
     final AlignImagesFft align = new AlignImagesFft();
     FloatProcessor ip = new FloatProcessor(2, 2);
     ip.setf(0, 44);
@@ -238,7 +238,7 @@ class AlignImagesFftTest {
   @Test
   void testAlign() {
     // Requires a big image to negate the effect of the edge window
-    final int width = 200;
+    final int width = 199;
     final int height = 250;
     // Create an image that can be aligned
     final FloatProcessor ip = new FloatProcessor(width, height);
@@ -252,13 +252,13 @@ class AlignImagesFftTest {
     stack1.addSlice(new FloatProcessor(width, height));
 
     final ImageStack stack2 = new ImageStack(width, height);
-    stack2.addSlice(new FloatProcessor(width, height));
     stack2.addSlice(ip.duplicate());
     ip.setInterpolationMethod(ImageProcessor.BICUBIC);
     ip.translate(-1.5, -2.5);
     stack2.addSlice(ip.duplicate());
     ip.translate(-1, -2);
     stack2.addSlice(ip.duplicate());
+    stack2.addSlice(new FloatProcessor(width, height));
 
     final ImagePlus imp1 = new ImagePlus(null, stack1);
     final ImagePlus imp2 = new ImagePlus(null, stack2);
@@ -326,12 +326,89 @@ class AlignImagesFftTest {
     ImagePlus result2 =
         align2.align(imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
     // Align each slice
-    final double[][] expected = {{0, 0}, {0, 0}, {1.5, 2.5}, {2.5, 4.5},};
+    final double[][] expected = {{0, 0}, {1.5, 2.5}, {2.5, 4.5}, {0, 0}};
     for (int i = 0; i < expected.length; i++) {
       // Align single processor
       shift = align2.align(stack2.getProcessor(i + 1), windowMethod, bounds, subPixelMethod);
       Assertions.assertEquals(expected[i][0], align2.getLastXOffset(), 0.01);
       Assertions.assertEquals(expected[i][1], align2.getLastYOffset(), 0.01);
+      Assertions.assertEquals(shift[0], align2.getLastXOffset());
+      Assertions.assertEquals(shift[1], align2.getLastYOffset());
+
+      // Check aligned stacks
+      result1.setPosition(i + 1);
+      result2.setPosition(i + 1);
+      Assertions.assertArrayEquals((float[]) result1.getProcessor().getPixels(),
+          (float[]) result2.getProcessor().getPixels());
+
+      // Align image
+      ImagePlus result3 = align2.align(new ImagePlus(null, stack2.getProcessor(i + 1)),
+          windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
+
+      Assertions.assertArrayEquals((float[]) result1.getProcessor().getPixels(),
+          (float[]) result3.getProcessor().getPixels());
+    }
+  }
+
+  @Test
+  void testAlignWithNoInterpolation() {
+    // Requires a big image to negate the effect of the edge window
+    final int width = 200;
+    final int height = 251;
+    // Create an image that can be aligned
+    final FloatProcessor ip = new FloatProcessor(width, height);
+    ip.setf(100, 120, 255);
+    ip.setf(130, 160, 255);
+    new GaussianBlur().blurGaussian(ip, 5);
+
+    final ImageStack stack1 = new ImageStack(width, height);
+    stack1.addSlice(new FloatProcessor(width, height));
+    stack1.addSlice(ip.duplicate());
+    stack1.addSlice(new FloatProcessor(width, height));
+
+    final ImageStack stack2 = new ImageStack(width, height);
+    stack2.addSlice(ip.duplicate());
+    ip.setInterpolationMethod(ImageProcessor.NONE);
+    ip.translate(-1, -2);
+    stack2.addSlice(ip.duplicate());
+    ip.translate(-1, -3);
+    stack2.addSlice(ip.duplicate());
+    stack2.addSlice(new FloatProcessor(width, height));
+
+    final ImagePlus imp1 = new ImagePlus(null, stack1);
+    final ImagePlus imp2 = new ImagePlus(null, stack2);
+
+    final AlignImagesFft align1 = new AlignImagesFft();
+    final AlignImagesFft align2 = new AlignImagesFft();
+
+    final WindowMethod windowMethod = WindowMethod.NONE;
+
+    final Rectangle bounds = null;
+    final SubPixelMethod subPixelMethod = SubPixelMethod.NONE;
+    final int interpolationMethod = ImageProcessor.NONE;
+
+    // Does not work with normalised=true
+    final boolean normalised = false;
+
+    final boolean showCorrelationImage = false;
+    final boolean showNormalisedImage = false;
+    final boolean clipOutput = false;
+
+    // Set-up non-empty processor
+    imp1.setPosition(2);
+    align2.initialiseReference(imp1, windowMethod, normalised);
+    ImagePlus result1 = align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
+        interpolationMethod, normalised, showCorrelationImage, showNormalisedImage, clipOutput);
+    ImagePlus result2 =
+        align2.align(imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
+    // Align each slice
+    final double[][] expected = {{0, 0}, {1, 2}, {2, 5}, {0, 0}};
+    for (int i = 0; i < expected.length; i++) {
+      // Align single processor
+      final double[] shift =
+          align2.align(stack2.getProcessor(i + 1), windowMethod, bounds, subPixelMethod);
+      Assertions.assertEquals(expected[i][0], align2.getLastXOffset());
+      Assertions.assertEquals(expected[i][1], align2.getLastYOffset());
       Assertions.assertEquals(shift[0], align2.getLastXOffset());
       Assertions.assertEquals(shift[1], align2.getLastYOffset());
 
