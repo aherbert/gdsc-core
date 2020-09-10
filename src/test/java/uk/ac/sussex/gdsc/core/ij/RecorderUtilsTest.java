@@ -29,8 +29,10 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import ij.plugin.frame.Recorder;
+import java.awt.GraphicsEnvironment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
@@ -46,6 +48,7 @@ class RecorderUtilsTest {
   }
 
   private static synchronized void initialise() {
+    Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
     if (recorder == null) {
       recorder = new Recorder(false);
     }
