@@ -31,10 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.plugin.frame.Recorder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 @SuppressWarnings({"javadoc"})
 class RecorderUtilsTest {
@@ -49,12 +46,38 @@ class RecorderUtilsTest {
   }
 
   private static synchronized void initialise() {
-    // This test is slow as creating the recorder involves spinning up a lot of
-    // ImageJ and Java AWT classes. So only run if asked for.
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
     if (recorder == null) {
       recorder = new Recorder(false);
     }
+  }
+
+  /**
+   * No assertions. This just hits code coverage when the command name or options are null.
+   */
+  @Test
+  void canResetRecorderWithNoCommand() {
+    initialise();
+    Recorder.saveCommand();
+    Recorder.setCommand(null);
+    String[] keys = {"1", "2"};
+    RecorderUtils.resetRecorder(keys);
+    Recorder.setCommand("test");
+    RecorderUtils.resetRecorder(keys);
+  }
+
+  @Test
+  void testWrapEmptyStrings() {
+    initialise();
+    Recorder.saveCommand();
+    Recorder.setCommand("test");
+    Recorder.recordOption("a", "1");
+    Recorder.recordOption("b", "");
+    Assertions.assertEquals("a=1 b=", Recorder.getCommandOptions());
+    RecorderUtils.resetRecorder(new String[] {"tmp"});
+    Assertions.assertEquals("a=1 b=", Recorder.getCommandOptions());
+    RecorderUtils.resetRecorder(new String[] {"a"});
+    Assertions.assertEquals("b=[]", Recorder.getCommandOptions(),
+        "Expected empty string to be wrapped in square brackets");
   }
 
   @Test
@@ -159,6 +182,10 @@ class RecorderUtilsTest {
   void resetRecorderIgnoresInvalidKeys() {
     initialise();
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
+        null);
+    canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
+        new String[0]);
+    canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         toArray("e", "f"));
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         toArray("e", "f"));
@@ -214,10 +241,10 @@ class RecorderUtilsTest {
 
   private static void record(String[] keys1, String[] values1) {
     for (int i = 0; i < keys1.length; i++) {
-      if (values1[i] != "") {
-        Recorder.recordOption(keys1[i], values1[i]);
-      } else {
+      if (values1[i].isEmpty()) {
         Recorder.recordOption(keys1[i]);
+      } else {
+        Recorder.recordOption(keys1[i], values1[i]);
       }
     }
   }
