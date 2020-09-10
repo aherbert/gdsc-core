@@ -112,8 +112,8 @@ public final class PixelUtils {
       s2 = 1;
     }
 
-    while (s1 <= stack1.getSize() && s2 < stack2.getSize()) {
-      stack1.getProcessor(s2).copyBits(stack2.getProcessor(s2), xloc, yloc, mode);
+    while (s1 <= stack1.getSize() && s2 <= stack2.getSize()) {
+      stack1.getProcessor(s1).copyBits(stack2.getProcessor(s2), xloc, yloc, mode);
       s1++;
       s2++;
     }
