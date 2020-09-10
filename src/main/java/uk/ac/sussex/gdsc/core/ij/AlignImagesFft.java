@@ -747,11 +747,8 @@ public class AlignImagesFft {
 
       double score =
           subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
-      if (score < -1) {
-        score = -1;
-      }
-      if (score > 1) {
-        score = 1;
+      if (rollingSum != null) {
+        score = MathUtils.clip(-1, 1, score);
       }
       estimatedScore = String.format(" (interpolated score %g)", score);
     } else {
@@ -849,11 +846,8 @@ public class AlignImagesFft {
 
       double score =
           subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
-      if (score < -1) {
-        score = -1;
-      }
-      if (score > 1) {
-        score = 1;
+      if (rollingSum != null) {
+        score = MathUtils.clip(-1, 1, score);
       }
       scoreMax = score;
     } else {
@@ -1044,8 +1038,8 @@ public class AlignImagesFft {
     float max = Float.NEGATIVE_INFINITY;
     int maxi = 0;
     final float[] data = (float[]) image.getPixels();
-    for (int y = rectangle.y; y < rectangle.height; y++) {
-      for (int x = 0, i = y * width + rectangle.x; x < rectangle.width; x++, i++) {
+    for (int y = 0; y < rectangle.height; y++) {
+      for (int x = 0, i = (y + rectangle.y) * width + rectangle.x; x < rectangle.width; x++, i++) {
         if (max < data[i]) {
           max = data[i];
           maxi = i;
@@ -1171,7 +1165,8 @@ public class AlignImagesFft {
     // So we must insert the centre at that point. To do this we check for odd/even
     // and offset if necessary.
     final int diff = maxN - width;
-    return ((diff & 1) == 1) ? (diff + 1) / 2 : diff / 2;
+    final int odd = diff & 1;
+    return (diff + odd) / 2;
   }
 
   /**
