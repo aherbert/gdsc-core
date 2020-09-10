@@ -29,12 +29,106 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import ij.plugin.frame.Recorder;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 /**
  * Contains helper functions for the recorder.
  */
 public final class RecorderUtils {
+
+  /**
+   * Define methods used from the ImageJ Recorder.
+   */
+  interface RecorderCommand {
+
+    /**
+     * Returns the name of the command currently being recorded, or null.
+     *
+     * @return the command
+     */
+    String getCommand();
+
+    /**
+     * Used by GenericDialog to determine if any options have been recorded.
+     *
+     * @return the command options
+     */
+    String getCommandOptions();
+
+    /**
+     * Starts recording a command. Does nothing if the recorder is not open or the command being
+     * recorded has called IJ.run().
+     *
+     * @param command the new command
+     */
+    void setCommand(String command);
+
+    /**
+     * Writes the current command and options to the Recorder window, then resets the recorder
+     * command name and options.
+     */
+    void saveCommand();
+
+    /**
+     * Record option.
+     *
+     * @param key the key
+     */
+    void recordOption(String key);
+
+    /**
+     * Record option.
+     *
+     * @param key the key
+     * @param value the value
+     */
+    void recordOption(String key, String value);
+  }
+
+  /**
+   * Default ImageJ Recorder implementation.
+   */
+  static final class ImageJRecorderCommand implements RecorderCommand {
+    /** The instance. */
+    static final ImageJRecorderCommand INSTANCE = new ImageJRecorderCommand();
+
+    private ImageJRecorderCommand() {
+      /* do nothing */
+    }
+
+    @Override
+    public String getCommand() {
+      return Recorder.getCommand();
+    }
+
+    @Override
+    public String getCommandOptions() {
+      return Recorder.getCommandOptions();
+    }
+
+    @Override
+    public void setCommand(String command) {
+      Recorder.setCommand(command);
+    }
+
+    @Override
+    public void saveCommand() {
+      Recorder.saveCommand();
+    }
+
+    @Override
+    public void recordOption(String key) {
+      Recorder.recordOption(key);
+    }
+
+    @Override
+    public void recordOption(String key, String value) {
+      Recorder.recordOption(key, value);
+    }
+  }
+
+  private static RecorderCommand recorder = ImageJRecorderCommand.INSTANCE;
 
   /** No construction. */
   private RecorderUtils() {}
@@ -49,16 +143,16 @@ public final class RecorderUtils {
       return;
     }
 
-    // Get the Recorder options, remove all the labels, and update the reduced Recorder options
-    final String commandName = Recorder.getCommand();
-    final String commandOptions = Recorder.getCommandOptions();
+    // Get the recorder.options, remove all the labels, and update the reduced recorder.options
+    final String commandName = recorder.getCommand();
+    final String commandOptions = recorder.getCommandOptions();
     if (commandName == null || commandOptions == null) {
       return;
     }
 
     // We only support labels added with
-    // Recorder.recordOption(String)
-    // Recorder.recordOption(String,String)
+    // recorder.recordOption(String)
+    // recorder.recordOption(String,String)
     // These will create a key in the command options of:
     // " "+key
     // " "+key+"="+value
@@ -118,22 +212,22 @@ public final class RecorderUtils {
     }
 
     // Reset
-    Recorder.setCommand(null);
-    Recorder.saveCommand();
+    recorder.setCommand(null);
+    recorder.saveCommand();
     // Re-record all the remaining pairs
-    Recorder.setCommand(commandName);
+    recorder.setCommand(commandName);
     for (int i = 0; i < pairs.size(); i++) {
       final String[] pair = pairs.unsafeGet(i);
       final String key = pair[0];
       String value = pair[1];
       if (value == null) {
-        Recorder.recordOption(key);
+        recorder.recordOption(key);
       } else {
         // As per the GenericDialog ensure that empty strings are wrapped
         if (value.isEmpty()) {
           value = "[]";
         }
-        Recorder.recordOption(key, value);
+        recorder.recordOption(key, value);
       }
     }
   }
@@ -157,5 +251,15 @@ public final class RecorderUtils {
       }
     }
     return false;
+  }
+
+  /**
+   * Sets the recorder.
+   *
+   * @param recorder the new recorder
+   */
+  @VisibleForTesting
+  static void setRecorder(RecorderCommand recorder) {
+    RecorderUtils.recorder = recorder;
   }
 }
