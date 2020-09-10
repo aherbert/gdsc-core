@@ -753,18 +753,6 @@ public class AlignImagesFft {
       estimatedScore = String.format(" (interpolated score %g)", score);
     } else {
       subPixelCentre = new double[] {centre[0], centre[1]};
-
-      if (IJ.debugMode) {
-        // Used for debugging - Check if interpolation rounds to a different integer
-        final double[] debugCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
-        debugCentre[0] = Math.round(debugCentre[0]);
-        debugCentre[1] = Math.round(debugCentre[1]);
-
-        if (centre[0] != debugCentre[0] || centre[1] != debugCentre[1]) {
-          IJ.log(String.format("Cubic rounded to different integer: %d,%d => %d,%d", centre[0],
-              centre[1], (int) debugCentre[0], (int) debugCentre[1]));
-        }
-      }
     }
 
     // The correlation image is the size of the reference.
