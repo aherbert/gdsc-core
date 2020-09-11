@@ -243,8 +243,11 @@ public final class ImageJUtils {
         imp.setOverlay(null);
       }
       if (imp.getWindow().isVisible()) {
-        imp.getWindow().toFront();
-      } else if ((flags & NO_TO_FRONT) == 0) {
+        // Already visible
+        if ((flags & NO_TO_FRONT) == 0) {
+          imp.getWindow().toFront();
+        }
+      } else {
         imp.getWindow().setVisible(true);
       }
     }
@@ -317,8 +320,11 @@ public final class ImageJUtils {
         imp.setOverlay(null);
       }
       if (imp.getWindow().isVisible()) {
-        imp.getWindow().toFront();
-      } else if ((flags & NO_TO_FRONT) == 0) {
+        // Already visible
+        if ((flags & NO_TO_FRONT) == 0) {
+          imp.getWindow().toFront();
+        }
+      } else {
         imp.getWindow().setVisible(true);
       }
     }
@@ -496,8 +502,11 @@ public final class ImageJUtils {
         plotWindow.drawPlot(plot);
         preserveLimits(plot, displayFlags, limits);
         if (plotWindowFrame.isVisible()) {
-          plotWindow.toFront();
-        } else if ((displayFlags & NO_TO_FRONT) == 0) {
+          // Already visible
+          if ((displayFlags & NO_TO_FRONT) == 0) {
+            plotWindow.toFront();
+          }
+        } else {
           plotWindowFrame.setVisible(true);
         }
       } catch (final Throwable thrown) {
