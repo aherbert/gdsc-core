@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ColorProcessor;
@@ -38,6 +37,8 @@ import ij.process.ImageProcessor;
 import ij.util.Tools;
 import java.awt.Rectangle;
 import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
@@ -134,6 +135,8 @@ public class AlignImagesFft {
   private double[] rollingSum;
   private double[] rollingSumSq;
   private FHT refFht;
+
+  private TrackProgress progress = NullTrackProgress.getInstance();
 
   /**
    * Aligns all images in the target stack to the current processor in the reference.
@@ -714,7 +717,7 @@ public class AlignImagesFft {
 
     if (noValue(targetIp)) {
       // Zero correlation with empty image
-      IJ.log(String.format("Best Slice %d  x 0  y 0 = 0", slice));
+      progress.log("Best Slice %d  x 0  y 0 = 0", slice);
       if (fpCorrelation != null) {
         fpCorrelation.setPixels(new float[refFht.getPixelCount()]);
       }
@@ -783,8 +786,8 @@ public class AlignImagesFft {
     lastXOffset = subPixelCentre[0] - originX;
     lastYOffset = subPixelCentre[1] - originY;
 
-    IJ.log(String.format("Best Slice %d  x %g  y %g = %g%s", slice, lastXOffset, lastYOffset,
-        scoreMax, estimatedScore));
+    progress.log("Best Slice %d  x %g  y %g = %g%s", slice, lastXOffset, lastYOffset,
+        scoreMax, estimatedScore);
 
     // Translate the result and crop to the original size
     if (!doTranslation) {
@@ -1375,5 +1378,14 @@ public class AlignImagesFft {
    */
   public void setDoTranslation(boolean doTranslation) {
     this.doTranslation = doTranslation;
+  }
+
+  /**
+   * Sets the progress tracker used for logging.
+   *
+   * @param progress the new progress
+   */
+  public void setProgress(TrackProgress progress) {
+    this.progress = NullTrackProgress.createIfNull(progress);
   }
 }

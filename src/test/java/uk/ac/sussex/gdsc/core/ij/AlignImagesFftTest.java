@@ -198,6 +198,8 @@ class AlignImagesFftTest {
       align.setDoTranslation(value);
       Assertions.assertEquals(value, align.isDoTranslation());
     }
+    // This should be allowed
+    align.setProgress(null);
   }
 
   @Test
