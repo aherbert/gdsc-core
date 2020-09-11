@@ -28,18 +28,24 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.AlignImagesFft.SubPixelMethod;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.Statistics;
 
 @SuppressWarnings({"javadoc"})
 class AlignImagesFftTest {
@@ -374,6 +380,8 @@ class AlignImagesFftTest {
       // Align image
       ImagePlus result3 = align2.align(new ImagePlus(null, stack2.getProcessor(i + 1)),
           windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
+      Assertions.assertEquals(shift[0], align2.getLastXOffset());
+      Assertions.assertEquals(shift[1], align2.getLastYOffset());
 
       Assertions.assertArrayEquals((float[]) result1.getProcessor().getPixels(),
           (float[]) result3.getProcessor().getPixels());
@@ -449,9 +457,167 @@ class AlignImagesFftTest {
       // Align image
       ImagePlus result3 = align2.align(new ImagePlus(null, stack2.getProcessor(i + 1)),
           windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
+      Assertions.assertEquals(shift[0], align2.getLastXOffset());
+      Assertions.assertEquals(shift[1], align2.getLastYOffset());
 
       Assertions.assertArrayEquals((float[]) result1.getProcessor().getPixels(),
           (float[]) result3.getProcessor().getPixels());
+    }
+  }
+
+  @Test
+  void testAlignWithConsumers() {
+    final ImagePlus imp = openTestImp();
+
+    // Requires a big image to negate the effect of the edge window
+    // Create an image that can be aligned
+    final FloatProcessor ip = imp.getProcessor().toFloat(0, null);
+    final int width = ip.getWidth();
+    final int height = ip.getHeight();
+
+    final ImageStack stack1 = new ImageStack(width, height);
+    stack1.addSlice(ip.duplicate());
+
+    ImageStack stack2 = new ImageStack(width, height);
+    stack2.addSlice(ip.duplicate());
+    ip.setInterpolationMethod(ImageProcessor.NONE);
+    ip.translate(-1, -2);
+    stack2.addSlice(ip.duplicate());
+    ip.translate(-2, -3);
+    stack2.addSlice(ip.duplicate());
+    stack2.addSlice(new FloatProcessor(width, height));
+
+    // Works if the image is a power of 2 size.
+    stack2 = stack2.crop(width / 4, 0, 0, width / 2, height, stack2.size());
+
+    final ImagePlus imp1 = new ImagePlus(null, stack1);
+    final ImagePlus imp2 = new ImagePlus(null, stack2);
+
+    final AlignImagesFft align1 = new AlignImagesFft();
+    final AlignImagesFft align2 = new AlignImagesFft();
+
+    final WindowMethod windowMethod = WindowMethod.HANNING;
+
+    final Rectangle bounds = AlignImagesFft.createBounds(-10, 10, -10, 10);
+    final SubPixelMethod subPixelMethod = SubPixelMethod.NONE;
+    final int interpolationMethod = ImageProcessor.NONE;
+    final boolean normalised = true;
+    final boolean clipOutput = false;
+
+    LocalList<ImagePlus> l1 = new LocalList<>(1);
+    LocalList<ImagePlus> l2 = new LocalList<>(1);
+    LocalList<ImagePlus> l3 = new LocalList<>(1);
+
+    final Consumer<ImagePlus> correlationImageAction = l1::add;
+    final Consumer<ImagePlus> normalisedReferenceAction = l2::add;
+    final Consumer<ImagePlus> normalisedTargetAction = l3::add;
+
+    // Set-up non-empty processor
+    align2.initialiseReference(imp1, windowMethod, normalised);
+    final ImagePlus result1a = align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
+        interpolationMethod, normalised, correlationImageAction, null, null, clipOutput);
+
+    Assertions.assertEquals(1, l1.size());
+    // Image should be normalised to [-1, 1].
+    ImageStack stack = l1.get(0).getImageStack();
+    Assertions.assertEquals(4, stack.getSize());
+    for (int s = 1; s <= stack.getSize(); s++) {
+      float[] pixels = (float[]) stack.getPixels(s);
+      float[] limits = MathUtils.limits(pixels);
+      Assertions.assertTrue(limits[0] > -1.1);
+      Assertions.assertTrue(limits[1] < 1.1);
+      if (s == stack.getSize()) {
+        // Last image should have all values 0
+        Assertions.assertEquals(0, limits[0]);
+        Assertions.assertEquals(0, limits[1]);
+      }
+    }
+
+    final ImagePlus result1b = align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
+        interpolationMethod, normalised, null, normalisedReferenceAction, null, clipOutput);
+    Assertions.assertEquals(1, l2.size());
+    // Image should be normalised to have mean=0
+    stack = l2.get(0).getImageStack();
+    Assertions.assertEquals(1, stack.getSize());
+    Assertions.assertEquals(0, MathUtils.sum((float[]) stack.getPixels(1)), 1e-3);
+
+    final ImagePlus result1c = align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
+        interpolationMethod, normalised, null, null, normalisedTargetAction, clipOutput);
+    Assertions.assertEquals(1, l3.size());
+    // Image should be normalised to have mean=0 and sum of squares 1 (or zero for final frame).
+    stack = l3.get(0).getImageStack();
+    Assertions.assertEquals(4, stack.getSize());
+    for (int s = 1; s < stack.getSize(); s++) {
+      float[] pixels = (float[]) stack.getPixels(s);
+      Statistics stats = Statistics.create(pixels);
+      Assertions.assertEquals(0, stats.getMean(), 1e-3);
+      Assertions.assertEquals(s == stack.size() ? 0 : 1, stats.getSumOfSquares(), 1e-3);
+    }
+
+    // Align each slice
+    final double[][] expected = {{0, 0}, {1, 2}, {3, 5}, {0, 0}};
+    for (int i = 0; i < expected.length; i++) {
+      // Check aligned stacks
+      result1a.setPosition(i + 1);
+      result1b.setPosition(i + 1);
+      result1c.setPosition(i + 1);
+
+      // Align image
+      ImagePlus result3 = align2.align(new ImagePlus(null, stack2.getProcessor(i + 1)),
+          windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
+      Assertions.assertEquals(expected[i][0], align2.getLastXOffset(), "X shift");
+      Assertions.assertEquals(expected[i][1], align2.getLastYOffset(), "Y shift");
+
+      float[] pixels = (float[]) result3.getProcessor().getPixels();
+      Assertions.assertArrayEquals(pixels, (float[]) result1a.getProcessor().getPixels());
+      Assertions.assertArrayEquals(pixels, (float[]) result1b.getProcessor().getPixels());
+      Assertions.assertArrayEquals(pixels, (float[]) result1c.getProcessor().getPixels());
+    }
+  }
+
+  @Test
+  void testAlignWithInterrupted() {
+    final ImagePlus imp = openTestImp();
+
+    // Requires a big image to negate the effect of the edge window
+    // Create an image that can be aligned
+    final FloatProcessor ip = imp.getProcessor().toFloat(0, null);
+    final int width = ip.getWidth();
+    final int height = ip.getHeight();
+
+    final ImageStack stack1 = new ImageStack(width, height);
+    stack1.addSlice(ip.duplicate());
+
+    ImageStack stack2 = new ImageStack(width, height);
+    stack2.addSlice(ip.duplicate());
+    ip.setInterpolationMethod(ImageProcessor.NONE);
+    ip.translate(-1, -2);
+    stack2.addSlice(ip.duplicate());
+
+    final ImagePlus imp1 = new ImagePlus(null, stack1);
+    final ImagePlus imp2 = new ImagePlus(null, stack2);
+
+    final AlignImagesFft align1 = new AlignImagesFft();
+    final AlignImagesFft align2 = new AlignImagesFft();
+
+    final WindowMethod windowMethod = WindowMethod.HANNING;
+
+    final Rectangle bounds = AlignImagesFft.createBounds(-10, 10, -10, 10);
+    final SubPixelMethod subPixelMethod = SubPixelMethod.NONE;
+    final int interpolationMethod = ImageProcessor.NONE;
+    final boolean normalised = true;
+    final boolean clipOutput = false;
+
+    align2.initialiseReference(imp1, windowMethod, normalised);
+
+    try {
+      IJ.setKeyDown(KeyEvent.VK_ESCAPE);
+      Assertions.assertNull(align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
+          interpolationMethod, normalised, null, null, null, clipOutput));
+      Assertions.assertNull(align2.align(imp2, windowMethod, bounds, subPixelMethod,
+          interpolationMethod, clipOutput));
+    } finally {
+      IJ.resetEscape();
     }
   }
 }
