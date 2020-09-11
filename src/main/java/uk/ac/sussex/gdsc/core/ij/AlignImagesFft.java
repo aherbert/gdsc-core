@@ -36,6 +36,7 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.util.Tools;
 import java.awt.Rectangle;
+import java.util.function.Consumer;
 import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
@@ -151,15 +152,17 @@ public class AlignImagesFft {
    * @param subPixelMethod the sub pixel method
    * @param interpolationMethod see {@link ij.process.ImageProcessor#getInterpolationMethods() }
    * @param normalised the normalised
-   * @param showCorrelationImage the show correlation image
-   * @param showNormalisedImage the show normalised image
+   * @param correlationImageAction the correlation image action
+   * @param normalisedReferenceAction the normalised reference action
+   * @param normalisedTargetAction the normalised target action
    * @param clipOutput the clip output
    * @return the image plus
    */
   @SuppressWarnings("null")
   public ImagePlus align(ImagePlus refImp, ImagePlus targetImp, WindowMethod windowMethod,
       Rectangle bounds, SubPixelMethod subPixelMethod, int interpolationMethod, boolean normalised,
-      boolean showCorrelationImage, boolean showNormalisedImage, boolean clipOutput) {
+      Consumer<ImagePlus> correlationImageAction, Consumer<ImagePlus> normalisedReferenceAction,
+      Consumer<ImagePlus> normalisedTargetAction, boolean clipOutput) {
     final ImageProcessor referenceIp = refImp.getProcessor();
     final ImagePlus targetOrRefImp = (targetImp == null) ? refImp : targetImp;
 
@@ -174,8 +177,9 @@ public class AlignImagesFft {
     maxN = FastMath.max(maxN, maxM);
 
     this.normalisedRefIp = padAndZero(referenceIp, maxN, windowMethod, refImageBounds);
-    if (showNormalisedImage) {
-      new ImagePlus(refImp.getTitle() + " Normalised Ref", normalisedRefIp).show();
+    if (normalisedReferenceAction != null) {
+      normalisedReferenceAction
+          .accept(new ImagePlus(refImp.getTitle() + " Normalised Ref", normalisedRefIp));
     }
     maxN = normalisedRefIp.getWidth(); // Update with the power-two size
 
@@ -186,11 +190,11 @@ public class AlignImagesFft {
     ImageStack normalisedStack = null;
     FloatProcessor fpCorrelation = null;
     FloatProcessor fpNormalised = null;
-    if (showCorrelationImage) {
+    if (correlationImageAction != null) {
       correlationStack = new ImageStack(maxN, maxN);
       fpCorrelation = new FloatProcessor(maxN, maxN);
     }
-    if (showNormalisedImage) {
+    if (normalisedTargetAction != null) {
       normalisedStack = new ImageStack(maxN, maxN);
       fpNormalised = new FloatProcessor(maxN, maxN);
     }
@@ -233,10 +237,10 @@ public class AlignImagesFft {
       outStack.addSlice(null,
           alignImages(referenceFht, sum, sumSq, targetIp, slice, windowMethod, localBounds,
               fpCorrelation, fpNormalised, subPixelMethod, interpolationMethod, clipOutput));
-      if (showCorrelationImage) {
+      if (correlationStack != null) {
         correlationStack.addSlice(null, fpCorrelation.duplicate());
       }
-      if (showNormalisedImage) {
+      if (normalisedStack != null) {
         normalisedStack.addSlice(null, fpNormalised.duplicate());
       }
       if (ImageJUtils.isInterrupted()) {
@@ -244,11 +248,13 @@ public class AlignImagesFft {
       }
     }
 
-    if (showCorrelationImage) {
-      new ImagePlus(targetOrRefImp.getTitle() + " Correlation", correlationStack).show();
+    if (correlationStack != null) {
+      correlationImageAction
+          .accept(new ImagePlus(targetOrRefImp.getTitle() + " Correlation", correlationStack));
     }
-    if (showNormalisedImage) {
-      new ImagePlus(targetOrRefImp.getTitle() + " Normalised Target", normalisedStack).show();
+    if (normalisedStack != null) {
+      normalisedTargetAction
+          .accept(new ImagePlus(targetOrRefImp.getTitle() + " Normalised Target", normalisedStack));
     }
 
     return new ImagePlus(targetOrRefImp.getTitle() + " Aligned", outStack);
@@ -786,8 +792,8 @@ public class AlignImagesFft {
     lastXOffset = subPixelCentre[0] - originX;
     lastYOffset = subPixelCentre[1] - originY;
 
-    progress.log("Best Slice %d  x %g  y %g = %g%s", slice, lastXOffset, lastYOffset,
-        scoreMax, estimatedScore);
+    progress.log("Best Slice %d  x %g  y %g = %g%s", slice, lastXOffset, lastYOffset, scoreMax,
+        estimatedScore);
 
     // Translate the result and crop to the original size
     if (!doTranslation) {

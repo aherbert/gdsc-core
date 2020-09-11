@@ -300,17 +300,15 @@ class AlignImagesFftTest {
 
     final WindowMethod windowMethod = WindowMethod.TUKEY;
 
-    final Rectangle bounds = AlignImagesFft.createBounds(-10, 10, -10, 10);
+    final Rectangle bounds = null;
     final SubPixelMethod subPixelMethod = SubPixelMethod.CUBIC;
     final int interpolationMethod = ImageProcessor.BICUBIC;
     final boolean normalised = false;
-    final boolean showCorrelationImage = false;
-    final boolean showNormalisedImage = false;
     final boolean clipOutput = false;
 
     // No alignment to empty image
     align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, normalised,
-        showCorrelationImage, showNormalisedImage, clipOutput);
+        null, null, null, clipOutput);
     Assertions.assertEquals(0, align1.getLastXOffset());
     Assertions.assertEquals(0, align1.getLastYOffset());
 
@@ -351,7 +349,7 @@ class AlignImagesFftTest {
 
     // Align
     ImagePlus result1 = align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
-        interpolationMethod, normalised, showCorrelationImage, showNormalisedImage, clipOutput);
+        interpolationMethod, normalised, null, null, null, clipOutput);
     ImagePlus result2 =
         align2.align(imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
     // Align each slice
@@ -422,15 +420,13 @@ class AlignImagesFftTest {
     final SubPixelMethod subPixelMethod = SubPixelMethod.NONE;
     final int interpolationMethod = ImageProcessor.NONE;
     final boolean normalised = true;
-    final boolean showCorrelationImage = false;
-    final boolean showNormalisedImage = false;
     final boolean clipOutput = false;
 
     // Set-up non-empty processor
     imp1.setPosition(2);
     align2.initialiseReference(imp1, windowMethod, normalised);
     ImagePlus result1 = align1.align(imp1, imp2, windowMethod, bounds, subPixelMethod,
-        interpolationMethod, normalised, showCorrelationImage, showNormalisedImage, clipOutput);
+        interpolationMethod, normalised, null, null, null, clipOutput);
     ImagePlus result2 =
         align2.align(imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
     // Align each slice
