@@ -30,18 +30,46 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.plugin.filter.GaussianBlur;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Rectangle;
+import java.net.URL;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.AlignImagesFft.SubPixelMethod;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
 
 @SuppressWarnings({"javadoc"})
 class AlignImagesFftTest {
+
+  static ImagePlus testImp;
+
+  /**
+   * Open the test image. It will be a float 32-bit image with power of 2 dimensions.
+   *
+   * @return the image
+   */
+  @SuppressWarnings("null")
+  static ImagePlus openTestImp() {
+    ImagePlus imp = testImp;
+    if (imp == null) {
+      try {
+        final URL url =
+            AlignImagesFftTest.class.getResource("/uk/ac/sussex/gdsc/core/ij/spots.tif");
+        imp = new ImagePlus(url.getPath());
+        // Convert to float
+        imp.setProcessor(imp.getProcessor().toFloat(0, null));
+        testImp = imp;
+      } catch (Exception ex) {
+        Assumptions.assumeFalse(true, "Failed to load test image");
+      }
+    }
+    Assumptions.assumeTrue(imp != null);
+    return imp.duplicate();
+  }
+
   @Test
   void testSubPixelMethodName() {
     for (final SubPixelMethod m : SubPixelMethod.values()) {
@@ -237,14 +265,16 @@ class AlignImagesFftTest {
 
   @Test
   void testAlign() {
+    final ImagePlus imp = openTestImp();
+
     // Requires a big image to negate the effect of the edge window
-    final int width = 199;
-    final int height = 250;
     // Create an image that can be aligned
-    final FloatProcessor ip = new FloatProcessor(width, height);
-    ip.setf(100, 120, 255);
-    ip.setf(130, 160, 255);
-    new GaussianBlur().blurGaussian(ip, 5);
+    FloatProcessor ip = imp.getProcessor().toFloat(0, null);
+    // Crop to odd size
+    ip.setRoi(0, 0, ip.getWidth() - 1, ip.getHeight() - 3);
+    ip = (FloatProcessor) ip.crop();
+    final int width = ip.getWidth();
+    final int height = ip.getHeight();
 
     final ImageStack stack1 = new ImageStack(width, height);
     stack1.addSlice(new FloatProcessor(width, height));
@@ -271,10 +301,7 @@ class AlignImagesFftTest {
     final Rectangle bounds = AlignImagesFft.createBounds(-10, 10, -10, 10);
     final SubPixelMethod subPixelMethod = SubPixelMethod.CUBIC;
     final int interpolationMethod = ImageProcessor.BICUBIC;
-
-    // Does not work with normalised=true
     final boolean normalised = false;
-
     final boolean showCorrelationImage = false;
     final boolean showNormalisedImage = false;
     final boolean clipOutput = false;
@@ -327,11 +354,14 @@ class AlignImagesFftTest {
         align2.align(imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
     // Align each slice
     final double[][] expected = {{0, 0}, {1.5, 2.5}, {2.5, 4.5}, {0, 0}};
+    final double error = 0.1;
     for (int i = 0; i < expected.length; i++) {
       // Align single processor
       shift = align2.align(stack2.getProcessor(i + 1), windowMethod, bounds, subPixelMethod);
-      Assertions.assertEquals(expected[i][0], align2.getLastXOffset(), 0.01);
-      Assertions.assertEquals(expected[i][1], align2.getLastYOffset(), 0.01);
+      Assertions.assertEquals(expected[i][0], align2.getLastXOffset(), expected[i][0] * error,
+          "X shift");
+      Assertions.assertEquals(expected[i][1], align2.getLastYOffset(), expected[i][1] * error,
+          "Y shift");
       Assertions.assertEquals(shift[0], align2.getLastXOffset());
       Assertions.assertEquals(shift[1], align2.getLastYOffset());
 
@@ -351,29 +381,32 @@ class AlignImagesFftTest {
   }
 
   @Test
-  void testAlignWithNoInterpolation() {
+  void testAlignWithNormalisationAndNoInterpolation() {
+    final ImagePlus imp = openTestImp();
+
     // Requires a big image to negate the effect of the edge window
-    final int width = 200;
-    final int height = 251;
     // Create an image that can be aligned
-    final FloatProcessor ip = new FloatProcessor(width, height);
-    ip.setf(100, 120, 255);
-    ip.setf(130, 160, 255);
-    new GaussianBlur().blurGaussian(ip, 5);
+    final FloatProcessor ip = imp.getProcessor().toFloat(0, null);
+    final int width = ip.getWidth();
+    final int height = ip.getHeight();
 
     final ImageStack stack1 = new ImageStack(width, height);
     stack1.addSlice(new FloatProcessor(width, height));
     stack1.addSlice(ip.duplicate());
     stack1.addSlice(new FloatProcessor(width, height));
 
-    final ImageStack stack2 = new ImageStack(width, height);
+    ImageStack stack2 = new ImageStack(width, height);
     stack2.addSlice(ip.duplicate());
     ip.setInterpolationMethod(ImageProcessor.NONE);
     ip.translate(-1, -2);
     stack2.addSlice(ip.duplicate());
-    ip.translate(-1, -3);
+    ip.translate(-2, -3);
     stack2.addSlice(ip.duplicate());
     stack2.addSlice(new FloatProcessor(width, height));
+
+    // For normalised interpolation the target should be smaller than the reference.
+    // Works if the image is a power of 2 size.
+    stack2 = stack2.crop(width / 4, height / 4, 0, width / 2, height / 2, stack2.size());
 
     final ImagePlus imp1 = new ImagePlus(null, stack1);
     final ImagePlus imp2 = new ImagePlus(null, stack2);
@@ -383,13 +416,10 @@ class AlignImagesFftTest {
 
     final WindowMethod windowMethod = WindowMethod.NONE;
 
-    final Rectangle bounds = null;
+    final Rectangle bounds = AlignImagesFft.createBounds(-10, 10, -10, 10);
     final SubPixelMethod subPixelMethod = SubPixelMethod.NONE;
     final int interpolationMethod = ImageProcessor.NONE;
-
-    // Does not work with normalised=true
-    final boolean normalised = false;
-
+    final boolean normalised = true;
     final boolean showCorrelationImage = false;
     final boolean showNormalisedImage = false;
     final boolean clipOutput = false;
@@ -402,13 +432,13 @@ class AlignImagesFftTest {
     ImagePlus result2 =
         align2.align(imp2, windowMethod, bounds, subPixelMethod, interpolationMethod, clipOutput);
     // Align each slice
-    final double[][] expected = {{0, 0}, {1, 2}, {2, 5}, {0, 0}};
+    final double[][] expected = {{0, 0}, {1, 2}, {3, 5}, {0, 0}};
     for (int i = 0; i < expected.length; i++) {
       // Align single processor
       final double[] shift =
           align2.align(stack2.getProcessor(i + 1), windowMethod, bounds, subPixelMethod);
-      Assertions.assertEquals(expected[i][0], align2.getLastXOffset());
-      Assertions.assertEquals(expected[i][1], align2.getLastYOffset());
+      Assertions.assertEquals(expected[i][0], align2.getLastXOffset(), "X shift");
+      Assertions.assertEquals(expected[i][1], align2.getLastYOffset(), "Y shift");
       Assertions.assertEquals(shift[0], align2.getLastXOffset());
       Assertions.assertEquals(shift[1], align2.getLastYOffset());
 
