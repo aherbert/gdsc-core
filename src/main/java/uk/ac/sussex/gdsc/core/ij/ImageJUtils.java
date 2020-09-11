@@ -982,7 +982,6 @@ public final class ImageJUtils {
    * @return List of IDs
    * @see ij.WindowManager#getIDList()
    */
-  @SuppressWarnings("null")
   public static @NotNull int[] getIdList() {
     final int[] list = WindowManager.getIDList();
     return (list == null) ? ArrayUtils.EMPTY_INT_ARRAY : list;
@@ -1005,7 +1004,6 @@ public final class ImageJUtils {
    * @param ignoreSuffix A list of title suffixes to ignore
    * @return The list of images
    */
-  @SuppressWarnings("null")
   public static @NotNull String[] getImageList(final int flags, String[] ignoreSuffix) {
     final ArrayList<String> newImageList = new ArrayList<>();
 
