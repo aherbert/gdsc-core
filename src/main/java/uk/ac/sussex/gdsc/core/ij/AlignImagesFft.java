@@ -611,11 +611,10 @@ public class AlignImagesFft {
         // Assume y has a zero mean and sum of squares is 1:
         // ( Σ xiyi ) / ( (Σ xi^2 - nx̄^2) )^0.5
 
-        // Normalise by the standard deviation of the image pixels.
-        final double normalisation = (residuals > 0) ? Math.sqrt(residuals) : 0;
-
-        if (normalisation > 0) {
-          newData[index] = (float) (data[index] / normalisation);
+        if (residuals > 0) {
+          // Update the correct part of the correlation
+          index = yyy * maxx + xxx;
+          newData[index] = (float) (data[index] / Math.sqrt(residuals));
           // Note:
           // The normalisation does not return a value between -1 and 1 when the target image is
           // bigger than half the size of the reference. This is because the assumptions of mean=0
@@ -878,7 +877,8 @@ public class AlignImagesFft {
 
     if (subPixelMethod == SubPixelMethod.CUBIC) {
       subPixelCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
-      scoreMax = subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
+      scoreMax =
+          subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
     } else {
       subPixelCentre = new double[] {centre[0], centre[1]};
     }
