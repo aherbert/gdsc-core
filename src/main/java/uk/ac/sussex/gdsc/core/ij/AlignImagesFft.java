@@ -44,14 +44,22 @@ import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowFunction;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 /**
  * Aligns an image stack to a reference image using XY translation to maximise the correlation.
  * Takes in:
  *
- * <ul> <li>The reference image <li>The image/stack to align. <li>Optional Max/Min values for the X
- * and Y translation <li>Window function to reduce edge artifacts in frequency space </ul>
+ * <ul>
+ *
+ * <li>The reference image
+ *
+ * <li>The image/stack to align.
+ *
+ * <li>Optional Max/Min values for the X and Y translation
+ *
+ * <li>Window function to reduce edge artifacts in frequency space
+ *
+ * </ul>
  *
  * <p>The alignment is calculated using the maximum correlation between the images. The correlation
  * is computed using the frequency domain (note that conjugate multiplication in the frequency
@@ -63,6 +71,10 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
  * within the larger image (half-max translation). This can be altered by providing a translation
  * bounds. Note that when using normalised correlation all scores are set to zero outside the
  * half-max translation due to potential floating-point summation error during normalisation.
+ *
+ * <p>The normalisation is based on the assumption that the target image entirely fits within the
+ * reference image for all translations of interest. If this is false then normalised correlations
+ * can generate values outside the interval {@code [-1, 1]}.
  */
 public class AlignImagesFft {
 
@@ -162,7 +174,7 @@ public class AlignImagesFft {
     if (showNormalisedImage) {
       new ImagePlus(refImp.getTitle() + " Normalised Ref", normalisedRefIp).show();
     }
-    maxN = normalisedRefIp.getWidth(); // Update with the power-two result
+    maxN = normalisedRefIp.getWidth(); // Update with the power-two size
 
     // Set up the output stack
     final ImageStack outStack =
@@ -439,6 +451,8 @@ public class AlignImagesFft {
    * Normalise the correlation matrix using the standard deviation of the region from the reference
    * that is covered by the target.
    *
+   * <p>Normalisation assumes that the mean of the target is 0 and the sum of squares is 1.
+   *
    * @param subCorrMat the sub correlation matrix
    * @param rollingSum the rolling sum
    * @param rollingSumSq the rolling sum of squares
@@ -487,11 +501,10 @@ public class AlignImagesFft {
     // Normalise within the bounds of the largest image (i.e. only allow translation
     // up to half of the longest edge from the reference or target).
     // The further the translation from the half-max translation the more likely there
-    // can be errors in the normalisation score due to floating point summation errors.
-    // This is observed mainly at the very last pixel overlap between images.
+    // can be errors in the normalisation score due to the assumptions that the target
+    // mean=0 and sum-of-squares=1 not being satisfied.
     // To see this set:
     // union = imageBounds
-    // TODO - More analysis to determine under what conditions this occurs.
     final Rectangle union = refImageBounds.union(targetImageBounds);
 
     // This is updated within the loop
@@ -567,36 +580,49 @@ public class AlignImagesFft {
         // double sx = 0;
         // double ssx = 0;
         // int nn = 0;
-        // for (int yy = yyy - halfSizeV; yy < yyy - halfSizeV + sizeV; yy++)
-        // for (int xx = xxx - halfSizeU; xx < xxx - halfSizeU + sizeU; xx++)
-        // {
-        // if (xx >= 0 && xx < maxx && yy >= 0 && yy < maxy)
-        // {
-        // float value = normalisedRefIp.getf(xx, yy);
+        // for (int yy = yyy - halfSizeV; yy < yyy - halfSizeV + sizeV; yy++) {
+        // for (int xx = xxx - halfSizeU; xx < xxx - halfSizeU + sizeU; xx++) {
+        // if (xx >= 0 && xx < maxx && yy >= 0 && yy < maxy) {
+        // final float value = normalisedRefIp.getf(xx, yy);
         // sx += value;
         // ssx += value * value;
         // nn++;
         // }
         // }
-        // gdsc.fitting.utils.DoubleEquality eq = new gdsc.fitting.utils.DoubleEquality(8, 1e-16);
-        // if (n != nn)
-        // {
+        // }
+        // uk.ac.sussex.gdsc.core.utils.DoubleEquality eq =
+        // new uk.ac.sussex.gdsc.core.utils.DoubleEquality(1e-4, 1e-16);
+        // if (n != nn) {
         // System.out.printf("Wrong @ %d,%d %d <> %d\n", xxx, yyy, n, nn);
         // residuals = ssx - sx * sx / nn;
-        // }
-        // else if (!eq.almostEqualComplement(sx, sum) || !eq.almostEqualComplement(ssx,
-        // sumSquares))
-        // {
+        // } else if (!eq.almostEqualRelativeOrAbsolute(sx, sum)
+        // || !eq.almostEqualRelativeOrAbsolute(ssx, sumSquares)) {
         // System.out.printf("Wrong @ %d,%d %g <> %g : %g <> %g\n", xxx, yyy, sx, sum, ssx,
         // sumSquares);
         // residuals = ssx - sx * sx / nn;
         // }
 
+        // Pearson correlation:
+        // ( Σ xiyi - nx̄ӯ ) / ( (Σ xi^2 - nx̄^2) (Σ yi^2 - nӯ^2) )^0.5
+        //
+        // Complex conjugate computes:
+        // Σ xiyi
+        //
+        // Assume y has a zero mean and sum of squares is 1:
+        // ( Σ xiyi ) / ( (Σ xi^2 - nx̄^2) )^0.5
+
+        // Normalise by the standard deviation of the image pixels.
         final double normalisation = (residuals > 0) ? Math.sqrt(residuals) : 0;
 
         if (normalisation > 0) {
-          // Watch out for normalisation errors which cause problems when displaying the image data.
-          newData[index] = MathUtils.clip(-1.1f, 1.1f, (float) (data[index] / normalisation));
+          newData[index] = (float) (data[index] / normalisation);
+          // Note:
+          // The normalisation does not return a value between -1 and 1 when the target image is
+          // bigger than half the size of the reference. This is because the assumptions of mean=0
+          // and sum-of-squares=1 is false. Previously this was clipped to the range [-1,1] but this
+          // can lead to poor alignments as many values can be the same. Thus the data is left
+          // and the user should watch out for normalisation errors.
+          // newData[index] = MathUtils.clip(-1.1f, 1.1f, newData[index]);
         }
       }
     }
@@ -702,6 +728,8 @@ public class AlignImagesFft {
     // Perform correlation analysis in Fourier space (A and B transform to F and G)
     // using the complex conjugate of G multiplied by F:
     // C(u,v) = F(u,v) G*(u,v)
+    //
+    // For more details see the alignImages method below.
 
     final int maxN = refFht.getWidth();
 
@@ -744,12 +772,8 @@ public class AlignImagesFft {
     String estimatedScore = "";
     if (subPixelMethod == SubPixelMethod.CUBIC) {
       subPixelCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
-
-      double score =
+      final double score =
           subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
-      if (rollingSum != null) {
-        score = MathUtils.clip(-1, 1, score);
-      }
       estimatedScore = String.format(" (interpolated score %g)", score);
     } else {
       subPixelCentre = new double[] {centre[0], centre[1]};
@@ -797,6 +821,29 @@ public class AlignImagesFft {
     // using the complex conjugate of G multiplied by F:
     // C(u,v) = F(u,v) G*(u,v)
 
+    // Pearson correlation:
+    // ( Σ xiyi - nx̄ӯ ) / ( (Σ xi^2 - nx̄^2) (Σ yi^2 - nӯ^2) )^0.5
+    //
+    // Complex conjugate computes:
+    // Σ xiyi
+    //
+    // If x and y have a zero mean then the standard correlation can be normalised
+    // by dividing by the sum of squares:
+    // ( Σ xiyi ) / ( (Σ xi^2) (Σ yi^2) )^0.5
+    //
+    // If x and y have a zero mean and are unit length (sum of squares is 1) then the
+    // standard correlation is already normalised.
+    // Note: This does not account for varying n when images are offset.
+    //
+    // The transformTarget method will set the mean as zero and normalise to unit length.
+    // The reference is initialised by only transforming to have a zero mean.
+    // This allows the plain correlation to compute a good alignment for most cases.
+    // The normalisation step will attempt to normalise the result using the mean and sum of
+    // squares of the reference (x) computed with the rolling sums. The target mean and sum of
+    // squares is computed once (should be 0 and 1). This works well if the target is smaller
+    // than the reference and always fits inside the reference for the bounds of interest.
+    // When larger then the normalisation begins to fail.
+
     final int maxN = refFht.getWidth();
 
     // Allow the input target to be a FHT
@@ -831,13 +878,7 @@ public class AlignImagesFft {
 
     if (subPixelMethod == SubPixelMethod.CUBIC) {
       subPixelCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
-
-      double score =
-          subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
-      if (rollingSum != null) {
-        score = MathUtils.clip(-1, 1, score);
-      }
-      scoreMax = score;
+      scoreMax = subCorrMat.getBicubicInterpolatedPixel(subPixelCentre[0], subPixelCentre[1], subCorrMat);
     } else {
       subPixelCentre = new double[] {centre[0], centre[1]};
     }
@@ -853,7 +894,10 @@ public class AlignImagesFft {
   /**
    * Transforms a target image processor for alignment with the initialised reference. The FHT can
    * be passed to the
-   * {@link #align(ImageProcessor, ImageWindow.WindowMethod, Rectangle, SubPixelMethod)} method
+   * {@link #align(ImageProcessor, ImageWindow.WindowMethod, Rectangle, SubPixelMethod)} method.
+   *
+   * <p>A window function is applied to the processor. The result is then shifted to have a mean of
+   * zero and normalised to unit length (sum of squares is 1).
    *
    * <p>If the {@link #initialiseReference(ImageProcessor, ImageWindow.WindowMethod, boolean)}
    * method has not been called this returns null.
@@ -867,12 +911,10 @@ public class AlignImagesFft {
       return null;
     }
     final int maxN = refFht.getWidth();
-    FHT targetFht;
     final ImageProcessor paddedTargetIp =
         padAndZero(targetIp, maxN, windowMethod, targetImageBounds);
     final FloatProcessor normalisedTargetIp = normaliseImage(paddedTargetIp);
-    targetFht = fht(normalisedTargetIp);
-    return targetFht;
+    return fht(normalisedTargetIp);
   }
 
   /**
