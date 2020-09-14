@@ -38,11 +38,13 @@ import ij.util.Tools;
 import java.awt.Rectangle;
 import java.util.function.Consumer;
 import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.NoWindowFunction;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowFunction;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
@@ -312,11 +314,16 @@ public class AlignImagesFft {
    * Aligns the target image to the pre-initialised reference and return the shift and score for the
    * alignment.
    *
+   * <p>The target is allowed to be an FHT as returned from
+   * {@link #transformTarget(ImageProcessor, WindowMethod)}. If the FHT is not the correct size then
+   * an exception is thrown.
+   *
    * @param targetIp the target ip
    * @param windowMethod the window method
    * @param bounds the bounds
    * @param subPixelMethod the sub pixel method
    * @return [ x_shift, y_shift, score ]
+   * @throws IllegalArgumentException if the target is an FHT that is the incorrect size
    */
   public double[] align(ImageProcessor targetIp, WindowMethod windowMethod, Rectangle bounds,
       SubPixelMethod subPixelMethod) {
@@ -678,7 +685,8 @@ public class AlignImagesFft {
    * @param targetImp the target imp
    * @return true, if is valid
    */
-  private static boolean isValid(ImageProcessor refIp, ImagePlus targetImp) {
+  @VisibleForTesting
+  static boolean isValid(ImageProcessor refIp, ImagePlus targetImp) {
     // Check images have values. No correlation is possible without.
     return refIp != null && targetImp != null && !noValue(refIp);
   }
@@ -707,7 +715,7 @@ public class AlignImagesFft {
    * @param targetIp the target ip
    * @param slice the slice
    * @param windowMethod the window method
-   * @param bounds the bounds
+   * @param bounds the bounds (not null)
    * @param fpCorrelation the fp correlation
    * @param fpNormalised the fp normalised
    * @param subPixelMethod the sub pixel method
@@ -766,12 +774,9 @@ public class AlignImagesFft {
 
     Rectangle intersect = new Rectangle(0, 0, subCorrMat.getWidth(), subCorrMat.getHeight());
 
-    // Restrict the translation
-    if (bounds != null) {
-      // Restrict bounds to image limits
-      intersect = intersect.intersection(
-          new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
-    }
+    // Restrict bounds to image limits
+    intersect = intersect.intersection(
+        new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
 
     final int[] centre = findMaximum(subCorrMat, intersect);
     final float scoreMax = subCorrMat.getf(centre[0], centre[1]);
@@ -811,9 +816,9 @@ public class AlignImagesFft {
    * @param rollingSumSq the rolling sum of squares
    * @param targetIp the target ip
    * @param windowMethod the window method
-   * @param bounds the bounds
+   * @param bounds the bounds (not null)
    * @param subPixelMethod the sub pixel method
-   * @return the double[]
+   * @return [ x_shift, y_shift, score ]
    */
   private double[] alignImages(FHT refFht, double[] rollingSum, double[] rollingSumSq,
       ImageProcessor targetIp, WindowMethod windowMethod, Rectangle bounds,
@@ -856,7 +861,10 @@ public class AlignImagesFft {
 
     // Allow the input target to be a FHT
     FHT targetFht;
-    if (targetIp instanceof FHT && targetIp.getWidth() == maxN) {
+    if (targetIp instanceof FHT) {
+      if (targetIp.getWidth() != maxN) {
+        throw new IllegalArgumentException("Invalid FHT target");
+      }
       targetFht = (FHT) targetIp;
     } else {
       targetFht = transformTarget(targetIp, windowMethod);
@@ -873,12 +881,9 @@ public class AlignImagesFft {
 
     Rectangle intersect = new Rectangle(0, 0, subCorrMat.getWidth(), subCorrMat.getHeight());
 
-    // Restrict the translation
-    if (bounds != null) {
-      // Restrict bounds to image limits
-      intersect = intersect.intersection(
-          new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
-    }
+    // Restrict bounds to image limits
+    intersect = intersect.intersection(
+        new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
 
     final int[] centre = findMaximum(subCorrMat, intersect);
     double scoreMax = subCorrMat.getf(centre[0], centre[1]);
@@ -1232,6 +1237,8 @@ public class AlignImagesFft {
    * <p>Applied as two 1-dimensional window functions. Faster than the non-separable form but has
    * direction dependent corners.
    *
+   * <p>The resulting image has a mean of zero.
+   *
    * @param ip the image
    * @param windowMethod the window method
    * @return the float processor
@@ -1257,7 +1264,8 @@ public class AlignImagesFft {
         break;
       case NONE:
       default:
-        return ip.toFloat(0, null);
+        wx = ImageWindow.createWindow(WindowMethod.NONE, maxx);
+        wy = ImageWindow.createWindow(WindowMethod.NONE, maxy);
     }
 
     final float[] data = new float[ip.getPixelCount()];
@@ -1277,15 +1285,14 @@ public class AlignImagesFft {
       }
     }
 
-    // Shift to zero
-    if (sumWindowFunction != 0) {
-      final double shift = sumImage / sumWindowFunction;
-      index = 0;
-      for (int y = 0; y < maxy; y++) {
-        for (int x = 0; x < maxx; x++, index++) {
-          final double value = (ip.getf(index) - shift) * wx[x] * wy[y];
-          data[index] = (float) value;
-        }
+    // Shift to zero. Assumes the sum of the window function is non-zero.
+    // This should be ensured by the ImageWindow class.
+    final double shift = sumImage / sumWindowFunction;
+    index = 0;
+    for (int y = 0; y < maxy; y++) {
+      for (int x = 0; x < maxx; x++, index++) {
+        final double value = (ip.getf(index) - shift) * wx[x] * wy[y];
+        data[index] = (float) value;
       }
     }
 
@@ -1297,6 +1304,8 @@ public class AlignImagesFft {
    *
    * <p>Applied as a non-separable form.
    *
+   * <p>The resulting image has a mean of zero.
+   *
    * @param ip the image
    * @param windowMethod the window method
    * @return the float processor
@@ -1305,23 +1314,27 @@ public class AlignImagesFft {
     WindowFunction wf = null;
     switch (windowMethod) {
       case HANNING: //
-        wf = new Hanning();
+        wf = Hanning.INSTANCE;
         break;
       case COSINE:
-        wf = new Cosine();
+        wf = Cosine.INSTANCE;
         break;
       case TUKEY:
-        wf = new Tukey();
+        wf = Tukey.INSTANCE;
         break;
       case NONE:
       default:
-        return ip.toFloat(0, null);
+        wf = NoWindowFunction.INSTANCE;
     }
 
     final float[] data = new float[ip.getPixelCount()];
 
     final int maxx = ip.getWidth();
     final int maxy = ip.getHeight();
+    if (maxx <= 2 && maxy <= 2) {
+      // Cannot window small images
+      wf = NoWindowFunction.INSTANCE;
+    }
     final double cx = maxx * 0.5;
     final double cy = maxy * 0.5;
     final double maxDistance = Math.sqrt((double) maxx * maxx + maxy * maxy);
@@ -1349,18 +1362,18 @@ public class AlignImagesFft {
       }
     }
 
-    // Shift to zero
-    if (sumWindowFunction != 0) {
-      final double shift = sumImage / sumWindowFunction;
-      index = 0;
-      for (int y = 0; y < maxy; y++) {
-        final double dy2 = (y - cy) * (y - cy);
-        for (int x = 0; x < maxx; x++, index++) {
-          final double distance = Math.sqrt(dx2[x] + dy2);
-          final double w = wf.weight(0.5 - (distance / maxDistance));
-          final double value = (ip.getf(index) - shift) * w;
-          data[index] = (float) value;
-        }
+    // Shift to zero. Assumes the sum of the window function is non-zero.
+    // Can happen when dimensions are below 2x2 but not above that as some distances will be less
+    // than the max distance.
+    final double shift = sumImage / sumWindowFunction;
+    index = 0;
+    for (int y = 0; y < maxy; y++) {
+      final double dy2 = (y - cy) * (y - cy);
+      for (int x = 0; x < maxx; x++, index++) {
+        final double distance = Math.sqrt(dx2[x] + dy2);
+        final double w = wf.weight(0.5 - (distance / maxDistance));
+        final double value = (ip.getf(index) - shift) * w;
+        data[index] = (float) value;
       }
     }
 
