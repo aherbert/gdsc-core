@@ -309,6 +309,21 @@ public class ImageWindow {
   }
 
   /**
+   * Implement no window function.
+   */
+  public static class NoWindowFunction implements WindowFunction {
+    /** The instance. */
+    public static final NoWindowFunction INSTANCE = new NoWindowFunction();
+
+    private NoWindowFunction() {}
+
+    @Override
+    public double weight(double fractionDistance) {
+      return 1.0;
+    }
+  }
+
+  /**
    * Implement a Hanning window function.
    */
   public static class Hanning implements WindowFunction {
@@ -376,6 +391,10 @@ public class ImageWindow {
   }
 
   private static double[] createWindow(WindowFunction wf, int size) {
+    // Cannot window below size 3
+    if (size < 3) {
+      return SimpleArrayUtils.newDoubleArray(size, 1);
+    }
     final double nMinus1 = size - 1.0;
     final double[] w = new double[size];
     // Assume symmetry

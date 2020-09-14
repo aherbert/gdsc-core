@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
+import uk.ac.sussex.gdsc.core.utils.ImageWindow.NoWindowFunction;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowFunction;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
@@ -45,6 +46,13 @@ import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
  */
 @SuppressWarnings({"javadoc"})
 class ImageWindowTest {
+
+  @Test
+  void testNoWindowFunction() {
+    for (double value : new double[] {0, 0.5, 1, -1, Double.NaN, 100}) {
+      Assertions.assertEquals(1, NoWindowFunction.INSTANCE.weight(value));
+    }
+  }
 
   @Test
   void testApplySeparableEdgeCases() {
@@ -294,6 +302,11 @@ class ImageWindowTest {
         Assertions.assertEquals(weight, window[size - i - 1]);
         last = weight;
       }
+    }
+    // Test small window functions have non-zero sum
+    for (final int size : new int[] {1, 2, 3}) {
+      final double[] window = ImageWindow.createWindow(windowMethod, size);
+      Assertions.assertTrue(MathUtils.sum(window) > 0, () -> "sum zero for size: " + size);
     }
   }
 
