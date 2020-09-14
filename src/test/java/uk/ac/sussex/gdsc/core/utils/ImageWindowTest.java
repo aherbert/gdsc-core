@@ -224,17 +224,17 @@ class ImageWindowTest {
 
   @Test
   void testHanningWindowFunction() {
-    assertWindowFunction(new Hanning());
+    assertWindowFunction(Hanning.INSTANCE);
   }
 
   @Test
   void testCosineWindowFunction() {
-    assertWindowFunction(new Cosine());
+    assertWindowFunction(Cosine.INSTANCE);
   }
 
   @Test
   void testTukeyWindowFunction() {
-    assertWindowFunction(new Tukey());
+    assertWindowFunction(Tukey.INSTANCE);
     assertWindowFunction(new Tukey(0.0), false);
     assertWindowFunction(new Tukey(0.1));
     assertWindowFunction(new Tukey(0.2));

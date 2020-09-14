@@ -258,13 +258,13 @@ public class ImageWindow {
     WindowFunction wf;
     switch (windowFunction) {
       case HANNING:
-        wf = new Hanning();
+        wf = Hanning.INSTANCE;
         break;
       case COSINE:
-        wf = new Cosine();
+        wf = Cosine.INSTANCE;
         break;
       case TUKEY:
-        wf = new Tukey();
+        wf = Tukey.INSTANCE;
         break;
       case NONE:
       default:
@@ -311,7 +311,7 @@ public class ImageWindow {
   /**
    * Implement no window function.
    */
-  public static class NoWindowFunction implements WindowFunction {
+  public static final class NoWindowFunction implements WindowFunction {
     /** The instance. */
     public static final NoWindowFunction INSTANCE = new NoWindowFunction();
 
@@ -326,7 +326,12 @@ public class ImageWindow {
   /**
    * Implement a Hanning window function.
    */
-  public static class Hanning implements WindowFunction {
+  public static final class Hanning implements WindowFunction {
+    /** The instance. */
+    public static final Hanning INSTANCE = new Hanning();
+
+    private Hanning() {}
+
     @Override
     public double weight(double fractionDistance) {
       return 0.5 * (1 - Math.cos(Math.PI * 2 * fractionDistance));
@@ -336,7 +341,12 @@ public class ImageWindow {
   /**
    * Implement a Cosine window function.
    */
-  public static class Cosine implements WindowFunction {
+  public static final class Cosine implements WindowFunction {
+    /** The instance. */
+    public static final Cosine INSTANCE = new Cosine();
+
+    private Cosine() {}
+
     @Override
     public double weight(double fractionDistance) {
       return Math.sin(Math.PI * fractionDistance);
@@ -346,10 +356,10 @@ public class ImageWindow {
   /**
    * Implement a Tukey (Tapered Cosine) window function.
    */
-  public static class Tukey implements WindowFunction {
+  public static final class Tukey implements WindowFunction {
 
-    /** The default alpha for the Tukey window (set to 0.5). */
-    public static final double DEFAULT_ALPHA = 0.5;
+    /** An instance for the Tukey window with the alpha set to 0.5. */
+    public static final Tukey INSTANCE = new Tukey(0.5);
 
     /** The alpha. */
     final double alpha;
@@ -361,18 +371,15 @@ public class ImageWindow {
     final double a2;
 
     /**
-     * Instantiates a new tukey window function using the default alpha of 0.5.
-     */
-    public Tukey() {
-      this(DEFAULT_ALPHA);
-    }
-
-    /**
      * Instantiates a new tukey window function.
      *
      * @param alpha the alpha
+     * @throws IllegalArgumentException If the alpha is not in the range {@code [0,1]}
      */
     public Tukey(double alpha) {
+      if (alpha < 0 || alpha > 1) {
+        throw new IllegalArgumentException("Alpha must be in the range 0-1");
+      }
       this.alpha = alpha;
       a1 = alpha / 2;
       a2 = 1 - alpha / 2;
@@ -433,7 +440,7 @@ public class ImageWindow {
    * @return the window weighting
    */
   public static double[] hanning(int size) {
-    return createWindow(new Hanning(), size);
+    return createWindow(Hanning.INSTANCE, size);
   }
 
   /**
@@ -443,7 +450,7 @@ public class ImageWindow {
    * @return the window weighting
    */
   public static double[] cosine(int size) {
-    return createWindow(new Cosine(), size);
+    return createWindow(Cosine.INSTANCE, size);
   }
 
   /**
@@ -458,9 +465,6 @@ public class ImageWindow {
    * @throws IllegalArgumentException If alpha is not in the range 0-1
    */
   public static double[] tukey(int size, double alpha) {
-    if (alpha < 0 || alpha > 1) {
-      throw new IllegalArgumentException("Alpha must be in the range 0-1");
-    }
     return createWindow(new Tukey(alpha), size);
   }
 
@@ -471,7 +475,7 @@ public class ImageWindow {
    * @return the window weighting
    */
   public static double[] tukey(int size) {
-    return createWindow(new Tukey(), size);
+    return createWindow(Tukey.INSTANCE, size);
   }
 
   /**
