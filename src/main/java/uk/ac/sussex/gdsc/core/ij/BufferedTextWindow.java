@@ -30,16 +30,13 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.text.TextPanel;
 import ij.text.TextWindow;
-import java.awt.Frame;
 
 /**
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to
  * auto-layout columns) and then at the specified increments.
  */
 public class BufferedTextWindow implements AutoCloseable {
-  /** The text window. */
-  public final Frame textWindow;
-  private final TextPanel textPanel;
+  private final Output output;
   private int count;
 
   /**
@@ -54,13 +51,51 @@ public class BufferedTextWindow implements AutoCloseable {
   private int increment = 10;
 
   /**
+   * An output that accepts text and can be flushed.
+   */
+  interface Output {
+    /**
+     * Write the text to the output.
+     *
+     * @param text the text
+     */
+    void write(String text);
+
+    /**
+     * Flushes the output by writing any buffered output to the underlying stream.
+     */
+    void flush();
+  }
+
+  /**
    * Instantiates a new buffered text window.
    *
    * @param textWindow the text window
    */
   public BufferedTextWindow(TextWindow textWindow) {
-    this.textWindow = textWindow;
-    textPanel = textWindow.getTextPanel();
+    final TextPanel textPanel = textWindow.getTextPanel();
+    output = new Output() {
+      @Override
+      public void write(String text) {
+        textPanel.appendWithoutUpdate(text);
+      }
+
+      @Override
+      public void flush() {
+        if (textPanel.isShowing()) {
+          textPanel.updateDisplay();
+        }
+      }
+    };
+  }
+
+  /**
+   * Instantiates a new buffered text window.
+   *
+   * @param output the output
+   */
+  BufferedTextWindow(Output output) {
+    this.output = output;
   }
 
   /**
@@ -69,7 +104,7 @@ public class BufferedTextWindow implements AutoCloseable {
    * @param text the text
    */
   public void append(String text) {
-    textPanel.appendWithoutUpdate(text);
+    output.write(text);
     if (++count == nextFlush) {
       flush();
     }
@@ -81,9 +116,7 @@ public class BufferedTextWindow implements AutoCloseable {
    * <p>This method should be called if no more data will be sent to the table.
    */
   public void flush() {
-    if (textPanel.isShowing()) {
-      textPanel.updateDisplay();
-    }
+    output.flush();
     nextFlush = count + increment;
   }
 
@@ -108,15 +141,6 @@ public class BufferedTextWindow implements AutoCloseable {
    */
   public void setIncrement(int increment) {
     this.increment = increment;
-  }
-
-  /**
-   * Checks if is visible.
-   *
-   * @return true, if is visible
-   */
-  public boolean isVisible() {
-    return textWindow.isVisible();
   }
 
   /**
