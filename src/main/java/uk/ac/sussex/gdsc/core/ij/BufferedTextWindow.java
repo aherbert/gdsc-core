@@ -31,7 +31,6 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 import java.awt.Frame;
-import uk.ac.sussex.gdsc.core.ij.text.TextWindow2;
 
 /**
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to
@@ -60,16 +59,6 @@ public class BufferedTextWindow implements AutoCloseable {
    * @param textWindow the text window
    */
   public BufferedTextWindow(TextWindow textWindow) {
-    this.textWindow = textWindow;
-    textPanel = textWindow.getTextPanel();
-  }
-
-  /**
-   * Instantiates a new buffered text window.
-   *
-   * @param textWindow the text window
-   */
-  public BufferedTextWindow(TextWindow2 textWindow) {
     this.textWindow = textWindow;
     textPanel = textWindow.getTextPanel();
   }
