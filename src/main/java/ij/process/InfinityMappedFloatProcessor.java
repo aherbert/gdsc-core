@@ -171,10 +171,11 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
           // Map all values to the range 1-255.
           value = pixels[i] - min2;
           ivalue = 1 + (int) ((value * scale) + 0.5f);
-          if (ivalue > MAX_BYTE_VALUE) {
-            ivalue = MAX_BYTE_VALUE;
+          if (ivalue >= MAX_BYTE_VALUE) {
+            pixels8[i] = (byte) MAX_BYTE_VALUE;
+          } else {
+            pixels8[i] = (byte) ivalue;
           }
-          pixels8[i] = (byte) ivalue;
         }
       }
     } else {
@@ -185,11 +186,15 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
         } else {
           // Map all values to the range 1-255.
           value = pixels[i] - min2;
-          ivalue = 1 + (int) ((value * scale) + 0.5f);
-          if (ivalue > MAX_BYTE_VALUE) {
-            ivalue = MAX_BYTE_VALUE;
+          // Positive infinity should map to 255. So we do not add 1 before
+          // comparing to max byte value as the cast of infinity will be the max
+          // int value and adding 1 will rollover to negative.
+          ivalue = (int) ((value * scale) + 0.5f);
+          if (ivalue >= MAX_BYTE_VALUE) {
+            pixels8[i] = (byte) MAX_BYTE_VALUE;
+          } else {
+            pixels8[i] = (byte) (1 + ivalue);
           }
-          pixels8[i] = (byte) ivalue;
         }
       }
     }
