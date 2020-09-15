@@ -68,8 +68,10 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -553,7 +555,8 @@ public final class ImageJUtils {
    * @param windowOrganiser the window organiser
    * @param imp the imp
    */
-  private static void addImage(WindowOrganiser windowOrganiser, ImagePlus imp) {
+  @VisibleForTesting
+  static void addImage(WindowOrganiser windowOrganiser, ImagePlus imp) {
     if (windowOrganiser != null) {
       windowOrganiser.add(imp);
     }
@@ -565,7 +568,8 @@ public final class ImageJUtils {
    * @param windowOrganiser the window organiser
    * @param plotWindow the plot window
    */
-  private static void addPlot(WindowOrganiser windowOrganiser, PlotWindow plotWindow) {
+  @VisibleForTesting
+  static void addPlot(WindowOrganiser windowOrganiser, PlotWindow plotWindow) {
     if (windowOrganiser != null) {
       windowOrganiser.add(plotWindow);
     }
@@ -579,7 +583,8 @@ public final class ImageJUtils {
    * @param preserveLimits the preserve limits flag
    * @param limits the limits
    */
-  private static void preserveLimits(Plot plot, int preserveLimits, double[] limits) {
+  @VisibleForTesting
+  static void preserveLimits(Plot plot, int preserveLimits, double[] limits) {
     // Note: We must have drawn the plot to get the current limits
     preserveLimits(plot, preserveLimits, limits, plot.getLimits());
   }
@@ -797,7 +802,10 @@ public final class ImageJUtils {
    * @see Window#isShowing()
    */
   public static boolean isShowing(@Nullable Window window) {
-    return window != null && window.isShowing();
+    if (window != null) {
+      return window.isShowing();
+    }
+    return false;
   }
 
   /**
@@ -879,7 +887,7 @@ public final class ImageJUtils {
   public static boolean isExtraOptions() {
     boolean extraOptions = IJ.altKeyDown() || IJ.shiftKeyDown();
     if (!extraOptions && IJ.isMacro()) {
-      extraOptions = (Macro.getOptions() != null && Macro.getOptions().contains(EXTRA_OPTIONS));
+      extraOptions = StringUtils.contains(Macro.getOptions(), EXTRA_OPTIONS);
     }
     if (extraOptions) {
       Recorder.recordOption(EXTRA_OPTIONS);
@@ -1086,6 +1094,9 @@ public final class ImageJUtils {
   /**
    * Extracts a single tile image processor from a hyperstack using the given projection method from
    * the ZProjector.
+   *
+   * <p>The SUM and AV methods returns a 32-bit (FloatProcessor) image. Other methods use the same
+   * pixel type as the input image.
    *
    * @param imp Image hyperstack
    * @param frame The frame to extract
