@@ -143,20 +143,6 @@ public class HistogramPlot {
     }
 
     /**
-     * Instantiates a new histogram plot builder.
-     *
-     * <p>Note an exception will be raised within {@link #build()} if the required fields are never
-     * set.
-     *
-     * @see #setTitle(String)
-     * @see #setData(DoubleData)
-     * @see #setName(String)
-     */
-    public HistogramPlotBuilder() {
-      // Do nothing
-    }
-
-    /**
      * Sets the title.
      *
      * @param title The title to prepend to the plot name
