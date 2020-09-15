@@ -108,9 +108,7 @@ public class MappedImageStack extends ImageStack {
           (float[]) ip.getPixels(), ip.getColorModel());
       fp.setMapZero(mapZero);
       fp.setMinAndMax(ip.getMin(), ip.getMax());
-      if (ip.getCalibrationTable() != null) {
-        fp.setCalibrationTable(ip.getCalibrationTable());
-      }
+      // FloatProcessor does not use a calibration table so ignore ip.getCalibrationTable()
       ip = fp;
     }
     return ip;
