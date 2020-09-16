@@ -99,7 +99,7 @@ public class SeriesOpener {
   public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads,
       String helpUrl) {
     final SeriesOpener opener = new SeriesOpener(path);
-    opener.numberOfThreads = numberOfThreads > 0 ? numberOfThreads : 0;
+    opener.numberOfThreads = Math.max(0, numberOfThreads);
     opener.helpUrl = helpUrl;
     if (showDialog) {
       opener.filterImageList();
