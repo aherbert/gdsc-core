@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
@@ -450,6 +451,9 @@ public class HistogramPlot {
   public static float[][] calcHistogram(float[] data, double minimum, double maximum,
       int numberOfBins) {
     // Parameter check
+    if (data.length == 0) {
+      return new float[0][0];
+    }
     int numBins = Math.max(2, numberOfBins);
     double min = minimum;
     double max = maximum;
@@ -512,6 +516,9 @@ public class HistogramPlot {
   public static double[][] calcHistogram(double[] data, double minimum, double maximum,
       int numberOfBins) {
     // Parameter check
+    if (data.length == 0) {
+      return new double[0][0];
+    }
     int numBins = Math.max(2, numberOfBins);
     double min = minimum;
     double max = maximum;
@@ -650,20 +657,16 @@ public class HistogramPlot {
       }
     }
     if (total == 0) {
-      return new double[2];
+      return new double[] {Double.NaN, Double.NaN};
     }
     final double av = sum / total;
 
-    // Get the Std.Dev
-    double stdDev;
-    if (total > 0) {
-      final double d = total;
-      stdDev = (d * sumSq - sum * sum) / d;
-      if (stdDev > 0) {
-        stdDev = Math.sqrt(stdDev / (d - 1.0));
-      } else {
-        stdDev = 0.0;
-      }
+    // Get the Std.Dev.
+    // Note: The total is above zero.
+    final double d = total;
+    double stdDev = (d * sumSq - sum * sum) / d;
+    if (stdDev > 0) {
+      stdDev = Math.sqrt(stdDev / (d - 1.0));
     } else {
       stdDev = 0.0;
     }
@@ -720,7 +723,7 @@ public class HistogramPlot {
 
     updateLimitsToRemoveOutliers(limits, values);
 
-    bins = updateBinsUsingMinWidth(bins, limits);
+    bins = updateBinsUsingMinWidth(bins, limits, minBinWidth);
 
     final boolean barChart = (plotShape & Plot2.BAR) == Plot2.BAR;
 
@@ -737,7 +740,8 @@ public class HistogramPlot {
    * @param values the values
    * @return true, if successful
    */
-  private static boolean canPlot(double[] values) {
+  @VisibleForTesting
+  static boolean canPlot(double[] values) {
     return (values != null && values.length >= 2 && SimpleArrayUtils.isFinite(values));
   }
 
@@ -748,7 +752,8 @@ public class HistogramPlot {
    * @param values the values of the plot data
    * @return the number of bins
    */
-  private int getOrComputeNumberOfBins(double[] limits, double[] values) {
+  @VisibleForTesting
+  int getOrComputeNumberOfBins(double[] limits, double[] values) {
     int bins = this.numberOfBins;
     if (bins <= 0) {
       // Auto
@@ -789,10 +794,11 @@ public class HistogramPlot {
    *
    * @param bins the bins
    * @param limits the limits of the plot data
+   * @param binWidth the bin width
    * @return the bins
    */
-  private int updateBinsUsingMinWidth(int bins, double[] limits) {
-    final double binWidth = this.minBinWidth;
+  @VisibleForTesting
+  static int updateBinsUsingMinWidth(int bins, double[] limits, double binWidth) {
     if (binWidth > 0) {
       final double binSize = (limits[1] - limits[0]) / ((bins < 2) ? 1 : bins - 1);
       if (binSize < binWidth) {
@@ -808,7 +814,8 @@ public class HistogramPlot {
    * @param values the values
    * @return the statistics
    */
-  private StoredDataStatistics getStatistics(double[] values) {
+  @VisibleForTesting
+  StoredDataStatistics getStatistics(double[] values) {
     StoredDataStatistics localStats = stats;
     if (localStats == null) {
       localStats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
@@ -824,7 +831,8 @@ public class HistogramPlot {
    * @param limits the limits
    * @param values the values
    */
-  private void updateLimitsToRemoveOutliers(double[] limits, double[] values) {
+  @VisibleForTesting
+  void updateLimitsToRemoveOutliers(double[] limits, double[] values) {
     switch (removeOutliersOption) {
       case 1:
         computeInterQuartileRange(values);
@@ -864,8 +872,8 @@ public class HistogramPlot {
    * @param bins the bins
    * @param barChart true if using a bar chart
    */
-  private void createPlotValues(double[] limits, double[] values, int bins,
-      final boolean barChart) {
+  @VisibleForTesting
+  void createPlotValues(double[] limits, double[] values, int bins, final boolean barChart) {
     final double[][] hist = calcHistogram(values, limits[0], limits[1], bins);
     if (barChart) {
       // Standard histogram
@@ -893,21 +901,22 @@ public class HistogramPlot {
    *
    * @param barChart true if using a bar chart
    */
-  private void createPlot(final boolean barChart) {
+  @VisibleForTesting
+  void createPlot(final boolean barChart) {
     plot = new Plot2(plotTitle, name, "Frequency");
     plotMinX = plotMaxX = plotMaxY = 0;
-    if (plotXValues.length > 0) {
-      double dx = 0;
-      if (barChart) {
-        dx = (plotXValues.length == 1) ? 1 : (plotXValues[1] - plotXValues[0]);
-      }
-      plotMaxX = plotXValues[plotXValues.length - 1] + dx;
-      final double xPadding = 0.05 * (plotMaxX - plotXValues[0]);
-      plotMinX = plotXValues[0] - xPadding;
-      plotMaxX += xPadding;
-      plotMaxY = MathUtils.max(plotYValues) * 1.05;
-      plot.setLimits(plotMinX, plotMaxX, 0, plotMaxY);
+    // Note: This should not be called when plotXValues is null or zero length,
+    // i.e. input data values are above length 2 and finite.
+    double dx = 0;
+    if (barChart) {
+      dx = (plotXValues.length == 1) ? 1 : (plotXValues[1] - plotXValues[0]);
     }
+    plotMaxX = plotXValues[plotXValues.length - 1] + dx;
+    final double xPadding = 0.05 * (plotMaxX - plotXValues[0]);
+    plotMinX = plotXValues[0] - xPadding;
+    plotMaxX += xPadding;
+    plotMaxY = MathUtils.max(plotYValues) * 1.05;
+    plot.setLimits(plotMinX, plotMaxX, 0, plotMaxY);
     plot.addPoints(plotXValues, plotYValues, plotShape);
     if (plotLabel != null) {
       plot.addLabel(0, 0, plotLabel);
