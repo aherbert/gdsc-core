@@ -107,9 +107,7 @@ public class InfinityMappedImageStack extends ImageStack {
           getHeight(), (float[]) ip.getPixels(), ip.getColorModel());
       fp.setMapPositiveInfinity(mapPositiveInfinity);
       fp.setMinAndMax(ip.getMin(), ip.getMax());
-      if (ip.getCalibrationTable() != null) {
-        fp.setCalibrationTable(ip.getCalibrationTable());
-      }
+      // FloatProcessor does not use a calibration table so ignore ip.getCalibrationTable()
       ip = fp;
     }
     return ip;
