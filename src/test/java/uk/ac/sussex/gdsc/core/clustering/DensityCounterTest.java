@@ -37,6 +37,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.clustering.DensityCounter.Molecule;
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -72,6 +74,101 @@ class DensityCounterTest {
   int[] ns = new int[] {1000, 2000, 4000};
   int channels = 3;
   int speedTestSize = 5;
+
+  @Test
+  void testSimpleMolecule() {
+    final float x = 2;
+    final float y = 3;
+    final int id = 13;
+    final SimpleMolecule m = new SimpleMolecule(x, y);
+    Assertions.assertEquals(x, m.getX());
+    Assertions.assertEquals(y, m.getY());
+    Assertions.assertEquals(0, m.getId());
+
+    final SimpleMolecule m2 = new SimpleMolecule(x, y, id);
+    Assertions.assertEquals(x, m2.getX());
+    Assertions.assertEquals(y, m2.getY());
+    Assertions.assertEquals(id, m2.getId());
+
+    m2.setId(78);
+    Assertions.assertEquals(78, m2.getId());
+    Assertions.assertThrows(IllegalArgumentException.class, () -> m2.setId(-1));
+  }
+
+  @Test
+  void testConstructorThrows() {
+    final Molecule[] molecules = {new SimpleMolecule(2, 1), new SimpleMolecule(3, 4)};
+    final float radius = 3;
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DensityCounter(null, radius, false));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DensityCounter(new Molecule[0], radius, false));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DensityCounter(molecules, Float.POSITIVE_INFINITY, false));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DensityCounter(molecules, Float.NaN, false));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DensityCounter(molecules, 0, false));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new DensityCounter(molecules, -1, false));
+    // Show this is OK
+    final DensityCounter counter = new DensityCounter(molecules, radius, false);
+    Assertions.assertEquals(radius, counter.getRadius());
+  }
+
+  @Test
+  void testCountWithOutOfBoundsMolecule() {
+    final Molecule[] molecules =
+        {new SimpleMolecule(2, 1, 1), new SimpleMolecule(-3, -4, 2), new SimpleMolecule(0, 0, 2)};
+    final float radius = 3;
+    final int maxId = 2;
+    final DensityCounter counter = new DensityCounter(molecules, radius, false);
+    Assertions.assertArrayEquals(new int[] {0, 1, 1},
+        counter.count(new SimpleMolecule(0, 0), maxId));
+    Assertions.assertArrayEquals(new int[] {0, 0, 1},
+        counter.count(new SimpleMolecule(-4, -4), maxId));
+    Assertions.assertArrayEquals(new int[] {0, 1, 0},
+        counter.count(new SimpleMolecule(3, 2), maxId));
+    Assertions.assertArrayEquals(new int[] {0, 1, 1},
+        counter.count(new SimpleMolecule(2.5f, 0), maxId));
+    Assertions.assertArrayEquals(new int[] {0, 0, 0},
+        counter.count(new SimpleMolecule(-40, -43), maxId));
+  }
+
+  @Test
+  void testGetBins() {
+    // Test no adjustement is performed on the product when it is over Integer.MAX_VALUE
+    Assertions.assertEquals(1L << 32, DensityCounter.getBins(1 << 16, 1 << 16, 1f));
+    // Adjusted to next largest integer
+    Assertions.assertEquals(33 * 36, DensityCounter.getBins(32.4f, 35.6f, 1f));
+    Assertions.assertEquals(33 * 36, DensityCounter.getBins(32f, 35f, 1f));
+  }
+
+  @Test
+  void testCountAllWithNoMolecules() {
+    final Molecule[] molecules =
+        {new SimpleMolecule(2, 1, 1), new SimpleMolecule(-3, -4, 2), new SimpleMolecule(0, 0, 2)};
+    final float radius = 3;
+    final int maxId = 2;
+    final DensityCounter counter = new DensityCounter(molecules, radius, false);
+    Assertions.assertArrayEquals(new int[0][0], counter.countAll(null, maxId));
+    Assertions.assertArrayEquals(new int[0][0], counter.countAll(new Molecule[0], maxId));
+  }
+
+  @Test
+  void testGetNumberOfThreads() {
+    final Molecule[] molecules = {new SimpleMolecule(2, 1)};
+    final float radius = 3;
+    final DensityCounter counter = new DensityCounter(molecules, radius, false);
+    final int available = Runtime.getRuntime().availableProcessors();
+    Assertions.assertEquals(available, counter.getNumberOfThreads());
+    counter.setNumberOfThreads(0);
+    Assertions.assertEquals(available, counter.getNumberOfThreads());
+    counter.setNumberOfThreads(3);
+    Assertions.assertEquals(3, counter.getNumberOfThreads());
+    counter.setNumberOfThreads(-1);
+    Assertions.assertEquals(available, counter.getNumberOfThreads());
+  }
 
   @SeededTest
   void countAllWithSimpleMatches(RandomSeed seed) {

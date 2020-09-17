@@ -420,7 +420,8 @@ public class DensityCounter {
    * @param binWidth the bin width
    * @return the bins
    */
-  private static double getBins(float xrange, float yrange, float binWidth) {
+  @VisibleForTesting
+  static double getBins(float xrange, float yrange, float binWidth) {
     // Use a double in case the numbers are very high. This occurs when the bin width is too small.
     final double x = xrange / binWidth;
     final double y = yrange / binWidth;
@@ -683,7 +684,7 @@ public class DensityCounter {
       final int nPerThread = (int) Math.ceil((double) process.length / threadCount);
       for (int from = 0; from < process.length;) {
         final int to = Math.min(from + nPerThread, process.length);
-        if (multiThreadMode == MODE_NON_SYNC) {
+        if (getMultiThreadMode() == MODE_NON_SYNC) {
           futures.add(executor.submit(new CountWorker2(results, process, from, to)));
         } else {
           futures.add(executor.submit(new CountWorker(results, process, from, to)));
@@ -1169,6 +1170,8 @@ public class DensityCounter {
   /**
    * Gets the number of threads to use for multi-threaded algorithms.
    *
+   * <p>The default is the current number of available processors.
+   *
    * @return the number of threads
    */
   public int getNumberOfThreads() {
@@ -1181,14 +1184,12 @@ public class DensityCounter {
   /**
    * Sets the number of threads to use for multi-threaded algorithms.
    *
+   * <p>Set to below 1 to use the current number of available processors.
+   *
    * @param numberOfThreads the new number of threads
    */
   public void setNumberOfThreads(int numberOfThreads) {
-    if (numberOfThreads > 0) {
-      this.numberOfThreads = numberOfThreads;
-    } else {
-      this.numberOfThreads = 1;
-    }
+    this.numberOfThreads = numberOfThreads < 1 ? -1 : numberOfThreads;
   }
 
   /**
