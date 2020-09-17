@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import java.awt.geom.Rectangle2D;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
@@ -64,6 +66,68 @@ class DensityManagerTest {
   int[] ns = new int[] {1000, 2000, 4000};
 
   @SeededTest
+  void testCalculateSquareDensity(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final DensityManager dm = createDensityManager(rng, size, 1000);
+
+    // Check arguments are validated
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> dm.calculateSquareDensity(1, 0, false));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> dm.calculateSquareDensity(0, 1, false));
+
+    final float maxXCoord = dm.getMaximumX();
+    final float maxYCoord = dm.getMaximumY();
+    final float[][] coordData = dm.getData();
+    final float[] xcoord = coordData[0];
+    final float[] ycoord = coordData[1];
+    final int[] expected = new int[xcoord.length];
+    final int[] expected2 = new int[xcoord.length];
+    for (final float radius : new float[] {8, 16}) {
+      for (final int resolution : new int[] {1, 2}) {
+        // Allocate molecules to the cells
+        final float cellSize = radius / resolution;
+        final int maxx = (int) (maxXCoord / cellSize) + 1;
+        final int maxy = (int) (maxYCoord / cellSize) + 1;
+        final int[] data = new int[maxx * maxy];
+        for (int i = 0; i < xcoord.length; i++) {
+          final int x = (int) (xcoord[i] / cellSize);
+          final int y = (int) (ycoord[i] / cellSize);
+          data[y * maxx + x]++;
+        }
+
+        // For each molecule compute the density count from neighbouring cells
+        final float area = MathUtils.pow2(2 * resolution + 1);
+        for (int i = 0; i < xcoord.length; i++) {
+          final int u = (int) (xcoord[i] / cellSize);
+          final int v = (int) (ycoord[i] / cellSize);
+          final int minU = Math.max(0, u - resolution);
+          final int maxU = Math.min(maxx - 1, u + resolution);
+          final int minV = Math.max(0, v - resolution);
+          final int maxV = Math.min(maxy - 1, v + resolution);
+          int sum = 0;
+          int blocks = 0;
+          for (int y = minV; y <= maxV; y++) {
+            for (int x = minU; x <= maxU; x++) {
+              sum += data[y * maxx + x];
+              blocks++;
+            }
+          }
+          expected[i] = sum - 1;
+          // Adjust
+          expected2[i] = (int) (expected[i] * (area / blocks));
+        }
+
+        // Validate
+        Assertions.assertArrayEquals(expected,
+            dm.calculateSquareDensity(radius, resolution, false));
+        Assertions.assertArrayEquals(expected2,
+            dm.calculateSquareDensity(radius, resolution, true));
+      }
+    }
+  }
+
+  @SeededTest
   void densityWithTriangleMatchesDensity(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
@@ -90,6 +154,53 @@ class DensityManagerTest {
 
         Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
       }
+    }
+  }
+
+  @SeededTest
+  void densityWithAdjustMatchesDensity(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    // Size must be above and below the threshold to choose algorithm
+    for (final int n : new int[] {100, 1000}) {
+      final DensityManager dm = createDensityManager(rng, size, n);
+
+      for (final float radius : radii) {
+        final int[] d1 = dm.calculateDensity(radius);
+        final int[] d2 = dm.calculateDensity(radius, false);
+
+        Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
+      }
+    }
+  }
+
+  @SeededTest
+  void densityWithAdjustIncreases(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final int n = 2000;
+    final DensityManager dm = createDensityManager(rng, size, n);
+    final float[][] coordData = dm.getData();
+    final float[] xcoord = coordData[0];
+    final float[] ycoord = coordData[1];
+    final float maxXCoord = dm.getMaximumX();
+    final float maxYCoord = dm.getMaximumY();
+
+    for (final float radius : radii) {
+      final int[] d1 = dm.calculateDensity(radius, false);
+      final int[] d2 = dm.calculateDensity(radius, true);
+      final Rectangle2D.Double border =
+          new Rectangle2D.Double(radius, radius, maxXCoord - 2 * radius, maxYCoord - 2 * radius);
+
+      for (int i = 0; i < xcoord.length; i++) {
+        // Check if at boundary
+        if (border.contains(xcoord[i], ycoord[i])) {
+          Assertions.assertEquals(d1[i], d2[i]);
+        } else {
+          Assertions.assertTrue(d2[i] >= d1[i]);
+          Assertions.assertTrue(d2[i] <= d1[i] * 4);
+        }
+      }
+
+      Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
     }
   }
 
@@ -282,6 +393,33 @@ class DensityManagerTest {
         logger.log(TestLogUtils.getResultRecord(t2 < t1, msg));
       }
     }
+  }
+
+  @SeededTest
+  void testRipleysFunctions(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final int n = 2000;
+    final DensityManager dm = createDensityManager(rng, size, n);
+    final float radius = 8;
+
+    final int[] density = dm.calculateDensity(radius, false);
+
+    Assertions.assertThrows(IllegalArgumentException.class, () -> dm.ripleysKFunction(-1));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> dm.ripleysKFunction(new int[0], radius));
+
+    final double k1 = dm.ripleysKFunction(radius);
+    final double k2 = dm.ripleysKFunction(density, radius);
+    Assertions.assertEquals(k1, k2);
+
+    // Check
+    final double avgDensity = n / dm.area;
+    final double expected = ((double) MathUtils.sum(density) / n) / avgDensity;
+    Assertions.assertEquals(expected, k1, expected * 1e-6);
+
+    final double l = Math.sqrt(k1 / Math.PI);
+    Assertions.assertEquals(l, dm.ripleysLFunction(radius));
+    Assertions.assertEquals(l, dm.ripleysLFunction(density, radius));
   }
 
   private static DensityManager createDensityManager(UniformRandomProvider rng, int size, int n) {

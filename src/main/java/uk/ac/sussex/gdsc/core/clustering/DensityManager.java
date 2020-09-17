@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -134,8 +135,9 @@ public class DensityManager extends CoordinateStore {
       }
     }
 
-    // For each localisation, compute the sum of counts within a square box radius
-    final float area = (float) (4.0 * resolution * resolution);
+    // For each localisation, compute the sum of counts within a square box radius.
+    // The area is the number of blocks used.
+    final float area = MathUtils.pow2(2 * resolution + 1);
     final int[] density = new int[xcoord.length];
     for (int i = 0; i < xcoord.length; i++) {
       final int u = (int) (xcoord[i] / cellSize);
@@ -166,33 +168,37 @@ public class DensityManager extends CoordinateStore {
       int index = maxV * maxx + maxU;
       sum += data[index];
 
-      boolean clipped = false;
       if (minU >= 0) {
         // - s(minU,maxV)
         index = maxV * maxx + minU;
         sum -= data[index];
-      } else {
-        clipped = true;
-        minU = -1;
-      }
-      if (minV >= 0) {
-        // - s(maxU,minV)
-        index = minV * maxx + maxU;
-        sum -= data[index];
 
-        if (minU >= 0) {
+        if (minV >= 0) {
+          // - s(maxU,minV)
+          index = minV * maxx + maxU;
+          sum -= data[index];
+
           // + s(minU,minV)
           index = minV * maxx + minU;
           sum += data[index];
+        } else {
+          minV = -1;
         }
       } else {
-        clipped = true;
-        minV = -1;
+        minU = -1;
+
+        if (minV >= 0) {
+          // - s(maxU,minV)
+          index = minV * maxx + maxU;
+          sum -= data[index];
+        } else {
+          minV = -1;
+        }
       }
 
       // Adjust for area
-      if (adjustForBorder && clipped) {
-        sum *= area / ((maxU - minU - 1) * (maxV - minV - 1));
+      if (adjustForBorder) {
+        sum = (int) (sum * (area / ((maxU - minU) * (maxV - minV))));
       }
 
       density[i] = sum;
