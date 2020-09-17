@@ -39,7 +39,13 @@ import java.awt.event.ItemEvent;
 import java.awt.event.TextEvent;
 import java.io.File;
 import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.utils.AlphaNumericComparator;
+import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 /**
  * Opens a series of images in a folder. The series is sorted numerically.
@@ -47,8 +53,10 @@ import java.util.regex.Pattern;
  * <p>Adapted from {@link ij.plugin.FolderOpener}.
  */
 public class SeriesOpener {
+  private static final String[] EMPTY_LIST = new String[0];
+
   private final String path;
-  private String[] imageList = new String[0];
+  private String[] imageList = EMPTY_LIST;
   private int currentImage;
   private int width = -1;
   private int height = -1;
@@ -102,7 +110,7 @@ public class SeriesOpener {
     opener.numberOfThreads = Math.max(0, numberOfThreads);
     opener.helpUrl = helpUrl;
     if (showDialog) {
-      opener.filterImageList();
+      opener.showFilterDialog();
     }
     return opener;
   }
@@ -139,7 +147,8 @@ public class SeriesOpener {
       return;
     }
 
-    imageList = fo.sortFileList(list);
+    Arrays.sort(list, AlphaNumericComparator.NULL_IS_MORE_INSTANCE);
+    imageList = list;
   }
 
   /**
@@ -208,78 +217,113 @@ public class SeriesOpener {
     return imp;
   }
 
-  private void filterImageList() {
-    String[] list = imageList;
+  /**
+   * Open the first image and show a dialog allowing the series to be filtered.
+   */
+  private void showFilterDialog() {
+    final String[] list = imageList;
 
     final ImagePlus imp = nextImage();
 
     // Reset image list
     currentImage = 0;
-    imageList = new String[0];
+    imageList = EMPTY_LIST;
 
-    if (imp != null && showDialog(imp, list)) {
-      // Filter by name
-      if (filter != null && (filter.equals("") || filter.equals("*"))) {
-        filter = null;
-      }
-      if (filter != null) {
-        int filteredImages = 0;
-        if (isRegex) {
-          final Pattern pattern = Pattern.compile(filter);
-          for (int i = 0; i < list.length; i++) {
-            if (pattern.matcher(list[i]).matches()) {
-              filteredImages++;
-            } else {
-              list[i] = null;
-            }
-          }
-        } else {
-          for (int i = 0; i < list.length; i++) {
-            if (list[i].indexOf(filter) >= 0) {
-              filteredImages++;
-            } else {
-              list[i] = null;
-            }
-          }
-        }
-        if (filteredImages == 0) {
-          if (isRegex) {
-            IJ.error("Import Sequence", "None of the file names match the regular expression.");
-          } else {
-            IJ.error("Import Sequence", "None of the " + list.length
-                + " files contain\n the string '" + filter + "' in their name.");
-          }
-          return;
-        }
-        final String[] list2 = new String[filteredImages];
-        int count = 0;
-        for (int i = 0; i < list.length; i++) {
-          if (list[i] != null) {
-            list2[count++] = list[i];
-          }
-        }
-        list = list2;
-      }
-
-      // Process only the requested number of images
-      if (maximumNumberOfImages < 1) {
-        maximumNumberOfImages = list.length;
-      }
-      if (start < 1 || start > list.length) {
-        start = 1;
-      }
-      imageList = new String[list.length];
-      int count = 0;
-      for (int i = start - 1; i < list.length && count < maximumNumberOfImages;
-          i += increment, count++) {
-        imageList[count] = list[i];
-      }
-
-      imageList = Arrays.copyOf(imageList, count);
+    if (showDialog(imp, list)) {
+      filterImageList(list, maximumNumberOfImages, start, increment, filter, isRegex, IJ::error,
+          (filteredList, size) -> imageList = Arrays.copyOf(filteredList, size));
     }
   }
 
+  /**
+   * Filter the image list.
+   *
+   * @param list the list
+   * @param maximumNumberOfImages the maximum number of images
+   * @param start the start
+   * @param increment the increment
+   * @param filter the filter
+   * @param isRegex true if the filter is a regular expression
+   * @param errorMessageAction the error message action
+   * @param listAction the list action
+   */
+  @VisibleForTesting
+  static void filterImageList(String[] list, int maximumNumberOfImages, int start, int increment,
+      String filter, boolean isRegex, Consumer<String> errorMessageAction,
+      ObjIntConsumer<String[]> listAction) {
+    // Filter by name
+    if (filter != null && (filter.equals("") || filter.equals("*"))) {
+      filter = null;
+    }
+    if (filter != null) {
+      int filteredImages = 0;
+      if (isRegex) {
+        Pattern pattern;
+        try {
+          pattern = Pattern.compile(filter);
+        } catch (PatternSyntaxException ex) {
+          errorMessageAction.accept(ex.getMessage());
+          return;
+        }
+        for (int i = 0; i < list.length; i++) {
+          if (pattern.matcher(list[i]).matches()) {
+            filteredImages++;
+          } else {
+            list[i] = null;
+          }
+        }
+      } else {
+        for (int i = 0; i < list.length; i++) {
+          if (list[i].indexOf(filter) >= 0) {
+            filteredImages++;
+          } else {
+            list[i] = null;
+          }
+        }
+      }
+      if (filteredImages == 0) {
+        if (isRegex) {
+          errorMessageAction.accept(
+              "0/" + TextUtils.pleural(list.length, "file") + " match the regular expression.");
+        } else {
+          errorMessageAction.accept("0/" + TextUtils.pleural(list.length, "file") + " contain '"
+              + filter + "' in their name.");
+        }
+        return;
+      }
+      final String[] list2 = new String[filteredImages];
+      int count = 0;
+      for (int i = 0; i < list.length; i++) {
+        if (list[i] != null) {
+          list2[count++] = list[i];
+        }
+      }
+      list = list2;
+    }
+
+    // Process only the requested number of images
+    if (maximumNumberOfImages < 1) {
+      maximumNumberOfImages = list.length;
+    }
+    if (start < 1 || start > list.length) {
+      start = 1;
+    }
+    increment = Math.max(1, increment);
+
+    final String[] imageList = new String[list.length];
+    int count = 0;
+    for (int i = start - 1; i < list.length && count < maximumNumberOfImages;
+        i += increment, count++) {
+      imageList[count] = list[i];
+    }
+
+    listAction.accept(imageList, count);
+  }
+
   private boolean showDialog(ImagePlus imp, String[] list) {
+    if (imp == null) {
+      return false;
+    }
     final int fileCount = list.length;
     final SeriesOpenerDialog gd = new SeriesOpenerDialog("Sequence Options", imp, list);
     gd.addMessage(
@@ -302,14 +346,11 @@ public class SeriesOpener {
     maximumNumberOfImages = (int) gd.getNextNumber();
     start = (int) gd.getNextNumber();
     increment = (int) gd.getNextNumber();
-    if (increment < 1) {
-      increment = 1;
-    }
     filter = gd.getNextString();
     final String regex = gd.getNextString();
-    if (!regex.isEmpty()) {
+    final boolean isRegex = !regex.isEmpty();
+    if (isRegex) {
       filter = regex;
-      isRegex = true;
     }
     if (numberOfThreads > 0) {
       numberOfThreads = Math.abs((int) gd.getNextNumber());
@@ -365,52 +406,22 @@ public class SeriesOpener {
     }
 
     void setStackInfo() {
-      int localNumberOfImages = getNumber(numberField.elementAt(0));
-
-      // Filter by name
-      String localFilter = ((TextField) stringField.elementAt(0)).getText();
+      final int maximumNumberOfImages = getNumber(numberField.elementAt(0));
+      final int start = getNumber(numberField.elementAt(1));
+      final int increment = getNumber(numberField.elementAt(2));
+      String filter = ((TextField) stringField.elementAt(0)).getText();
       final String regex = ((TextField) stringField.elementAt(1)).getText();
-      Pattern pattern = null;
-      if (!regex.isEmpty()) {
-        localFilter = regex;
-        pattern = Pattern.compile(localFilter);
+      final boolean isRegex = !regex.isEmpty();
+      if (isRegex) {
+        filter = regex;
       }
 
-      if (!localFilter.isEmpty() && !localFilter.equals("*")) {
-        int count = 0;
-        for (final String name : list) {
-          if (pattern != null) {
-            if (pattern.matcher(name).matches()) {
-              count++;
-            }
-          } else if (name.indexOf(localFilter) >= 0) {
-            count++;
-          }
-        }
-        if (count < localNumberOfImages) {
-          localNumberOfImages = count;
-        }
-      }
-
-      // Now count using the input settings
-      int localStart = getNumber(numberField.elementAt(1));
-      if (localStart < 1 || localStart > localNumberOfImages) {
-        localStart = 1;
-      }
-      int localIncrement = getNumber(numberField.elementAt(2));
-      if (localIncrement < 1) {
-        localIncrement = 1;
-      }
-
-      int count = 0;
-      for (int i = localStart - 1; i < list.length && count < localNumberOfImages;
-          i += localIncrement, count++) {
-        // count increment
-      }
-
-      final int frames = imp.getStackSize() * count;
-      ((Label) theLabel).setText(String.format("%d image%s (%d frame%s)", count,
-          (count == 1) ? "" : "s", frames, (frames == 1) ? "" : "s"));
+      // Apply the same filtering
+      filterImageList(list, maximumNumberOfImages, start, increment, filter, isRegex, IJ::log,
+          (filteredList, size) -> {
+            ((Label) theLabel).setText(String.format("%s (%s)", TextUtils.pleural(size, "image"),
+                TextUtils.pleural(imp.getStackSize() * size, "frame")));
+          });
     }
 
     /**
