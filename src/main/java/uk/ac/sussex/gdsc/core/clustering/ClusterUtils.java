@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * Utilities used for clustering.
  */
@@ -54,6 +52,6 @@ final class ClusterUtils {
     // Gap:
     // S-----------E
     // .............. S---------E
-    return FastMath.max(0, FastMath.max(start1, start2) - FastMath.min(end1, end2));
+    return Math.max(0, Math.max(start1, start2) - Math.min(end1, end2));
   }
 }

@@ -37,7 +37,6 @@ import ij.process.ImageProcessor;
 import ij.util.Tools;
 import java.awt.Rectangle;
 import java.util.function.Consumer;
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
@@ -174,9 +173,9 @@ public class AlignImagesFft {
     }
 
     // Fourier transforms use the largest power-two dimension that covers both images
-    int maxN = FastMath.max(referenceIp.getWidth(), referenceIp.getHeight());
-    final int maxM = FastMath.max(targetOrRefImp.getWidth(), targetOrRefImp.getHeight());
-    maxN = FastMath.max(maxN, maxM);
+    int maxN = Math.max(referenceIp.getWidth(), referenceIp.getHeight());
+    final int maxM = Math.max(targetOrRefImp.getWidth(), targetOrRefImp.getHeight());
+    maxN = Math.max(maxN, maxM);
 
     this.normalisedRefIp = padAndZero(referenceIp, maxN, windowMethod, refImageBounds);
     if (normalisedReferenceAction != null) {
@@ -388,7 +387,7 @@ public class AlignImagesFft {
     }
 
     // Fourier transforms use the largest power-two dimension that covers both images
-    final int maxN = FastMath.max(refIp.getWidth(), refIp.getHeight());
+    final int maxN = Math.max(refIp.getWidth(), refIp.getHeight());
 
     this.normalisedRefIp = padAndZero(refIp, maxN, windowMethod, refImageBounds);
 
@@ -535,9 +534,9 @@ public class AlignImagesFft {
         double sumSquares = 0;
 
         final int minU = xxx - halfSizeU - 1;
-        final int maxU = FastMath.min(minU + sizeU, maxx - 1);
+        final int maxU = Math.min(minU + sizeU, maxx - 1);
         final int minV = yyy - halfSizeV - 1;
-        final int maxV = FastMath.min(minV + sizeV, maxy - 1);
+        final int maxV = Math.min(minV + sizeV, maxy - 1);
 
         // Compute sum from rolling sum using:
         // sum(u,v) =
@@ -656,8 +655,8 @@ public class AlignImagesFft {
   public static Rectangle createHalfMaxBounds(int width1, int height1, int width2, int height2) {
     // Restrict translation so that at least half of the smaller image width/height
     // is within the larger image (half-max translation)
-    int maxx = FastMath.max(width1, width2);
-    int maxy = FastMath.max(height1, height2);
+    int maxx = Math.max(width1, width2);
+    int maxy = Math.max(height1, height2);
     maxx /= 2;
     maxy /= 2;
     return new Rectangle(-maxx, -maxy, 2 * maxx, 2 * maxy);

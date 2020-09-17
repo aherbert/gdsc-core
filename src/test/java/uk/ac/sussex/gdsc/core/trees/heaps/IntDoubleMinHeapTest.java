@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.core.trees.heaps.IntDoubleMinHeap;
 
 @SuppressWarnings({"javadoc"})
 class IntDoubleMinHeapTest {

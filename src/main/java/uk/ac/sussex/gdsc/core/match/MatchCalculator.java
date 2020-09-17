@@ -35,7 +35,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
@@ -133,7 +132,7 @@ public final class MatchCalculator {
           // Note inverse the sum of the score so high is better.
           final int p1 = countTimePoints(actualPoints);
           final int p2 = countTimePoints(predictedPoints);
-          return MathUtils.div0(-matchedConsumer.getSum(), FastMath.max(p1, p2));
+          return MathUtils.div0(-matchedConsumer.getSum(), Math.max(p1, p2));
         });
   }
 

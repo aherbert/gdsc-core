@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.filters;
 
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 
 /**
@@ -155,7 +154,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     float heightThreshold = minimumHeight + background;
     if (fractionAboveBackground != 1) {
       final float heightThreshold2 = background / (1 - fractionAboveBackground);
-      heightThreshold = FastMath.max(heightThreshold, heightThreshold2);
+      heightThreshold = Math.max(heightThreshold, heightThreshold2);
     }
     return heightThreshold;
   }
@@ -211,8 +210,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -383,8 +382,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
 
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     int offsetIndex = 0;
@@ -453,8 +452,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -898,8 +897,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -1070,8 +1069,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
 
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     int offsetIndex = 0;
@@ -1140,8 +1139,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 

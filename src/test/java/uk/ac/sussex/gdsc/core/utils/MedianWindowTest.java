@@ -33,7 +33,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -404,8 +403,8 @@ class MedianWindowTest {
   }
 
   static double calculateMedian(double[] data, int position, int radius) {
-    final int start = FastMath.max(0, position - radius);
-    final int end = FastMath.min(position + radius + 1, data.length);
+    final int start = Math.max(0, position - radius);
+    final int end = Math.min(position + radius + 1, data.length);
     final double[] cache = new double[end - start];
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];
@@ -416,8 +415,8 @@ class MedianWindowTest {
   }
 
   static float calculateMedian(float[] data, int position, int radius) {
-    final int start = FastMath.max(0, position - radius);
-    final int end = FastMath.min(position + radius + 1, data.length);
+    final int start = Math.max(0, position - radius);
+    final int end = Math.min(position + radius + 1, data.length);
     final float[] cache = new float[end - start];
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];
@@ -428,8 +427,8 @@ class MedianWindowTest {
   }
 
   static float calculateMedian(int[] data, int position, int radius) {
-    final int start = FastMath.max(0, position - radius);
-    final int end = FastMath.min(position + radius + 1, data.length);
+    final int start = Math.max(0, position - radius);
+    final int end = Math.min(position + radius + 1, data.length);
     final int[] cache = new int[end - start];
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];
@@ -441,8 +440,8 @@ class MedianWindowTest {
 
   static double calculateMedian2(double[] data, int position, int radius) {
     // Verify the internal median method using the Apache commons maths library
-    final int start = FastMath.max(0, position - radius);
-    final int end = FastMath.min(position + radius + 1, data.length);
+    final int start = Math.max(0, position - radius);
+    final int end = Math.min(position + radius + 1, data.length);
     final double[] cache = new double[end - start];
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];

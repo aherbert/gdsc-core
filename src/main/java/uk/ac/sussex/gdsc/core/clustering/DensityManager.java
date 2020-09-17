@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -147,9 +146,9 @@ public class DensityManager extends CoordinateStore {
 
       // Get the bounds
       int minU = u - resolution - 1;
-      final int maxU = FastMath.min(u + resolution, maxx - 1);
+      final int maxU = Math.min(u + resolution, maxx - 1);
       int minV = v - resolution - 1;
-      final int maxV = FastMath.min(v + resolution, maxy - 1);
+      final int maxV = Math.min(v + resolution, maxy - 1);
 
       // Compute sum from rolling sum using:
       // sum(u,v) =
@@ -255,7 +254,7 @@ public class DensityManager extends CoordinateStore {
     final boolean[] minUok = new boolean[maxx];
     for (int u = maxx; u-- > 0;) {
       minU[u] = u - 2;
-      maxU[u] = FastMath.min(u + 1, maxx - 1);
+      maxU[u] = Math.min(u + 1, maxx - 1);
       minUok[u] = u >= 2;
     }
 
@@ -263,7 +262,7 @@ public class DensityManager extends CoordinateStore {
     final int[] density = new int[data.length];
     for (int v = maxy; v-- > 0;) {
       final int minV = v - 2;
-      final int maxV = FastMath.min(v + 1, maxy - 1);
+      final int maxV = Math.min(v + 1, maxy - 1);
       final boolean minVok = (minV >= 0);
       final int lowerIndex = minV * maxx;
 

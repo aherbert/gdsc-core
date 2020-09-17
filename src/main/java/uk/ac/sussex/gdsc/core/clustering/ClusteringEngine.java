@@ -36,7 +36,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.data.ComputationException;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
@@ -478,8 +477,8 @@ public class ClusteringEngine {
     // distance
     final double cellSize =
         (clusteringAlgorithm == ClusteringAlgorithm.PAIRWISE) ? radius : radius * 1.4142;
-    final double xbinWidth = FastMath.max(cellSize, (maxx - minx) / PAIRWISE_MAX_BINS);
-    final double ybinWidth = FastMath.max(cellSize, (maxy - miny) / PAIRWISE_MAX_BINS);
+    final double xbinWidth = Math.max(cellSize, (maxx - minx) / PAIRWISE_MAX_BINS);
+    final double ybinWidth = Math.max(cellSize, (maxy - miny) / PAIRWISE_MAX_BINS);
     final int nxbins = 1 + (int) ((maxx - minx) / xbinWidth);
     final int nybins = 1 + (int) ((maxy - miny) / ybinWidth);
     final Cluster[][] grid = new Cluster[nxbins][nybins];
@@ -607,8 +606,8 @@ public class ClusteringEngine {
     // Assign to a grid
     final int maxbins = 500;
     final double cellSize = radius * 1.01; // Add an error margin
-    final double xbinWidth = FastMath.max(cellSize, (maxx - minx) / maxbins);
-    final double ybinWidth = FastMath.max(cellSize, (maxy - miny) / maxbins);
+    final double xbinWidth = Math.max(cellSize, (maxx - minx) / maxbins);
+    final double ybinWidth = Math.max(cellSize, (maxy - miny) / maxbins);
     final int nxbins = 1 + (int) ((maxx - minx) / xbinWidth);
     final int nybins = 1 + (int) ((maxy - miny) / ybinWidth);
     final ExtendedClusterPoint[][] grid = new ExtendedClusterPoint[nxbins][nybins];
@@ -710,8 +709,8 @@ public class ClusteringEngine {
       threadPool = Executors.newFixedThreadPool(threadCount);
 
       // Ensure a minimum block size to avoid wasting time.
-      xblock = FastMath.max(nxbins / threadCount, MIN_BLOCK_SIZE);
-      yblock = FastMath.max(nybins / threadCount, MIN_BLOCK_SIZE);
+      xblock = Math.max(nxbins / threadCount, MIN_BLOCK_SIZE);
+      yblock = Math.max(nybins / threadCount, MIN_BLOCK_SIZE);
 
       // Increment the block size until the number of blocks to process is just above the thread
       // count. This reduces thread overhead but still processes across many threads.
@@ -771,9 +770,9 @@ public class ClusteringEngine {
       final List<ClosestPair> results = new LinkedList<>();
 
       for (int startybin = 0; startybin < nybins; startybin += yblock) {
-        final int endybin = FastMath.min(nybins, startybin + yblock);
+        final int endybin = Math.min(nybins, startybin + yblock);
         for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
-          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+          final int endxbin = Math.min(nxbins, startxbin + xblock);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
@@ -1279,9 +1278,9 @@ public class ClusteringEngine {
     final List<FindLinksWorker> results = new LinkedList<>();
 
     for (int startybin = 0; startybin < nybins; startybin += yblock) {
-      final int endybin = FastMath.min(nybins, startybin + yblock);
+      final int endybin = Math.min(nybins, startybin + yblock);
       for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
-        final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+        final int endxbin = Math.min(nxbins, startxbin + xblock);
 
         final FindLinksWorker worker =
             new FindLinksWorker(grid, nxbins, nybins, r2, startxbin, endxbin, startybin, endybin);
@@ -1554,9 +1553,9 @@ public class ClusteringEngine {
       final List<ClosestPair> results = new LinkedList<>();
 
       for (int startybin = 0; startybin < nybins; startybin += yblock) {
-        final int endybin = FastMath.min(nybins, startybin + yblock);
+        final int endybin = Math.min(nybins, startybin + yblock);
         for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
-          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+          final int endxbin = Math.min(nxbins, startxbin + xblock);
           // System.out.printf("Block [%d-%d, %d-%d]\n", startxbin, endxbin, startybin, endybin)
 
           final ClosestPair pair = new ClosestPair();
@@ -1958,9 +1957,9 @@ public class ClusteringEngine {
       final List<ClosestPair> results = new LinkedList<>();
 
       for (int startybin = 0; startybin < nybins; startybin += yblock) {
-        final int endybin = FastMath.min(nybins, startybin + yblock);
+        final int endybin = Math.min(nybins, startybin + yblock);
         for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
-          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+          final int endxbin = Math.min(nxbins, startxbin + xblock);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
@@ -2309,9 +2308,9 @@ public class ClusteringEngine {
       final List<ClosestPair> results = new LinkedList<>();
 
       for (int startybin = 0; startybin < nybins; startybin += yblock) {
-        final int endybin = FastMath.min(nybins, startybin + yblock);
+        final int endybin = Math.min(nybins, startybin + yblock);
         for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
-          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+          final int endxbin = Math.min(nxbins, startxbin + xblock);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
@@ -2608,7 +2607,7 @@ public class ClusteringEngine {
    * @param pulseInterval the pulse interval
    */
   public void setPulseInterval(int pulseInterval) {
-    this.pulseInterval = FastMath.max(0, pulseInterval);
+    this.pulseInterval = Math.max(0, pulseInterval);
   }
 
   /**

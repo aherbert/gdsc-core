@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.apache.commons.math3.util.FastMath;
 
 /**
  * Contains methods to find the noise in the provided image data.
@@ -250,10 +249,10 @@ public class NoiseEstimator {
 
       final int x = index % maxx;
       final int y = index / maxx;
-      final int ys = FastMath.max(y - range, 0);
-      final int ye = FastMath.min(y + range, maxy - 1);
-      final int xs = FastMath.max(x - range, 0);
-      final int xe = FastMath.min(x + range, maxx - 1);
+      final int ys = Math.max(y - range, 0);
+      final int ye = Math.min(y + range, maxy - 1);
+      final int xs = Math.max(x - range, 0);
+      final int xe = Math.min(x + range, maxx - 1);
 
       final SummaryStatistics stats = new SummaryStatistics();
       for (int y2 = ys; y2 <= ye; y2++) {

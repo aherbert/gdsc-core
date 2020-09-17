@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 import java.util.Objects;
-import org.apache.commons.math3.util.FastMath;
 
 /**
  * Provides a rolling median window on a data array.
@@ -125,7 +124,7 @@ public class DoubleMedianWindow {
    * @param position Set the current position
    */
   public void setPosition(int position) {
-    final int newPosition = FastMath.max(0, position);
+    final int newPosition = Math.max(0, position);
     // If moving backwards then delete the cache
     if (newPosition < this.position) {
       cache = null;
@@ -219,8 +218,8 @@ public class DoubleMedianWindow {
     // Add                              ======
     //@formatter:on
 
-    final int newStart = FastMath.max(0, position - radius);
-    final int newEnd = FastMath.min(position + radius + 1, data.length);
+    final int newStart = Math.max(0, position - radius);
+    final int newEnd = Math.min(position + radius + 1, data.length);
     final int newLength = newEnd - newStart;
 
     // Speed tests have shown that if the total increment is more than half the radius it
@@ -234,8 +233,8 @@ public class DoubleMedianWindow {
       // This point is only reached when we have a set of sorted numbers in the cache
       // and we want to replace N of them with N new numbers.
 
-      final int cacheStart = FastMath.max(0, cachePosition - radius);
-      final int cacheEnd = FastMath.min(cachePosition + radius + 1, data.length);
+      final int cacheStart = Math.max(0, cachePosition - radius);
+      final int cacheEnd = Math.min(cachePosition + radius + 1, data.length);
       final int middle = cache.length / 2;
       final double middleValue = cache[middle];
 

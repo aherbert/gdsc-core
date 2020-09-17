@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.filters;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 
 /**
@@ -506,8 +505,8 @@ public class NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -578,8 +577,8 @@ public class NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
 
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     int offsetIndex = 0;
@@ -634,8 +633,8 @@ public class NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -834,9 +833,9 @@ public class NonMaximumSuppression {
     //@formatter:on
     // This must be done without over-running boundaries
     final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-    final int miMinusN = FastMath.max(mi - n, 0);
-    final int miPlusN = FastMath.min(mi + n, maxx - 1);
-    final int mjMinusN = FastMath.max(mj - n, 0);
+    final int miMinusN = Math.max(mi - n, 0);
+    final int miPlusN = Math.min(mi + n, maxx - 1);
+    final int mjMinusN = Math.max(mj - n, 0);
 
     // Neighbour check for existing maxima. This is relevant if the same height.
     // However we cannot just check height as the neighbour may not be the selected maxima
@@ -855,7 +854,7 @@ public class NonMaximumSuppression {
     }
     final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
     final int iPlusN = i + n1;
-    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    final int jPlusN = Math.min(j + n, maxy - 1);
     for (int jj = j; jj <= jPlusN; jj++) {
       // B
       final int indexEnd = jj * maxx + i;
@@ -875,7 +874,7 @@ public class NonMaximumSuppression {
       }
     }
     // D
-    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    final int mjPlusN = Math.min(mj + n, maxy - 1);
     for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
       final int indexEnd = jj * maxx + miPlusN;
       for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
@@ -934,9 +933,9 @@ public class NonMaximumSuppression {
     //@formatter:on
     // This must be done without over-running boundaries
     final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-    final int miMinusN = FastMath.max(mi - n, 0);
-    final int miPlusN = FastMath.min(mi + n, maxx - 1);
-    final int mjMinusN = FastMath.max(mj - n, 0);
+    final int miMinusN = Math.max(mi - n, 0);
+    final int miPlusN = Math.min(mi + n, maxx - 1);
+    final int mjMinusN = Math.max(mj - n, 0);
 
     // A
     for (int jj = mjMinusN; jj < j; jj++) {
@@ -949,7 +948,7 @@ public class NonMaximumSuppression {
     }
     final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
     final int iPlusN = i + n1;
-    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    final int jPlusN = Math.min(j + n, maxy - 1);
     for (int jj = j; jj <= jPlusN; jj++) {
       // B
       final int indexEnd = jj * maxx + i;
@@ -968,7 +967,7 @@ public class NonMaximumSuppression {
       }
     }
     // D
-    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    final int mjPlusN = Math.min(mj + n, maxy - 1);
     for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
       final int indexEnd = jj * maxx + miPlusN;
       for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
@@ -1808,8 +1807,8 @@ public class NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -1880,8 +1879,8 @@ public class NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
 
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     int offsetIndex = 0;
@@ -1936,8 +1935,8 @@ public class NonMaximumSuppression {
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
-    final int xwidth = FastMath.min(n, maxx - 1);
-    final int ywidth = FastMath.min(n, maxy - 1);
+    final int xwidth = Math.min(n, maxx - 1);
+    final int ywidth = Math.min(n, maxy - 1);
     final int xlimit = maxx - xwidth;
     final int ylimit = maxy - ywidth;
 
@@ -2136,9 +2135,9 @@ public class NonMaximumSuppression {
     //@formatter:on
     // This must be done without over-running boundaries
     final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-    final int miMinusN = FastMath.max(mi - n, 0);
-    final int miPlusN = FastMath.min(mi + n, maxx - 1);
-    final int mjMinusN = FastMath.max(mj - n, 0);
+    final int miMinusN = Math.max(mi - n, 0);
+    final int miPlusN = Math.min(mi + n, maxx - 1);
+    final int mjMinusN = Math.max(mj - n, 0);
 
     // Neighbour check for existing maxima. This is relevant if the same height.
     // However we cannot just check height as the neighbour may not be the selected maxima
@@ -2157,7 +2156,7 @@ public class NonMaximumSuppression {
     }
     final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
     final int iPlusN = i + n1;
-    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    final int jPlusN = Math.min(j + n, maxy - 1);
     for (int jj = j; jj <= jPlusN; jj++) {
       // B
       final int indexEnd = jj * maxx + i;
@@ -2177,7 +2176,7 @@ public class NonMaximumSuppression {
       }
     }
     // D
-    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    final int mjPlusN = Math.min(mj + n, maxy - 1);
     for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
       final int indexEnd = jj * maxx + miPlusN;
       for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
@@ -2236,9 +2235,9 @@ public class NonMaximumSuppression {
     //@formatter:on
     // This must be done without over-running boundaries
     final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-    final int miMinusN = FastMath.max(mi - n, 0);
-    final int miPlusN = FastMath.min(mi + n, maxx - 1);
-    final int mjMinusN = FastMath.max(mj - n, 0);
+    final int miMinusN = Math.max(mi - n, 0);
+    final int miPlusN = Math.min(mi + n, maxx - 1);
+    final int mjMinusN = Math.max(mj - n, 0);
 
     // A
     for (int jj = mjMinusN; jj < j; jj++) {
@@ -2251,7 +2250,7 @@ public class NonMaximumSuppression {
     }
     final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
     final int iPlusN = i + n1;
-    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    final int jPlusN = Math.min(j + n, maxy - 1);
     for (int jj = j; jj <= jPlusN; jj++) {
       // B
       final int indexEnd = jj * maxx + i;
@@ -2270,7 +2269,7 @@ public class NonMaximumSuppression {
       }
     }
     // D
-    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    final int mjPlusN = Math.min(mj + n, maxy - 1);
     for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
       final int indexEnd = jj * maxx + miPlusN;
       for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {

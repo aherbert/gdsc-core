@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * Provides a rolling median on a fixed size data set. The median is maintained using a float-linked
  * list data structure.

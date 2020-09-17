@@ -32,7 +32,6 @@ import ij.gui.PlotWindow;
 import java.util.Arrays;
 import java.util.Objects;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.util.FastMath;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
@@ -375,7 +374,7 @@ public class HistogramPlot {
    * @return the bin width using Scott's rule
    */
   public static double getBinWidthScottsRule(double sd, int n) {
-    return 3.5 * sd / FastMath.cbrt(n);
+    return 3.5 * sd / Math.cbrt(n);
   }
 
   /**
@@ -392,7 +391,7 @@ public class HistogramPlot {
    */
   public static double getBinWidthFreedmanDiaconisRule(double upper, double lower, int n) {
     final double iqr = upper - lower;
-    return 2 * iqr / FastMath.cbrt(n);
+    return 2 * iqr / Math.cbrt(n);
   }
 
   /**
@@ -837,8 +836,8 @@ public class HistogramPlot {
       case 1:
         computeInterQuartileRange(values);
         final double iqr = 1.5 * (upper - lower);
-        limits[0] = FastMath.max(lower - iqr, limits[0]);
-        limits[1] = FastMath.min(upper + iqr, limits[1]);
+        limits[0] = Math.max(lower - iqr, limits[0]);
+        limits[1] = Math.min(upper + iqr, limits[1]);
         break;
 
       case 2:
