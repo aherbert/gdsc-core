@@ -164,10 +164,10 @@ class SeriesOpenerTest {
 
   @Test
   void testFilterImageList() {
-    String[] list = {"image1.tif", "image2.tif", "image3.tif", "test4.tif", "file5.jpg"};
-    LocalList<String> errorMessageAction = new LocalList<>();
-    LocalList<String[]> listStringAction = new LocalList<>();
-    ObjIntConsumer<String[]> listAction = (filteredList, size) -> {
+    final String[] list = {"image1.tif", "image2.tif", "image3.tif", "test4.tif", "file5.jpg"};
+    final LocalList<String> errorMessageAction = new LocalList<>();
+    final LocalList<String[]> listStringAction = new LocalList<>();
+    final ObjIntConsumer<String[]> listAction = (filteredList, size) -> {
       listStringAction.add(Arrays.copyOf(filteredList, size));
     };
 
