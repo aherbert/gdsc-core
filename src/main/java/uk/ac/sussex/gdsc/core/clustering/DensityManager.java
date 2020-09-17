@@ -98,7 +98,7 @@ public class DensityManager extends CoordinateStore {
    */
   public int[] calculateSquareDensity(float radius, int resolution, boolean adjustForBorder) {
     checkRadius(radius);
-    ValidationUtils.checkArgument(resolution > 0, "Resolution must be strictly positive");
+    ValidationUtils.checkStrictlyPositive(resolution, "resolution");
 
     final float cellSize = radius / resolution;
 
@@ -957,6 +957,6 @@ public class DensityManager extends CoordinateStore {
    * @param radius the radius
    */
   private static void checkRadius(double radius) {
-    ValidationUtils.checkStrictlyPositive(radius, "Radius must be strictly positive");
+    ValidationUtils.checkStrictlyPositive(radius, "radius");
   }
 }
