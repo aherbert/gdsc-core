@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * Used to store all the information about a cluster in the clustering analysis.
  *
@@ -104,6 +102,15 @@ public class TimeCluster extends Cluster {
     return true;
   }
 
+  @Override
+  public void add(ClusterPoint point) {
+    super.add(point);
+
+    // Update the start and end points
+    setStartTime(Math.min(getStartTime(), point.getStartTime()));
+    setEndTime(Math.max(getEndTime(), point.getEndTime()));
+  }
+
   /**
    * Adds the other cluster.
    *
@@ -113,8 +120,8 @@ public class TimeCluster extends Cluster {
     super.add(other);
 
     // Update the start and end points
-    setStartTime(FastMath.min(getStartTime(), other.getStartTime()));
-    setEndTime(FastMath.max(getEndTime(), other.getEndTime()));
+    setStartTime(Math.min(getStartTime(), other.getStartTime()));
+    setEndTime(Math.max(getEndTime(), other.getEndTime()));
   }
 
   /**
