@@ -33,22 +33,22 @@ package uk.ac.sussex.gdsc.core.clustering;
  */
 public class ClusterPoint {
   /** The x position. */
-  private double x;
+  private final double x;
 
   /** The y position. */
-  private double y;
+  private final double y;
 
   /** The weight. */
-  private double weight;
+  private final double weight;
 
   /** The id. */
-  private int id;
+  private final int id;
 
   /** The start time. */
-  private int startTime;
+  private final int startTime;
 
   /** The end time. */
-  private int endTime;
+  private final int endTime;
 
   /**
    * The next cluster point. Used to construct a single linked list of points.
@@ -220,30 +220,12 @@ public class ClusterPoint {
   }
 
   /**
-   * Sets the x.
-   *
-   * @param x the new x
-   */
-  public void setX(double x) {
-    this.x = x;
-  }
-
-  /**
    * Gets the y.
    *
    * @return the y
    */
   public double getY() {
     return y;
-  }
-
-  /**
-   * Sets the y.
-   *
-   * @param y the new y
-   */
-  public void setY(double y) {
-    this.y = y;
   }
 
   /**
@@ -256,30 +238,12 @@ public class ClusterPoint {
   }
 
   /**
-   * Sets the weight.
-   *
-   * @param weight the new weight
-   */
-  public void setWeight(double weight) {
-    this.weight = weight;
-  }
-
-  /**
    * Gets the id.
    *
    * @return the id
    */
   public int getId() {
     return id;
-  }
-
-  /**
-   * Sets the id.
-   *
-   * @param id the new id
-   */
-  public void setId(int id) {
-    this.id = id;
   }
 
   /**
@@ -292,30 +256,12 @@ public class ClusterPoint {
   }
 
   /**
-   * Sets the start time.
-   *
-   * @param start the new start time
-   */
-  public void setStartTime(int start) {
-    this.startTime = start;
-  }
-
-  /**
    * Gets the end time.
    *
    * @return the end time
    */
   public int getEndTime() {
     return endTime;
-  }
-
-  /**
-   * Sets the end time.
-   *
-   * @param end the end
-   */
-  public void setEndTime(int end) {
-    this.endTime = end;
   }
 
   /**
