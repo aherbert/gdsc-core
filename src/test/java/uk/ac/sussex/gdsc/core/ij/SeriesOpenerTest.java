@@ -61,13 +61,12 @@ class SeriesOpenerTest {
     Files.createDirectory(Paths.get(path, "subDirectory"));
     Files.createFile(Paths.get(path, "notAnImage.list"));
 
-    SeriesOpener series = SeriesOpener.create(path, false, 2);
+    SeriesOpener series = SeriesOpener.create(path, false);
     Assertions.assertEquals(5, series.getNumberOfImages());
     Assertions.assertEquals(path, series.getPath());
     Assertions.assertArrayEquals(
         new String[] {"image1.tif", "image002.tif", "image03.tif", "image4.tif", "notAnImage.list"},
         series.getImageList());
-    Assertions.assertEquals(2, series.getNumberOfThreads());
 
     // Open the images
     ImagePlus imp = series.nextImage();
@@ -84,7 +83,7 @@ class SeriesOpenerTest {
     Assertions.assertNull(imp);
 
     // Repeat but allow variable size
-    series = SeriesOpener.create(path, false, 2);
+    series = SeriesOpener.create(path, false);
     series.setVariableSize(true);
     imp = series.nextImage();
     Assertions.assertEquals(2, imp.getWidth());
@@ -114,7 +113,7 @@ class SeriesOpenerTest {
 
   @Test
   void testCreateSeriesOpenerWithNullAndShowDialog() {
-    final SeriesOpener series = SeriesOpener.create(null, true, 1);
+    final SeriesOpener series = SeriesOpener.create(null, true);
     Assertions.assertEquals(0, series.getNumberOfImages());
     Assertions.assertNull(series.getPath());
     Assertions.assertArrayEquals(new String[0], series.getImageList());

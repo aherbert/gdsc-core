@@ -61,7 +61,6 @@ public class SeriesOpener {
   private int width = -1;
   private int height = -1;
   private boolean variableSize;
-  private int numberOfThreads;
   private String helpUrl;
 
   // Used to filter the image list
@@ -86,12 +85,10 @@ public class SeriesOpener {
    *
    * @param path the path
    * @param showDialog Open a dialog and allow the user to filter the images
-   * @param numberOfThreads Set the number of threads specified in the input dialog. If zero then
-   *        this field is not shown.
    * @return the series opener
    */
-  public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads) {
-    return create(path, showDialog, numberOfThreads, null);
+  public static SeriesOpener create(String path, boolean showDialog) {
+    return create(path, showDialog, null);
   }
 
   /**
@@ -99,15 +96,12 @@ public class SeriesOpener {
    *
    * @param path the path
    * @param showDialog Open a dialog and allow the user to filter the images
-   * @param numberOfThreads Set the number of threads specified in the input dialog. If zero then
-   *        this field is not shown.
    * @param helpUrl the help url (null to ignore)
    * @return the series opener
    */
-  public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads,
+  public static SeriesOpener create(String path, boolean showDialog,
       String helpUrl) {
     final SeriesOpener opener = new SeriesOpener(path);
-    opener.numberOfThreads = Math.max(0, numberOfThreads);
     opener.helpUrl = helpUrl;
     if (showDialog) {
       opener.showFilterDialog();
@@ -334,9 +328,6 @@ public class SeriesOpener {
     gd.addNumericField("Increment:", 1, 0);
     gd.addStringField("File name contains:", "", 10);
     gd.addStringField("or enter pattern:", "", 10);
-    if (numberOfThreads > 0) {
-      gd.addNumericField("Series_number_of_threads:", numberOfThreads, 0);
-    }
     gd.addMessage("[info...]");
     gd.addHelp(helpUrl);
     gd.showDialog();
@@ -352,9 +343,6 @@ public class SeriesOpener {
     if (isRegex) {
       filter = regex;
     }
-    if (numberOfThreads > 0) {
-      numberOfThreads = Math.abs((int) gd.getNextNumber());
-    }
     return true;
   }
 
@@ -365,15 +353,6 @@ public class SeriesOpener {
    */
   public void setVariableSize(boolean variableSize) {
     this.variableSize = variableSize;
-  }
-
-  /**
-   * Gets the number of threads specified in the input dialog.
-   *
-   * @return The number of threads specified in the input dialog.
-   */
-  public int getNumberOfThreads() {
-    return numberOfThreads;
   }
 
   /**
