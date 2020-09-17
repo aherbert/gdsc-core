@@ -957,6 +957,6 @@ public class DensityManager extends CoordinateStore {
    * @param radius the radius
    */
   private static void checkRadius(double radius) {
-    ValidationUtils.checkArgument(radius > 0, "Radius must be strictly positive");
+    ValidationUtils.checkStrictlyPositive(radius, "Radius must be strictly positive");
   }
 }
