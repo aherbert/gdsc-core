@@ -115,6 +115,9 @@ class GeometryUtilsTest {
     canComputeIntersection(null, 0, 0, 1, 0, 1.5, -1, 1.5, 1);
     // parallel
     canComputeIntersection(null, 0, 0, 1, 0, 0, 1, 1, 1);
+    canComputeIntersection(null, 0, 0, 0, 1, 1, 0, 1, 1);
+    canComputeIntersection(null, 0, 0, 1, 1, 0, 1, 1, 2);
+    canComputeIntersection(null, 0, 1, 1, 1, 0, 0, 1, 0);
     // intersection
     canComputeIntersection(new double[] {0.5, 0.5}, 0, 0, 1, 1, 1, 0, 0, 1);
     canComputeIntersection(new double[] {0, 0}, 0, 0, 1, 1, 0, 0, 0, 1);
