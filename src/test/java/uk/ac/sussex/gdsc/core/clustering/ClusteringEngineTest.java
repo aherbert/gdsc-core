@@ -29,14 +29,21 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.ij.ImageJTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -64,6 +71,314 @@ class ClusteringEngineTest {
   // Store the closest pair of clusters
   int ii;
   int jj;
+
+  /**
+   * Test the pairwise clustering.
+   *
+   * <p>Note: ClusteringAlgorithm.PAIRWISE fails the centroid linkage clustering test (see
+   * {@code #testClusting}) so the algorithm it explicitly tested.
+   */
+  @Test
+  void canClusterPairwise() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    engine.setClusteringAlgorithm(ClusteringAlgorithm.PAIRWISE);
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    int id = 0;
+    points.add(new ClusterPoint(id++, 0, 0));
+    points.add(new ClusterPoint(id++, 0, 1));
+    points.add(new ClusterPoint(id++, 5, 5));
+    points.add(new ClusterPoint(id++, 5, 6));
+    points.add(new ClusterPoint(id++, 3, 5));
+    // Require some outliers to ensure a full grid is created using multiple bins on x and y
+    points.add(new ClusterPoint(id++, 0, 10));
+    points.add(new ClusterPoint(id++, 0, 11));
+    points.add(new ClusterPoint(id++, 12, 10));
+    points.add(new ClusterPoint(id++, 12, 11));
+    points.add(new ClusterPoint(id++, 12, 0));
+    points.add(new ClusterPoint(id++, 12, 1));
+    // @formatter:off
+    // Expected:
+    // +   0  1  2  3  4  5             12
+    // 0   0  1                          9
+    // 1                                10
+    // 2
+    // 3
+    // 4
+    // 5             5    2
+    // 6                  3
+    //
+    // 10  5                             7
+    // 11  6                             8
+    // @formatter:on
+    id = 0;
+    final Cluster c1 = new Cluster(points.get(id++));
+    c1.add(points.get(id++));
+    final Cluster c2 = new Cluster(points.get(id++));
+    c2.add(points.get(id++));
+    c2.add(points.get(id++));
+    final Cluster c3 = new Cluster(points.get(id++));
+    c3.add(points.get(id++));
+    final Cluster c4 = new Cluster(points.get(id++));
+    c4.add(points.get(id++));
+    final Cluster c5 = new Cluster(points.get(id++));
+    c5.add(points.get(id++));
+    // Radius close enough to join point 2 to 5 but not cluster 1 to cluster 2
+    double radius = 0.1 + points.get(1).distance(points.get(4));
+
+    // Scramble the points
+    Collections.shuffle(points, ThreadLocalRandom.current());
+
+    final List<Cluster> obs = engine.findClusters(points, radius);
+    final List<Cluster> exp = Arrays.asList(c1, c2, c3, c4, c5);
+    compareClusters(exp, obs);
+
+    // Smaller radius to create multiple bins.
+    // Note that the radius must join 5 to the cluster of 3-4.
+    radius = Math.sqrt(2 * 2 + 0.5 * 0.5) * 1.01;
+    compareClusters(exp, engine.findClusters(points, radius));
+
+    // Test with no candidates (i.e. radius too small)
+    final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
+    compareClusters(singles, engine.findClusters(points, 0.1));
+  }
+
+  @Test
+  void testParticleSingleLinkageWithNoClusters() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    engine.setClusteringAlgorithm(ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    points.add(new ClusterPoint(0, 0, 0));
+    points.add(new ClusterPoint(1, 0, 1));
+
+    // Test with no candidates (i.e. radius too small)
+    final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
+    compareClusters(singles, engine.findClusters(points, 0.1));
+  }
+
+  @Test
+  void testParticleSingleLinkageWithTrackJoins() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    Assertions.assertFalse(engine.isTrackJoins());
+    engine.setClusteringAlgorithm(ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
+    engine.setTrackJoins(true);
+    Assertions.assertTrue(engine.isTrackJoins());
+
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    // Control IDs as we measure intra and inter ID distances
+    points.add(new ClusterPoint(0, 0, 0));
+    points.add(new ClusterPoint(0, 0, 1));
+    points.add(new ClusterPoint(1, 5, 5));
+    points.add(new ClusterPoint(2, 5, 6));
+    points.add(new ClusterPoint(2, 3, 5));
+    // @formatter:off
+    // Expected:
+    // +   0  1  2  3  4  5
+    // 0   0  0
+    // 1
+    // 2
+    // 3
+    // 4
+    // 5             2    1
+    // 6                  2
+    // @formatter:on
+    int id = 0;
+    final Cluster c1 = new Cluster(points.get(id++));
+    c1.add(points.get(id++));
+    final Cluster c2 = new Cluster(points.get(id++));
+    c2.add(points.get(id++));
+    c2.add(points.get(id++));
+    // Radius close enough to join point 2 to 5 but not cluster 1 to cluster 2
+    double radius = 0.1 + points.get(1).distance(points.get(4));
+
+    // Scramble the points
+    Collections.shuffle(points, ThreadLocalRandom.current());
+
+    final List<Cluster> obs = engine.findClusters(points, radius);
+    final List<Cluster> exp = Arrays.asList(c1, c2);
+    compareClusters(exp, obs);
+
+    assertDistances(new double[] {1}, engine.getIntraIdDistances());
+    assertDistances(new double[] {1, 2}, engine.getInterIdDistances());
+
+    // Test with no candidates (i.e. radius too small)
+    final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
+    compareClusters(singles, engine.findClusters(points, 0.1));
+
+    assertDistances(new double[] {}, engine.getIntraIdDistances());
+    assertDistances(new double[] {}, engine.getInterIdDistances());
+  }
+
+  private static void assertDistances(double[] exp, double[] obs) {
+    Arrays.sort(obs);
+    Assertions.assertArrayEquals(exp, obs);
+  }
+
+  @Test
+  void testWithEndedTracker() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    int id = 0;
+    // Require time information for some algorithms
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 0, 1, 1));
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 1, 2, 2));
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 1, 0, 3, 3));
+
+    // Test with an ended tracker
+    final TrackProgress tracker = new ImageJTrackProgress() {
+      @Override
+      public boolean isEnded() {
+        return true;
+      }
+
+      @Override
+      public void log(String format, Object... args) {
+        // Do nothing
+      }
+    };
+    engine.setTracker(tracker);
+    Assertions.assertSame(tracker, engine.getTracker());
+
+    final double radius = 5;
+    final int time = 1;
+    for (final ClusteringAlgorithm algorithm : ClusteringAlgorithm.values()) {
+      engine.setClusteringAlgorithm(algorithm);
+      Assertions.assertEquals(algorithm, engine.getClusteringAlgorithm());
+      Assertions.assertNull(engine.findClusters(points, radius, time), () -> algorithm.toString());
+    }
+  }
+
+  @Test
+  void testWithTracker() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    int id = 0;
+    // Require time information for some algorithms
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 0, 1, 1));
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 1, 2, 2));
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 1, 0, 3, 3));
+
+    final Cluster c = new Cluster(points.get(0));
+    c.add(points.get(1));
+    c.add(points.get(2));
+    final List<Cluster> all = Collections.singletonList(c);
+
+    final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
+
+    // Test with a tracker to exercise code paths
+    final TrackProgress tracker = new ImageJTrackProgress() {
+      @Override
+      public void log(String format, Object... args) {
+        // Do nothing
+      }
+    };
+    engine.setTracker(tracker);
+    Assertions.assertSame(tracker, engine.getTracker());
+
+    final double radius = 5;
+    final double smallRadius = 0.1;
+    final int time = 1;
+    for (final ClusteringAlgorithm algorithm : ClusteringAlgorithm.values()) {
+      engine.setClusteringAlgorithm(algorithm);
+      compareClusters(all, engine.findClusters(points, radius, time));
+      compareClusters(singles, engine.findClusters(points, smallRadius, time));
+    }
+  }
+
+  @Test
+  void testWithPulseInterval() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    int id = 0;
+    // Require time information for some algorithms
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 0, 1, 1));
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 1, 2, 2));
+    points.add(ClusterPoint.newTimeClusterPoint(id++, 1, 0, 3, 3));
+
+    final Cluster c = new Cluster(points.get(0));
+    c.add(points.get(1));
+    c.add(points.get(2));
+    final List<Cluster> all = Collections.singletonList(c);
+
+    final Cluster c1 = new Cluster(points.get(0));
+    c1.add(points.get(1));
+    final Cluster c2 = new Cluster(points.get(2));
+    final List<Cluster> twoClusters = Arrays.asList(c1, c2);
+
+    final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
+
+    for (int i = 0; i <= 3; i++) {
+      engine.setPulseInterval(i);
+      Assertions.assertEquals(i, engine.getPulseInterval());
+    }
+
+    final double radius = 5;
+    final int time = 1;
+    for (final ClusteringAlgorithm algorithm : EnumSet.of(
+        ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY,
+        ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY,
+        ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY,
+        ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY)) {
+      engine.setClusteringAlgorithm(algorithm);
+      engine.setPulseInterval(1);
+      compareClusters(singles, engine.findClusters(points, radius, time));
+      engine.setPulseInterval(2);
+      compareClusters(twoClusters, engine.findClusters(points, radius, time));
+      engine.setPulseInterval(3);
+      compareClusters(all, engine.findClusters(points, radius, time));
+    }
+  }
+
+
+  @Test
+  void testWithTimeInformation() {
+    // No time information
+    assertTimeInformation(new int[][] {{0, 0}, {0, 0}}, new int[][] {{0, 1}});
+    assertTimeInformation(new int[][] {{0, 1}, {0, 1}}, new int[][] {{0, 1}});
+    // Different frames
+    assertTimeInformation(new int[][] {{0, 0}, {1, 1}}, new int[][] {{0, 1}});
+    assertTimeInformation(new int[][] {{0, 0}, {1, 1}, {3, 3}}, new int[][] {{0, 1}, {2}});
+    assertTimeInformation(new int[][] {{0, 0}, {1, 1}, {3, 3}}, new int[][] {{0, 1, 2}}, 3);
+    assertTimeInformation(new int[][] {{0, 0}, {3, 3}, {1, 1}}, new int[][] {{0, 2}, {1}});
+    assertTimeInformation(new int[][] {{0, 0}, {3, 3}, {1, 1}}, new int[][] {{0, 1, 2}}, 3);
+    // Overlap frames
+    assertTimeInformation(new int[][] {{0, 1}, {0, 0}}, new int[][] {{0}, {1}});
+    assertTimeInformation(new int[][] {{0, 1}, {1, 1}}, new int[][] {{0}, {1}});
+  }
+
+  private static void assertTimeInformation(int[][] times, int[][] expected) {
+    assertTimeInformation(times, expected, 1);
+  }
+
+  private static void assertTimeInformation(int[][] times, int[][] expected, int time) {
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+    int id = 0;
+    for (final int[] t : times) {
+      points.add(ClusterPoint.newTimeClusterPoint(id++, 0, 0, t[0], t[1]));
+    }
+
+    final ArrayList<Cluster> clusters = new ArrayList<>();
+    for (final int[] e : expected) {
+      final Cluster c = new Cluster(points.get(e[0]));
+      for (int i = 1; i < e.length; i++) {
+        c.add(points.get(e[i]));
+      }
+      clusters.add(c);
+    }
+
+    // These should switch to the non-time based algorithm
+    final EnumSet<ClusteringAlgorithm> set =
+        EnumSet.of(ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY,
+            ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY,
+            ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY,
+            ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
+
+    final double radius = 5;
+    final ClusteringEngine engine = new ClusteringEngine();
+    for (final ClusteringAlgorithm algorithm : set) {
+      engine.setClusteringAlgorithm(algorithm);
+      compareClusters(clusters, engine.findClusters(points, radius, time));
+    }
+  }
 
   @SeededTest
   void canClusterClusterPointsAtDifferentDensitiesUsingCentroidLinkage(RandomSeed seed) {
@@ -258,6 +573,7 @@ class ClusteringEngineTest {
     final ClusteringEngine engine = new ClusteringEngine(0, algorithm);
     final List<Cluster> exp = engine.findClusters(points, radius, time);
     engine.setThreadCount(8);
+    Assertions.assertEquals(8, engine.getThreadCount());
     final List<Cluster> obs = engine.findClusters(points, radius, time);
     compareClusters(exp, obs);
   }

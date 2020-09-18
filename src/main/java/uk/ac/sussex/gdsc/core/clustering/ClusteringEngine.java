@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import uk.ac.sussex.gdsc.core.data.ComputationException;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
@@ -445,6 +446,14 @@ public class ClusteringEngine {
         }
         break;
 
+      case PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY:
+      case PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY:
+        if (noTimeInformation(candidates)) {
+          tracker.log("No time information among candidates");
+          clusteringAlgorithm = ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE;
+        }
+        break;
+
       // All other methods do not use time information
       default:
         break;
@@ -578,6 +587,8 @@ public class ClusteringEngine {
     }
 
     if (candidates.isEmpty()) {
+      interIdDistances = new double[0];
+      intraIdDistances = new double[0];
       return singles;
     }
 
@@ -979,10 +990,12 @@ public class ClusteringEngine {
    * Check there are at least two different time points in the data. Also check if any candidates
    * have a different start and end time.
    *
+   * <p>Note: This assumes the candidate clusters only have a single cluster point (i.e. size=1).
+   *
    * @param candidates the candidates
    * @return true if there are no different time points
    */
-  private boolean noTimeInformation(List<Cluster> candidates) {
+  @VisibleForTesting boolean noTimeInformation(List<Cluster> candidates) {
     useRange = checkForTimeRange(candidates);
     final int firstT = candidates.get(0).getHeadClusterPoint().getStartTime();
     if (useRange) {
@@ -1012,7 +1025,7 @@ public class ClusteringEngine {
    * @param candidates the candidates
    * @return true, if successful
    */
-  private static boolean checkForTimeRange(List<Cluster> candidates) {
+  @VisibleForTesting static boolean checkForTimeRange(List<Cluster> candidates) {
     for (final Cluster c : candidates) {
       if (c.getHeadClusterPoint().getStartTime() != c.getHeadClusterPoint().getEndTime()) {
         return true;
@@ -1506,7 +1519,6 @@ public class ClusteringEngine {
       List<Cluster> singles, boolean single) {
     final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
-    int singlesSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
     initialiseMultithreading(nxbins, nybins);
     while (joinClosest(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth, single)) {
@@ -1514,10 +1526,7 @@ public class ClusteringEngine {
         return null;
       }
 
-      // The number of candidates that have been processed is incremented by the number of singles
       if (trackProgress) {
-        candidatesProcessed += singles.size() - singlesSize;
-        singlesSize = singles.size();
         tracker.progress(candidatesProcessed++, totalCandidates);
       }
     }
@@ -1887,7 +1896,6 @@ public class ClusteringEngine {
       List<Cluster> candidates, List<Cluster> singles, boolean single) {
     final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
-    int singleSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
     final TimeCluster[][] newGrid = convertGrid(grid, nxbins, nybins);
     initialiseMultithreading(nxbins, nybins);
@@ -1897,10 +1905,7 @@ public class ClusteringEngine {
         return null;
       }
 
-      // The number of candidates that have been processed is incremented by the number of singles
       if (trackProgress) {
-        candidatesProcessed += singles.size() - singleSize;
-        singleSize = singles.size();
         tracker.progress(candidatesProcessed++, totalCandidates);
       }
     }
@@ -2255,7 +2260,6 @@ public class ClusteringEngine {
       List<Cluster> candidates, List<Cluster> singles, boolean single) {
     final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
-    int singlesSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
     final TimeCluster[][] newGrid = convertGrid(grid, nxbins, nybins);
     initialiseMultithreading(nxbins, nybins);
@@ -2265,10 +2269,7 @@ public class ClusteringEngine {
         return null;
       }
 
-      // The number of candidates that have been processed is incremented by the number of singles
       if (trackProgress) {
-        candidatesProcessed += singles.size() - singlesSize;
-        singlesSize = singles.size();
         tracker.progress(candidatesProcessed++, totalCandidates);
       }
     }

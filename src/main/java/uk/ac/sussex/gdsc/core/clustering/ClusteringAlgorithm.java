@@ -114,8 +114,9 @@ public enum ClusteringAlgorithm {
    * Hierarchical centroid-linkage clustering by joining the closest pair of any single particle and
    * another single or cluster. Clusters are not joined and can only grow when particles are added.
    *
-   * <p>Clusters are compared using time and distance thresholds with priority on the closest time
-   * gap (within the distance threshold).
+   * <p>Clusters are compared using time and distance thresholds with priority on the closest
+   * distance gap (within the time threshold). If the distance of candidate pairs is equal then the
+   * closest time gap is used to select the joining pair.
    */
   PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY {
     @Override
@@ -127,8 +128,9 @@ public enum ClusteringAlgorithm {
    * Hierarchical centroid-linkage clustering by joining the closest pair of any single particle and
    * another single or cluster. Clusters are not joined and can only grow when particles are added.
    *
-   * <p>Clusters are compared using time and distance thresholds with priority on the closest
-   * distance gap (within the time threshold).
+   * <p>Clusters are compared using time and distance thresholds with priority on the closest time
+   * gap (within the distance threshold). If the time gap of candidate pairs is equal then the
+   * closest distance is used to select the joining pair.
    */
   PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY {
     @Override
