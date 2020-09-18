@@ -64,15 +64,9 @@ public final class VersionUtils {
       buildNumber = attributes.getValue("Implementation-Build");
     }
 
-    if (StringUtils.isEmpty(versionNumber)) {
-      versionNumber = UNKNOWN;
-    }
-    if (StringUtils.isEmpty(buildDate)) {
-      buildDate = UNKNOWN;
-    }
-    if (StringUtils.isEmpty(buildNumber)) {
-      buildNumber = UNKNOWN;
-    }
+    versionNumber = StringUtils.getIfBlank(versionNumber, () -> UNKNOWN);
+    buildDate = StringUtils.getIfBlank(buildDate, () -> UNKNOWN);
+    buildNumber = StringUtils.getIfBlank(buildNumber, () -> UNKNOWN);
   }
 
   /** No public construction. */
