@@ -98,6 +98,7 @@ class TickerTest {
     Assertions.assertEquals(true, ticker.isThreadSafe(), "ThreadSafe");
     ticker.start();
     ticker.tick();
+    ticker.tick(13);
     Assertions.assertEquals(0, ticker.getCurrent(), "Current should not increment");
     ticker.stop();
   }
