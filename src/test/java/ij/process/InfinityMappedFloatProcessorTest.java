@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
 class InfinityMappedFloatProcessorTest {
   @Test
   void testConstructors() {
-    int width = 3;
-    int height = 4;
+    final int width = 3;
+    final int height = 4;
     InfinityMappedFloatProcessor fp;
     fp = new InfinityMappedFloatProcessor(width, height);
     Assertions.assertFalse(fp.isMapPositiveInfinity());

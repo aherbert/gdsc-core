@@ -38,25 +38,25 @@ import org.junit.jupiter.api.Test;
 class MappedImageStackTest {
   @Test
   void testDefaultConstructor() {
-    MappedImageStack stack = new MappedImageStack();
+    final MappedImageStack stack = new MappedImageStack();
     Assertions.assertFalse(stack.isMapZero());
   }
 
   @Test
   void testImageStack8Bit() {
-    int width = 3;
-    int height = 4;
-    MappedImageStack stack = new MappedImageStack(width, height);
+    final int width = 3;
+    final int height = 4;
+    final MappedImageStack stack = new MappedImageStack(width, height);
     stack.addSlice(new ByteProcessor(width, height));
-    ImageProcessor ip = stack.getProcessor(1);
+    final ImageProcessor ip = stack.getProcessor(1);
     Assertions.assertTrue(ip instanceof ByteProcessor);
   }
 
   @Test
   void testImageStack32Bit() {
-    int width = 3;
-    int height = 4;
-    MappedImageStack stack = new MappedImageStack(width, height, 1);
+    final int width = 3;
+    final int height = 4;
+    final MappedImageStack stack = new MappedImageStack(width, height, 1);
     stack.setPixels(new float[width * height], 1);
     ImageProcessor ip = stack.getProcessor(1);
     Assertions.assertTrue(ip instanceof MappedFloatProcessor);

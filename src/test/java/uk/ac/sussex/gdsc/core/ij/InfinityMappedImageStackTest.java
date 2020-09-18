@@ -38,25 +38,25 @@ import org.junit.jupiter.api.Test;
 class InfinityMappedImageStackTest {
   @Test
   void testDefaultConstructor() {
-    InfinityMappedImageStack stack = new InfinityMappedImageStack();
+    final InfinityMappedImageStack stack = new InfinityMappedImageStack();
     Assertions.assertFalse(stack.isMapPositiveInfinity());
   }
 
   @Test
   void testImageStack8Bit() {
-    int width = 3;
-    int height = 4;
-    InfinityMappedImageStack stack = new InfinityMappedImageStack(width, height);
+    final int width = 3;
+    final int height = 4;
+    final InfinityMappedImageStack stack = new InfinityMappedImageStack(width, height);
     stack.addSlice(new ByteProcessor(width, height));
-    ImageProcessor ip = stack.getProcessor(1);
+    final ImageProcessor ip = stack.getProcessor(1);
     Assertions.assertTrue(ip instanceof ByteProcessor);
   }
 
   @Test
   void testImageStack32Bit() {
-    int width = 3;
-    int height = 4;
-    InfinityMappedImageStack stack = new InfinityMappedImageStack(width, height, 1);
+    final int width = 3;
+    final int height = 4;
+    final InfinityMappedImageStack stack = new InfinityMappedImageStack(width, height, 1);
     stack.setPixels(new float[width * height], 1);
     ImageProcessor ip = stack.getProcessor(1);
     Assertions.assertTrue(ip instanceof InfinityMappedFloatProcessor);

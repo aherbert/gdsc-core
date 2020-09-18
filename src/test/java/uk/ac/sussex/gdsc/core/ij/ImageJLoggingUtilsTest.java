@@ -61,7 +61,7 @@ class ImageJLoggingUtilsTest {
     Assertions.assertFalse(handlers.contains(consoleHandler));
     Assertions.assertTrue(handlers.contains(memoryHandler));
     Assertions.assertFalse(logger.getUseParentHandlers());
-    for (Handler h : logger.getHandlers()) {
+    for (final Handler h : logger.getHandlers()) {
       if (h instanceof ImageJLogHandler) {
         return;
       }

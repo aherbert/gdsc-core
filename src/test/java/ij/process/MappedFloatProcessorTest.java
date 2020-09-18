@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
 class MappedFloatProcessorTest {
   @Test
   void testConstructors() {
-    int width = 3;
-    int height = 4;
+    final int width = 3;
+    final int height = 4;
     MappedFloatProcessor fp;
     fp = new MappedFloatProcessor(width, height);
     Assertions.assertFalse(fp.isMapZero());

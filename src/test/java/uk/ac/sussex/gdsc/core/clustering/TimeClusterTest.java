@@ -36,22 +36,22 @@ class TimeClusterTest {
 
   @Test
   void testTimeCluster() {
-    int start1 = 13;
-    int end1 = 23;
+    final int start1 = 13;
+    final int end1 = 23;
     final ClusterPoint p1 = new ClusterPoint(1, 3, 4, 1, start1, end1);
     final TimeCluster c1 = new TimeCluster(p1);
     Assertions.assertEquals(start1, c1.getStartTime());
     Assertions.assertEquals(end1, c1.getEndTime());
 
-    int start2 = 16;
-    int end2 = 25;
+    final int start2 = 16;
+    final int end2 = 25;
     final ClusterPoint p2 = new ClusterPoint(1, 3, 4, 1, start2, end2);
     c1.add(p2);
     Assertions.assertEquals(start1, c1.getStartTime());
     Assertions.assertEquals(end2, c1.getEndTime());
 
-    int start3 = 10;
-    int end3 = 12;
+    final int start3 = 10;
+    final int end3 = 12;
     final ClusterPoint p3 = new ClusterPoint(1, 3, 4, 1, start3, end3);
     c1.add(new TimeCluster(p3));
     Assertions.assertEquals(start3, c1.getStartTime());

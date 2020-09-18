@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 class ImageAdapterTest {
   @Test
   void testImageAdapter() {
-    ImageAdapter adapter = new ImageAdapter() {};
+    final ImageAdapter adapter = new ImageAdapter() {};
     adapter.imageOpened(null);
     adapter.imageClosed(null);
     adapter.imageUpdated(null);

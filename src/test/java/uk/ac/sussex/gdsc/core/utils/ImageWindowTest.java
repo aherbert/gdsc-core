@@ -49,7 +49,7 @@ class ImageWindowTest {
 
   @Test
   void testNoWindowFunction() {
-    for (double value : new double[] {0, 0.5, 1, -1, Double.NaN, 100}) {
+    for (final double value : new double[] {0, 0.5, 1, -1, Double.NaN, 100}) {
       Assertions.assertEquals(1, NoWindowFunction.INSTANCE.weight(value));
     }
   }

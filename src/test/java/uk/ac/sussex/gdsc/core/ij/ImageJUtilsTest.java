@@ -170,16 +170,16 @@ class ImageJUtilsTest {
   @Test
   void testExtractTile() {
     // Multi channel, slice, frame image
-    int width = 3;
-    int height = 4;
-    ImageStack imageStack = new ImageStack(width, height);
-    int c = 3;
-    int z = 4;
-    int t = 2;
+    final int width = 3;
+    final int height = 4;
+    final ImageStack imageStack = new ImageStack(width, height);
+    final int c = 3;
+    final int z = 4;
+    final int t = 2;
     for (int i = 0; i < t * c * z; i++) {
       imageStack.addSlice(null, SimpleArrayUtils.newByteArray(12, (byte) i));
     }
-    ImagePlus imp = new ImagePlus(null, imageStack);
+    final ImagePlus imp = new ImagePlus(null, imageStack);
     imp.setDimensions(c, z, t);
 
     ImageProcessor ip;

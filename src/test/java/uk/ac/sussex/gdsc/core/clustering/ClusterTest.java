@@ -112,12 +112,12 @@ class ClusterTest {
     Assertions.assertEquals(0, c1.getSumOfWeights());
     Assertions.assertEquals(0, c1.getSize());
     Assertions.assertNull(c1.getHeadClusterPoint());
-    //Assertions.assertNull(c1.getNext());
+    // Assertions.assertNull(c1.getNext());
     Assertions.assertNull(c1.getClosest());
     Assertions.assertEquals(0, c1.getDistanceSquared());
-    //Assertions.assertEquals(0, c1.getNeighbour());
-    //Assertions.assertEquals(0, c1.getXBin());
-    //Assertions.assertEquals(0, c1.getYBin());
+    // Assertions.assertEquals(0, c1.getNeighbour());
+    // Assertions.assertEquals(0, c1.getXBin());
+    // Assertions.assertEquals(0, c1.getYBin());
 
     // Add same XY
     x = Math.PI;

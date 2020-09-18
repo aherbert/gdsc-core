@@ -393,7 +393,7 @@ class FileUtilsTest {
     logger.setLevel(Level.OFF);
     try {
       final Path filename = Files.createTempFile("FileUtilsTest", ".dat");
-      File file = filename.toFile();
+      final File file = filename.toFile();
       file.setWritable(false, false);
       Assertions.assertFalse(save.test(data, filename.toString()));
       Files.delete(filename);

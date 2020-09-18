@@ -188,7 +188,7 @@ class ClusteringEngineTest {
     c2.add(points.get(id++));
     c2.add(points.get(id++));
     // Radius close enough to join point 2 to 5 but not cluster 1 to cluster 2
-    double radius = 0.1 + points.get(1).distance(points.get(4));
+    final double radius = 0.1 + points.get(1).distance(points.get(4));
 
     // Scramble the points
     Collections.shuffle(points, ThreadLocalRandom.current());

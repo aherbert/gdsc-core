@@ -38,7 +38,7 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 class SimpleImageJTrackProgressTest {
   @Test
   void testTrackProgress() {
-    SimpleImageJTrackProgress instance = SimpleImageJTrackProgress.getInstance();
+    final SimpleImageJTrackProgress instance = SimpleImageJTrackProgress.getInstance();
     instance.progress(0.5);
     instance.progress(3, 4);
     Assertions.assertThrows(NotImplementedException.class, () -> instance.incrementProgress(0.1));

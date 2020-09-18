@@ -52,8 +52,7 @@ class ImageJDigestTest {
   @Test
   void testBadPixelsThrows() {
     final ImageJDigest digest = new ImageJDigest();
-    Assertions.assertThrows(IllegalArgumentException.class,
-        () -> digest.getPixelsDigester(null));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> digest.getPixelsDigester(null));
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> digest.getPixelsDigester(new Object()));
     Assertions.assertThrows(IllegalArgumentException.class,
