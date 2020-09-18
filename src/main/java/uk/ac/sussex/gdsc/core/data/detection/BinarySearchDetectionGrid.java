@@ -159,13 +159,12 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     }
 
     final int[] list = new int[count];
-    for (int i = size; i-- > 0;) {
+    int i = size - 1;
+    while (count != 0) {
       if (data[i] == FOUR) {
         list[--count] = i;
-        if (count == 0) {
-          break;
-        }
       }
+      i--;
     }
     return list;
   }

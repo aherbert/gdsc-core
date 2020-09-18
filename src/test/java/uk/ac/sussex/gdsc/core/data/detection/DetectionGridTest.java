@@ -66,20 +66,51 @@ class DetectionGridTest {
   }
 
   @Test
+  void testSimpleDetectionGridConstrutor() {
+    final Rectangle[] bounds = new Rectangle[3];
+    bounds[0] = new Rectangle(0, 0, 10, 10);
+    bounds[1] = new Rectangle(0, 5, 10, 5);
+    bounds[2] = new Rectangle(5, 5, 5, 5);
+    final SimpleDetectionGrid g = SimpleDetectionGrid.wrap(bounds);
+    Assertions.assertEquals(bounds.length, g.size());
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new SimpleDetectionGrid(null));
+  }
+
+  @Test
+  void testBinarySearchDetectionGridConstrutor() {
+    final Rectangle[] bounds = new Rectangle[3];
+    bounds[0] = new Rectangle(0, 0, 10, 10);
+    bounds[1] = new Rectangle(0, 5, 10, 5);
+    bounds[2] = new Rectangle(5, 5, 5, 5);
+    final BinarySearchDetectionGrid g = new BinarySearchDetectionGrid(bounds);
+    Assertions.assertEquals(bounds.length, g.size());
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> new BinarySearchDetectionGrid(null));
+  }
+
+  @Test
   void canDetectCollisionsUsingSimpleGrid() {
     final Rectangle[] bounds = new Rectangle[3];
     bounds[0] = new Rectangle(0, 0, 10, 10);
     bounds[1] = new Rectangle(0, 5, 10, 5);
     bounds[2] = new Rectangle(5, 5, 5, 5);
     final SimpleDetectionGrid g = new SimpleDetectionGrid(bounds);
+    Assertions.assertFalse(g.isIncludeOuterEdge());
     Assertions.assertArrayEquals(new int[] {0}, g.find(0, 0));
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(5, 5));
     Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(-5, 5));
 
     // Definition of insideness
     Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(10, 10));
+
     g.setIncludeOuterEdge(true);
+    Assertions.assertTrue(g.isIncludeOuterEdge());
+    Assertions.assertArrayEquals(new int[] {0}, g.find(0, 0));
+    Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(5, 5));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(-5, 5));
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(10, 10));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(12, 12));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(10, 12));
   }
 
   @Test
