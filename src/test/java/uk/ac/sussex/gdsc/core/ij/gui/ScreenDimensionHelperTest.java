@@ -55,4 +55,30 @@ class ScreenDimensionHelperTest {
     Assertions.assertEquals(33, helper.getMaxWidth());
     Assertions.assertEquals(34, helper.getMaxHeight());
   }
+
+  @Test
+  void testClipDimensions() {
+    ScreenDimensionHelper helper = new ScreenDimensionHelper();
+    helper.setMinSize(0, 0);
+    helper.setMaxSize(0, 0);
+    final Dimension d = new Dimension(50, 100);
+    assertClipDimensions(helper, d, 50, 100);
+    helper.setMinSize(70, 100);
+    assertClipDimensions(helper, d, 70, 100);
+    helper.setMinSize(0, 200);
+    assertClipDimensions(helper, d, 50, 200);
+    helper.setMinSize(0, 0);
+    helper.setMaxSize(30, 100);
+    assertClipDimensions(helper, d, 30, 100);
+    helper.setMaxSize(0, 90);
+    assertClipDimensions(helper, d, 50, 90);
+  }
+
+  private static void assertClipDimensions(ScreenDimensionHelper helper, Dimension d, int width,
+      int height) {
+    Dimension test = new Dimension(d);
+    helper.clipDimensions(test);
+    Assertions.assertEquals(width, test.width);
+    Assertions.assertEquals(height, test.height);
+  }
 }

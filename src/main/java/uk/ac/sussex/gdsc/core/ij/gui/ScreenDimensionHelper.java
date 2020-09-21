@@ -34,6 +34,7 @@ import java.awt.Insets;
 import java.awt.ScrollPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 
 /**
  * Allows resizing of window components for the current screen dimensions.
@@ -107,7 +108,14 @@ public class ScreenDimensionHelper {
     viewport.setPreferredSize(preferredSize);
   }
 
-  private void clipDimensions(Dimension preferredSize) {
+  /**
+   * Clip the input preferred size dimensions to the configured min/max. Only applies to non-zero
+   * min/max settings.
+   *
+   * @param preferredSize the preferred size
+   */
+  @VisibleForTesting
+  void clipDimensions(Dimension preferredSize) {
     if (maxWidth > 0) {
       preferredSize.width = Math.min(preferredSize.width, maxWidth);
     }
