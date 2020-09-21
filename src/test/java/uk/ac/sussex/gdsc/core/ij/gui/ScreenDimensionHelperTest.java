@@ -34,7 +34,7 @@ import java.awt.ScrollPane;
 import javax.swing.JScrollPane;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import uk.ac.sussex.gdsc.test.junit5.DisabledIfHeadless;
 
 @SuppressWarnings({"javadoc"})
 class ScreenDimensionHelperTest {
@@ -87,7 +87,7 @@ class ScreenDimensionHelperTest {
   }
 
   @Test
-  @DisabledIfSystemProperty(named = "java.awt.headless", matches = "true")
+  @DisabledIfHeadless
   void testSetupScrollPane() {
     final ScrollPane pane = new ScrollPane();
     final ScreenDimensionHelper helper = new ScreenDimensionHelper();
@@ -99,7 +99,7 @@ class ScreenDimensionHelperTest {
   }
 
   @Test
-  @DisabledIfSystemProperty(named = "java.awt.headless", matches = "true")
+  @DisabledIfHeadless
   void testSetupJScrollPane() {
     final Panel p = new Panel();
     p.setSize(1000, 1000);
