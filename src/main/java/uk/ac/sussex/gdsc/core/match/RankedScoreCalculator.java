@@ -245,7 +245,7 @@ public class RankedScoreCalculator {
           sizeP, scored);
     }
 
-    if (save) {
+    if (scored != null) {
       scoredAssignments = scored.toArray(new FractionalAssignment[scored.size()]);
     }
 
