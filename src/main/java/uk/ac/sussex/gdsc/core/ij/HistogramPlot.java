@@ -561,18 +561,7 @@ public class HistogramPlot {
    * @return the x-axis values
    */
   public static float[] createHistogramAxis(float[] histogramX) {
-    final float[] axis = new float[histogramX.length * 2 + 2];
-    int index = 0;
-    for (final float value : histogramX) {
-      axis[index++] = value;
-      axis[index++] = value;
-    }
-    if (histogramX.length > 0) {
-      final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
-      axis[index++] = histogramX[histogramX.length - 1] + dx;
-      axis[index] = histogramX[histogramX.length - 1] + dx;
-    }
-    return axis;
+    return Plot2.createHistogramAxis(histogramX);
   }
 
   /**
@@ -584,6 +573,7 @@ public class HistogramPlot {
    * @return the x-axis values
    */
   public static double[] createHistogramAxis(double[] histogramX) {
+    // Code as per Plot2 but modified for double[]
     final double[] axis = new double[histogramX.length * 2 + 2];
     int index = 0;
     for (final double value : histogramX) {
@@ -606,14 +596,7 @@ public class HistogramPlot {
    * @return the y-axis values
    */
   public static float[] createHistogramValues(float[] histogramY) {
-    final float[] axis = new float[histogramY.length * 2 + 2];
-
-    int index = 1;
-    for (final float value : histogramY) {
-      axis[index++] = value;
-      axis[index++] = value;
-    }
-    return axis;
+    return Plot2.createHistogramValues(histogramY);
   }
 
   /**
@@ -624,6 +607,7 @@ public class HistogramPlot {
    * @return the y-axis values
    */
   public static double[] createHistogramValues(double[] histogramY) {
+    // Code as per Plot2 but modified for double[]
     final double[] axis = new double[histogramY.length * 2 + 2];
 
     int index = 1;
