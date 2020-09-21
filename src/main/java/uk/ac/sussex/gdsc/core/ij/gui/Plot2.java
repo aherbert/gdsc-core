@@ -80,50 +80,6 @@ public class Plot2 extends Plot {
   }
 
   /**
-   * Instantiates a new plot 2.
-   *
-   * @param title the title
-   * @param xLabel the x label
-   * @param yLabel the y label
-   * @param flags the flags
-   */
-  public Plot2(String title, String xLabel, String yLabel, int flags) {
-    super(title, xLabel, yLabel, flags);
-  }
-
-  /**
-   * Instantiates a new plot 2.
-   *
-   * @param title the title
-   * @param xLabel the x label
-   * @param yLabel the y label
-   * @param xValues the x values
-   * @param yValues the y values
-   * @param flags the flags
-   */
-  public Plot2(String title, String xLabel, String yLabel, float[] xValues, float[] yValues,
-      int flags) {
-    super(title, xLabel, yLabel, flags);
-    addPoints(xValues, yValues, Plot.LINE);
-  }
-
-  /**
-   * Instantiates a new plot 2.
-   *
-   * @param title the title
-   * @param xLabel the x label
-   * @param yLabel the y label
-   * @param xValues the x values
-   * @param yValues the y values
-   * @param flags the flags
-   */
-  public Plot2(String title, String xLabel, String yLabel, double[] xValues, double[] yValues,
-      int flags) {
-    super(title, xLabel, yLabel, flags);
-    addPoints(xValues, yValues, Plot.LINE);
-  }
-
-  /**
    * {@inheritDoc}
    *
    * <p>Support Bar plots by adding an extra point to draw a horizontal line and vertical line
