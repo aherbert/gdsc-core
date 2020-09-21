@@ -40,7 +40,7 @@ class ScreenDimensionHelperTest {
     ScreenDimensionHelper helper = new ScreenDimensionHelper();
     Assertions.assertTrue(d.width > helper.getMaxWidth());
     Assertions.assertTrue(d.height > helper.getMaxHeight());
-    // This is exact but may be changed in the future 
+    // This is exact but may be changed in the future
     Assertions.assertEquals(d.width - 100, helper.getMaxWidth());
     Assertions.assertEquals(d.height - 150, helper.getMaxHeight());
 
