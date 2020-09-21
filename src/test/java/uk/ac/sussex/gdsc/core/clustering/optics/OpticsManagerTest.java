@@ -1074,7 +1074,7 @@ class OpticsManagerTest {
   void canComputeOpticsXi(RandomSeed seed) {
     // This does not fail but logs warnings
 
-    final UniformRandomProvider rg = RngUtils.create(123); // seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
