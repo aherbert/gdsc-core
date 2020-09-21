@@ -191,11 +191,15 @@ class ConcurrentMonoStackTest {
   @Test
   void canPollIfClosed() throws InterruptedException {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
+    Assertions.assertNull(queue.poll());
     queue.push(1);
     Assertions.assertEquals(1, queue.size());
-
-    queue.close(false);
     Assertions.assertEquals(1, queue.poll());
+    Assertions.assertEquals(0, queue.size());
+
+    queue.push(2);
+    queue.close(false);
+    Assertions.assertEquals(2, queue.poll());
     Assertions.assertTrue(queue.isClosed());
     Assertions.assertTrue(queue.isClosedAndEmpty());
 
@@ -427,7 +431,7 @@ class ConcurrentMonoStackTest {
   }
 
   @Test
-  void canPeak() throws InterruptedException {
+  void canPeak() {
     final ConcurrentMonoStack<Integer> queue = new ConcurrentMonoStack<>();
     for (int i = 1; i < 3; i++) {
       Assertions.assertTrue(queue.insert(i));
