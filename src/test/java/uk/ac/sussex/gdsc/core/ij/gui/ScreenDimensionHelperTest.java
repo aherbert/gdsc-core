@@ -29,15 +29,19 @@
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import java.awt.Dimension;
+import java.awt.Panel;
+import java.awt.ScrollPane;
+import javax.swing.JScrollPane;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 @SuppressWarnings({"javadoc"})
 class ScreenDimensionHelperTest {
   @Test
   void testProperties() {
     final Dimension d = ScreenDimensionHelper.getScreenSize();
-    ScreenDimensionHelper helper = new ScreenDimensionHelper();
+    final ScreenDimensionHelper helper = new ScreenDimensionHelper();
     Assertions.assertTrue(d.width > helper.getMaxWidth());
     Assertions.assertTrue(d.height > helper.getMaxHeight());
     // This is exact but may be changed in the future
@@ -58,7 +62,7 @@ class ScreenDimensionHelperTest {
 
   @Test
   void testClipDimensions() {
-    ScreenDimensionHelper helper = new ScreenDimensionHelper();
+    final ScreenDimensionHelper helper = new ScreenDimensionHelper();
     helper.setMinSize(0, 0);
     helper.setMaxSize(0, 0);
     final Dimension d = new Dimension(50, 100);
@@ -76,9 +80,36 @@ class ScreenDimensionHelperTest {
 
   private static void assertClipDimensions(ScreenDimensionHelper helper, Dimension d, int width,
       int height) {
-    Dimension test = new Dimension(d);
+    final Dimension test = new Dimension(d);
     helper.clipDimensions(test);
     Assertions.assertEquals(width, test.width);
     Assertions.assertEquals(height, test.height);
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "java.awt.headless", matches = "true")
+  void testSetupScrollPane() {
+    final ScrollPane pane = new ScrollPane();
+    final ScreenDimensionHelper helper = new ScreenDimensionHelper();
+    helper.setMaxSize(500, 600);
+    helper.setup(pane, new Dimension(1000, 1000));
+    final Dimension d = pane.getPreferredSize();
+    Assertions.assertEquals(500, d.width, 50);
+    Assertions.assertEquals(600, d.height, 50);
+  }
+
+  @Test
+  @DisabledIfSystemProperty(named = "java.awt.headless", matches = "true")
+  void testSetupJScrollPane() {
+    final Panel p = new Panel();
+    p.setSize(1000, 1000);
+    p.setPreferredSize(new Dimension(1000, 1000));
+    final JScrollPane pane = new JScrollPane(p);
+    final ScreenDimensionHelper helper = new ScreenDimensionHelper();
+    helper.setMaxSize(500, 600);
+    helper.setup(pane);
+    final Dimension d = pane.getViewport().getPreferredSize();
+    Assertions.assertEquals(500, d.width, 50);
+    Assertions.assertEquals(600, d.height, 50);
   }
 }
