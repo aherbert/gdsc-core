@@ -212,12 +212,15 @@ class CustomTiffEncoderTest {
     final ByteArrayOutputStream expected = new ByteArrayOutputStream();
     final boolean intelByteOrder = ij.Prefs.intelByteOrder;
     ij.Prefs.intelByteOrder = littleEndian;
+    // This may be updated in place so cache and reset
+    final String description = fi.description;
     new TiffEncoder(fi).write(expected);
     ij.Prefs.intelByteOrder = intelByteOrder;
 
     // Use custom version
     fi.intelByteOrder = littleEndian;
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
+    fi.description = description;
     new CustomTiffEncoder(fi).write(data);
 
     // Check equal
@@ -290,7 +293,7 @@ class CustomTiffEncoderTest {
     imp.setCalibration(cal);
     final FileInfo fi = imp.getFileInfo();
     // Must have null at the end.
-    fi.description = new StringBuilder("Hello world").append((char) 0).toString();
+    fi.description = "Hello world";
     fi.info = "something";
     fi.sliceLabels = new String[] {"1", null, "3"};
     final int channels = imp.getNChannels();
@@ -311,6 +314,11 @@ class CustomTiffEncoderTest {
     fi.metaData = new byte[][] {randomBytes(rng, 7), randomBytes(rng, 15)};
 
     canWriteTiff(imp, true, fi);
+    // Write without ROI (hits coverage of a null ROI that is missing due to the
+    // canWriteMetadata2() test using an ROI for metadata)
+    fi.roi = null;
+    // Hit coverage of null terminated description string
+    fi.description += (char) 0;
     canWriteTiff(imp, false, fi);
   }
 
