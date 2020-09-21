@@ -913,6 +913,7 @@ class SimpleArrayUtilsTest {
     Assertions.assertArrayEquals(new String[] {"4", "3"}, data);
   }
 
+  @SuppressWarnings("null")
   @Test
   void canEnsureFloatSize() {
     int[] data = null;
@@ -926,6 +927,7 @@ class SimpleArrayUtilsTest {
     }
   }
 
+  @SuppressWarnings("null")
   @Test
   void canEnsureIntSize() {
     float[] data = null;
@@ -939,6 +941,7 @@ class SimpleArrayUtilsTest {
     }
   }
 
+  @SuppressWarnings("null")
   @Test
   void canEnsureDoubleSize() {
     double[] data = null;
@@ -952,6 +955,7 @@ class SimpleArrayUtilsTest {
     }
   }
 
+  @SuppressWarnings("null")
   @Test
   void canEnsurByteSize() {
     byte[] data = null;
@@ -965,6 +969,7 @@ class SimpleArrayUtilsTest {
     }
   }
 
+  @SuppressWarnings("null")
   @Test
   void canEnsureShortSize() {
     short[] data = null;
