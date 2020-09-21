@@ -32,7 +32,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Formatter;
 import java.util.Locale;
-import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * Text utilities.
@@ -102,7 +101,7 @@ public final class TextUtils {
    */
   @SuppressWarnings("deprecation")
   public static String wrap(String str, int wrapLength, String newLineStr, boolean wrapLongWords) {
-    return WordUtils.wrap(str, wrapLength, newLineStr, wrapLongWords);
+    return org.apache.commons.lang3.text.WordUtils.wrap(str, wrapLength, newLineStr, wrapLongWords);
   }
 
   /**
