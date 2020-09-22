@@ -409,7 +409,7 @@ public class DensityManager extends CoordinateStore {
           }
           for (int x = -1; x <= 1; x++) {
             final int xBin2 = xbin + x;
-            if (xBin2 < 0 || xBin2 >= ybins) {
+            if (xBin2 < 0 || xBin2 >= xbins) {
               continue;
             }
             sum += grid[xBin2][yBin2];
