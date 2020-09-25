@@ -32,7 +32,10 @@ import ij.gui.Plot;
 
 /**
  * Extension of the {@link ij.gui.Plot} class to add functionality to draw a Bar chart.
+ *
+ * @deprecated ImageJ natively supports BAR and SEPARATED_BAR
  */
+@Deprecated
 public class Plot2 extends Plot {
   /** Draw a bar plot. */
   public static final int BAR = 999;
