@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.HistogramPlot.BinMethod;
 import uk.ac.sussex.gdsc.core.ij.HistogramPlot.HistogramPlotBuilder;
-import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -64,7 +63,7 @@ class HistogramPlotTest {
     Assertions.assertEquals(0, plot.getMinBinWidth());
     Assertions.assertEquals(0, plot.getRemoveOutliersOption());
     Assertions.assertEquals(0, plot.getNumberOfBins());
-    Assertions.assertEquals(Plot2.BAR, plot.getPlotShape());
+    Assertions.assertEquals(Plot.BAR, plot.getPlotShape());
     Assertions.assertEquals(null, plot.getPlotLabel());
     Assertions.assertEquals(BinMethod.SCOTT, plot.getBinMethod());
     final double minBinWidth = 3.5;
@@ -203,12 +202,12 @@ class HistogramPlotTest {
     }, HistogramPlot.calcHistogram(data, 5));
     // With min/max reversed
     Assertions.assertArrayEquals(new float[][] {
-      {1, 3, 5},
+      {2, 4, 6},
       {5, 3, 1},
     }, HistogramPlot.calcHistogram(data, 5, 1, 3));
     // With no bins: the number of bins are set to 2
     Assertions.assertArrayEquals(new float[][] {
-      {1, 5},
+      {3, 7},
       {8, 1},
     }, HistogramPlot.calcHistogram(data, 0));
     // With no data range the number of bins are set to 1
@@ -228,6 +227,23 @@ class HistogramPlotTest {
       {3},
       {1},
     }, HistogramPlot.calcHistogram(new float[] {3}, 0));
+    // Test bin is in middle of bin width.
+    // This is better for plotting with ImageJ Plot.BAR.
+    // However this may not be desirable for analysis so could change in the future.
+    final float[] data2 = {0.25f, 0.5f, 0.5f, 0.75f, 1.0f};
+    Assertions.assertArrayEquals(new float[][] {
+      {0.4375f, 0.8125f, 1.1875f},
+      {3, 1, 1},
+    }, HistogramPlot.calcHistogram(data2, 3));
+    Assertions.assertArrayEquals(new float[][] {
+      {0.375f, 0.625f, 0.875f, 1.125f},
+      {1, 2, 1, 1},
+    }, HistogramPlot.calcHistogram(data2, 4));
+    final float[] data3 = {0.5f, 0.5f, 1.5f, 2.5f, 3.5f};
+    Assertions.assertArrayEquals(new float[][] {
+      {1, 2, 3, 4},
+      {2, 1, 1, 1},
+    }, HistogramPlot.calcHistogram(data3, 4));
     //@formatter:on
   }
 
@@ -241,12 +257,12 @@ class HistogramPlotTest {
     }, HistogramPlot.calcHistogram(data, 5));
     // With min/max reversed
     Assertions.assertArrayEquals(new double[][] {
-      {1, 3, 5},
+      {2, 4, 6},
       {5, 3, 1},
     }, HistogramPlot.calcHistogram(data, 5, 1, 3));
     // With no bins: the number of bins are set to 2
     Assertions.assertArrayEquals(new double[][] {
-      {1, 5},
+      {3, 7},
       {8, 1},
     }, HistogramPlot.calcHistogram(data, 0));
     // With no data range the number of bins are set to 1
@@ -266,6 +282,23 @@ class HistogramPlotTest {
       {3},
       {1},
     }, HistogramPlot.calcHistogram(new double[] {3}, 0));
+    // Test bin is in middle of bin width.
+    // This is better for plotting with ImageJ Plot.BAR.
+    // However this may not be desirable for analysis so could change in the future.
+    final double[] data2 = {0.25, 0.5, 0.5, 0.75, 1.0};
+    Assertions.assertArrayEquals(new double[][] {
+      {0.4375, 0.8125, 1.1875},
+      {3, 1, 1},
+    }, HistogramPlot.calcHistogram(data2, 3));
+    Assertions.assertArrayEquals(new double[][] {
+      {0.375, 0.625, 0.875, 1.125},
+      {1, 2, 1, 1},
+    }, HistogramPlot.calcHistogram(data2, 4));
+    final double[] data3 = {0.5, 0.5, 1.5, 2.5, 3.5};
+    Assertions.assertArrayEquals(new double[][] {
+      {1, 2, 3, 4},
+      {2, 1, 1, 1},
+    }, HistogramPlot.calcHistogram(data3, 4));
     //@formatter:on
   }
 
@@ -458,15 +491,19 @@ class HistogramPlotTest {
     final int bins = 10;
     final double[][] hist = HistogramPlot.calcHistogram(values, limits[0], limits[1], bins);
 
-    // Bar chart
-    plot.createPlotValues(limits, values, bins, true);
+    plot.createPlotValues(limits, values, bins);
     Assertions.assertArrayEquals(hist[0], plot.getPlotXValues());
     Assertions.assertArrayEquals(hist[1], plot.getPlotYValues());
+  }
 
-    // Line plot of non-zero values
-    plot.createPlotValues(limits, values, bins, false);
-    Assertions.assertArrayEquals(new double[] {1, 2, 3, 4, 5, 10}, plot.getPlotXValues());
-    Assertions.assertArrayEquals(new double[] {1, 3, 1, 1, 2, 1}, plot.getPlotYValues());
+  @Test
+  void testIsIntegerBins() {
+    Assertions.assertFalse(HistogramPlot.isIntegerBins(new double[] {}));
+    Assertions.assertFalse(HistogramPlot.isIntegerBins(new double[] {0.5}));
+    Assertions.assertTrue(HistogramPlot.isIntegerBins(new double[] {1.0}));
+    Assertions.assertFalse(HistogramPlot.isIntegerBins(new double[] {0.5, 1.5}));
+    Assertions.assertTrue(HistogramPlot.isIntegerBins(new double[] {1, 2}));
+    Assertions.assertFalse(HistogramPlot.isIntegerBins(new double[] {1, 3}));
   }
 
   @Test
@@ -475,52 +512,49 @@ class HistogramPlotTest {
     final HistogramPlot plot = new HistogramPlot("title", dummy, "name");
     double[] values = {1, 2, 2, 2, 3, 4, 5, 5};
     double[] limits = MathUtils.limits(values);
-    final int bins = 0;
 
-    // Bar chart
-    plot.createPlotValues(limits, values, bins, true);
-    plot.createPlot(true);
+    // Integer bins
+    int bins = (int) (limits[1] - limits[0] + 1);
+    plot.setMinBinWidth(1);
+    plot.createPlotValues(limits, values, bins);
+    plot.createPlot();
     // Test for padding
     double[][] hist = HistogramPlot.calcHistogram(values, limits[0], limits[1], bins);
     double[] x = hist[0];
     double[] y = hist[1];
-    Assertions.assertTrue(x[x.length - 1] < plot.getPlotMaxX());
-    Assertions.assertTrue(x[0] > plot.getPlotMinX());
-    Assertions.assertTrue(MathUtils.max(y) < plot.getPlotMaxY());
-    Plot p = plot.getPlot();
-    Assertions.assertArrayEquals(
-        new double[] {plot.getPlotMinX(), plot.getPlotMaxX(), 0, plot.getPlotMaxY()},
-        p.getLimits());
+    Assertions.assertTrue(x[x.length - 1] <= plot.getPlotMaxX());
+    Assertions.assertTrue(x[0] >= plot.getPlotMinX());
+    Assertions.assertTrue(MathUtils.max(y) <= plot.getPlotMaxY());
+    Assertions.assertNotNull(plot.getPlot());
 
-    // Line chart
-    plot.createPlotValues(limits, values, bins, false);
-    plot.createPlot(false);
+    // Non-integer bins
+    bins = 0;
+    plot.setMinBinWidth(2);
+    plot.createPlotValues(limits, values, bins);
+    plot.createPlot();
     // Test for padding
-    Assertions.assertTrue(x[x.length - 1] < plot.getPlotMaxX());
-    Assertions.assertTrue(x[0] > plot.getPlotMinX());
-    Assertions.assertTrue(MathUtils.max(y) < plot.getPlotMaxY());
-    p = plot.getPlot();
-    Assertions.assertArrayEquals(
-        new double[] {plot.getPlotMinX(), plot.getPlotMaxX(), 0, plot.getPlotMaxY()},
-        p.getLimits());
+    hist = HistogramPlot.calcHistogram(values, limits[0], limits[1], bins);
+    x = hist[0];
+    y = hist[1];
+    Assertions.assertTrue(x[x.length - 1] <= plot.getPlotMaxX());
+    Assertions.assertTrue(x[0] >= plot.getPlotMinX());
+    Assertions.assertTrue(MathUtils.max(y) <= plot.getPlotMaxY());
+    Assertions.assertNotNull(plot.getPlot());
 
     // Single bar with label
     values = new double[] {values[0]};
     limits = MathUtils.limits(values);
 
     plot.setPlotLabel("my label");
-    plot.createPlotValues(limits, values, bins, true);
-    plot.createPlot(true);
+    plot.createPlotValues(limits, values, bins);
+    plot.createPlot();
     // Test for padding
     hist = HistogramPlot.calcHistogram(values, limits[0], limits[1], bins);
     x = hist[0];
     y = hist[1];
-    Assertions.assertTrue(x[x.length - 1] < plot.getPlotMaxX());
-    Assertions.assertTrue(x[0] > plot.getPlotMinX());
-    Assertions.assertTrue(MathUtils.max(y) < plot.getPlotMaxY());
-    p = plot.getPlot();
-    Assertions.assertArrayEquals(
-        new double[] {plot.getPlotMinX(), plot.getPlotMaxX(), 0, plot.getPlotMaxY()},
-        p.getLimits());
+    Assertions.assertTrue(x[x.length - 1] <= plot.getPlotMaxX());
+    Assertions.assertTrue(x[0] >= plot.getPlotMinX());
+    Assertions.assertTrue(MathUtils.max(y) <= plot.getPlotMaxY());
+    Assertions.assertNotNull(plot.getPlot());
   }
 }

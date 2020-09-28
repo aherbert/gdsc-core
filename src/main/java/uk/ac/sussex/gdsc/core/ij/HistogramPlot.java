@@ -28,12 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import ij.gui.Plot;
 import ij.gui.PlotWindow;
-import java.util.Arrays;
 import java.util.Objects;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
@@ -63,7 +62,7 @@ public class HistogramPlot {
   /** The number of bins to use. 0 is auto. */
   private int numberOfBins;
   /** The plot shape. */
-  private int plotShape = Plot2.BAR;
+  private int plotShape = Plot.BAR;
   /** The plot label. */
   private String plotLabel;
   /** The method to select the histogram bins. Used if the input number of bins is zero. */
@@ -86,7 +85,7 @@ public class HistogramPlot {
   /** The max y from the last histogram plotted. */
   private double plotMaxY;
   /** The last histogram plotted. */
-  private Plot2 plot;
+  private Plot plot;
 
   /**
    * A builder for {@link HistogramPlot}.
@@ -109,7 +108,7 @@ public class HistogramPlot {
     /** The number of bins to use. 0 is auto. */
     private int numberOfBins;
     /** The plot shape. */
-    private int plotShape = Plot2.BAR;
+    private int plotShape = Plot.BAR;
     /** The plot label. */
     private String plotLabel;
     /** The method to select the histogram bins. Used if the input number of bins is zero. */
@@ -221,7 +220,7 @@ public class HistogramPlot {
     }
 
     /**
-     * Sets the plot shape. Use {@link Plot2#BAR} to draw a bar chart.
+     * Sets the plot shape. Use {@link Plot#BAR} to draw a bar chart.
      *
      * @param plotShape the new plot shape
      * @return the histogram plot builder
@@ -428,6 +427,7 @@ public class HistogramPlot {
    * @param data the data
    * @param numberOfBins The number of histogram bins between min and max
    * @return The histogram as a pair of arrays: { value[], frequency[] }
+   * @see #calcHistogram(float[], int)
    */
   public static float[][] calcHistogram(float[] data, int numberOfBins) {
     final float[] limits = MathUtils.limits(data);
@@ -440,6 +440,12 @@ public class HistogramPlot {
    * <p>The histogram will create the specified number of bins to accommodate all data between the
    * minimum and maximum inclusive. The number of bins must be above one so that min and max are in
    * different bins. If min and max are the same then the number of bins is set to 1.
+   *
+   * <p>Note that the histogram bins are uniformly spaced; each bin from a minimum (inclusive) to a
+   * maximum (exclusive). This is represented using the middle value from the bin range by shifting
+   * the minimum of the bin by half the bin width. The exception is when the input data are integer
+   * values and the bin width is exactly 1. In this case the x-values represent an integer count
+   * histogram and the axis values represent possible integer input values.
    *
    * @param data the data
    * @param minimum The minimum value to include (inclusive)
@@ -462,18 +468,23 @@ public class HistogramPlot {
       min = tmp;
     }
     double binSize;
+    double offset = min;
     if (max == min) {
       numBins = 1;
       binSize = 1;
     } else {
       binSize = (max - min) / (numBins - 1);
+      // Apply half bin-width offset if not integer bins or if not integer data
+      if (binSize != 1 || !SimpleArrayUtils.isInteger(data)) {
+        offset += binSize / 2;
+      }
     }
 
     final float[] value = new float[numBins];
     final float[] frequency = new float[numBins];
 
     for (int i = 0; i < numBins; i++) {
-      value[i] = (float) (min + i * binSize);
+      value[i] = (float) (offset + i * binSize);
     }
 
     for (final double d : data) {
@@ -493,6 +504,7 @@ public class HistogramPlot {
    * @param data the data
    * @param numberOfBins The number of histogram bins between min and max
    * @return The histogram as a pair of arrays: { value[], frequency[] }
+   * @see #calcHistogram(double[], double, double, int)
    */
   public static double[][] calcHistogram(double[] data, int numberOfBins) {
     final double[] limits = MathUtils.limits(data);
@@ -505,6 +517,12 @@ public class HistogramPlot {
    * <p>The histogram will create the specified number of bins to accommodate all data between the
    * minimum and maximum inclusive. The number of bins must be above one so that min and max are in
    * different bins. If min and max are the same then the number of bins is set to 1.
+   *
+   * <p>Note that the histogram bins are uniformly spaced; each bin from a minimum (inclusive) to a
+   * maximum (exclusive). This is represented using the middle value from the bin range by shifting
+   * the minimum of the bin by half the bin width. The exception is when the input data are integer
+   * values and the bin width is exactly 1. In this case the x-values represent an integer count
+   * histogram and the axis values represent possible integer input values.
    *
    * @param data the data
    * @param minimum The minimum value to include (inclusive)
@@ -527,18 +545,23 @@ public class HistogramPlot {
       min = tmp;
     }
     double binSize;
+    double offset = min;
     if (max == min) {
       numBins = 1;
       binSize = 1;
     } else {
       binSize = (max - min) / (numBins - 1);
+      // Apply half bin-width offset if not integer bins or if not integer data
+      if (binSize != 1 || !SimpleArrayUtils.isInteger(data)) {
+        offset += binSize / 2;
+      }
     }
 
     final double[] value = new double[numBins];
     final double[] frequency = new double[numBins];
 
     for (int i = 0; i < numBins; i++) {
-      value[i] = (min + i * binSize);
+      value[i] = offset + i * binSize;
     }
 
     for (final double d : data) {
@@ -559,9 +582,11 @@ public class HistogramPlot {
    *
    * @param histogramX the histogram X
    * @return the x-axis values
+   * @deprecated ImageJ natively supports adding points as BAR or SEPARATED_BAR
    */
+  @Deprecated
   public static float[] createHistogramAxis(float[] histogramX) {
-    return Plot2.createHistogramAxis(histogramX);
+    return uk.ac.sussex.gdsc.core.ij.gui.Plot2.createHistogramAxis(histogramX);
   }
 
   /**
@@ -571,9 +596,11 @@ public class HistogramPlot {
    *
    * @param histogramX the histogram X
    * @return the x-axis values
+   * @deprecated ImageJ natively supports adding points as BAR or SEPARATED_BAR
    */
+  @Deprecated
   public static double[] createHistogramAxis(double[] histogramX) {
-    // Code as per Plot2 but modified for double[]
+    // Code as per Plot but modified for double[]
     final double[] axis = new double[histogramX.length * 2 + 2];
     int index = 0;
     for (final double value : histogramX) {
@@ -594,9 +621,11 @@ public class HistogramPlot {
    *
    * @param histogramY the histogram Y
    * @return the y-axis values
+   * @deprecated ImageJ natively supports adding points as BAR or SEPARATED_BAR
    */
+  @Deprecated
   public static float[] createHistogramValues(float[] histogramY) {
-    return Plot2.createHistogramValues(histogramY);
+    return uk.ac.sussex.gdsc.core.ij.gui.Plot2.createHistogramValues(histogramY);
   }
 
   /**
@@ -605,9 +634,11 @@ public class HistogramPlot {
    *
    * @param histogramY the histogram Y
    * @return the y-axis values
+   * @deprecated ImageJ natively supports adding points as BAR or SEPARATED_BAR
    */
+  @Deprecated
   public static double[] createHistogramValues(double[] histogramY) {
-    // Code as per Plot2 but modified for double[]
+    // Code as per Plot but modified for double[]
     final double[] axis = new double[histogramY.length * 2 + 2];
 
     int index = 1;
@@ -708,11 +739,9 @@ public class HistogramPlot {
 
     bins = updateBinsUsingMinWidth(bins, limits, minBinWidth);
 
-    final boolean barChart = (plotShape & Plot2.BAR) == Plot2.BAR;
+    createPlotValues(limits, values, bins);
 
-    createPlotValues(limits, values, bins, barChart);
-
-    createPlot(barChart);
+    createPlot();
 
     return ImageJUtils.display(plotTitle, plot, 0, windowOrganiser);
   }
@@ -853,53 +882,42 @@ public class HistogramPlot {
    * @param limits the limits
    * @param values the values
    * @param bins the bins
-   * @param barChart true if using a bar chart
    */
   @VisibleForTesting
-  void createPlotValues(double[] limits, double[] values, int bins, final boolean barChart) {
+  void createPlotValues(double[] limits, double[] values, int bins) {
     final double[][] hist = calcHistogram(values, limits[0], limits[1], bins);
-    if (barChart) {
-      // Standard histogram
-      plotXValues = hist[0];
-      plotYValues = hist[1];
-    } else {
-      // Line plot of non-zero values
-      int size = 0;
-      plotXValues = new double[hist[0].length];
-      plotYValues = new double[plotXValues.length];
-      for (int i = 0; i < plotXValues.length; i++) {
-        if (hist[1][i] != 0) {
-          plotXValues[size] = hist[0][i];
-          plotYValues[size] = hist[1][i];
-          size++;
-        }
-      }
-      plotXValues = Arrays.copyOf(plotXValues, size);
-      plotYValues = Arrays.copyOf(plotYValues, size);
+    plotXValues = hist[0];
+    plotYValues = hist[1];
+  }
+
+  /**
+   * Checks if the x axis increments use integer bins.
+   *
+   * @param x the x axis increments
+   * @return true if integer bins were used
+   */
+  @VisibleForTesting
+  static boolean isIntegerBins(double[] x) {
+    if (x.length < 1) {
+      return false;
     }
+    if (MathUtils.isInteger(x[0])) {
+      return x.length == 1 ? true : (x[1] - x[0]) == 1;
+    }
+    return false;
   }
 
   /**
    * Creates the plot.
-   *
-   * @param barChart true if using a bar chart
    */
   @VisibleForTesting
-  void createPlot(final boolean barChart) {
-    plot = new Plot2(plotTitle, name, "Frequency");
-    plotMinX = plotMaxX = plotMaxY = 0;
-    // Note: This should not be called when plotXValues is null or zero length,
-    // i.e. input data values are above length 2 and finite.
-    double dx = 0;
-    if (barChart) {
-      dx = (plotXValues.length == 1) ? 1 : (plotXValues[1] - plotXValues[0]);
-    }
-    plotMaxX = plotXValues[plotXValues.length - 1] + dx;
-    final double xPadding = 0.05 * (plotMaxX - plotXValues[0]);
-    plotMinX = plotXValues[0] - xPadding;
-    plotMaxX += xPadding;
-    plotMaxY = MathUtils.max(plotYValues) * 1.05;
-    plot.setLimits(plotMinX, plotMaxX, 0, plotMaxY);
+  void createPlot() {
+    plot = new Plot(plotTitle, name, "Frequency");
+    // Note: This should not be called when plotXValues is null or zero length.
+    final double[] limits = MathUtils.limits(plotXValues);
+    plotMinX = limits[0];
+    plotMaxX = limits[1];
+    plotMaxY = MathUtils.max(plotYValues);
     plot.addPoints(plotXValues, plotYValues, plotShape);
     if (plotLabel != null) {
       plot.addLabel(0, 0, plotLabel);
@@ -972,7 +990,7 @@ public class HistogramPlot {
   }
 
   /**
-   * Sets the plot shape. Use {@link Plot2#BAR} to draw a bar chart.
+   * Sets the plot shape. Use {@link Plot#BAR} or {@link Plot#SEPARATED_BAR} to draw a bar chart.
    *
    * @param plotShape the new plot shape
    */
@@ -1018,6 +1036,12 @@ public class HistogramPlot {
 
   /**
    * Gets x-values from the last histogram plotted.
+   *
+   * <p>Note that the histogram bins are uniformly spaced; each bin from a minimum (inclusive) to a
+   * maximum (exclusive). This is represented using the middle value from the bin range by shifting
+   * the minimum of the bin by half the bin width. The exception is when the input data are integer
+   * values and the bin width is exactly 1. In this case the x-values represent an integer count
+   * histogram and the axis values represent possible integer input values.
    *
    * @return the x-values
    * @throws NullPointerException If no plot can been created
@@ -1068,7 +1092,7 @@ public class HistogramPlot {
    *
    * @return the plot
    */
-  public Plot2 getPlot() {
+  public Plot getPlot() {
     return plot;
   }
 
