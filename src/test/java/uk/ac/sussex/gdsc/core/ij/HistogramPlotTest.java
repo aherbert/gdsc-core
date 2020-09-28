@@ -303,46 +303,6 @@ class HistogramPlotTest {
   }
 
   @Test
-  void testCreateHistogramAxisFloat() {
-    Assertions.assertArrayEquals(new float[] {1, 1, 3, 3, 5, 5},
-        HistogramPlot.createHistogramAxis(new float[] {1, 3}));
-    Assertions.assertArrayEquals(new float[] {3, 3, 4, 4},
-        HistogramPlot.createHistogramAxis(new float[] {3}));
-    Assertions.assertArrayEquals(new float[] {0, 0},
-        HistogramPlot.createHistogramAxis(new float[] {}));
-  }
-
-  @Test
-  void testCreateHistogramAxisDouble() {
-    Assertions.assertArrayEquals(new double[] {1, 1, 3, 3, 5, 5},
-        HistogramPlot.createHistogramAxis(new double[] {1, 3}));
-    Assertions.assertArrayEquals(new double[] {3, 3, 4, 4},
-        HistogramPlot.createHistogramAxis(new double[] {3}));
-    Assertions.assertArrayEquals(new double[] {0, 0},
-        HistogramPlot.createHistogramAxis(new double[] {}));
-  }
-
-  @Test
-  void testCreateHistogramValuesFloat() {
-    Assertions.assertArrayEquals(new float[] {0, 1, 1, 3, 3, 0},
-        HistogramPlot.createHistogramValues(new float[] {1, 3}));
-    Assertions.assertArrayEquals(new float[] {0, 3, 3, 0},
-        HistogramPlot.createHistogramValues(new float[] {3}));
-    Assertions.assertArrayEquals(new float[] {0, 0},
-        HistogramPlot.createHistogramValues(new float[] {}));
-  }
-
-  @Test
-  void testCreateHistogramValuesDouble() {
-    Assertions.assertArrayEquals(new double[] {0, 1, 1, 3, 3, 0},
-        HistogramPlot.createHistogramValues(new double[] {1, 3}));
-    Assertions.assertArrayEquals(new double[] {0, 3, 3, 0},
-        HistogramPlot.createHistogramValues(new double[] {3}));
-    Assertions.assertArrayEquals(new double[] {0, 0},
-        HistogramPlot.createHistogramValues(new double[] {}));
-  }
-
-  @Test
   void testGetHistogramStatistics() {
     final float[] x = {1, 2, 3, 4, 5};
     final float[] y = {2, 3, 2, 1, 1};
