@@ -821,10 +821,10 @@ public final class ImageJUtils {
    * @return the text window
    */
   @NotNull
-  public static TextWindow refresh(AtomicReference<TextWindow> reference,
-      Supplier<TextWindow> supplier) {
-    final Supplier<TextWindow> wrappedSuppler = () -> {
-      final TextWindow window = supplier.get();
+  public static <T extends TextWindow> T refresh(AtomicReference<T> reference,
+      Supplier<T> supplier) {
+    final Supplier<T> wrappedSuppler = () -> {
+      final T window = supplier.get();
       // When it closes remove the reference to this window
       window.addWindowListener(new WindowAdapter() {
         @Override
