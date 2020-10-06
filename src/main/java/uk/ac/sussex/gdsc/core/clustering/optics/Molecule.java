@@ -145,7 +145,8 @@ class Molecule {
   }
 
   /**
-   * Mark processed.
+   * Mark the molecule as processed. This is typically done when a local neighbour search has been
+   * performed on the object as it should be done once per molecule for example in DBSCAN/OPTICS.
    */
   public void markProcessed() {
     processed = true;

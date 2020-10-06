@@ -225,7 +225,7 @@ public class OpticsManager extends CoordinateStore {
     /** Constants instance of the tracker throughout processing. */
     final TrackProgress tracker;
 
-    /** The next. */
+    /** The next cluster id. */
     int next;
 
     /** The progress. */
@@ -1288,6 +1288,24 @@ public class OpticsManager extends CoordinateStore {
   private boolean opticsExpandClusterOrder(Molecule object, float generatingDistance, int minPts,
       OpticsResultList orderedFile, OpticsPriorityQueue orderSeeds) {
     moleculeSpace.findNeighboursAndDistances(minPts, object, generatingDistance);
+
+    // Note: The original OPTICS algorithm adds the point to the ordered file even if
+    // it does not have a core distance. This means that a point that may be reachable but
+    // is on the edge of a cluster is marked with no reachability (as it has been processed).
+
+    // The alternative is to add to the ordered file only if the core distance is defined.
+    // This would allow an edge point that is reachable to be included in the reachability profile
+    // even if it was not a core point itself.
+    // This requires changing the data structure to allow identification of processed points
+    // that are not core points. These can be included in the order seeds but should not
+    // be searched again for neighbours. They should just be marked with a reachability and
+    // added to the ordered file. This is a change from object.isNotProcessed() to
+    // object.isNotProcessedOrIsNotReachable() (Note that cluster seeds will not have a
+    // reachability distance but will have a core distance. So is-not-reachable should be a
+    // flag rather than using the reachability distance as a marker.)
+    // It also requires all unreachable noise points are added to the ordered file at the end
+    // of processing.
+
     object.markProcessed();
     setCoreDistance(object, minPts, moleculeSpace.neighbours);
     if (orderedFile.add(object)) {
