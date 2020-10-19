@@ -2286,10 +2286,7 @@ public class OpticsManager extends CoordinateStore {
       final double[] scores = loopObject.run(safeNumberOfNeighbours, lambda);
 
       // Convert to float
-      final float[] result = new float[scores.length];
-      for (int i = 0; i < scores.length; i++) {
-        result[i] = (float) scores[i];
-      }
+      final float[] result = SimpleArrayUtils.toFloat(scores);
 
       if (tracker != null) {
         final long time = System.currentTimeMillis() - startTime;
