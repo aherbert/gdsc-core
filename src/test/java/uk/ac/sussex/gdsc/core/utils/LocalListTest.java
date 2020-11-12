@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -834,6 +835,29 @@ class LocalListTest {
     // Edge case with no nulls in the list
     list = new LocalList<>(createList(2, 6));
     Assertions.assertEquals(-1, indexOf.applyAsInt(list, null));
+  }
+
+  @Test
+  void testFindIndex() {
+    assertFindIndex(List::indexOf, LocalList::findIndex);
+  }
+
+  @Test
+  void testFindLastIndex() {
+    assertFindIndex(List::lastIndexOf, LocalList::findLastIndex);
+  }
+
+  private static void assertFindIndex(ToIntBiFunction<List<Integer>, Integer> indexOf,
+      ToIntBiFunction<LocalList<Integer>, Predicate<Integer>> findIndex) {
+    final List<Integer> c = createList(2, null, 5, 3, 42, null, 3, 76);
+    LocalList<Integer> list = new LocalList<>(c);
+    Assertions.assertEquals(-1, findIndex.applyAsInt(list, i -> Objects.equal(i, 6568)));
+    for (final Integer i : c) {
+      Assertions.assertEquals(indexOf.applyAsInt(c, i),
+          findIndex.applyAsInt(list, v -> Objects.equal(v, i)));
+    }
+    // Null filter
+    Assertions.assertThrows(NullPointerException.class, () -> findIndex.applyAsInt(list, null));
   }
 
   @Test

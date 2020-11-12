@@ -1058,6 +1058,47 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   }
 
   /**
+   * Returns the index of the first element in this list that matches the given predicate, or -1 if
+   * this list does not contain a match. More formally, returns the lowest index <tt>i</tt> such
+   * that <tt>filter.test(get(i)) == true</tt>, or -1 if there is no such index.
+   *
+   * @param filter a predicate to identify the element
+   * @return the index of the first match in this list, or -1 if this list does not contain a
+   *         matching element
+   */
+  public int findIndex(Predicate<? super E> filter) {
+    ValidationUtils.checkNotNull(filter, "filter");
+    final E[] elements = elements();
+    final int length = size;
+    for (int i = 0; i < length; i++) {
+      if (filter.test(elements[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the last element in this list that matches the given predicate, or -1 if
+   * this list does not contain a match. More formally, returns the highest index <tt>i</tt> such
+   * that <tt>filter.test(get(i)) == true</tt>, or -1 if there is no such index.
+   *
+   * @param filter a predicate to identify the element
+   * @return the index of the last match in this list, or -1 if this list does not contain a
+   *         matching element
+   */
+  public int findLastIndex(Predicate<? super E> filter) {
+    ValidationUtils.checkNotNull(filter, "filter");
+    final E[] elements = elements();
+    for (int i = size - 1; i >= 0; i--) {
+      if (filter.test(elements[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
    * Creates a Spliterator over the elements in this list. The Splitertor is <strong>not</strong>
    * <em><a href="Spliterator.html#binding">late-binding</a></em> or <em>fail-fast</em> in the event
    * of concurrent modification of the list.
