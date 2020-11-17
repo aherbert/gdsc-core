@@ -1037,7 +1037,7 @@ public class ExtendedGenericDialog extends GenericDialog {
    * name will cause ImageJ to show a duplicate field error.
    */
   public void resetRecorder() {
-    RecorderUtils.resetRecorder(labels.toArray(new String[labels.size()]));
+    RecorderUtils.resetRecorder(labels.toArray(new String[0]));
   }
 
   /**

@@ -1039,7 +1039,7 @@ public final class ImageJUtils {
       newImageList.add(imp.getTitle());
     }
 
-    return newImageList.toArray(new String[newImageList.size()]);
+    return newImageList.toArray(new String[0]);
   }
 
   /**

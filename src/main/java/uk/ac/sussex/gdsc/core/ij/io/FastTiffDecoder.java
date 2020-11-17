@@ -1536,7 +1536,7 @@ public abstract class FastTiffDecoder {
     if (list.isEmpty()) {
       return null;
     }
-    final ExtendedFileInfo[] info = list.toArray(new ExtendedFileInfo[list.size()]);
+    final ExtendedFileInfo[] info = list.toArray(new ExtendedFileInfo[0]);
     fi = info[0];
 
     // Attempt to read the Micro-Manager summary metadata
