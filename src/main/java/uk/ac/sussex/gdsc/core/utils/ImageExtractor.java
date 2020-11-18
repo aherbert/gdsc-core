@@ -145,10 +145,13 @@ public class ImageExtractor {
     return buffer;
   }
 
-
   /**
    * Calculate a square region of size 2n+1 around the given coordinates. Respects the image
    * boundaries and so may return a non-square region.
+   *
+   * <p>A value of {@code n<0} is computed using {@code n=0}.
+   *
+   * <p>If there is no intersection this will return and empty rectangle.
    *
    * @param x the x
    * @param y the y
@@ -156,7 +159,45 @@ public class ImageExtractor {
    * @return The region
    */
   public Rectangle getBoxRegionBounds(int x, int y, int n) {
-    final Rectangle r1 = new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1);
-    return r1.intersection(new Rectangle(0, 0, width, height));
+    if (n < 0) {
+      return intersection(x, y, x + 1L, y + 1L);
+    }
+    final long n1 = n + 1L;
+    return intersection((long) x - n, (long) y - n, x + n1, y + n1);
+  }
+
+  /**
+   * Compute the intersection with the given rectangle.
+   *
+   * <p>This has been adapted from {@link Rectangle#intersection(Rectangle)} with the assumption
+   * that the origin x and y are zero. In contrast to the Rectangle method this will return an empty
+   * rectangle when there is no intersection; the Rectangle method returns a partially computed
+   * rectangle with at least one of width or height set to negative or zero.
+   *
+   * @param rx1 the rectangle x origin
+   * @param ry1 the rectangle y origin
+   * @param rx2 the rectangle x limit (exclusive)
+   * @param ry2 the rectangle y limit (exclusive)
+   * @return the rectangle
+   */
+  private Rectangle intersection(long rx1, long ry1, long rx2, long ry2) {
+    // Intersect with this upper-left (0,0) and lower-right (width,height)
+    final long tx1 = Math.max(0L, rx1);
+    final long ty1 = Math.max(0L, ry1);
+    final long tx2 = Math.min(this.width, rx2);
+    final long ty2 = Math.min(this.height, ry2);
+
+    // tx1,tx2 is always positive integer
+    // (since rx1=x-n with n bounded to a positive integer, same for ry1).
+    // tx2,ty2 is always below the maximum positive integer.
+    // width = tx2 - tx1
+    // height = ty2 - ty1
+    // If the upper bounds are below the lower bounds there is no intersection.
+    // Otherwise the width,height must be integer.
+    if (tx2 <= tx1 || ty2 <= ty1) {
+      // No intersection
+      return new Rectangle(0, 0, 0, 0);
+    }
+    return new Rectangle((int) tx1, (int) ty1, (int) (tx2 - tx1), (int) (ty2 - ty1));
   }
 }

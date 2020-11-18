@@ -93,13 +93,64 @@ class ImageExtractorTest {
   void canGetBoxRegionBounds() {
     final int width = 5;
     final int height = 6;
-    final float[] data = new float[width * height];
-    final ImageExtractor ie = ImageExtractor.wrap(data, width, height);
-    Assertions.assertEquals(new Rectangle(0, 0, width, height), ie.getBoxRegionBounds(0, 0, 40));
-    Assertions.assertEquals(new Rectangle(0, 0, width, height), ie.getBoxRegionBounds(2, 3, 40));
-    Assertions.assertEquals(new Rectangle(2, 3, 1, 1), ie.getBoxRegionBounds(2, 3, 0));
-    Assertions.assertEquals(new Rectangle(1, 2, 3, 3), ie.getBoxRegionBounds(2, 3, 1));
-    Assertions.assertEquals(new Rectangle(0, 1, 5, 5), ie.getBoxRegionBounds(2, 3, 2));
-    Assertions.assertEquals(new Rectangle(0, 0, 5, 6), ie.getBoxRegionBounds(2, 3, 3));
+    assertGetBoxRegionBounds(width, height, 0, 0, 40);
+    assertGetBoxRegionBounds(width, height, 2, 3, 40);
+    assertGetBoxRegionBounds(width, height, 2, 3, 0);
+    assertGetBoxRegionBounds(width, height, 2, 3, 1);
+    assertGetBoxRegionBounds(width, height, 2, 3, 2);
+    assertGetBoxRegionBounds(width, height, 2, 3, 3);
+    assertGetBoxRegionBounds(width, height, 2, 3, 4);
+    assertGetBoxRegionBounds(width, height, -2, 3, 0, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, -2, 3, 1, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, -2, 3, 2);
+    assertGetBoxRegionBounds(width, height, -2, 3, 3);
+    assertGetBoxRegionBounds(width, height, -2, 3, 4);
+    assertGetBoxRegionBounds(width, height, 2, -3, 0, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, 2, -3, 1, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, 2, -3, 2, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, 2, -3, 3);
+    assertGetBoxRegionBounds(width, height, 2, -3, 4);
+    assertGetBoxRegionBounds(width, height, -2, -3, 0, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, -2, -3, 1, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, -2, -3, 2, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, -2, -3, 3);
+    assertGetBoxRegionBounds(width, height, -2, -3, 4);
+    // Extremes
+    assertGetBoxRegionBounds(width, height, 0, 0, -1, 0, 0, 1, 1);
+    assertGetBoxRegionBounds(width, height, 1, 1, -1, 1, 1, 1, 1);
+    assertGetBoxRegionBounds(width, height, 0, 0, Integer.MAX_VALUE, 0, 0, width, height);
+    assertGetBoxRegionBounds(width, height, 0, 0, Integer.MIN_VALUE, 0, 0, 1, 1);
+    assertGetBoxRegionBounds(width, height, Integer.MAX_VALUE, Integer.MAX_VALUE, 5, 0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE,
+        0, 0, width, height);
+    assertGetBoxRegionBounds(width, height, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE,
+        0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE,
+        0, 0, 0, 0);
+    assertGetBoxRegionBounds(width, height, -10, -15, Integer.MAX_VALUE, 0, 0, width, height);
+  }
+
+  private static void assertGetBoxRegionBounds(int width, int height, int x, int y, int n) {
+    final ImageExtractor ie = ImageExtractor.wrap(null, width, height);
+    final Rectangle observed = ie.getBoxRegionBounds(x, y, n);
+    final int ox = x - n;
+    final int oy = y - n;
+    final int size = 2 * n + 1;
+    final Rectangle expected =
+        new Rectangle(width, height).intersection(new Rectangle(ox, oy, size, size));
+    // Handle bad width/height
+    expected.height = Math.max(0, expected.height);
+    expected.width = Math.max(0, expected.width);
+    Assertions.assertEquals(expected, observed,
+        () -> String.format("w=%d,h=%d : %d,%d n=%d", width, height, x, y, n));
+  }
+
+  private static void assertGetBoxRegionBounds(int width, int height, int x, int y, int n, int ox,
+      int oy, int w, int h) {
+    final ImageExtractor ie = ImageExtractor.wrap(null, width, height);
+    final Rectangle observed = ie.getBoxRegionBounds(x, y, n);
+    final Rectangle expected = new Rectangle(ox, oy, w, h);
+    Assertions.assertEquals(expected, observed,
+        () -> String.format("w=%d,h=%d : %d,%d n=%d", width, height, x, y, n));
   }
 }
