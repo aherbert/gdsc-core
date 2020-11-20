@@ -1248,7 +1248,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     int i = 0;
     for (; i < length && otherItr.hasNext(); i++) {
       final E o1 = elements[i];
-      // Assume hasNext() from the other is OK size we are equal size
+      // Assume hasNext() from the other is OK since we are equal size
       final Object o2 = otherItr.next();
       // Equality defined by List::equals
       if (!(o1 == null ? o2 == null : o1.equals(o2))) {
