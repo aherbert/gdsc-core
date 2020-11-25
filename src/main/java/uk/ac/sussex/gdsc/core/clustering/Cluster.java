@@ -160,7 +160,7 @@ public class Cluster {
    * @param point the point
    */
   public void add(ClusterPoint point) {
-    point.setNext(null);
+    point.setNext(headClusterPoint);
     headClusterPoint = point;
 
     merge(point.getX(), point.getY(), point.getX() * point.getWeight(),

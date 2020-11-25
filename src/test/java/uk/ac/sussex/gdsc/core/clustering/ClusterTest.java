@@ -41,7 +41,10 @@ class ClusterTest {
     final ClusterPoint p2 = new ClusterPoint(2, 5, 7);
     final ClusterPoint p3 = new ClusterPoint(3, 10, 10);
     final ClusterPoint p4 = new ClusterPoint(4, 10, 10);
+    p1.setNext(p3);
     final Cluster c1 = new Cluster(p1);
+    Assertions.assertNull(p1.getNext());
+    assertContains(c1, p1);
     Assertions.assertEquals(p1.getX(), c1.getX());
     Assertions.assertEquals(p1.getY(), c1.getY());
     Assertions.assertEquals(1, c1.getSumOfWeights());
@@ -54,6 +57,7 @@ class ClusterTest {
     Assertions.assertEquals(0, c1.getXBin());
     Assertions.assertEquals(0, c1.getYBin());
     c1.add(p2);
+    assertContains(c1, p1, p2);
     double x = (p1.getX() + p2.getX()) / 2;
     double y = (p1.getY() + p2.getY()) / 2;
     Assertions.assertEquals(x, c1.getX());
@@ -67,6 +71,7 @@ class ClusterTest {
     Assertions.assertEquals(MathUtils.distance2(x, y, c2.getX(), c2.getY()), c1.distance2(c2),
         1e-10);
     c1.add(c2);
+    assertContains(c1, p1, p2, p3);
     x = (p1.getX() + p2.getX() + p3.getX()) / 3;
     y = (p1.getY() + p2.getY() + p3.getY()) / 3;
     Assertions.assertEquals(x, c1.getX());
@@ -107,6 +112,7 @@ class ClusterTest {
 
     // Big added to a small
     c3.add(c1);
+    assertContains(c3, p1, p2, p3, p4);
     Assertions.assertEquals(4, c3.getSize());
     // c1 is partially cleared
     Assertions.assertEquals(0, c1.getSumOfWeights());
@@ -128,7 +134,22 @@ class ClusterTest {
     final Cluster c4 = new Cluster(p5);
     c4.add(p6);
     c4.add(p7);
+    assertContains(c4, p5, p6, p7);
     Assertions.assertEquals(x, c4.getX());
     Assertions.assertEquals(y, c4.getY());
+  }
+
+  private static void assertContains(Cluster cluster, ClusterPoint... points) {
+    Assertions.assertEquals(points.length, cluster.getSize());
+    for (ClusterPoint p1 : points) {
+      boolean found = false;
+      for (ClusterPoint p = cluster.getHeadClusterPoint(); p != null; p = p.getNext()) {
+        if (p == p1) {
+          found = true;
+          break;
+        }
+      }
+      Assertions.assertTrue(found);
+    }
   }
 }
