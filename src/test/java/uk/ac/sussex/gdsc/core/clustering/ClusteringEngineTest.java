@@ -111,17 +111,13 @@ class ClusteringEngineTest {
     // 11  6                             8
     // @formatter:on
     id = 0;
-    final Cluster c1 = new Cluster(points.get(id++));
-    c1.add(points.get(id++));
-    final Cluster c2 = new Cluster(points.get(id++));
-    c2.add(points.get(id++));
-    c2.add(points.get(id++));
-    final Cluster c3 = new Cluster(points.get(id++));
-    c3.add(points.get(id++));
-    final Cluster c4 = new Cluster(points.get(id++));
-    c4.add(points.get(id++));
-    final Cluster c5 = new Cluster(points.get(id++));
-    c5.add(points.get(id++));
+    final List<Cluster> exp = new ArrayList<>();
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+
     // Radius close enough to join point 2 to 5 but not cluster 1 to cluster 2
     double radius = 0.1 + points.get(1).distance(points.get(4));
 
@@ -129,7 +125,6 @@ class ClusteringEngineTest {
     Collections.shuffle(points, ThreadLocalRandom.current());
 
     final List<Cluster> obs = engine.findClusters(points, radius);
-    final List<Cluster> exp = Arrays.asList(c1, c2, c3, c4, c5);
     compareClusters(exp, obs);
 
     // Smaller radius to create multiple bins.
@@ -140,6 +135,99 @@ class ClusteringEngineTest {
     // Test with no candidates (i.e. radius too small)
     final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
     compareClusters(singles, engine.findClusters(points, 0.1));
+  }
+
+  @Test
+  void testWithRadiusZero() {
+    final ClusteringEngine engine = new ClusteringEngine();
+    final ArrayList<ClusterPoint> points = new ArrayList<>();
+
+    // Handle empty
+    final double radius = 0.0;
+    compareClusters(Collections.emptyList(), engine.findClusters(points, radius));
+
+    // Create colocated points with time
+    int id = 0;
+    points.add(new ClusterPoint(id++, 0, 0, 1, 1));
+    points.add(new ClusterPoint(id++, 0, 0, 2, 2));
+    points.add(new ClusterPoint(id++, 5, 5, 2, 3));
+    points.add(new ClusterPoint(id++, 5, 5, 5, 5));
+    points.add(new ClusterPoint(id++, 5, 5, 6, 6));
+    points.add(new ClusterPoint(id++, 5, 15, 5, 5));
+    points.add(new ClusterPoint(id++, 5, 15, 5, 5)); // Same time
+
+    // Scramble the test points
+    List<ClusterPoint> testPoints = new ArrayList<>(points);
+    Collections.shuffle(testPoints, ThreadLocalRandom.current());
+
+    // Clustering with no time information
+    id = 0;
+    final List<Cluster> exp = new ArrayList<>();
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+    compareClusters(exp, engine.findClusters(testPoints, radius));
+    int time = 45;
+    engine.setClusteringAlgorithm(ClusteringAlgorithm.CENTROID_LINKAGE);
+    compareClusters(exp, engine.findClusters(testPoints, radius, time));
+
+    // Clustering with time information should split the two points with the same time
+    id = 0;
+    exp.clear();
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    engine.setClusteringAlgorithm(ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
+    compareClusters(exp, engine.findClusters(testPoints, radius, time));
+
+    // Smaller time gap should split the clusters
+    time = 1;
+    id = 0;
+    exp.clear();
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    compareClusters(exp, engine.findClusters(testPoints, radius, time));
+
+    time = 0;
+    id = 0;
+    exp.clear();
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    compareClusters(exp, engine.findClusters(testPoints, radius, time));
+
+    // Add test using the pulse interval to prevent merge.
+    engine.setPulseInterval(3);
+    time = 10;
+    id = 0;
+    exp.clear();
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++)));
+    exp.add(create(points.get(id++)));
+    compareClusters(exp, engine.findClusters(testPoints, radius, time));
+
+    // Remove time information and the clustering should ignore the time
+    testPoints = testPoints.stream().map(p -> new ClusterPoint(p.getId(), p.getX(), p.getY()))
+        .collect(Collectors.toList());
+    engine.setPulseInterval(0);
+    id = 0;
+    exp.clear();
+    exp.add(create(points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++), points.get(id++)));
+    exp.add(create(points.get(id++), points.get(id++)));
+    compareClusters(exp, engine.findClusters(testPoints, radius, 45));
+    compareClusters(exp, engine.findClusters(testPoints, radius, 1));
+    compareClusters(exp, engine.findClusters(testPoints, radius, 0));
   }
 
   @Test
@@ -391,8 +479,7 @@ class ClusteringEngineTest {
   }
 
   @SeededTest
-  public void
-      canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours(RandomSeed seed) {
+  void canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final double radius : new double[] {5, 10, 20}) {
       for (final int size : new int[] {1000, 500, 300, 100}) {
@@ -816,5 +903,17 @@ class ClusteringEngineTest {
       }
     }
     return points;
+  }
+
+  /**
+   * Creates the cluster.
+   *
+   * @param points the points
+   * @return the cluster
+   */
+  private static Cluster create(ClusterPoint p0, ClusterPoint... points) {
+    final Cluster c = new Cluster(p0);
+    Arrays.stream(points).forEach(c::add);
+    return c;
   }
 }

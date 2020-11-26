@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.clustering;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -40,6 +41,7 @@ import uk.ac.sussex.gdsc.core.data.ComputationException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
@@ -388,6 +390,11 @@ public class ClusteringEngine {
    * @throws ConcurrentRuntimeException if interrupted when using a multi-threaded algorithm
    */
   public List<Cluster> findClusters(List<ClusterPoint> points, double radius, int time) {
+    // Support zero distance clustering
+    if (radius == 0) {
+      return runSingularityClustering(points, time);
+    }
+
     if (clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE) {
       return runParticleSingleLinkage(points, radius);
     }
@@ -437,26 +444,23 @@ public class ClusteringEngine {
     }
 
     // Check for time information if required
-    switch (clusteringAlgorithm) {
-      case CENTROID_LINKAGE_DISTANCE_PRIORITY:
-      case CENTROID_LINKAGE_TIME_PRIORITY:
-        if (noTimeInformation(candidates)) {
-          tracker.log("No time information among candidates");
+    if (usesTime(clusteringAlgorithm) && noTimeInformation(candidates)) {
+      tracker.log("No time information among candidates");
+      switch (clusteringAlgorithm) {
+        case CENTROID_LINKAGE_DISTANCE_PRIORITY:
+        case CENTROID_LINKAGE_TIME_PRIORITY:
           clusteringAlgorithm = ClusteringAlgorithm.CENTROID_LINKAGE;
-        }
-        break;
+          break;
 
-      case PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY:
-      case PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY:
-        if (noTimeInformation(candidates)) {
-          tracker.log("No time information among candidates");
+        case PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY:
+        case PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY:
           clusteringAlgorithm = ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE;
-        }
-        break;
+          break;
 
-      // All other methods do not use time information
-      default:
-        break;
+        // All other methods do not use time information
+        default:
+          throw new IllegalStateException();
+      }
     }
 
     tracker.log("Starting clustering : %d singles, %d cluster candidates", singles.size(),
@@ -514,9 +518,158 @@ public class ClusteringEngine {
     }
   }
 
+  /**
+   * Check if the algorithm uses time information.
+   *
+   * @param clusteringAlgorithm the clustering algorithm
+   * @return true if time information is used
+   */
+  private static boolean usesTime(ClusteringAlgorithm clusteringAlgorithm) {
+    switch (clusteringAlgorithm) {
+      case CENTROID_LINKAGE_DISTANCE_PRIORITY:
+      case CENTROID_LINKAGE_TIME_PRIORITY:
+      case PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY:
+      case PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY:
+        return true;
+
+      // All other methods do not use time information
+      default:
+        return false;
+    }
+  }
+
   private void reportResult(final List<Cluster> clusters) {
     tracker.progress(1);
     tracker.log("Found %d clusters", (clusters == null) ? 0 : clusters.size());
+  }
+
+  /**
+   * Run clustering to find all singularities (same position in space).
+   *
+   * <p>Optionally singularities are split using the time gap if the clustering algorithm uses the
+   * time component. In this case the pulse interval is respected to prevent joins across pulses.
+   *
+   * @param points the points
+   * @param time the time threshold
+   * @return the list of clusters
+   */
+  private List<Cluster> runSingularityClustering(List<ClusterPoint> points, int time) {
+    if (points.isEmpty()) {
+      return Collections.emptyList();
+    }
+    final ArrayList<Cluster> clusters = new ArrayList<>(points.size());
+    // Sort by location
+    final LocalList<ClusterPoint> sorted = new LocalList<>(points);
+    sorted.sort((p1, p2) -> {
+      final int result = Double.compare(p1.getX(), p2.getX());
+      if (result != 0) {
+        return result;
+      }
+      return Double.compare(p1.getY(), p2.getY());
+    });
+    // Find all colocated points and put into a cluster
+    Cluster current = new Cluster(sorted.unsafeGet(0));
+    double x = current.getX();
+    double y = current.getY();
+    clusters.add(current);
+    for (int i = 1; i < sorted.size(); i++) {
+      final ClusterPoint point = sorted.unsafeGet(i);
+      if (x == point.getX() && y == point.getY()) {
+        // colocated
+        current.add(point);
+      } else {
+        // New cluster
+        current = new Cluster(point);
+        x = current.getX();
+        y = current.getY();
+        clusters.add(current);
+      }
+    }
+    if (usesTime(clusteringAlgorithm) && !noTimeInformation(clusters)) {
+      splitClustersUsingTimeGap(clusters, Math.max(0, time));
+    }
+    clusters.trimToSize();
+    reportResult(clusters);
+    return clusters;
+  }
+
+  /**
+   * Split clusters using the time gap.
+   *
+   * @param clusters the clusters
+   * @param time the time gap
+   */
+  private void splitClustersUsingTimeGap(ArrayList<Cluster> clusters, int time) {
+    // For each cluster with multiple points:
+    // Find the closest gap and join them if <= time, otherwise stop.
+    final Cluster[] source = clusters.toArray(new Cluster[0]);
+    final boolean checkPulseInterval = pulseInterval > 0;
+    clusters.clear();
+    for (final Cluster cluster : source) {
+      if (cluster.getSize() == 1) {
+        clusters.add(cluster);
+      } else {
+        clusters.addAll(splitClusterUsingTimeGap(cluster, time, checkPulseInterval));
+      }
+    }
+  }
+
+  /**
+   * Split the cluster using the time gap. All points not within the gap are placed in separated
+   * clusters.
+   *
+   * @param cluster the cluster
+   * @param time the time
+   * @param checkPulseInterval True if the interval should be respected (no joins between pulses)
+   * @return the split clusters
+   */
+  private List<? extends Cluster> splitClusterUsingTimeGap(Cluster cluster, int time,
+      boolean checkPulseInterval) {
+    // Convert cluster to a list of clusters
+    final LocalList<TimeCluster> clusters = new LocalList<>(cluster.getSize());
+    for (ClusterPoint p = cluster.getHeadClusterPoint(); p != null;) {
+      // Adding a point to a cluster resets the next pointer
+      final ClusterPoint next = p.getNext();
+      TimeCluster c = new TimeCluster(p);
+      if (checkPulseInterval) {
+        c.setPulseTime(getPulse(c.getStartTime()));
+      }
+      clusters.add(c);
+      p = next;
+    }
+    // Find the closest gap and join them if <= time, otherwise stop.
+    while (clusters.size() > 1) {
+      int min = time;
+      int ii = -1;
+      int jj = -1;
+      for (int i = 0; i < clusters.size(); i++) {
+        final TimeCluster c1 = clusters.unsafeGet(i);
+        for (int j = i + 1; j < clusters.size(); j++) {
+          final TimeCluster c2 = clusters.unsafeGet(j);
+          if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
+            continue;
+          }
+          final int gap = c1.gap(c2);
+          if (gap <= min) {
+            // Check if the two clusters can be merged
+            if (invalidUnion(gap, c1, c2)) {
+              continue;
+            }
+            min = gap;
+            ii = i;
+            jj = j;
+          }
+        }
+      }
+      if (ii == -1) {
+        // No join found
+        break;
+      }
+      // Join
+      clusters.unsafeGet(ii).add(clusters.unsafeGet(jj));
+      clusters.remove(jj);
+    }
+    return clusters;
   }
 
   private List<Cluster> runFindClusters(int time, final List<Cluster> candidates,
@@ -995,7 +1148,8 @@ public class ClusteringEngine {
    * @param candidates the candidates
    * @return true if there are no different time points
    */
-  @VisibleForTesting boolean noTimeInformation(List<Cluster> candidates) {
+  @VisibleForTesting
+  boolean noTimeInformation(List<Cluster> candidates) {
     useRange = checkForTimeRange(candidates);
     final int firstT = candidates.get(0).getHeadClusterPoint().getStartTime();
     if (useRange) {
@@ -1025,7 +1179,8 @@ public class ClusteringEngine {
    * @param candidates the candidates
    * @return true, if successful
    */
-  @VisibleForTesting static boolean checkForTimeRange(List<Cluster> candidates) {
+  @VisibleForTesting
+  static boolean checkForTimeRange(List<Cluster> candidates) {
     for (final Cluster c : candidates) {
       if (c.getHeadClusterPoint().getStartTime() != c.getHeadClusterPoint().getEndTime()) {
         return true;
