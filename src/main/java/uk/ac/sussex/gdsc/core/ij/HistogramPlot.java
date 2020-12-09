@@ -298,25 +298,25 @@ public class HistogramPlot {
     /**
      * The Scott's rule bin method.
      *
-     * @see #getBinWidthScottsRule(double, int)
+     * @see HistogramPlot#getBinWidthScottsRule(double, int)
      */
     SCOTT,
     /**
      * The Freedman-Diaconis rule bin method.
      *
-     * @see #getBinWidthFreedmanDiaconisRule(double, double, int)
+     * @see HistogramPlot#getBinWidthFreedmanDiaconisRule(double, double, int)
      */
     FD,
     /**
      * The Sturges' rule bin method.
      *
-     * @see #getBinsSturgesRule(int)
+     * @see HistogramPlot#getBinsSturgesRule(int)
      */
     STURGES,
     /**
      * The square root rule bin method.
      *
-     * @see #getBinsSqrtRule(int)
+     * @see HistogramPlot#getBinsSqrtRule(int)
      */
     SQRT
   }
