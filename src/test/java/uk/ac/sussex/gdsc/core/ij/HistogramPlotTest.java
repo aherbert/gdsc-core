@@ -522,7 +522,7 @@ class HistogramPlotTest {
   void testDrawWithNoData() {
     final StoredData dummy = StoredData.create(new double[] {});
     final HistogramPlot plot = new HistogramPlot("title", dummy, "name");
-    Assertions.assertFalse(plot.draw());
+    Assertions.assertNull(plot.draw());
   }
 
   @Test
@@ -535,8 +535,7 @@ class HistogramPlotTest {
     final HistogramPlot plot = new HistogramPlot("title", StoredData.create(values), "name");
     plot.setNumberOfBins(bins);
     Assertions.assertNull(plot.getPlot());
-    Assertions.assertTrue(plot.draw());
-    Assertions.assertNotNull(plot.getPlot());
+    Assertions.assertNotNull(plot.draw());
 
     Assertions.assertArrayEquals(hist[0], plot.getPlotXValues());
     Assertions.assertArrayEquals(hist[1], plot.getPlotYValues());

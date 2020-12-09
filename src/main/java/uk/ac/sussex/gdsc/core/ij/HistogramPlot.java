@@ -647,7 +647,7 @@ public class HistogramPlot {
    * @return The histogram plot window (or null if the plot is not possible)
    */
   public PlotWindow show(WindowOrganiser windowOrganiser) {
-    if (!draw()) {
+    if (draw() == null) {
       return null;
     }
     return ImageJUtils.display(plotTitle, plot, 0, windowOrganiser);
@@ -656,32 +656,31 @@ public class HistogramPlot {
   /**
    * Draw a histogram of the data.
    *
-   * @return true if the plot was created
+   * @return The plot (or null if the plot is not possible)
    */
-  public boolean draw() {
+  public Plot draw() {
     final double[] values = data.values();
-    if (!canPlot(values)) {
-      return false;
+    if (canPlot(values)) {
+      final double[] limits = MathUtils.limits(values);
+
+      // The number of bins are computed with all the data before the outliers are removed.
+      // Since the number of bins is used to plot the range of the data it does not matter as
+      // removal of outliers will just make the range smaller, and the number of bins would have
+      // been the same or smaller with a smaller range. So the result is the histogram may have
+      // slightly more bins than defined by the rule for the data plotted.
+      // Computing first does allow the statistics to be cached.
+      int bins = getOrComputeNumberOfBins(limits, values);
+
+      updateLimitsToRemoveOutliers(limits, values);
+
+      bins = updateBinsUsingMinWidth(bins, limits, minBinWidth);
+
+      createPlotValues(limits, values, bins);
+
+      createPlot();
     }
-    final double[] limits = MathUtils.limits(values);
 
-    // The number of bins are computed with all the data before the outliers are removed.
-    // Since the number of bins is used to plot the range of the data it does not matter as
-    // removal of outliers will just make the range smaller, and the number of bins would have
-    // been the same or smaller with a smaller range. So the result is the histogram may have
-    // slightly more bins than defined by the rule for the data plotted.
-    // Computing first does allow the statistics to be cached.
-    int bins = getOrComputeNumberOfBins(limits, values);
-
-    updateLimitsToRemoveOutliers(limits, values);
-
-    bins = updateBinsUsingMinWidth(bins, limits, minBinWidth);
-
-    createPlotValues(limits, values, bins);
-
-    createPlot();
-
-    return true;
+    return getPlot();
   }
 
   /**
