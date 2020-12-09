@@ -517,4 +517,29 @@ class HistogramPlotTest {
     Assertions.assertTrue(MathUtils.max(y) <= plot.getPlotMaxY());
     Assertions.assertNotNull(plot.getPlot());
   }
+
+  @Test
+  void testDrawWithNoData() {
+    final StoredData dummy = StoredData.create(new double[] {});
+    final HistogramPlot plot = new HistogramPlot("title", dummy, "name");
+    Assertions.assertFalse(plot.draw());
+  }
+
+  @Test
+  void testDraw() {
+    final double[] values = {1, 2, 2, 2, 3, 4, 5, 5, 10};
+    final double[] limits = MathUtils.limits(values);
+    final int bins = 10;
+    final double[][] hist = HistogramPlot.calcHistogram(values, limits[0], limits[1], bins);
+
+    final HistogramPlot plot = new HistogramPlot("title", StoredData.create(values), "name");
+    plot.setNumberOfBins(bins);
+    Assertions.assertNull(plot.getPlot());
+    Assertions.assertTrue(plot.draw());
+    Assertions.assertNotNull(plot.getPlot());
+
+    Assertions.assertArrayEquals(hist[0], plot.getPlotXValues());
+    Assertions.assertArrayEquals(hist[1], plot.getPlotYValues());
+    Assertions.assertEquals("title name", plot.getPlot().getTitle());
+  }
 }

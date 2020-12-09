@@ -647,9 +647,21 @@ public class HistogramPlot {
    * @return The histogram plot window (or null if the plot is not possible)
    */
   public PlotWindow show(WindowOrganiser windowOrganiser) {
+    if (!draw()) {
+      return null;
+    }
+    return ImageJUtils.display(plotTitle, plot, 0, windowOrganiser);
+  }
+
+  /**
+   * Draw a histogram of the data.
+   *
+   * @return true if the plot was created
+   */
+  public boolean draw() {
     final double[] values = data.values();
     if (!canPlot(values)) {
-      return null;
+      return false;
     }
     final double[] limits = MathUtils.limits(values);
 
@@ -669,7 +681,7 @@ public class HistogramPlot {
 
     createPlot();
 
-    return ImageJUtils.display(plotTitle, plot, 0, windowOrganiser);
+    return true;
   }
 
   /**
