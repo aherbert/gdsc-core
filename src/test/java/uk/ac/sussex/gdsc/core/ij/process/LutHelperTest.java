@@ -101,7 +101,8 @@ class LutHelperTest {
     final Color zero = LutHelper.getColour(lut, 0);
     Assertions.assertEquals(zero, LutHelper.getColour(lut, -10, 500));
     Assertions.assertEquals(zero, LutHelper.getColour(lut, 0, 500));
-    Assertions.assertEquals(Color.red, LutHelper.getColour(lut, 499, 500));
+    Assertions.assertEquals(Color.red, LutHelper.getColour(lut, 599, 600));
+    Assertions.assertEquals(Color.red, LutHelper.getColour(lut, 500, 500));
     Assertions.assertEquals(Color.red, LutHelper.getColour(lut, 1500, 500));
 
     Assertions.assertEquals(zero, LutHelper.getColour(lut, 0, 100, 500));
@@ -167,7 +168,8 @@ class LutHelperTest {
 
     Assertions.assertEquals(zero, LutHelper.getNonZeroColour(lut, -10, 500));
     Assertions.assertEquals(zero, LutHelper.getNonZeroColour(lut, 0, 500));
-    Assertions.assertEquals(Color.red, LutHelper.getNonZeroColour(lut, 499, 500));
+    Assertions.assertEquals(Color.red, LutHelper.getNonZeroColour(lut, 599, 600));
+    Assertions.assertEquals(Color.red, LutHelper.getNonZeroColour(lut, 500, 500));
     Assertions.assertEquals(Color.red, LutHelper.getNonZeroColour(lut, 1500, 500));
 
     Assertions.assertEquals(zero, LutHelper.getNonZeroColour(lut, 0, 100, 500));

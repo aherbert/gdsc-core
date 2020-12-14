@@ -780,29 +780,33 @@ public final class LutHelper {
   }
 
   /**
-   * Get a colour from the LUT. Used for 16-bit images.
+   * Get a colour from the LUT. Used for 16-bit images. The output LUT index is in the range
+   * {@code [0, 255]}:
+   *
+   * <pre>
+   * 255 * (value - minimum) / (maximum - minimum)
+   * </pre>
    *
    * @param lut the lut
    * @param value the value
-   * @param minimum the minimum display value
-   * @param maximum the maximum display value
+   * @param minimum the minimum display value (inclusive)
+   * @param maximum the maximum display value (inclusive)
    * @return a colour
    */
   public static Color getColour(LUT lut, int value, int minimum, int maximum) {
     ValidationUtils.checkArgument(minimum <= maximum, "Minimum %d not less than maximum %d",
         minimum, maximum);
-    // Logic copied from ShortProcessor.create8BitImage.
+    // Logic adapted from ShortProcessor.create8BitImage.
     // Clip to 16-bit range
     final int min = Math.max(0, minimum);
-
-    // Transform to 0-255 8-bit range
-    int scaledValue = value - min;
-    if (scaledValue <= 0) {
+    if (value <= min) {
       return new Color(lut.getRGB(0));
     }
+    // Transform to 0-255 8-bit range
+    final int shiftedValue = value - min;
     final int max = Math.min(65535, maximum);
-    final double scale = 256.0 / (max - min + 1);
-    scaledValue = Math.min(255, (int) Math.round(scaledValue * scale));
+    final double scale = 255.0 / (max - min);
+    final int scaledValue = Math.min(255, (int) Math.round(shiftedValue * scale));
 
     return new Color(lut.getRGB(scaledValue));
   }
@@ -812,17 +816,17 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param value the value
-   * @param minimum the minimum
-   * @param maximum the maximum
+   * @param minimum the minimum (inclusive)
+   * @param maximum the maximum (inclusive)
    * @return a colour
    */
   public static Color getColour(LUT lut, float value, float minimum, float maximum) {
     checkRange(minimum, maximum);
-    // Logic copied from FloatProcessor.create8BitImage
-    final float shiftedValue = value - minimum;
-    if (shiftedValue <= 0) {
+    // Logic adapted from FloatProcessor.create8BitImage
+    if (value <= minimum) {
       return new Color(lut.getRGB(0));
     }
+    final float shiftedValue = value - minimum;
     final float scale = 255f / (maximum - minimum);
     final int scaledValue = Math.min(255, Math.round(shiftedValue * scale));
 
@@ -865,7 +869,12 @@ public final class LutHelper {
   }
 
   /**
-   * Get a colour from the LUT ignoring zero. Used for 16-bit images.
+   * Get a colour from the LUT ignoring zero. Used for 16-bit images. The output LUT index is in the
+   * range {@code [0, 255]}:
+   *
+   * <pre>
+   * 1 + 254 * (value - minimum) / (maximum - minimum)
+   * </pre>
    *
    * @param lut the lut
    * @param value the value
@@ -876,18 +885,17 @@ public final class LutHelper {
   public static Color getNonZeroColour(LUT lut, int value, int minimum, int maximum) {
     ValidationUtils.checkArgument(minimum <= maximum, "Minimum %d not less than maximum %d",
         minimum, maximum);
-    // Logic copied from ShortProcessor.create8BitImage.
+    // Logic adapted from ShortProcessor.create8BitImage.
     // Clip to 16-bit range
     final int min = Math.max(0, minimum);
-
-    // Transform to 0-255 8-bit range
-    int scaledValue = value - min;
-    if (scaledValue <= 0) {
+    if (value <= min) {
       return new Color(lut.getRGB(1));
     }
+    // Transform to 1-255 8-bit range
+    final int shiftedValue = value - min;
     final int max = Math.min(65535, maximum);
-    final double scale = 255.0 / (max - min + 1);
-    scaledValue = Math.min(255, 1 + (int) Math.round(scaledValue * scale));
+    final double scale = 254.0 / (max - min);
+    final int scaledValue = Math.min(255, 1 + (int) Math.round(shiftedValue * scale));
 
     return new Color(lut.getRGB(scaledValue));
   }
@@ -903,11 +911,11 @@ public final class LutHelper {
    */
   public static Color getNonZeroColour(LUT lut, float value, float minimum, float maximum) {
     checkRange(minimum, maximum);
-    // Logic copied from FloatProcessor.create8BitImage
-    final float shiftedValue = value - minimum;
-    if (shiftedValue <= 0) {
+    // Logic adapted from FloatProcessor.create8BitImage
+    if (value <= minimum) {
       return new Color(lut.getRGB(1));
     }
+    final float shiftedValue = value - minimum;
     final float scale = 254f / (maximum - minimum);
     final int scaledValue = Math.min(255, 1 + Math.round(shiftedValue * scale));
 
@@ -1032,10 +1040,10 @@ public final class LutHelper {
 
     @Override
     public int map(float value) {
-      final float scaledValue = value - minimum;
-      if (scaledValue <= 0) {
+      if (value <= minimum) {
         return 0;
       }
+      final float scaledValue = value - minimum;
       return Math.min(255, Math.round(scaledValue * scale));
     }
 
@@ -1067,11 +1075,11 @@ public final class LutHelper {
     }
 
     @Override
-    public int map(float value1) {
-      final float scaledValue = value1 - minimum;
-      if (scaledValue <= 0) {
+    public int map(float value) {
+      if (value <= minimum) {
         return 1;
       }
+      final float scaledValue = value - minimum;
       return Math.min(255, 1 + Math.round(scaledValue * scale));
     }
 
