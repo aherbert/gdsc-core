@@ -417,10 +417,11 @@ public final class LutHelper {
   }
 
   /**
-   * Build a custom LUT.
+   * Build a custom LUT. Does not include black at zero.
    *
    * @param lut The LUT to create
    * @return the LUT
+   * @see #createLut(LutColour, boolean)
    */
   public static LUT createLut(int lut) {
     if (lut >= 0 && lut < luts.length) {
@@ -430,10 +431,11 @@ public final class LutHelper {
   }
 
   /**
-   * Build a custom LUT.
+   * Build a custom LUT. Does not include black at zero.
    *
    * @param lut The LUT to create
    * @return the LUT
+   * @see #createLut(LutColour, boolean)
    */
   public static LUT createLut(LutColour lut) {
     return createLut(lut, false);
@@ -766,7 +768,7 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param index The position in the series (zero-based)
-   * @param total The total in the series
+   * @param total The total in the series (exclusive)
    * @return a colour
    */
   public static Color getColour(LUT lut, int index, int total) {
@@ -775,8 +777,8 @@ public final class LutHelper {
       return getColour(lut, index);
     }
 
-    // Use behaviour for 16-bit images
-    return getColour(lut, index, 0, total);
+    // Use behaviour for 16-bit images. Maximum is inclusive.
+    return getColour(lut, index, 0, total - 1);
   }
 
   /**
@@ -789,8 +791,8 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param value the value
-   * @param minimum the minimum display value (inclusive)
-   * @param maximum the maximum display value (inclusive)
+   * @param minimum the minimum display value inclusive (mapped to 0)
+   * @param maximum the maximum display value inclusive (mapped to 255)
    * @return a colour
    */
   public static Color getColour(LUT lut, int value, int minimum, int maximum) {
@@ -816,8 +818,8 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param value the value
-   * @param minimum the minimum (inclusive)
-   * @param maximum the maximum (inclusive)
+   * @param minimum the minimum display value inclusive (mapped to 0)
+   * @param maximum the maximum display value inclusive (mapped to 255)
    * @return a colour
    */
   public static Color getColour(LUT lut, float value, float minimum, float maximum) {
@@ -855,7 +857,7 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param index The position in the series (zero-based)
-   * @param total The total in the series
+   * @param total The total in the series (exclusive)
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, int index, int total) {
@@ -864,8 +866,8 @@ public final class LutHelper {
       return new Color(lut.getRGB(1 + MathUtils.clip(0, 254, index)));
     }
 
-    // Use behaviour for 16-bit images
-    return getNonZeroColour(lut, index, 1, total);
+    // Use behaviour for 16-bit images. Maximum is inclusive.
+    return getNonZeroColour(lut, index, 1, total - 1);
   }
 
   /**
@@ -878,8 +880,8 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param value the value
-   * @param minimum the minimum display value (mapped to 1)
-   * @param maximum the maximum display value (mapped to 255)
+   * @param minimum the minimum display value inclusive (mapped to 1)
+   * @param maximum the maximum display value inclusive (mapped to 255)
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, int value, int minimum, int maximum) {
@@ -905,8 +907,8 @@ public final class LutHelper {
    *
    * @param lut the lut
    * @param value the value
-   * @param minimum the minimum display value (mapped to 1)
-   * @param maximum the maximum display value (mapped to 255)
+   * @param minimum the minimum display value inclusive (mapped to 1)
+   * @param maximum the maximum display value inclusive (mapped to 255)
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, float value, float minimum, float maximum) {
