@@ -397,7 +397,7 @@ public class HistogramPlot {
    * Gets the bins using the Sturges' rule.
    *
    * <pre>
-   * ceil(1 + log2(n)
+   * ceil(1 + log2(n))
    * </pre>
    *
    * @param n the n
