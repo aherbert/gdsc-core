@@ -156,6 +156,13 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   }
 
   /**
+   * Clear the window IDs.
+   */
+  public void clear() {
+    list.clear();
+  }
+
+  /**
    * Checks if no windows have been added.
    *
    * @return true, if is empty
