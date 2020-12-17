@@ -69,13 +69,14 @@ class WindowOrganiserTest {
     Assertions.assertTrue(wo.isNotEmpty());
     Assertions.assertEquals(2, wo.size());
     Assertions.assertArrayEquals(new int[] {-10, imp.getID()}, wo.getWindowIds());
-    wo.clear();
-    Assertions.assertEquals(0, wo.size());
 
     final WindowOrganiser wo2 = new WindowOrganiser();
     wo2.add(-13);
     wo2.add(wo);
     Assertions.assertArrayEquals(new int[] {-13, -10, imp.getID()}, wo2.getWindowIds());
+
+    wo.clear();
+    Assertions.assertEquals(0, wo.size());
   }
 
   @Test
