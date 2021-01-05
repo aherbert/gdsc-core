@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import java.util.Objects;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
@@ -39,6 +40,7 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Class for computing and plotting histograms.
@@ -61,6 +63,8 @@ public class HistogramPlot {
   private int removeOutliersOption;
   /** The number of bins to use. 0 is auto. */
   private int numberOfBins;
+  /** The histogram limits. */
+  private double[] limits;
   /** The plot shape. */
   private int plotShape = Plot.BAR;
   /** The plot label. */
@@ -107,6 +111,8 @@ public class HistogramPlot {
     private int removeOutliersOption;
     /** The number of bins to use. 0 is auto. */
     private int numberOfBins;
+    /** The histogram limits. */
+    private double[] limits;
     /** The plot shape. */
     private int plotShape = Plot.BAR;
     /** The plot label. */
@@ -220,6 +226,17 @@ public class HistogramPlot {
     }
 
     /**
+     * Sets the histogram limits.
+     *
+     * @param limits the limits ([min, max])
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setLimits(double[] limits) {
+      this.limits = limits;
+      return this;
+    }
+
+    /**
      * Sets the plot shape. Use {@link Plot#BAR} to draw a bar chart.
      *
      * @param plotShape the new plot shape
@@ -262,6 +279,7 @@ public class HistogramPlot {
       hp.setMinBinWidth(minBinWidth);
       hp.setRemoveOutliersOption(removeOutliersOption);
       hp.setNumberOfBins(numberOfBins);
+      hp.setLimits(limits);
       hp.setPlotShape(plotShape);
       hp.setPlotLabel(plotLabel);
       hp.setBinMethod(binMethod);
@@ -661,7 +679,11 @@ public class HistogramPlot {
   public Plot draw() {
     final double[] values = data.values();
     if (canPlot(values)) {
-      final double[] limits = MathUtils.limits(values);
+      // Allow the limits to be passed in. If so then do not perform outlier removal.
+      final boolean noLimits = limits == null;
+      if (noLimits) {
+        limits = MathUtils.limits(values);
+      }
 
       // The number of bins are computed with all the data before the outliers are removed.
       // Since the number of bins is used to plot the range of the data it does not matter as
@@ -671,7 +693,9 @@ public class HistogramPlot {
       // Computing first does allow the statistics to be cached.
       int bins = getOrComputeNumberOfBins(limits, values);
 
-      updateLimitsToRemoveOutliers(limits, values);
+      if (noLimits) {
+        updateLimitsToRemoveOutliers(limits, values);
+      }
 
       bins = updateBinsUsingMinWidth(bins, limits, minBinWidth);
 
@@ -915,6 +939,37 @@ public class HistogramPlot {
    */
   public void setNumberOfBins(int numberOfBins) {
     this.numberOfBins = Math.max(0, numberOfBins);
+  }
+
+  /**
+   * Gets the histogram limits. Returns null if they have not been set or computed from the data
+   * when computing the histogram.
+   *
+   * @return the limits ({@code [min, max]})
+   */
+  public double[] getLimits() {
+    return ArrayUtils.clone(limits);
+  }
+
+  /**
+   * Sets the histogram limits.
+   *
+   * @param limits the limits ({@code [min, max]})
+   * @throws IllegalArgumentException if the limits are not length 2, the limits are not finite, or
+   *         the maximum is less than the minimum
+   */
+  public void setLimits(double[] limits) {
+    if (limits != null) {
+      ValidationUtils.checkArgument(limits.length == 2, "Limits length %d is not 2 (min, max)",
+          limits.length);
+      ValidationUtils.checkArgument(Double.isFinite(limits[0]), "Limits min %s is not finite",
+          limits[0]);
+      ValidationUtils.checkArgument(Double.isFinite(limits[1]), "Limits max %s is not finite",
+          limits[1]);
+      ValidationUtils.checkArgument(limits[0] <= limits[1], "Limits max %s < min %s", limits[1],
+          limits[0]);
+    }
+    this.limits = limits;
   }
 
   /**

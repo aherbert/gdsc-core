@@ -63,21 +63,24 @@ class HistogramPlotTest {
     Assertions.assertEquals(0, plot.getMinBinWidth());
     Assertions.assertEquals(0, plot.getRemoveOutliersOption());
     Assertions.assertEquals(0, plot.getNumberOfBins());
+    Assertions.assertNull(plot.getLimits());
     Assertions.assertEquals(Plot.BAR, plot.getPlotShape());
-    Assertions.assertEquals(null, plot.getPlotLabel());
+    Assertions.assertNull(plot.getPlotLabel());
     Assertions.assertEquals(BinMethod.SCOTT, plot.getBinMethod());
     final double minBinWidth = 3.5;
     final int removeOutliersOption = 1;
     final int numberOfBins = 42;
+    final double[] limits = {1, 3};
     final int plotShape = Plot.LINE;
     final String plotLabel = "my label";
     final BinMethod binMethod = BinMethod.STURGES;
     plot = builder.setMinBinWidth(minBinWidth).setRemoveOutliersOption(removeOutliersOption)
-        .setNumberOfBins(numberOfBins).setPlotShape(plotShape).setPlotLabel(plotLabel)
-        .setBinMethod(binMethod).build();
+        .setNumberOfBins(numberOfBins).setLimits(limits).setPlotShape(plotShape)
+        .setPlotLabel(plotLabel).setBinMethod(binMethod).build();
     Assertions.assertEquals(minBinWidth, plot.getMinBinWidth());
     Assertions.assertEquals(removeOutliersOption, plot.getRemoveOutliersOption());
     Assertions.assertEquals(numberOfBins, plot.getNumberOfBins());
+    Assertions.assertArrayEquals(limits, plot.getLimits());
     Assertions.assertEquals(plotShape, plot.getPlotShape());
     Assertions.assertEquals(plotLabel, plot.getPlotLabel());
     Assertions.assertEquals(binMethod, plot.getBinMethod());
@@ -467,6 +470,28 @@ class HistogramPlotTest {
   }
 
   @Test
+  void testSetLimits() {
+    final StoredData dummy = StoredData.create(new double[] {});
+    final HistogramPlot plot = new HistogramPlot("title", dummy, "name");
+    Assertions.assertNull(plot.getLimits());
+    Assertions.assertThrows(IllegalArgumentException.class, () -> plot.setLimits(new double[0]));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> plot.setLimits(new double[1]));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> plot.setLimits(new double[3]));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> plot.setLimits(new double[] {1, 0}));
+    for (final double bad : new double[] {Double.NaN, Double.NEGATIVE_INFINITY,
+        Double.POSITIVE_INFINITY}) {
+      Assertions.assertThrows(IllegalArgumentException.class,
+          () -> plot.setLimits(new double[] {0, bad}));
+      Assertions.assertThrows(IllegalArgumentException.class,
+          () -> plot.setLimits(new double[] {bad, 0}));
+    }
+    final double[] limits = {0, 1};
+    plot.setLimits(limits);
+    Assertions.assertArrayEquals(limits, plot.getLimits());
+  }
+
+  @Test
   void testCreatePlot() {
     final StoredData dummy = StoredData.create(new double[] {});
     final HistogramPlot plot = new HistogramPlot("title", dummy, "name");
@@ -539,6 +564,26 @@ class HistogramPlotTest {
 
     Assertions.assertArrayEquals(hist[0], plot.getPlotXValues());
     Assertions.assertArrayEquals(hist[1], plot.getPlotYValues());
+    Assertions.assertArrayEquals(limits, plot.getLimits());
+    Assertions.assertEquals("title name", plot.getPlot().getTitle());
+  }
+
+  @Test
+  void testDrawWithLimits() {
+    final double[] values = {1, 2, 2, 2, 3, 4, 5, 5, 10};
+    final double[] limits = {2, 5};
+    final int bins = 4;
+    final double[][] hist = HistogramPlot.calcHistogram(values, limits[0], limits[1], bins);
+
+    final HistogramPlot plot = new HistogramPlot("title", StoredData.create(values), "name");
+    plot.setNumberOfBins(bins);
+    plot.setLimits(limits);
+    Assertions.assertNull(plot.getPlot());
+    Assertions.assertNotNull(plot.draw());
+
+    Assertions.assertArrayEquals(hist[0], plot.getPlotXValues());
+    Assertions.assertArrayEquals(hist[1], plot.getPlotYValues());
+    Assertions.assertArrayEquals(limits, plot.getLimits());
     Assertions.assertEquals("title name", plot.getPlot().getTitle());
   }
 }
