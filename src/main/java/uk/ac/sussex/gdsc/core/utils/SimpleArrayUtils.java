@@ -1006,7 +1006,7 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns a string representation of the array object using the appropriate Arrays.toString(...)
-   * method is called depending on the array type.
+   * method depending on the array type.
    *
    * <p>Note: If an instance of Object[] then optionally {@link Arrays#deepToString(Object[])} is
    * called allowing recursion for nested arrays, e.g. int[][].
