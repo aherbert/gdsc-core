@@ -1034,8 +1034,8 @@ class SimpleArrayUtilsTest {
 
   @Test
   void canFillWithIntFunction() {
-    final Integer[] data1 = new Integer[3];
-    final Integer[] data = SimpleArrayUtils.fill(data1, i -> i + 1);
+    final Number[] data1 = new Number[3];
+    final Number[] data = SimpleArrayUtils.fill(data1, i -> Integer.valueOf(i + 1));
     Assertions.assertSame(data1, data);
     Assertions.assertArrayEquals(new Integer[] {1, 2, 3}, data);
   }
