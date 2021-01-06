@@ -32,8 +32,10 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 import java.util.function.LongUnaryOperator;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
@@ -123,7 +125,7 @@ public final class SimpleArrayUtils {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     final double[] out = new double[array.length];
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       out[i] = array[i];
     }
     return out;
@@ -140,7 +142,7 @@ public final class SimpleArrayUtils {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     final double[] out = new double[array.length];
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       out[i] = array[i];
     }
     return out;
@@ -157,7 +159,7 @@ public final class SimpleArrayUtils {
       return new float[0];
     }
     final float[] out = new float[array.length];
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       out[i] = (float) array[i];
     }
     return out;
@@ -174,7 +176,7 @@ public final class SimpleArrayUtils {
       return new float[0];
     }
     final float[] out = new float[array.length];
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       out[i] = array[i];
     }
     return out;
@@ -680,7 +682,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(int[] data) {
     int min = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -696,7 +698,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(float[] data) {
     int min = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -712,7 +714,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(double[] data) {
     int min = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -729,7 +731,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(int[] data) {
     int max = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -745,7 +747,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(float[] data) {
     int max = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -761,7 +763,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(double[] data) {
     int max = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -778,7 +780,7 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(int[] data) {
     int min = 0;
     int max = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[max]) {
@@ -797,7 +799,7 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(float[] data) {
     int min = 0;
     int max = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[max]) {
@@ -817,7 +819,7 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(double[] data) {
     int min = 0;
     int max = 0;
-    for (int i = 1; i < data.length; i++) {
+    for (int i = 1, len = data.length; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[max]) {
@@ -1346,7 +1348,7 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(int[] array, IntUnaryOperator operator) {
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       array[i] = operator.applyAsInt(array[i]);
     }
   }
@@ -1358,7 +1360,7 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(long[] array, LongUnaryOperator operator) {
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       array[i] = operator.applyAsLong(array[i]);
     }
   }
@@ -1370,7 +1372,7 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(float[] array, FloatUnaryOperator operator) {
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       array[i] = operator.applyAsFloat(array[i]);
     }
   }
@@ -1382,8 +1384,44 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(double[] array, DoubleUnaryOperator operator) {
-    for (int i = 0; i < array.length; i++) {
+    for (int i = 0, len = array.length; i < len; i++) {
       array[i] = operator.applyAsDouble(array[i]);
     }
+  }
+
+  /**
+   * Fill an array using the provided generator.
+   *
+   * <p>This function is a dynamic alternative to {@link Arrays#fill(Object[], Object)}.
+   *
+   * @param <T> the array type
+   * @param array the array
+   * @param generator the generator of the element for the array index
+   * @return The array
+   * @see Arrays#fill(Object[], Object)
+   */
+  public static <T> T[] fill(T[] array, IntFunction<T> generator) {
+    for (int i = 0, len = array.length; i < len; i++) {
+      array[i] = generator.apply(i);
+    }
+    return array;
+  }
+
+  /**
+   * Fill an array using the provided supplier.
+   *
+   * <p>This function is a dynamic alternative to {@link Arrays#fill(Object[], Object)}.
+   *
+   * @param <T> the array type
+   * @param array the array
+   * @param supplier the supplier of the elements for the array
+   * @return The array
+   * @see Arrays#fill(Object[], Object)
+   */
+  public static <T> T[] fill(T[] array, Supplier<T> supplier) {
+    for (int i = 0, len = array.length; i < len; i++) {
+      array[i] = supplier.get();
+    }
+    return array;
   }
 }

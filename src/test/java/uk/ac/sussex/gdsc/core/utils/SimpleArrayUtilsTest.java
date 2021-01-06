@@ -1031,4 +1031,20 @@ class SimpleArrayUtilsTest {
     SimpleArrayUtils.apply(data, v -> v * 2);
     Assertions.assertArrayEquals(expected, data);
   }
+
+  @Test
+  void canFillWithIntFunction() {
+    final Integer[] data1 = new Integer[3];
+    final Integer[] data = SimpleArrayUtils.fill(data1, i -> i + 1);
+    Assertions.assertSame(data1, data);
+    Assertions.assertArrayEquals(new Integer[] {1, 2, 3}, data);
+  }
+
+  @Test
+  void canFillWithSupplier() {
+    final String[] data1 = new String[3];
+    final String[] data = SimpleArrayUtils.fill(data1, () -> "");
+    Assertions.assertSame(data1, data);
+    Assertions.assertArrayEquals(new String[] {"", "", ""}, data);
+  }
 }
