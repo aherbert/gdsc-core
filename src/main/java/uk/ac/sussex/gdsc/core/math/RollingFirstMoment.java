@@ -70,6 +70,16 @@ public final class RollingFirstMoment {
   }
 
   /**
+   * Create a copy instance.
+   *
+   * @param source the source to copy
+   */
+  private RollingFirstMoment(RollingFirstMoment source) {
+    this.size = source.size;
+    this.m1 = source.m1;
+  }
+
+  /**
    * Adds the value.
    *
    * @param value the value
@@ -113,5 +123,14 @@ public final class RollingFirstMoment {
    */
   public long getN() {
     return size;
+  }
+
+  /**
+   * Create a copy.
+   *
+   * @return a copy
+   */
+  public RollingFirstMoment copy() {
+    return new RollingFirstMoment(this);
   }
 }

@@ -119,4 +119,17 @@ class RollingFirstMomentTest {
     Assertions.assertEquals(expectedMean, m1.getFirstMoment(), 1e-10);
     Assertions.assertEquals(expectedN, m1.getN());
   }
+
+  @Test
+  void testCopy() {
+    final double mean = 3.45;
+    final long size = 13;
+    final RollingFirstMoment m1 = new RollingFirstMoment(size, mean);
+    Assertions.assertEquals(mean, m1.getFirstMoment());
+    Assertions.assertEquals(size, m1.getN());
+    final RollingFirstMoment m1b = m1.copy();
+    Assertions.assertNotSame(m1, m1b);
+    Assertions.assertEquals(mean, m1b.getFirstMoment());
+    Assertions.assertEquals(size, m1b.getN());
+  }
 }
