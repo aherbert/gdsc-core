@@ -44,31 +44,31 @@ class RollingFirstMomentTest {
 
   @Test
   void testConstructor() {
-    final RollingFirstMoment m1 = new RollingFirstMoment();
-    Assertions.assertEquals(Double.NaN, m1.getFirstMoment());
-    Assertions.assertEquals(0, m1.getN());
+    final RollingFirstMoment m = new RollingFirstMoment();
+    Assertions.assertEquals(Double.NaN, m.getFirstMoment());
+    Assertions.assertEquals(0, m.getN());
   }
 
   @Test
   void testConstructorWithMean() {
-    final double mean = 3.45;
+    final double moment1 = 3.45;
     final long size = 13;
-    final RollingFirstMoment m1 = new RollingFirstMoment(size, mean);
-    Assertions.assertEquals(mean, m1.getFirstMoment());
-    Assertions.assertEquals(size, m1.getN());
+    final RollingFirstMoment m = new RollingFirstMoment(size, moment1);
+    Assertions.assertEquals(moment1, m.getFirstMoment());
+    Assertions.assertEquals(size, m.getN());
   }
 
   @Test
   void testConstructorWithZeroSize() {
-    final double mean = 3.45;
+    final double moment1 = 3.45;
     final long size = 0;
-    final RollingFirstMoment m1 = new RollingFirstMoment(size, mean);
-    Assertions.assertEquals(Double.NaN, m1.getFirstMoment());
-    Assertions.assertEquals(0, m1.getN());
+    final RollingFirstMoment m = new RollingFirstMoment(size, moment1);
+    Assertions.assertEquals(Double.NaN, m.getFirstMoment());
+    Assertions.assertEquals(0, m.getN());
     final double value = 6.5;
-    m1.add(value);
-    Assertions.assertEquals(value, m1.getFirstMoment());
-    Assertions.assertEquals(1, m1.getN());
+    m.add(value);
+    Assertions.assertEquals(value, m.getFirstMoment());
+    Assertions.assertEquals(1, m.getN());
   }
 
   @Test
@@ -81,55 +81,55 @@ class RollingFirstMomentTest {
     // Test vs Apache Commons Math
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 3; i++) {
-      final RollingFirstMoment m1 = new RollingFirstMoment();
-      final Mean m2 = new Mean();
-      Assertions.assertEquals(m2.getResult(), m1.getFirstMoment());
-      Assertions.assertEquals(m2.getN(), m1.getN());
+      final RollingFirstMoment m = new RollingFirstMoment();
+      final Mean m1 = new Mean();
+      Assertions.assertEquals(m1.getResult(), m.getFirstMoment());
+      Assertions.assertEquals(m1.getN(), m.getN());
       for (int j = 0; j < 10; j++) {
         final double value = rng.nextDouble();
-        m1.add(value);
-        m2.increment(value);
-        Assertions.assertEquals(m2.getResult(), m1.getFirstMoment());
-        Assertions.assertEquals(m2.getN(), m1.getN());
+        m.add(value);
+        m1.increment(value);
+        Assertions.assertEquals(m1.getResult(), m.getFirstMoment());
+        Assertions.assertEquals(m1.getN(), m.getN());
       }
     }
   }
 
   @Test
   void canAddRollingMoment() {
-    final double mean1 = 3.45;
+    final double moment11 = 3.45;
     final long size1 = 13;
-    final RollingFirstMoment m1 = new RollingFirstMoment(size1, mean1);
+    final RollingFirstMoment m1 = new RollingFirstMoment(size1, moment11);
     final RollingFirstMoment m2 = new RollingFirstMoment();
     m1.add(m2);
-    Assertions.assertEquals(mean1, m1.getFirstMoment());
+    Assertions.assertEquals(moment11, m1.getFirstMoment());
     Assertions.assertEquals(size1, m1.getN());
     m2.add(m1);
-    Assertions.assertEquals(mean1, m2.getFirstMoment());
+    Assertions.assertEquals(moment11, m2.getFirstMoment());
     Assertions.assertEquals(size1, m2.getN());
-    final double mean3 = 32.98;
+    final double moment13 = 32.98;
     final long size3 = 42;
-    final RollingFirstMoment m3 = new RollingFirstMoment(size3, mean3);
+    final RollingFirstMoment m3 = new RollingFirstMoment(size3, moment13);
     final long expectedN = size1 + size3;
-    final double expectedMean = (mean1 * size1 + mean3 * size3) / expectedN;
+    final double expectedMean = (moment11 * size1 + moment13 * size3) / expectedN;
     m3.add(m1);
     Assertions.assertEquals(expectedMean, m3.getFirstMoment(), 1e-10);
     Assertions.assertEquals(expectedN, m3.getN());
-    m1.add(new RollingFirstMoment(size3, mean3));
+    m1.add(new RollingFirstMoment(size3, moment13));
     Assertions.assertEquals(expectedMean, m1.getFirstMoment(), 1e-10);
     Assertions.assertEquals(expectedN, m1.getN());
   }
 
   @Test
   void testCopy() {
-    final double mean = 3.45;
+    final double moment1 = 3.45;
     final long size = 13;
-    final RollingFirstMoment m1 = new RollingFirstMoment(size, mean);
-    Assertions.assertEquals(mean, m1.getFirstMoment());
-    Assertions.assertEquals(size, m1.getN());
-    final RollingFirstMoment m1b = m1.copy();
-    Assertions.assertNotSame(m1, m1b);
-    Assertions.assertEquals(mean, m1b.getFirstMoment());
-    Assertions.assertEquals(size, m1b.getN());
+    final RollingFirstMoment m = new RollingFirstMoment(size, moment1);
+    Assertions.assertEquals(moment1, m.getFirstMoment());
+    Assertions.assertEquals(size, m.getN());
+    final RollingFirstMoment mb = m.copy();
+    Assertions.assertNotSame(m, mb);
+    Assertions.assertEquals(moment1, mb.getFirstMoment());
+    Assertions.assertEquals(size, mb.getN());
   }
 }
