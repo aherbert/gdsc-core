@@ -45,13 +45,20 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *
  * <p>The following recursive updating formula is used for the second moment:
  *
- * <p>Let <ul> <li>dev = (current obs - previous mean)</li> <li>n = number of observations
- * (including current obs)</li> </ul>
+ * <p>Let
+ * 
+ * <ul>
+ * 
+ * <li>dev = (current obs - previous mean)</li>
+ * 
+ * <li>n = number of observations (including current obs)</li>
+ * 
+ * </ul>
  *
  * <p>Then:
  *
  * <pre>
- * new value = old value + dev^2 * (n -1) / n.
+ * new value = old value + dev^2 * (n - 1) / n.
  * </pre>
  */
 public final class RollingArrayMoment implements ArrayMoment {
