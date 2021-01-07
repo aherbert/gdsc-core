@@ -59,6 +59,19 @@ class RollingFirstMomentTest {
   }
 
   @Test
+  void testConstructorWithZeroSize() {
+    final double mean = 3.45;
+    final long size = 0;
+    final RollingFirstMoment m1 = new RollingFirstMoment(size, mean);
+    Assertions.assertEquals(Double.NaN, m1.getFirstMoment());
+    Assertions.assertEquals(0, m1.getN());
+    final double value = 6.5;
+    m1.add(value);
+    Assertions.assertEquals(value, m1.getFirstMoment());
+    Assertions.assertEquals(1, m1.getN());
+  }
+
+  @Test
   void testConstructorThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> new RollingFirstMoment(-1, 0));
   }

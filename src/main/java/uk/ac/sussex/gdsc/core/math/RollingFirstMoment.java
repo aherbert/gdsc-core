@@ -60,13 +60,13 @@ public final class RollingFirstMoment {
    * Create an instance.
    *
    * @param size the number of values that have been added
-   * @param m1 the first moment
+   * @param m1 the first moment (ignored when the size is zero)
    * @throws IllegalArgumentException if the size is negative
    */
   public RollingFirstMoment(long size, double m1) {
     ValidationUtils.checkPositive(size, "size");
     this.size = size;
-    this.m1 = m1;
+    this.m1 = size == 0 ? 0 : m1;
   }
 
   /**
