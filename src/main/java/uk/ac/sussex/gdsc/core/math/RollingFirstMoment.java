@@ -113,7 +113,7 @@ public final class RollingFirstMoment {
    * @return the first moment
    */
   public double getFirstMoment() {
-    return (size == 0) ? Double.NaN : m1;
+    return size == 0 ? Double.NaN : m1;
   }
 
   /**
