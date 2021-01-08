@@ -133,7 +133,9 @@ public interface ArrayMoment {
    * @return the variance (empty array if no data has been added)
    * @see #getVariance(boolean)
    */
-  double[] getVariance();
+  default double[] getVariance() {
+    return getVariance(true);
+  }
 
   /**
    * Gets the estimate of the variance.
@@ -164,7 +166,9 @@ public interface ArrayMoment {
    * @return the standard deviation (empty array if no data has been added)
    * @see #getVariance(boolean)
    */
-  double[] getStandardDeviation();
+  default double[] getStandardDeviation() {
+    return getStandardDeviation(true);
+  }
 
   /**
    * Gets the estimate of the standard deviation.

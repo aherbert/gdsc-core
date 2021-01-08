@@ -225,11 +225,6 @@ public final class SimpleArrayMoment implements ArrayMoment {
   }
 
   @Override
-  public double[] getVariance() {
-    return getVariance(true);
-  }
-
-  @Override
   public double[] getVariance(boolean isBiasCorrected) {
     if (size == 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
@@ -247,11 +242,6 @@ public final class SimpleArrayMoment implements ArrayMoment {
 
   private static double positive(final double value) {
     return (value > 0) ? value : 0;
-  }
-
-  @Override
-  public double[] getStandardDeviation() {
-    return getStandardDeviation(true);
   }
 
   @Override
