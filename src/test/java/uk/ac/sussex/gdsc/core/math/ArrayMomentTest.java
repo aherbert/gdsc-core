@@ -80,19 +80,19 @@ class ArrayMomentTest {
   @Test
   void testRollingArrayMomentSingleDouble() {
     final RollingArrayMoment m = new RollingArrayMoment();
-    m.add(1);
+    m.add(new double[] {1});
     final double[] zero = new double[1];
     Assertions.assertEquals(1, m.getN());
-    Assertions.assertArrayEquals(new double[] {1}, m.getFirstMoment());
-    Assertions.assertArrayEquals(zero, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {1}, m.getMean());
+    Assertions.assertArrayEquals(zero, m.getSumOfSquares());
     Assertions.assertArrayEquals(zero, m.getVariance());
     Assertions.assertArrayEquals(zero, m.getVariance(false));
     Assertions.assertArrayEquals(zero, m.getStandardDeviation());
     Assertions.assertArrayEquals(zero, m.getStandardDeviation(false));
-    m.add(2);
+    m.add(new double[] {2});
     Assertions.assertEquals(2, m.getN());
-    Assertions.assertArrayEquals(new double[] {1.5}, m.getFirstMoment());
-    Assertions.assertArrayEquals(new double[] {0.5}, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {1.5}, m.getMean());
+    Assertions.assertArrayEquals(new double[] {0.5}, m.getSumOfSquares());
     Assertions.assertArrayEquals(new double[] {0.5}, m.getVariance());
     Assertions.assertArrayEquals(new double[] {0.25}, m.getVariance(false));
     Assertions.assertArrayEquals(new double[] {Math.sqrt(0.5)}, m.getStandardDeviation());
@@ -282,8 +282,8 @@ class ArrayMomentTest {
       r2[i % size].add(d[i]);
     }
 
-    final double[] em1 = r1.getFirstMoment();
-    final double[] em2 = r1.getSecondMoment();
+    final double[] em1 = r1.getMean();
+    final double[] em2 = r1.getSumOfSquares();
     final double[] ev = r1.getVariance();
     final double[] esd = r1.getStandardDeviation();
 
@@ -291,8 +291,8 @@ class ArrayMomentTest {
       r2[0].add((ArrayMoment) r2[i]);
     }
 
-    final double[] om1 = r2[0].getFirstMoment();
-    final double[] om2 = r2[0].getSecondMoment();
+    final double[] om1 = r2[0].getMean();
+    final double[] om2 = r2[0].getSumOfSquares();
     final double[] ov = r2[0].getVariance();
     final double[] osd = r2[0].getStandardDeviation();
 
@@ -312,19 +312,19 @@ class ArrayMomentTest {
   @Test
   void testSimpleArrayMomentSingleDouble() {
     final SimpleArrayMoment m = new SimpleArrayMoment();
-    m.add(1);
+    m.add(new double[] {1});
     final double[] zero = new double[1];
     Assertions.assertEquals(1, m.getN());
-    Assertions.assertArrayEquals(new double[] {1}, m.getFirstMoment());
-    Assertions.assertArrayEquals(zero, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {1}, m.getMean());
+    Assertions.assertArrayEquals(zero, m.getSumOfSquares());
     Assertions.assertArrayEquals(zero, m.getVariance());
     Assertions.assertArrayEquals(zero, m.getVariance(false));
     Assertions.assertArrayEquals(zero, m.getStandardDeviation());
     Assertions.assertArrayEquals(zero, m.getStandardDeviation(false));
-    m.add(2);
+    m.add(new double[] {2});
     Assertions.assertEquals(2, m.getN());
-    Assertions.assertArrayEquals(new double[] {1.5}, m.getFirstMoment());
-    Assertions.assertArrayEquals(new double[] {0.5}, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {1.5}, m.getMean());
+    Assertions.assertArrayEquals(new double[] {0.5}, m.getSumOfSquares());
     Assertions.assertArrayEquals(new double[] {0.5}, m.getVariance());
     Assertions.assertArrayEquals(new double[] {0.25}, m.getVariance(false));
     Assertions.assertArrayEquals(new double[] {Math.sqrt(0.5)}, m.getStandardDeviation());
@@ -510,8 +510,8 @@ class ArrayMomentTest {
       r2[i % size].add(d[i]);
     }
 
-    final double[] em1 = r1.getFirstMoment();
-    final double[] em2 = r1.getSecondMoment();
+    final double[] em1 = r1.getMean();
+    final double[] em2 = r1.getSumOfSquares();
     final double[] ev = r1.getVariance();
     final double[] esd = r1.getStandardDeviation();
 
@@ -519,8 +519,8 @@ class ArrayMomentTest {
       r2[0].add((ArrayMoment) r2[i]);
     }
 
-    final double[] om1 = r2[0].getFirstMoment();
-    final double[] om2 = r2[0].getSecondMoment();
+    final double[] om1 = r2[0].getMean();
+    final double[] om2 = r2[0].getSumOfSquares();
     final double[] ov = r2[0].getVariance();
     final double[] osd = r2[0].getStandardDeviation();
 
@@ -540,7 +540,6 @@ class ArrayMomentTest {
   @Test
   void testIntegerArrayMomentThrows() {
     final IntegerArrayMoment m = new IntegerArrayMoment();
-    Assertions.assertThrows(NotImplementedException.class, () -> m.add(1.23));
     Assertions.assertThrows(NotImplementedException.class, () -> m.add(new double[] {1.23}));
     Assertions.assertThrows(NotImplementedException.class, () -> m.add(new float[] {1.5f}));
   }
@@ -676,8 +675,8 @@ class ArrayMomentTest {
       r2[i % size].add(d[i]);
     }
 
-    final double[] em1 = r1.getFirstMoment();
-    final double[] em2 = r1.getSecondMoment();
+    final double[] em1 = r1.getMean();
+    final double[] em2 = r1.getSumOfSquares();
     final double[] ev = r1.getVariance();
     final double[] esd = r1.getStandardDeviation();
 
@@ -685,8 +684,8 @@ class ArrayMomentTest {
       r2[0].add((ArrayMoment) r2[i]);
     }
 
-    final double[] om1 = r2[0].getFirstMoment();
-    final double[] om2 = r2[0].getSecondMoment();
+    final double[] om1 = r2[0].getMean();
+    final double[] om2 = r2[0].getSumOfSquares();
     final double[] ov = r2[0].getVariance();
     final double[] osd = r2[0].getStandardDeviation();
 
@@ -734,9 +733,8 @@ class ArrayMomentTest {
       r2.add(new double[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -754,9 +752,8 @@ class ArrayMomentTest {
       r2.add(new float[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -774,9 +771,8 @@ class ArrayMomentTest {
       r2.add(new int[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -795,9 +791,8 @@ class ArrayMomentTest {
       r2.add(new short[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -816,9 +811,8 @@ class ArrayMomentTest {
       r2.add(new byte[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -837,9 +831,8 @@ class ArrayMomentTest {
       r2.addUnsigned(new short[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -858,9 +851,8 @@ class ArrayMomentTest {
       r2.addUnsigned(new byte[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
-    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], equality,
-        () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], equality,
+    TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
         () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
@@ -940,8 +932,8 @@ class ArrayMomentTest {
   private static void assertSmallResults(ArrayMoment m) {
     final double[] empty = new double[0];
     Assertions.assertEquals(0, m.getN());
-    Assertions.assertArrayEquals(empty, m.getFirstMoment());
-    Assertions.assertArrayEquals(empty, m.getSecondMoment());
+    Assertions.assertArrayEquals(empty, m.getMean());
+    Assertions.assertArrayEquals(empty, m.getSumOfSquares());
     Assertions.assertArrayEquals(empty, m.getVariance());
     Assertions.assertArrayEquals(empty, m.getVariance(false));
     Assertions.assertArrayEquals(empty, m.getStandardDeviation());
@@ -950,8 +942,8 @@ class ArrayMomentTest {
     m.add(new int[] {0, 1, 2});
     final double[] zero = new double[3];
     Assertions.assertEquals(1, m.getN());
-    Assertions.assertArrayEquals(new double[] {0, 1, 2}, m.getFirstMoment());
-    Assertions.assertArrayEquals(zero, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {0, 1, 2}, m.getMean());
+    Assertions.assertArrayEquals(zero, m.getSumOfSquares());
     Assertions.assertArrayEquals(zero, m.getVariance());
     Assertions.assertArrayEquals(zero, m.getVariance(false));
     Assertions.assertArrayEquals(zero, m.getStandardDeviation());
@@ -959,8 +951,8 @@ class ArrayMomentTest {
 
     m.add(new int[] {0, 2, 4});
     Assertions.assertEquals(2, m.getN());
-    Assertions.assertArrayEquals(new double[] {0, 1.5, 3}, m.getFirstMoment());
-    Assertions.assertArrayEquals(new double[] {0, 0.5, 2}, m.getSecondMoment());
+    Assertions.assertArrayEquals(new double[] {0, 1.5, 3}, m.getMean());
+    Assertions.assertArrayEquals(new double[] {0, 0.5, 2}, m.getSumOfSquares());
     Assertions.assertArrayEquals(new double[] {0, 0.5, 2}, m.getVariance());
     Assertions.assertArrayEquals(new double[] {0, 0.25, 1}, m.getVariance(false));
     Assertions.assertArrayEquals(new double[] {0, Math.sqrt(0.5), Math.sqrt(2)},
@@ -974,8 +966,8 @@ class ArrayMomentTest {
 
     m2.add(m);
     Assertions.assertEquals(m.getN(), m2.getN());
-    Assertions.assertArrayEquals(m.getFirstMoment(), m2.getFirstMoment());
-    Assertions.assertArrayEquals(m.getSecondMoment(), m2.getSecondMoment());
+    Assertions.assertArrayEquals(m.getMean(), m2.getMean());
+    Assertions.assertArrayEquals(m.getSumOfSquares(), m2.getSumOfSquares());
     Assertions.assertArrayEquals(m.getVariance(), m2.getVariance());
     Assertions.assertArrayEquals(m.getStandardDeviation(), m2.getStandardDeviation());
 
@@ -983,8 +975,8 @@ class ArrayMomentTest {
     final ArrayMoment m3 = m.newInstance();
     m2.add(m3);
     Assertions.assertEquals(m.getN(), m2.getN());
-    Assertions.assertArrayEquals(m.getFirstMoment(), m2.getFirstMoment());
-    Assertions.assertArrayEquals(m.getSecondMoment(), m2.getSecondMoment());
+    Assertions.assertArrayEquals(m.getMean(), m2.getMean());
+    Assertions.assertArrayEquals(m.getSumOfSquares(), m2.getSumOfSquares());
     Assertions.assertArrayEquals(m.getVariance(), m2.getVariance());
     Assertions.assertArrayEquals(m.getStandardDeviation(), m2.getStandardDeviation());
 
@@ -1000,8 +992,8 @@ class ArrayMomentTest {
       r2.add(data[i]);
     }
     Assertions.assertEquals(size + data.length, r2.getN());
-    final double[] om1 = r2.getFirstMoment();
-    final double[] om2 = r2.getSecondMoment();
+    final double[] om1 = r2.getMean();
+    final double[] om2 = r2.getSumOfSquares();
     final double[] ov = r2.getVariance();
     final double[] osd = r2.getStandardDeviation();
 
@@ -1025,8 +1017,8 @@ class ArrayMomentTest {
       r2.add(data[i]);
     }
     Assertions.assertEquals(size + data.length, r2.getN());
-    final double[] om1 = r2.getFirstMoment();
-    final double[] om2 = r2.getSecondMoment();
+    final double[] om1 = r2.getMean();
+    final double[] om2 = r2.getSumOfSquares();
     final double[] ov = r2.getVariance();
     final double[] osd = r2.getStandardDeviation();
 
@@ -1060,15 +1052,16 @@ class ArrayMomentTest {
         SamplerUtils.createGaussianSampler(rng, 100.345, Math.PI);
     for (int i = 600000; i-- > 0;) {
       final double d = g.sample();
-      m1.add(d);
+      final double[] data = new double[] {d};
+      m1.add(data);
       m2.increment(d);
-      r2.add(d);
+      r2.add(data);
     }
-    logger.info(FunctionUtils.getSupplier("Mean %s vs %s, SD %s vs %s",
-        Double.toString(m1.getFirstMoment()[0]), Double.toString(r2.getFirstMoment()[0]),
-        Double.toString(m1.getStandardDeviation()[0]),
-        Double.toString(r2.getStandardDeviation()[0])));
-    TestAssertions.assertTest(m1.getFirstMoment()[0], r2.getFirstMoment()[0], equality, "Mean");
-    Assertions.assertEquals(m2.getResult(), r2.getSecondMoment()[0], "2nd Moment");
+    logger.info(
+        FunctionUtils.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getMean()[0]),
+            Double.toString(r2.getMean()[0]), Double.toString(m1.getStandardDeviation()[0]),
+            Double.toString(r2.getStandardDeviation()[0])));
+    TestAssertions.assertTest(m1.getMean()[0], r2.getMean()[0], equality, "Mean");
+    Assertions.assertEquals(m2.getResult(), r2.getSumOfSquares()[0], "2nd Moment");
   }
 }

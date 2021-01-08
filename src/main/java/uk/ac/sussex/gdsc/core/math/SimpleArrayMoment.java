@@ -32,9 +32,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
- * Simple class to calculate the mean and variance of arrayed data using a fast summation algorithm
- * that tracks the sum of input values and the sum of squared input values. This may not be suitable
- * for a large series of data where the mean is far from zero due to floating point round-off error.
+ * Calculate the mean and variance of 2D arrayed data using a fast summation algorithm that tracks
+ * the sum of input values and the sum of squared input values. This may not be suitable for a large
+ * series of data where the mean is far from zero due to floating point round-off error.
  */
 public final class SimpleArrayMoment implements ArrayMoment {
   private long size;
@@ -50,18 +50,6 @@ public final class SimpleArrayMoment implements ArrayMoment {
    */
   public SimpleArrayMoment() {
     // Do nothing
-  }
-
-  @Override
-  public void add(double data) {
-    if (size == 0) {
-      // Initialise the array lengths
-      sum = new double[1];
-      sumSq = new double[1];
-    }
-    size++;
-    sum[0] += data;
-    sumSq[0] += data * data;
   }
 
   @Override
@@ -206,7 +194,7 @@ public final class SimpleArrayMoment implements ArrayMoment {
   }
 
   @Override
-  public double[] getFirstMoment() {
+  public double[] getMean() {
     if (size == 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
@@ -219,7 +207,7 @@ public final class SimpleArrayMoment implements ArrayMoment {
   }
 
   @Override
-  public double[] getSecondMoment() {
+  public double[] getSumOfSquares() {
     if (size == 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
@@ -249,7 +237,7 @@ public final class SimpleArrayMoment implements ArrayMoment {
     if (size == 1) {
       return new double[sum.length];
     }
-    final double[] v = getSecondMoment();
+    final double[] v = getSumOfSquares();
     final double n1 = (isBiasCorrected) ? size - 1 : size;
     for (int i = 0; i < v.length; i++) {
       v[i] = positive(v[i] / n1);
@@ -274,7 +262,7 @@ public final class SimpleArrayMoment implements ArrayMoment {
     if (size == 1) {
       return new double[sum.length];
     }
-    final double[] v = getSecondMoment();
+    final double[] v = getSumOfSquares();
     final double n1 = (isBiasCorrected) ? size - 1 : size;
     for (int i = 0; i < v.length; i++) {
       v[i] = positiveSqrt(v[i] / n1);

@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
-import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,99 +36,100 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 /**
- * Test for {@link ArrayMoment}.
+ * Test for {@link Mean}.
  */
 @SuppressWarnings({"javadoc"})
-class RollingFirstMomentTest {
+class MeanTest {
 
   @Test
   void testConstructor() {
-    final RollingFirstMoment m = new RollingFirstMoment();
-    Assertions.assertEquals(Double.NaN, m.getFirstMoment());
+    final Mean m = new Mean();
+    Assertions.assertEquals(Double.NaN, m.getMean());
     Assertions.assertEquals(0, m.getN());
   }
 
   @Test
-  void testConstructorWithMean() {
-    final double moment1 = 3.45;
+  void testConstructorWithValues() {
+    final double mean = 3.45;
     final long size = 13;
-    final RollingFirstMoment m = new RollingFirstMoment(size, moment1);
-    Assertions.assertEquals(moment1, m.getFirstMoment());
+    final Mean m = new Mean(size, mean);
+    Assertions.assertEquals(mean, m.getMean());
     Assertions.assertEquals(size, m.getN());
   }
 
   @Test
   void testConstructorWithZeroSize() {
-    final double moment1 = 3.45;
+    final double mean = 3.45;
     final long size = 0;
-    final RollingFirstMoment m = new RollingFirstMoment(size, moment1);
-    Assertions.assertEquals(Double.NaN, m.getFirstMoment());
+    final Mean m = new Mean(size, mean);
+    Assertions.assertEquals(Double.NaN, m.getMean());
     Assertions.assertEquals(0, m.getN());
     final double value = 6.5;
     m.add(value);
-    Assertions.assertEquals(value, m.getFirstMoment());
+    Assertions.assertEquals(value, m.getMean());
     Assertions.assertEquals(1, m.getN());
   }
 
   @Test
   void testConstructorThrows() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> new RollingFirstMoment(-1, 0));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new Mean(-1, 0));
   }
 
   @SeededTest
-  void canComputeRollingMoment(RandomSeed seed) {
+  void canAddValues(RandomSeed seed) {
     // Test vs Apache Commons Math
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 3; i++) {
-      final RollingFirstMoment m = new RollingFirstMoment();
-      final Mean m1 = new Mean();
-      Assertions.assertEquals(m1.getResult(), m.getFirstMoment());
+      final Mean m = new Mean();
+      final org.apache.commons.math3.stat.descriptive.moment.Mean m1 =
+          new org.apache.commons.math3.stat.descriptive.moment.Mean();
+      Assertions.assertEquals(m1.getResult(), m.getMean());
       Assertions.assertEquals(m1.getN(), m.getN());
       for (int j = 0; j < 10; j++) {
         final double value = rng.nextDouble();
         m.add(value);
         m1.increment(value);
-        Assertions.assertEquals(m1.getResult(), m.getFirstMoment());
+        Assertions.assertEquals(m1.getResult(), m.getMean());
         Assertions.assertEquals(m1.getN(), m.getN());
       }
     }
   }
 
   @Test
-  void canAddRollingMoment() {
-    final double moment11 = 3.45;
+  void canAddInstances() {
+    final double mean1 = 3.45;
     final long size1 = 13;
-    final RollingFirstMoment m1 = new RollingFirstMoment(size1, moment11);
-    final RollingFirstMoment m2 = new RollingFirstMoment();
+    final Mean m1 = new Mean(size1, mean1);
+    final Mean m2 = new Mean();
     m1.add(m2);
-    Assertions.assertEquals(moment11, m1.getFirstMoment());
+    Assertions.assertEquals(mean1, m1.getMean());
     Assertions.assertEquals(size1, m1.getN());
     m2.add(m1);
-    Assertions.assertEquals(moment11, m2.getFirstMoment());
+    Assertions.assertEquals(mean1, m2.getMean());
     Assertions.assertEquals(size1, m2.getN());
-    final double moment13 = 32.98;
+    final double mean3 = 32.98;
     final long size3 = 42;
-    final RollingFirstMoment m3 = new RollingFirstMoment(size3, moment13);
+    final Mean m3 = new Mean(size3, mean3);
     final long expectedN = size1 + size3;
-    final double expectedMean = (moment11 * size1 + moment13 * size3) / expectedN;
+    final double expectedMean = (mean1 * size1 + mean3 * size3) / expectedN;
     m3.add(m1);
-    Assertions.assertEquals(expectedMean, m3.getFirstMoment(), 1e-10);
+    Assertions.assertEquals(expectedMean, m3.getMean(), 1e-10);
     Assertions.assertEquals(expectedN, m3.getN());
-    m1.add(new RollingFirstMoment(size3, moment13));
-    Assertions.assertEquals(expectedMean, m1.getFirstMoment(), 1e-10);
+    m1.add(new Mean(size3, mean3));
+    Assertions.assertEquals(expectedMean, m1.getMean(), 1e-10);
     Assertions.assertEquals(expectedN, m1.getN());
   }
 
   @Test
   void testCopy() {
-    final double moment1 = 3.45;
+    final double mean = 3.45;
     final long size = 13;
-    final RollingFirstMoment m = new RollingFirstMoment(size, moment1);
-    Assertions.assertEquals(moment1, m.getFirstMoment());
+    final Mean m = new Mean(size, mean);
+    Assertions.assertEquals(mean, m.getMean());
     Assertions.assertEquals(size, m.getN());
-    final RollingFirstMoment mb = m.copy();
+    final Mean mb = m.copy();
     Assertions.assertNotSame(m, mb);
-    Assertions.assertEquals(moment1, mb.getFirstMoment());
+    Assertions.assertEquals(mean, mb.getMean());
     Assertions.assertEquals(size, mb.getN());
   }
 }

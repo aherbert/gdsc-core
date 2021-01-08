@@ -35,17 +35,16 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
- * Simple class to calculate the mean and variance of arrayed integer data using a fast summation
- * algorithm that tracks the sum of input values and the sum of squared input values. This may not
- * be suitable for a large series of data where the mean is far from zero due to floating point
- * round-off error.
+ * Calculate the mean and variance of 2D arrayed integer data using a fast summation algorithm that
+ * tracks the sum of input values and the sum of squared input values. This may not be suitable for
+ * a large series of data where the mean is far from zero due to floating point round-off error.
  *
  * <p>Only supports integer data types (byte, short, integer). A NotImplementedException is thrown
  * for floating point data.
  *
  * <p>This class is only suitable if the user is assured that overflow of Long.MAX_VALUE will not
  * occur. The sum accumulates the input value squared. A check can be made for potential overflow if
- * the maximum value and number of inputs is known.
+ * the maximum value and number of inputs is known (see {@link #isValid(IntegerType, int)}).
  */
 public final class IntegerArrayMoment implements ArrayMoment {
 
@@ -66,11 +65,6 @@ public final class IntegerArrayMoment implements ArrayMoment {
    */
   public IntegerArrayMoment() {
     // Do nothing
-  }
-
-  @Override
-  public void add(double data) {
-    throw new NotImplementedException();
   }
 
   @Override
@@ -198,7 +192,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
   }
 
   @Override
-  public double[] getFirstMoment() {
+  public double[] getMean() {
     if (size == 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
@@ -211,7 +205,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
   }
 
   @Override
-  public double[] getSecondMoment() {
+  public double[] getSumOfSquares() {
     if (size == 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
@@ -240,7 +234,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
     if (size == 1) {
       return new double[sum.length];
     }
-    final double[] v = getSecondMoment();
+    final double[] v = getSumOfSquares();
     final double n1 = (isBiasCorrected) ? size - 1 : size;
     for (int i = 0; i < v.length; i++) {
       v[i] = positive(v[i] / n1);
@@ -271,7 +265,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
     if (size == 1) {
       return new double[sum.length];
     }
-    final double[] v = getSecondMoment();
+    final double[] v = getSumOfSquares();
     final double n1 = (isBiasCorrected) ? size - 1 : size;
     for (int i = 0; i < v.length; i++) {
       v[i] = positiveSqrt(v[i] / n1);

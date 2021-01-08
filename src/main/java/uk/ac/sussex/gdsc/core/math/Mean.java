@@ -31,25 +31,25 @@ package uk.ac.sussex.gdsc.core.math;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
- * Simple class to calculate the mean of data using a rolling algorithm.
- *
- * <p>For each additional value, update the first moment using:
+ * Calculate the mean of data.
  *
  * <pre>
- * m = m + (new value - m) / (number of observations)
+ * mean = sum(x) / n
  * </pre>
+ *
+ * <p>The value is computed using a rolling algorithm.
  */
-public final class RollingFirstMoment {
+public final class Mean {
   /** The number of values that have been added. */
   private long size;
 
-  /** First moment of values that have been added. */
-  private double m1;
+  /** Mean of values that have been added. */
+  private double mean;
 
   /**
    * Create an instance.
    */
-  public RollingFirstMoment() {
+  public Mean() {
     // Do nothing
   }
 
@@ -57,13 +57,13 @@ public final class RollingFirstMoment {
    * Create an instance.
    *
    * @param size the number of values that have been added
-   * @param m1 the first moment (ignored when the size is zero)
+   * @param mean the mean (ignored when the size is zero)
    * @throws IllegalArgumentException if the size is negative
    */
-  public RollingFirstMoment(long size, double m1) {
+  public Mean(long size, double mean) {
     ValidationUtils.checkPositive(size, "size");
     this.size = size;
-    this.m1 = size == 0 ? 0 : m1;
+    this.mean = size == 0 ? 0 : mean;
   }
 
   /**
@@ -71,9 +71,9 @@ public final class RollingFirstMoment {
    *
    * @param source the source to copy
    */
-  private RollingFirstMoment(RollingFirstMoment source) {
+  private Mean(Mean source) {
     this.size = source.size;
-    this.m1 = source.m1;
+    this.mean = source.mean;
   }
 
   /**
@@ -83,37 +83,37 @@ public final class RollingFirstMoment {
    */
   public void add(double value) {
     final long n = size + 1;
-    final double m1a = m1;
-    m1 = m1a + (value - m1a) / n;
+    final double mean1 = mean;
+    mean = mean1 + (value - mean1) / n;
     size = n;
   }
 
   /**
-   * Adds the moment.
+   * Adds the other instance.
    *
-   * @param moment the moment
+   * @param other the other instance
    */
-  public void add(RollingFirstMoment moment) {
-    final long na = size;
-    final double m1a = m1;
-    final long nb = moment.size;
-    final double m1b = moment.m1;
+  public void add(Mean other) {
+    final long n1 = size;
+    final double mean1 = mean;
+    final long n2 = other.size;
+    final double mean2 = other.mean;
     // Adapted from
     // org.apache.commons.math3.stat.regression.SimpleRegression.append(SimpleRegression)
-    final long n = na + nb;
-    final double f1 = nb / (double) n;
-    final double delta = m1b - m1a;
-    m1 = m1a + delta * f1;
+    final long n = n1 + n2;
+    final double f = n2 / (double) n;
+    final double delta = mean2 - mean1;
+    mean = mean1 + delta * f;
     size = n;
   }
 
   /**
-   * Gets the first moment. Return NaN if no values have been added.
+   * Gets the arithmetic mean. Return NaN if no values have been added.
    *
-   * @return the first moment
+   * @return the arithmetic mean
    */
-  public double getFirstMoment() {
-    return size == 0 ? Double.NaN : m1;
+  public double getMean() {
+    return size == 0 ? Double.NaN : mean;
   }
 
   /**
@@ -130,7 +130,7 @@ public final class RollingFirstMoment {
    *
    * @return a copy
    */
-  public RollingFirstMoment copy() {
-    return new RollingFirstMoment(this);
+  public Mean copy() {
+    return new Mean(this);
   }
 }

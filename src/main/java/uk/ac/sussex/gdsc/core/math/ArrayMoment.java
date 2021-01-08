@@ -29,20 +29,15 @@
 package uk.ac.sussex.gdsc.core.math;
 
 /**
- * Interface to calculate the mean and variance of arrayed data.
+ * Interface to calculate the mean (first raw moment) and variance (second central moment) of a 2D
+ * data array. The mean and variance will be computed for each column index in the 2D array by
+ * processing rows incrementally.
  */
 public interface ArrayMoment {
   /**
-   * Add the data. This is a convenience method for arrays of size one.
-   *
-   * @param data the data
-   */
-  void add(double data);
-
-  /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
@@ -51,7 +46,7 @@ public interface ArrayMoment {
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
@@ -60,7 +55,7 @@ public interface ArrayMoment {
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
@@ -69,7 +64,7 @@ public interface ArrayMoment {
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
@@ -78,7 +73,7 @@ public interface ArrayMoment {
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
@@ -95,7 +90,7 @@ public interface ArrayMoment {
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
@@ -104,25 +99,26 @@ public interface ArrayMoment {
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
    * subsequent data must be the same size, e.g an array of length n will compute n first and second
-   * moments for the range 0&lt;=i&lt;n.
+   * moments for the range {@code 0 <= i < n}.
    *
    * @param data the data
    */
   void addUnsigned(byte[] data);
 
   /**
-   * Gets the first moment (the sample mean).
+   * Gets the arithmetic mean.
    *
-   * @return the first moment (empty array if no data has been added)
+   * @return the mean (empty array if no data has been added)
    */
-  double[] getFirstMoment();
+  double[] getMean();
 
   /**
-   * Gets the second moment (sum of squared deviations from the sample mean).
+   * Gets the sum of squared deviations from the sample mean.
    *
-   * @return the second moment (empty array if no data has been added)
+   * @return the sum of squared deviations from the sample mean (empty array if no data has been
+   *         added)
    */
-  double[] getSecondMoment();
+  double[] getSumOfSquares();
 
   /**
    * Gets the number of observations.

@@ -32,34 +32,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
- * Simple class to calculate the mean and variance of arrayed data using a rolling algorithm.
+ * Calculate the mean and variance of 2D arrayed data using a rolling algorithm.
  *
- * <p>Note: If the user desires to maintain just a single moment then it advised to use the Apache
- * class org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
- *
- * <p>For each additional value, update the first moment using:
- *
- * <pre>
- * m = m + (new value - m) / (number of observations)
- * </pre>
- *
- * <p>The following recursive updating formula is used for the second moment:
- *
- * <p>Let
- * 
- * <ul>
- * 
- * <li>dev = (current obs - previous mean)</li>
- * 
- * <li>n = number of observations (including current obs)</li>
- * 
- * </ul>
- *
- * <p>Then:
- *
- * <pre>
- * new value = old value + dev^2 * (n - 1) / n.
- * </pre>
+ * <p>Note: For a single moment use {@link SumOfSquaredDeviations}.
  */
 public final class RollingArrayMoment implements ArrayMoment {
   private long size;
@@ -75,25 +50,6 @@ public final class RollingArrayMoment implements ArrayMoment {
    */
   public RollingArrayMoment() {
     // Do nothing
-  }
-
-  @Override
-  public void add(double data) {
-    if (size == 0) {
-      size = 1;
-      // Initialise the first moment to the input value
-      m1 = new double[] {data};
-      // Initialise sum-of-squared differences to zero
-      m2 = new double[1];
-    } else {
-      final double nMinus1 = size;
-      size++;
-      final double n0 = size;
-      final double dev = data - m1[0];
-      final double nDev = dev / n0;
-      m1[0] += nDev;
-      m2[0] += nMinus1 * dev * nDev;
-    }
   }
 
   @Override
@@ -307,12 +263,12 @@ public final class RollingArrayMoment implements ArrayMoment {
   }
 
   @Override
-  public double[] getFirstMoment() {
+  public double[] getMean() {
     return (m1 == null) ? ArrayUtils.EMPTY_DOUBLE_ARRAY : m1.clone();
   }
 
   @Override
-  public double[] getSecondMoment() {
+  public double[] getSumOfSquares() {
     return (m2 == null) ? ArrayUtils.EMPTY_DOUBLE_ARRAY : m2.clone();
   }
 
