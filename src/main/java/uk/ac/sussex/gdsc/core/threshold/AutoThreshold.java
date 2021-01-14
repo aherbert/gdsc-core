@@ -1535,14 +1535,23 @@ public class AutoThreshold {
     int threshold = -1;
     double maxCrit = Double.MIN_VALUE;
     for (int it = 0; it < data.length; it++) {
-      final double crit = -1.0 * ((p1Sq[it] * p2Sq[it]) > 0.0 ? Math.log(p1Sq[it] * p2Sq[it]) : 0.0)
-          + 2 * ((p1[it] * (1.0 - p1[it])) > 0.0 ? Math.log(p1[it] * (1.0 - p1[it])) : 0.0);
+      final double crit = 2 * logOrZero(p1[it] * (1.0 - p1[it])) - logOrZero(p1Sq[it] * p2Sq[it]);
       if (crit > maxCrit) {
         maxCrit = crit;
         threshold = it;
       }
     }
     return threshold;
+  }
+
+  /**
+   * Return the log of the value or zero if it is not positive.
+   *
+   * @param value the value
+   * @return log(value) or zero
+   */
+  private static double logOrZero(double value) {
+    return value > 0.0 ? Math.log(value) : 0.0;
   }
 
   /**
