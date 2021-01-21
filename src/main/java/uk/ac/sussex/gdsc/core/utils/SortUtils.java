@@ -36,6 +36,21 @@ import java.util.Comparator;
  */
 public final class SortUtils {
 
+  /**
+   * Store an object and a double value.
+   *
+   * @param <T> the generic type
+   */
+  private static class TDouble<T> {
+    final T item;
+    final double value;
+
+    TDouble(T item, double value) {
+      this.item = item;
+      this.value = value;
+    }
+  }
+
   /** No public construction. */
   private SortUtils() {}
 
@@ -177,7 +192,7 @@ public final class SortUtils {
    * @param descending set to true to sort in descending order
    */
   public static void sortData(int[] data, int[] values, boolean sortValues, boolean descending) {
-    // Convert sortData for sorting
+    // Convert data for sorting
     final int[][] sortData = new int[data.length][2];
     for (int i = sortData.length; i-- > 0;) {
       sortData[i][0] = values[i];
@@ -226,7 +241,7 @@ public final class SortUtils {
    */
   public static void sortData(float[] data, float[] values, boolean sortValues,
       boolean descending) {
-    // Convert sortData for sorting
+    // Convert data for sorting
     final float[][] sortData = new float[data.length][2];
     for (int i = sortData.length; i-- > 0;) {
       sortData[i][0] = values[i];
@@ -275,7 +290,7 @@ public final class SortUtils {
    */
   public static void sortData(double[] data, double[] values, boolean sortValues,
       boolean descending) {
-    // Convert sortData for sorting
+    // Convert data for sorting
     final double[][] sortData = new double[data.length][2];
     for (int i = sortData.length; i-- > 0;) {
       sortData[i][0] = values[i];
@@ -302,7 +317,6 @@ public final class SortUtils {
     }
   }
 
-
   /**
    * Sorts the {@code data} using the provided {@code values}.
    *
@@ -324,7 +338,7 @@ public final class SortUtils {
    * @param descending set to true to sort in descending order
    */
   public static void sortData(int[] data, double[] values, boolean sortValues, boolean descending) {
-    // Convert sortData for sorting
+    // Convert data for sorting
     final double[][] sortData = new double[data.length][2];
     for (int i = sortData.length; i-- > 0;) {
       sortData[i][0] = values[i];
@@ -347,6 +361,55 @@ public final class SortUtils {
     } else {
       for (int i = sortData.length; i-- > 0;) {
         data[i] = (int) sortData[i][1];
+      }
+    }
+  }
+
+  /**
+   * Sorts the {@code data} using the provided {@code values}.
+   *
+   * <p>The {@code values} array must match the length of the {@code data} array.
+   *
+   * <pre>
+   * <code>
+   *   Integer[] data = {70, 80, 90};
+   *   double[] values = {44, 0, 1};
+   *   SortUtils.sortData(data, values, true, false);
+   *   // data == [ 80, 90, 70 ];
+   *   // values  == [ 0, 1, 44 ];
+   * </code>
+   * </pre>
+   *
+   * @param data the data
+   * @param values the values
+   * @param sortValues set to true to also sort the values
+   * @param descending set to true to sort in descending order
+   */
+  public static <T> void sortData(T[] data, double[] values, boolean sortValues,
+      boolean descending) {
+    // Convert data for sorting
+    final LocalList<TDouble<T>> list = new LocalList<>(data.length);
+    for (int i = data.length; i-- > 0;) {
+      list.push(new TDouble<>(data[i], values[i]));
+    }
+
+    final Comparator<TDouble<T>> cmp = descending
+        // Largest first
+        ? (o1, o2) -> Double.compare(o2.value, o1.value)
+        // Smallest first
+        : (o1, o2) -> Double.compare(o1.value, o2.value);
+    list.sort(cmp);
+
+    // Copy back
+    if (sortValues) {
+      for (int i = data.length; i-- > 0;) {
+        final TDouble<T> pair = list.unsafeGet(i);
+        values[i] = pair.value;
+        data[i] = pair.item;
+      }
+    } else {
+      for (int i = data.length; i-- > 0;) {
+        data[i] = list.unsafeGet(i).item;
       }
     }
   }
