@@ -141,6 +141,8 @@ public final class MatchCalculator {
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
    *
+   * <p>Uses a 2D Euclidean distance with the XY coordinates.
+   *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
@@ -156,6 +158,8 @@ public final class MatchCalculator {
    * Calculate the match results for the given actual and predicted points. Points that are within
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
+   *
+   * <p>Uses a 2D Euclidean distance with the XY coordinates.
    *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
@@ -177,6 +181,8 @@ public final class MatchCalculator {
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
    *
+   * <p>Uses a 2D Euclidean distance with the XY coordinates.
+   *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
@@ -189,14 +195,17 @@ public final class MatchCalculator {
   public static MatchResult analyseResults2D(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    return analyseResultsCoordinates(actualPoints, predictedPoints, distanceThreshold,
-        truePositives, falsePositives, falseNegatives, matches, Coordinate::distanceXySquared);
+    return analyseResultsCoordinates(actualPoints, predictedPoints,
+        distanceThreshold * distanceThreshold, truePositives, falsePositives, falseNegatives,
+        matches, Coordinate::distanceXySquared);
   }
 
   /**
    * Calculate the match results for the given actual and predicted points. Points that are within
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
+   *
+   * <p>Uses a 3D Euclidean distance with the XYZ coordinates.
    *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
@@ -213,6 +222,8 @@ public final class MatchCalculator {
    * Calculate the match results for the given actual and predicted points. Points that are within
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
+   *
+   * <p>Uses a 3D Euclidean distance with the XYZ coordinates.
    *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
@@ -234,6 +245,8 @@ public final class MatchCalculator {
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
    *
+   * <p>Uses a 3D Euclidean distance with the XYZ coordinates.
+   *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
    * @param distanceThreshold The distance threshold
@@ -246,14 +259,19 @@ public final class MatchCalculator {
   public static MatchResult analyseResults3D(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    return analyseResultsCoordinates(actualPoints, predictedPoints, distanceThreshold,
-        truePositives, falsePositives, falseNegatives, matches, Coordinate::distanceXyzSquared);
+    return analyseResultsCoordinates(actualPoints, predictedPoints,
+        distanceThreshold * distanceThreshold, truePositives, falsePositives, falseNegatives,
+        matches, Coordinate::distanceXyzSquared);
   }
 
   /**
    * Calculate the match results for the given actual and predicted points. Points that are within
    * the distance threshold are identified as a match. The number of true positives, false positives
    * and false negatives are calculated.
+   *
+   * <p>Note: For the MatchResult to contain a RMSD it is assumed the edges function will return a
+   * squared Euclidean distance and the distance threshold is appropriate, i.e. is the squared
+   * radius of the hyper sphere for the appropriate number of dimensions (1, 2, or 3).
    *
    * @param actualPoints the actual points
    * @param predictedPoints the predicted points
@@ -265,7 +283,7 @@ public final class MatchCalculator {
    * @param edges function used to identify distance between the vertices ({@code A -> B})
    * @return The match results
    */
-  private static MatchResult analyseResultsCoordinates(Coordinate[] actualPoints,
+  public static MatchResult analyseResultsCoordinates(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches,
       ToDoubleBiFunction<Coordinate, Coordinate> edges) {

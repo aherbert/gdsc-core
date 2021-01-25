@@ -260,10 +260,66 @@ class MatchCalculatorTest {
     assertMatch(actual, predicted, 2, 1, 2, rmsd, match);
   }
 
+  @Test
+  void testAnalyseResults2DDistanceThreshold() {
+    for (int dim = 0; dim < 2; dim++) {
+      final float[] coords = new float[8];
+      final Coordinate[] actual = createCoordinates2D(coords);
+      for (int i = dim, j = 0; i < coords.length; i += 2) {
+        coords[i] = j++;
+      }
+      final Coordinate[] predicted = createCoordinates2D(coords);
+      MatchResult match;
+      match = MatchCalculator.analyseResults2D(actual, predicted, 0);
+      assertMatch(actual, predicted, 1, 3, 3, 0, match);
+      match = MatchCalculator.analyseResults2D(actual, predicted, 1);
+      // RMSD = sqrt((0 + 1) / 2)
+      assertMatch(actual, predicted, 2, 2, 2, Math.sqrt(0.5), match);
+      match = MatchCalculator.analyseResults2D(actual, predicted, 2);
+      // RMSD = sqrt((0 + 1 + 2^2) / 3)
+      assertMatch(actual, predicted, 3, 1, 1, Math.sqrt(5.0 / 3), match);
+      match = MatchCalculator.analyseResults2D(actual, predicted, 3);
+      // RMSD = sqrt((0 + 1 + 2^2 + 3^2) / 4)
+      assertMatch(actual, predicted, 4, 0, 0, Math.sqrt(14.0 / 4), match);
+    }
+  }
+
+  @Test
+  void testAnalyseResults3DDistanceThreshold() {
+    for (int dim = 0; dim < 3; dim++) {
+      final float[] coords = new float[12];
+      final Coordinate[] actual = createCoordinates3D(coords);
+      for (int i = dim, j = 0; i < coords.length; i += 3) {
+        coords[i] = j++;
+      }
+      final Coordinate[] predicted = createCoordinates3D(coords);
+      MatchResult match;
+      match = MatchCalculator.analyseResults3D(actual, predicted, 0);
+      assertMatch(actual, predicted, 1, 3, 3, 0, match);
+      match = MatchCalculator.analyseResults3D(actual, predicted, 1);
+      // RMSD = sqrt((0 + 1) / 2)
+      assertMatch(actual, predicted, 2, 2, 2, Math.sqrt(0.5), match);
+      match = MatchCalculator.analyseResults3D(actual, predicted, 2);
+      // RMSD = sqrt((0 + 1 + 2^2) / 3)
+      assertMatch(actual, predicted, 3, 1, 1, Math.sqrt(5.0 / 3), match);
+      match = MatchCalculator.analyseResults3D(actual, predicted, 3);
+      // RMSD = sqrt((0 + 1 + 2^2 + 3^2) / 4)
+      assertMatch(actual, predicted, 4, 0, 0, Math.sqrt(14.0 / 4), match);
+    }
+  }
+
   private static Coordinate[] createCoordinates2D(float... data) {
     final ArrayList<Coordinate> list = new ArrayList<>();
     for (int i = 0; i < data.length; i += 2) {
       list.add(new BasePoint(data[i], data[i + 1]));
+    }
+    return list.toArray(new Coordinate[0]);
+  }
+
+  private static Coordinate[] createCoordinates3D(float... data) {
+    final ArrayList<Coordinate> list = new ArrayList<>();
+    for (int i = 0; i < data.length; i += 3) {
+      list.add(new BasePoint(data[i], data[i + 1], data[i + 2]));
     }
     return list.toArray(new Coordinate[0]);
   }
