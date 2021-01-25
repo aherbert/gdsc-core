@@ -321,11 +321,12 @@ public final class XmlUtils {
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       transformer.setOutputProperty(OutputKeys.INDENT, (indent) ? "yes" : "no");
 
-      final StreamResult result = new StreamResult(new StringWriter());
+      final StringWriter writer = new StringWriter();
+      final StreamResult result = new StreamResult(writer);
       final DOMSource source = new DOMSource(node);
       transformer.transform(source, result);
 
-      return result.getWriter().toString();
+      return writer.toString();
     } catch (final TransformerFactoryConfigurationError | TransformerException ex) {
       // Ignore exceptions and return empty string
     }
