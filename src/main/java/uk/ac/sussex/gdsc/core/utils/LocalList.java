@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +41,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 
 /**
  * A {@link List} intended for <strong>single-threaded</strong> or <strong>local</strong> usage. It
