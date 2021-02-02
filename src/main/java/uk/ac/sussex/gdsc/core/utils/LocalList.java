@@ -572,7 +572,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
   /**
    * Get the element at the specified index. Internal method to perform an unchecked cast on the raw
-   * object to the corrrect return type.
+   * object to the correct return type.
    *
    * <p>Package level access for inner classes.
    *
