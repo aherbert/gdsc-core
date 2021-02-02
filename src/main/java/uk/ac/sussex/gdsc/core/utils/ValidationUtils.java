@@ -1285,6 +1285,6 @@ public final class ValidationUtils {
       throw new IllegalArgumentException("negative size: " + size);
     }
     // index >= size
-    return String.format("%s (%d) must be less than size", name, index);
+    return String.format("%s (%d) must be less than size (%d)", name, index, size);
   }
 }
