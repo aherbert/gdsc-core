@@ -47,7 +47,9 @@ class Hull2dTest {
   void canCreateWithOnePoint() {
     final double[] x = {1.2345};
     final Hull2d hull = Hull2d.create(x, x);
+    Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(1, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(new double[][] {{x[0], x[0]}}, hull.getVertices());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
   }
@@ -56,7 +58,9 @@ class Hull2dTest {
   void canCreateWithTwoPoints() {
     final double[] x = {1.5, 2.5};
     final Hull2d hull = Hull2d.create(x, x);
+    Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(2, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(new double[][] {{x[0], x[0]}, {x[1], x[1]}}, hull.getVertices());
     Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0, hull.getArea());
   }
@@ -66,7 +70,10 @@ class Hull2dTest {
     final double[] x = {1, 2, 2};
     final double[] y = {1, 1, 2};
     final Hull2d hull = Hull2d.create(x, y);
+    Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(3, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(new double[][] {{x[0], y[0]}, {x[1], y[1]}, {x[2], y[2]}},
+        hull.getVertices());
     Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0.5, hull.getArea(), 1e-10);
   }
@@ -82,7 +89,9 @@ class Hull2dTest {
   void canCreateSingleArrayWithOnePoint() {
     final double[][] c = {{1.2345, 6.78}};
     final Hull2d hull = Hull2d.create(c);
+    Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(1, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(c, hull.getVertices());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
   }
@@ -91,7 +100,9 @@ class Hull2dTest {
   void canCreateSingleArrayWithTwoPoints() {
     final double[][] c = {{1.5, 1.5}, {2.5, 2.5}};
     final Hull2d hull = Hull2d.create(c);
+    Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(2, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(c, hull.getVertices());
     Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0, hull.getArea());
   }
@@ -100,7 +111,9 @@ class Hull2dTest {
   void canCreateSingleArrayWithThreePoints() {
     final double[][] c = {{1, 1}, {2, 1}, {2, 2}};
     final Hull2d hull = Hull2d.create(c);
+    Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(3, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(c, hull.getVertices());
     Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0.5, hull.getArea(), 1e-10);
   }
