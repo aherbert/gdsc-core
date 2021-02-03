@@ -36,8 +36,9 @@ import org.junit.jupiter.api.Test;
 class Hull3dTest {
   @Test
   void testCreateThrows() {
-    final double[][] v = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-    final int[][] f = {{0, 1, 2}, {1, 3, 2}, {3, 0, 2}, {0, 3, 1}};
+    // Tetrahedron
+    final double[][] v = {{1, 1, 1}, {1, -1, -1}, {-1, 1, -1}, {-1, -1, 1}};
+    final int[][] f = {{0, 1, 2}, {0, 3, 1}, {3, 2, 1}, {3, 0, 2}};
     Assertions.assertThrows(NullPointerException.class, () -> Hull3d.create(null, f));
     Assertions.assertThrows(NullPointerException.class, () -> Hull3d.create(v, null));
     // Not enough vertices
@@ -60,6 +61,115 @@ class Hull3dTest {
   }
 
   @Test
+  void canGetCentroid() {
+    // Octahedron
+    final double[][] v = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
+    final int[][] f =
+        {{0, 4, 3}, {3, 4, 1}, {1, 4, 2}, {2, 4, 0}, {3, 5, 0}, {1, 5, 3}, {2, 5, 1}, {0, 5, 2}};
+    final double[] centroid = {0, 0, 0};
+    Hull3d hull = Hull3d.create(v, f);
+    // Test repeat calls
+    final double[] c1 = hull.getCentroid();
+    final double[] c2 = hull.getCentroid();
+    Assertions.assertArrayEquals(centroid, c1, 1e-10);
+    Assertions.assertArrayEquals(c1, c2);
+    Assertions.assertNotSame(c1, c2);
+
+    // Shift
+    for (final double[] shift : new double[][] {{1, 2, -3}, {-5, -6, 17}}) {
+      for (final double[] c : v) {
+        c[0] += shift[0];
+        c[1] += shift[1];
+        c[2] += shift[2];
+      }
+      centroid[0] += shift[0];
+      centroid[1] += shift[1];
+      centroid[2] += shift[2];
+      hull = Hull3d.create(v, f);
+      Assertions.assertArrayEquals(centroid, hull.getCentroid(), 1e-10);
+    }
+  }
+
+  @Test
+  void canGetArea() {
+    // Octahedron
+    final double[][] v = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
+    final int[][] f =
+        {{0, 4, 3}, {3, 4, 1}, {1, 4, 2}, {2, 4, 0}, {3, 5, 0}, {1, 5, 3}, {2, 5, 1}, {0, 5, 2}};
+    final Hull3d hull = Hull3d.create(v, f);
+    // Triangle area = height*base/2
+    final double base = Math.sqrt(2);
+    final double height = Math.sqrt(base * base - (base / 2) * (base / 2));
+    final double area = 8 * height * base / 2;
+    // Test repeat calls
+    Assertions.assertEquals(area, hull.getArea(), 1e-10);
+    Assertions.assertEquals(area, hull.getArea(), 1e-10);
+  }
+
+  @Test
+  void canGetVolume() {
+    // Octahedron
+    final double[][] v = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
+    final int[][] f =
+        {{0, 4, 3}, {3, 4, 1}, {1, 4, 2}, {2, 4, 0}, {3, 5, 0}, {1, 5, 3}, {2, 5, 1}, {0, 5, 2}};
+    Hull3d hull = Hull3d.create(v, f);
+    // Pyramid volume = length*width*height/3 = root(2)*root(2)*1/3
+    final double volume = 2 * (2.0 / 3);
+    // Test repeat calls
+    Assertions.assertEquals(volume, hull.getVolume());
+    Assertions.assertEquals(volume, hull.getVolume());
+
+    // Shift
+    for (final double[] shift : new double[][] {{1, 2, -3}, {-5, -6, 17}}) {
+      for (final double[] c : v) {
+        c[0] += shift[0];
+        c[1] += shift[1];
+        c[2] += shift[2];
+      }
+      hull = Hull3d.create(v, f);
+      Assertions.assertEquals(volume, hull.getVolume());
+    }
+  }
+
+  @Test
+  void canCreateWithRegularTetrahedron() {
+    // https://en.wikipedia.org/wiki/Tetrahedron
+    final double[][] v = {{1, 1, 1}, {1, -1, -1}, {-1, 1, -1}, {-1, -1, 1}};
+    final int[][] f = {{0, 1, 2}, {0, 3, 1}, {3, 2, 1}, {3, 0, 2}};
+    final Hull3d hull = Hull3d.create(v, f);
+    Assertions.assertEquals(3, hull.dimensions());
+    Assertions.assertEquals(4, hull.getNumberOfVertices());
+    Assertions.assertArrayEquals(v, hull.getVertices());
+    Assertions.assertEquals(4, hull.getNumberOfFaces());
+    Assertions.assertArrayEquals(f, hull.getFaces());
+    // Edge length
+    final double edge = Math.sqrt(8);
+    Assertions.assertEquals(Math.sqrt(3) * edge * edge, hull.getArea(), 1e-10);
+    Assertions.assertEquals(edge * edge * edge / (6 * Math.sqrt(2)), hull.getVolume(), 1e-10);
+    Assertions.assertArrayEquals(new double[] {0, 0, 0}, hull.getCentroid());
+
+    // Test the point for each face
+    final double t = 1.0 / 3;
+    Assertions.assertArrayEquals(new double[] {t, t, -t}, hull.getPoint(0));
+    Assertions.assertArrayEquals(new double[] {t, -t, t}, hull.getPoint(1));
+    Assertions.assertArrayEquals(new double[] {-t, -t, -t}, hull.getPoint(2));
+    Assertions.assertArrayEquals(new double[] {-t, t, t}, hull.getPoint(3));
+
+    // Test the plane equation returns the correct normal and the value d to compute the
+    // distance to the plane
+    final double d = 1.0 / Math.sqrt(3);
+    final double u = Math.sqrt(t) + Math.sqrt(3);
+    assertPlane(hull.getPlane(0), new double[] {d, d, -d}, new double[][] {v[0], v[3]},
+        new double[] {0, -u});
+    assertPlane(hull.getPlane(1), new double[] {d, -d, d}, new double[][] {v[0], v[2]},
+        new double[] {0, -u});
+    assertPlane(hull.getPlane(2), new double[] {-d, -d, -d}, new double[][] {v[3], v[0]},
+        new double[] {0, -u});
+    assertPlane(hull.getPlane(3), new double[] {-d, d, d}, new double[][] {v[3], v[1]},
+        new double[] {0, -u});
+  }
+
+  @Test
   void canCreateWithTetrahedron() {
     final double[][] v = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
     final int[][] f = {{0, 2, 1}, {2, 3, 1}, {0, 3, 2}, {0, 1, 3}};
@@ -69,6 +179,21 @@ class Hull3dTest {
     Assertions.assertArrayEquals(v, hull.getVertices());
     Assertions.assertEquals(4, hull.getNumberOfFaces());
     Assertions.assertArrayEquals(f, hull.getFaces());
+    // Heron's formula for area given 3 sides: sqrt( p(p-a)(p-b)(p-c) )
+    // with p the half perimeter
+    final double side = Math.sqrt(2);
+    final double p = 3 * side / 2;
+    Assertions.assertEquals(3.0 / 2 + Math.sqrt(p * Math.pow(p - side, 3)), hull.getArea(), 1e-10);
+    // 1/3 base area * height
+    Assertions.assertEquals((1.0 / 2) / 3, hull.getVolume(), 1e-10);
+    // Pyramid centroid: 3/4 along the line from the vertex to the centre of the opposite side.
+    final double[] centre = {1.0 / 3, 1.0 / 3, 0};
+    final double[] vector = {-centre[0], -centre[1], 1.0 - centre[2]};
+    for (int i = 0; i < 3; i++) {
+      centre[i] += vector[i] / 4;
+    }
+    Assertions.assertArrayEquals(centre, hull.getCentroid(), 1e-10);
+
     // Test the point for each face
     Assertions.assertArrayEquals(new double[] {1.0 / 3, 1.0 / 3, 0}, hull.getPoint(0));
     Assertions.assertArrayEquals(new double[] {1.0 / 3, 1.0 / 3, 1.0 / 3}, hull.getPoint(1));
@@ -77,15 +202,15 @@ class Hull3dTest {
 
     // Test the plane equation returns the correct normal and the value d to compute the
     // distance to the plane
-    final double[] p = {1.5, 1.5, 1.5};
+    final double[] x = {1.5, 1.5, 1.5};
     final double d = 1.0 / Math.sqrt(3);
-    assertPlane(hull.getPlane(0), new double[] {0, 0, -1}, new double[][] {v[0], v[3], p},
+    assertPlane(hull.getPlane(0), new double[] {0, 0, -1}, new double[][] {v[0], v[3], x},
         new double[] {0, -1, -1.5});
-    assertPlane(hull.getPlane(1), new double[] {d, d, d}, new double[][] {v[2], v[0], p},
+    assertPlane(hull.getPlane(1), new double[] {d, d, d}, new double[][] {v[2], v[0], x},
         new double[] {0, -d, Math.sqrt(1.5 * 1.5 * 3) - d});
-    assertPlane(hull.getPlane(2), new double[] {-1, 0, 0}, new double[][] {v[0], v[1], p},
+    assertPlane(hull.getPlane(2), new double[] {-1, 0, 0}, new double[][] {v[0], v[1], x},
         new double[] {0, -1, -1.5});
-    assertPlane(hull.getPlane(3), new double[] {0, -1, 0}, new double[][] {v[0], v[2], p},
+    assertPlane(hull.getPlane(3), new double[] {0, -1, 0}, new double[][] {v[0], v[2], x},
         new double[] {0, -1, -1.5});
   }
 
@@ -101,6 +226,9 @@ class Hull3dTest {
     Assertions.assertArrayEquals(v, hull.getVertices());
     Assertions.assertEquals(6, hull.getNumberOfFaces());
     Assertions.assertArrayEquals(f, hull.getFaces());
+    Assertions.assertEquals(2 * 2 * 6, hull.getArea(), 1e-10);
+    Assertions.assertEquals(2 * 2 * 2, hull.getVolume(), 1e-10);
+    Assertions.assertArrayEquals(new double[] {0, 0, 0}, hull.getCentroid());
 
     // Test the point for each face
     Assertions.assertArrayEquals(new double[] {0, 1, 0}, hull.getPoint(0));

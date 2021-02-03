@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.math.hull;
 import gnu.trove.list.array.TDoubleArrayList;
 import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.UnitSphereSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.LocalCollectors;
@@ -239,6 +240,28 @@ class ConvexHull3dTest {
     builder.clear();
     final Hull3d hull3 = builder.build();
     Assertions.assertNull(hull3);
+  }
+
+  @Test
+  void canBuildWithManyPoints() {
+    // Sample from a unit sphere.
+    // TODO - change to a unit ball.
+    final UnitSphereSampler sampler = new UnitSphereSampler(3, RngUtils.create(126487618L));
+    final int n = 500;
+    final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
+    final double[] centroid = {1, -2, 3};
+    for (int i = 0; i < n; i++) {
+      final double[] sample = sampler.nextVector();
+      for (int j = 0; j < 3; j++) {
+        sample[j] += centroid[j];
+      }
+      builder.add(sample);
+    }
+    // Test volume and area
+    final Hull3d hull = builder.build();
+    Assertions.assertEquals(4 * Math.PI, hull.getArea(), 0.2);
+    Assertions.assertEquals(4 * Math.PI / 3, hull.getVolume(), 0.2);
+    Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);
   }
 
   /**
