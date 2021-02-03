@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.math.hull;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings({"javadoc"})
 class Hull2dTest {
@@ -52,6 +53,7 @@ class Hull2dTest {
     Assertions.assertArrayEquals(new double[][] {{x[0], x[0]}}, hull.getVertices());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {x[0], x[0]}, hull.getCentroid());
   }
 
   @Test
@@ -63,6 +65,7 @@ class Hull2dTest {
     Assertions.assertArrayEquals(new double[][] {{x[0], x[0]}, {x[1], x[1]}}, hull.getVertices());
     Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {2, 2}, hull.getCentroid());
   }
 
   @Test
@@ -76,6 +79,52 @@ class Hull2dTest {
         hull.getVertices());
     Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0.5, hull.getArea(), 1e-10);
+    Assertions.assertArrayEquals(new double[] {5.0 / 3, 4.0 / 3}, hull.getCentroid());
+  }
+
+  @Test
+  void canGetCentroid() {
+    final double[] x = {1, 2, 2};
+    final double[] y = {1, 1, 2};
+    final double[] centroid = {5.0 / 3, 4.0 / 3};
+    for (int i = 0; i <= 1; i++) {
+      final double[] x2 = x.clone();
+      SimpleArrayUtils.add(x2, i);
+      for (int j = 0; j <= 1; j++) {
+        final double[] y2 = y.clone();
+        SimpleArrayUtils.add(y2, -j);
+        final double[] centroid2 = new double[] {centroid[0] + i, centroid[1] - j};
+        final Hull2d hull = Hull2d.create(x2, y2);
+        // Test repeat calls
+        final double[] c = hull.getCentroid();
+        final double[] c2 = hull.getCentroid();
+        Assertions.assertArrayEquals(centroid2, c, 1e-10);
+        Assertions.assertArrayEquals(c, c2);
+        Assertions.assertNotSame(c, c2);
+      }
+    }
+  }
+
+  @Test
+  void canGetLength() {
+    final double[] x = {1, 2, 2};
+    final double[] y = {1, 1, 2};
+    final Hull2d hull = Hull2d.create(x, y);
+    final double length = 1 + 1 + Math.sqrt(2);
+    // Test repeat calls
+    Assertions.assertEquals(length, hull.getLength());
+    Assertions.assertEquals(length, hull.getLength());
+  }
+
+  @Test
+  void canGetArea() {
+    final double[] x = {1, 2, 2};
+    final double[] y = {1, 1, 2};
+    final Hull2d hull = Hull2d.create(x, y);
+    final double area = 0.5;
+    // Test repeat calls
+    Assertions.assertEquals(area, hull.getArea());
+    Assertions.assertEquals(area, hull.getArea());
   }
 
   @Test
@@ -94,6 +143,7 @@ class Hull2dTest {
     Assertions.assertArrayEquals(c, hull.getVertices());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(c[0], hull.getCentroid());
   }
 
   @Test
@@ -105,6 +155,7 @@ class Hull2dTest {
     Assertions.assertArrayEquals(c, hull.getVertices());
     Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {2, 2}, hull.getCentroid());
   }
 
   @Test
@@ -116,16 +167,18 @@ class Hull2dTest {
     Assertions.assertArrayEquals(c, hull.getVertices());
     Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0.5, hull.getArea(), 1e-10);
+    Assertions.assertArrayEquals(new double[] {5.0 / 3, 4.0 / 3}, hull.getCentroid());
   }
 
   @Test
-  void canComputeLengthAndArea() {
+  void canComputeCentroidLengthAndArea() {
     // Parallelogram
     double[] xvalues = {0, 10, 11, 1};
     double[] yvalues = {0, 0, 10, 10};
     Hull2d hull = Hull2d.create(xvalues, yvalues);
     Assertions.assertEquals(2 * 10 + 2 * Math.sqrt(1 * 1 + 10 * 10), hull.getLength(), 1e-6);
     Assertions.assertEquals(100, hull.getArea(), 1e-6);
+    Assertions.assertArrayEquals(new double[] {5.5, 5}, hull.getCentroid());
 
     // Rotated square
     xvalues = new double[] {0, 10, 9, -1};
@@ -134,6 +187,7 @@ class Hull2dTest {
     final double edgeLengthSquared = 1 * 1 + 10 * 10;
     Assertions.assertEquals(4 * Math.sqrt(edgeLengthSquared), hull.getLength(), 1e-6);
     Assertions.assertEquals(edgeLengthSquared, hull.getArea(), 1e-6);
+    Assertions.assertArrayEquals(new double[] {9.0 / 2, 11.0 / 2}, hull.getCentroid());
 
     // Polygon circle
     final int n = 1000;
@@ -148,6 +202,7 @@ class Hull2dTest {
     hull = Hull2d.create(xvalues, yvalues);
     Assertions.assertEquals(2 * Math.PI * radius, hull.getLength(), 1e-2);
     Assertions.assertEquals(Math.PI * radius * radius, hull.getArea(), 1e-2);
+    Assertions.assertArrayEquals(new double[] {0, 0}, hull.getCentroid(), 1e-2);
   }
 
   @Test

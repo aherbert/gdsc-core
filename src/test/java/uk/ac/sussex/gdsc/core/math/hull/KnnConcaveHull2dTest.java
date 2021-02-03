@@ -185,6 +185,7 @@ class KnnConcaveHull2dTest {
     Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {x[0], x[1]}, hull.getCentroid());
   }
 
   @Test
@@ -214,6 +215,7 @@ class KnnConcaveHull2dTest {
     Assertions.assertEquals(1, hull.getNumberOfVertices());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {x[0], x[0]}, hull.getCentroid());
   }
 
   @Test
@@ -223,6 +225,7 @@ class KnnConcaveHull2dTest {
     Assertions.assertEquals(2, hull.getNumberOfVertices());
     Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {2, 2}, hull.getCentroid());
   }
 
   @Test
@@ -233,10 +236,11 @@ class KnnConcaveHull2dTest {
     Assertions.assertEquals(3, hull.getNumberOfVertices());
     Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0.5, hull.getArea(), 1e-10);
+    Assertions.assertArrayEquals(new double[] {5.0 / 3, 4.0 / 3}, hull.getCentroid());
   }
 
   @Test
-  void canCreateWithManyPoints() {
+  void canCreateWithMultiplePointsCircular() {
     final UnitCircleSampler sampler = UnitCircleSampler.of(RngUtils.create(126487618L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
@@ -254,6 +258,7 @@ class KnnConcaveHull2dTest {
     final double area = hull.getArea();
     Assertions.assertTrue(area <= Math.PI);
     Assertions.assertEquals(Math.PI, area, 0.4);
+    Assertions.assertArrayEquals(new double[] {0, 0}, hull.getCentroid(), 0.01);
   }
 
   /**

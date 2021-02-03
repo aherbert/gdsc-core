@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import uk.ac.sussex.gdsc.core.math.GeometryUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -44,6 +43,13 @@ public final class Hull2d implements Hull {
 
   /** The y coordinates. */
   private final double[] y;
+
+  /** The length. */
+  private double length;
+  /** The centroid. */
+  private double[] centroid;
+  /** The area. */
+  private double area;
 
   /**
    * Instantiates a new hull.
@@ -194,19 +200,94 @@ public final class Hull2d implements Hull {
   }
 
   /**
+   * Gets the centroid.
+   *
+   * @return the centroid
+   */
+  public double[] getCentroid() {
+    double[] c = centroid;
+    if (centroid == null) {
+      computeProperties();
+      c = centroid;
+    }
+    return c.clone();
+  }
+
+  /**
    * Gets the length.
    *
    * @return the length
    */
   public double getLength() {
-    if (getNumberOfVertices() < 2) {
-      return 0;
+    double l = length;
+    if (l == 0) {
+      computeProperties();
+      l = length;
     }
-    double length = 0;
-    for (int i = x.length, j = 0; i-- > 0; j = i) {
-      length += distance(x[i], y[i], x[j], y[j]);
+    return l;
+  }
+
+  /**
+   * Gets the area. The returned area is unsigned.
+   *
+   * @return the area
+   */
+  public double getArea() {
+    double a = area;
+    if (a == 0) {
+      computeProperties();
+      a = area;
     }
-    return length;
+    return a;
+  }
+
+  /**
+   * Compute the hull properties (centroid, length, area).
+   */
+  private synchronized void computeProperties() {
+    if (centroid != null) {
+      return;
+    }
+    // Edge cases
+    if (x.length == 1) {
+      length = area = 0;
+      centroid = new double[] {x[0], y[0]};
+      return;
+    }
+    if (x.length == 2) {
+      // The hull wraps around the entire line so double the length
+      length = 2 * distance(x[0], y[0], x[1], y[1]);
+      area = 0;
+      centroid = new double[] {(x[0] + x[1]) / 2, (y[0] + y[1]) / 2};
+      return;
+    }
+
+    // http://paulbourke.net/geometry/polygonmesh
+    // Compute area as per the method in GeometryUtils.
+    double l = 0;
+    double cx = 0;
+    double cy = 0;
+    double sum1 = 0;
+    double sum2 = 0;
+    for (int i = x.length, i1 = 0; i-- > 0; i1 = i) {
+      final double xi = x[i];
+      final double xi1 = x[i1];
+      final double yi = y[i];
+      final double yi1 = y[i1];
+      l += distance(xi, yi, xi1, yi1);
+      final double xiyi1 = xi * yi1;
+      final double xi1yi = xi1 * yi;
+      sum1 += xiyi1;
+      sum2 += xi1yi;
+      final double d = xiyi1 - xi1yi;
+      cx += (xi + xi1) * d;
+      cy += (yi + yi1) * d;
+    }
+    length = l;
+    double a = Math.abs((sum1 - sum2) / 2);
+    area = a;
+    a *= 6;
+    centroid = new double[] {cx / a, cy / a};
   }
 
   /**
@@ -223,15 +304,5 @@ public final class Hull2d implements Hull {
     final double dx = x1 - x2;
     final double dy = y1 - y2;
     return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  /**
-   * Gets the area. The returned area is unsigned.
-   *
-   * @return the area
-   */
-  public double getArea() {
-    // Ensure the area is unsigned
-    return Math.abs(GeometryUtils.getArea(x, y));
   }
 }

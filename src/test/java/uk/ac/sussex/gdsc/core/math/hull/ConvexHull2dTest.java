@@ -111,6 +111,7 @@ class ConvexHull2dTest {
     Assertions.assertEquals(2, hull.dimensions());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {x[0], x[1]}, hull.getCentroid());
   }
 
   @Test
@@ -140,6 +141,7 @@ class ConvexHull2dTest {
     Assertions.assertEquals(1, hull.getNumberOfVertices());
     Assertions.assertEquals(0, hull.getLength());
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {x[0], x[0]}, hull.getCentroid());
   }
 
   @Test
@@ -149,6 +151,7 @@ class ConvexHull2dTest {
     Assertions.assertEquals(2, hull.getNumberOfVertices());
     Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0, hull.getArea());
+    Assertions.assertArrayEquals(new double[] {2, 2}, hull.getCentroid());
   }
 
   @Test
@@ -159,6 +162,7 @@ class ConvexHull2dTest {
     Assertions.assertEquals(3, hull.getNumberOfVertices());
     Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
     Assertions.assertEquals(0.5, hull.getArea(), 1e-10);
+    Assertions.assertArrayEquals(new double[] {5.0 / 3, 4.0 / 3}, hull.getCentroid());
   }
 
   @Test
@@ -175,5 +179,6 @@ class ConvexHull2dTest {
     final Hull2d hull = ConvexHull2d.create(xx.toArray(), yy.toArray());
     Assertions.assertEquals(2 * Math.PI, hull.getLength(), 0.2);
     Assertions.assertEquals(Math.PI, hull.getArea(), 0.2);
+    Assertions.assertArrayEquals(new double[] {0, 0}, hull.getCentroid(), 0.01);
   }
 }
