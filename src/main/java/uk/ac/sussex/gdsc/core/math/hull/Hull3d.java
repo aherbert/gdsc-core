@@ -270,7 +270,7 @@ public final class Hull3d implements Hull {
    * is a point on the plane.
    *
    * <p>The plane is specified in Hessian normal form where the normal vector is of unit length and
-   * {@code d} is the is the distance of the plane from the origin.
+   * {@code d} is the distance of the plane from the origin.
    *
    * @param index the face index
    * @return the plane
