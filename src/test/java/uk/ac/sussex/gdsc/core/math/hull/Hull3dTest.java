@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.math.hull;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 @SuppressWarnings({"javadoc"})
 class Hull3dTest {
@@ -58,6 +59,19 @@ class Hull3dTest {
     final int[][] f2 = f.clone();
     f2[0] = Arrays.copyOf(f[0], 2);
     Assertions.assertThrows(IllegalArgumentException.class, () -> Hull3d.create(v, f2));
+  }
+
+  @Test
+  void testCreateThrowsWithUnpairedEdges() {
+    // Tetrahedron
+    final double[][] v = {{1, 1, 1}, {1, -1, -1}, {-1, 1, -1}, {-1, -1, 1}};
+    final int[][] f = {{0, 1, 2}, {0, 3, 1}, {3, 2, 1}, {3, 0, 2}};
+    Assertions.assertNotNull(Hull3d.create(v, f));
+    for (int i = 0; i < f.length; i++) {
+      SimpleArrayUtils.swap(f[0], 0, 1);
+      Assertions.assertThrows(IllegalArgumentException.class, () -> Hull3d.create(v, f));
+      SimpleArrayUtils.swap(f[0], 0, 1);
+    }
   }
 
   @Test

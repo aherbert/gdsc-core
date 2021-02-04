@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
+import java.util.TreeMap;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
@@ -55,6 +56,39 @@ public final class Hull3d implements Hull {
   private double volume;
 
   /**
+   * A class to allow validation of face edges.
+   */
+  private static class Edge {
+    final int from;
+    final int to;
+
+    /**
+     * Create an instance.
+     *
+     * @param from the from
+     * @param to the to
+     */
+    Edge(int from, int to) {
+      this.from = from;
+      this.to = to;
+    }
+
+    /**
+     * Compare two edges.
+     *
+     * @param e1 the first edge
+     * @param e2 the second edge
+     * @return [-1, 0, 1]
+     */
+    static int compare(Edge e1, Edge e2) {
+      return Integer.compare(e1.from, e2.from) == 0 ? 0 : Integer.compare(e1.to, e2.to);
+    }
+
+    // Note: We do not override equals as it is not used in the TreeMap. Only the comparator is used
+    // to test equivalence.
+  }
+
+  /**
    * Instantiates a new hull.
    *
    * @param vertices the vertices
@@ -75,28 +109,23 @@ public final class Hull3d implements Hull {
    * <p>A simple validation is performed to check that the number of faces ({@code F}) is at most
    * {@code F = 2V - 4} with {@code V} the number of vertices.
    *
+   * <p>The edges are then extracted and a test performed to ensure each forward edge between two
+   * vertices has a corresponding reverse edge.
+   *
    * @param vertices the vertices
    * @param faces the faces (counter-clockwise ordering)
    * @return the convex hull
    * @throws NullPointerException if the inputs are null
    * @throws IllegalArgumentException if the array lengths are less than 4, if the coordinate
    *         lengths are not at least 3, if the faces lengths are not at least 3, if the indices of
-   *         the faces do not reference a vertex, or if the number of faces is too large.
+   *         the faces do not reference a vertex, if the number of faces is too large, or if there
+   *         are unpaired edges between two vertices.
    */
   public static Hull3d create(double[][] vertices, int[][] faces) {
     ValidationUtils.checkArgument(vertices.length >= 4, "vertices length");
     ValidationUtils.checkArgument(faces.length >= 4, "faces length");
     ValidationUtils.checkArgument(faces.length <= 2 * vertices.length - 4, "F > 2V - 4: F=%d, V=%d",
         faces.length, vertices.length);
-
-    // Note: Potential face validation
-    // Each face should be a distinct set.
-
-    // Note: Potential edge validation.
-    // Each edge (E) is a consecutive pair on the face. There should be pairs of corresponding
-    // half edges in opposite directions.
-    // e.g. face {0, 1, 2} expects a single occurrence of the opposite edges {1, 0}, {2, 1} and {0,
-    // 2} to be present in the rest of the faces.
 
     final int numberOfVertices = vertices.length;
     final double[][] v = new double[numberOfVertices][];
@@ -107,6 +136,40 @@ public final class Hull3d implements Hull {
     for (int i = 0; i < faces.length; i++) {
       f[i] = copyFace(faces[i], numberOfVertices);
     }
+
+    // Note: Edge validation.
+    // Each edge (E) is a consecutive pair on the face. There should be pairs of corresponding
+    // half edges in opposite directions.
+    // e.g. face {0, 1, 2} expects the opposite edges {1, 0}, {2, 1} and {0, 2} to be present
+    // in the rest of the faces. So we build a map of the edges and a count of the direction.
+    final TreeMap<Edge, int[]> set = new TreeMap<>(Edge::compare);
+    for (final int[] face : f) {
+      for (int i = face.length, i1 = 0; i-- > 0; i1 = i) {
+        final int from = face[i];
+        final int to = face[i1];
+        // Orient the edge as forward or backward
+        Edge e;
+        int direction;
+        if (from < to) {
+          e = new Edge(from, to);
+          direction = 1;
+        } else {
+          e = new Edge(to, from);
+          direction = -1;
+        }
+        set.compute(e, (k, count) -> {
+          if (count == null) {
+            return new int[] {direction};
+          }
+          count[0] += direction;
+          return count;
+        });
+      }
+    }
+    // All edges should be paired so the count is zero
+    set.forEach((e, count) -> ValidationUtils.checkArgument(count[0] == 0,
+        "Unpaired edges from vertex %d to %d", e.from, e.to));
+
     return new Hull3d(v, f);
   }
 
