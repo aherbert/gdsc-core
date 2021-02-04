@@ -171,14 +171,15 @@ class ConvexHull2dTest {
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
     final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final double[] centroid = {1, -2};
     for (int i = 0; i < n; i++) {
       final double[] p = sampler.sample();
-      xx.add(p[0]);
-      yy.add(p[1]);
+      xx.add(p[0] + centroid[0]);
+      yy.add(p[1] + centroid[1]);
     }
     final Hull2d hull = ConvexHull2d.create(xx.toArray(), yy.toArray());
     Assertions.assertEquals(2 * Math.PI, hull.getLength(), 0.2);
     Assertions.assertEquals(Math.PI, hull.getArea(), 0.2);
-    Assertions.assertArrayEquals(new double[] {0, 0}, hull.getCentroid(), 0.01);
+    Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);
   }
 }
