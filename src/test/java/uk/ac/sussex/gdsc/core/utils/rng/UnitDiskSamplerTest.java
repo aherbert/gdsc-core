@@ -33,12 +33,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-class UnitCircleSamplerTest {
+class UnitDiskSamplerTest {
   @Test
   void testSamples() {
     final UniformRandomProvider rng = SplitMix.new64(0);
-    final UnitCircleSampler s = UnitCircleSampler.of(rng);
-    final UnitCircleSampler s2 = s.withUniformRandomProvider(rng);
+    final UnitDiskSampler s = UnitDiskSampler.of(rng);
+    final UnitDiskSampler s2 = s.withUniformRandomProvider(rng);
     // No statistical test. Just verify within a circle.
     double[] p;
     for (int i = 0; i < 100; i++) {

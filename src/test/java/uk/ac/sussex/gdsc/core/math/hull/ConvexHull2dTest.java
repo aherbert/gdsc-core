@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.math.hull;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
+import uk.ac.sussex.gdsc.core.utils.rng.UnitDiskSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -167,7 +167,7 @@ class ConvexHull2dTest {
 
   @Test
   void canCreateWithManyPoints() {
-    final UnitCircleSampler sampler = UnitCircleSampler.of(RngUtils.create(126487618L));
+    final UnitDiskSampler sampler = UnitDiskSampler.of(RngUtils.create(126487618L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
     final TDoubleArrayList yy = new TDoubleArrayList(n);

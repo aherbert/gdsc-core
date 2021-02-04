@@ -32,12 +32,12 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.SharedStateSampler;
 
 /**
- * Class for generating a random point within a unit circle.
+ * Class for generating a random point within a unit disk.
  *
  * @since 2.0
  * @see <a href="https://mathworld.wolfram.com/DiskPointPicking.html">Disk point picking</a>
  */
-public class UnitCircleSampler implements SharedStateSampler<UnitCircleSampler> {
+public class UnitDiskSampler implements SharedStateSampler<UnitDiskSampler> {
 
   private static final double TWO_PI = 2 * Math.PI;
 
@@ -49,7 +49,7 @@ public class UnitCircleSampler implements SharedStateSampler<UnitCircleSampler> 
    *
    * @param rng Generator of uniformly distributed random numbers.
    */
-  private UnitCircleSampler(UniformRandomProvider rng) {
+  private UnitDiskSampler(UniformRandomProvider rng) {
     this.rng = rng;
   }
 
@@ -59,8 +59,8 @@ public class UnitCircleSampler implements SharedStateSampler<UnitCircleSampler> 
    * @param rng Generator of uniformly distributed random numbers.
    * @return the sampler
    */
-  public static UnitCircleSampler of(UniformRandomProvider rng) {
-    return new UnitCircleSampler(rng);
+  public static UnitDiskSampler of(UniformRandomProvider rng) {
+    return new UnitDiskSampler(rng);
   }
 
   /**
@@ -69,7 +69,7 @@ public class UnitCircleSampler implements SharedStateSampler<UnitCircleSampler> 
    * @return the sample
    */
   public double[] sample() {
-    // Generate a random point within a circle uniformly.
+    // Generate a random point within a unit disk uniformly.
     final double t = TWO_PI * rng.nextDouble();
     final double r = Math.sqrt(rng.nextDouble());
     final double x = r * Math.cos(t);
@@ -78,7 +78,7 @@ public class UnitCircleSampler implements SharedStateSampler<UnitCircleSampler> 
   }
 
   @Override
-  public UnitCircleSampler withUniformRandomProvider(UniformRandomProvider rng) {
+  public UnitDiskSampler withUniformRandomProvider(UniformRandomProvider rng) {
     return of(rng);
   }
 }

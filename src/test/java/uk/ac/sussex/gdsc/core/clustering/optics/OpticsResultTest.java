@@ -46,7 +46,7 @@ import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
 import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.math.hull.Hull2d;
-import uk.ac.sussex.gdsc.core.utils.rng.UnitCircleSampler;
+import uk.ac.sussex.gdsc.core.utils.rng.UnitDiskSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -361,7 +361,7 @@ class OpticsResultTest {
     // hierarchical clusters.
     final TFloatArrayList x = new TFloatArrayList();
     final TFloatArrayList y = new TFloatArrayList();
-    final UnitCircleSampler s = UnitCircleSampler.of(rng);
+    final UnitDiskSampler s = UnitDiskSampler.of(rng);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
     addCircle(s, 9, 9, 3, 50, x, y);
@@ -480,7 +480,7 @@ class OpticsResultTest {
     // hierarchical clusters.
     final TFloatArrayList x = new TFloatArrayList();
     final TFloatArrayList y = new TFloatArrayList();
-    final UnitCircleSampler s = UnitCircleSampler.of(rng);
+    final UnitDiskSampler s = UnitDiskSampler.of(rng);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
     addCircle(s, 9, 9, 3, 50, x, y);
@@ -542,7 +542,7 @@ class OpticsResultTest {
     // hierarchical clusters.
     final TFloatArrayList x = new TFloatArrayList();
     final TFloatArrayList y = new TFloatArrayList();
-    final UnitCircleSampler s = UnitCircleSampler.of(rng);
+    final UnitDiskSampler s = UnitDiskSampler.of(rng);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
     addCircle(s, 9, 9, 3, 50, x, y);
@@ -570,7 +570,7 @@ class OpticsResultTest {
     Assertions.assertArrayEquals(expected, actual);
   }
 
-  private static void addCircle(UnitCircleSampler s, float cx, float cy, float r, int n,
+  private static void addCircle(UnitDiskSampler s, float cx, float cy, float r, int n,
       TFloatArrayList x, TFloatArrayList y) {
     for (int i = 0; i < n; i++) {
       final double[] p = s.sample();
