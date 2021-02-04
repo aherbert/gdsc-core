@@ -244,18 +244,22 @@ public final class Hull3d implements Hull {
   }
 
   /**
-   * Gets the plane normal for the specified face into the given result array.
+   * Gets the plane normal and a point for the specified face into the given result arrays.
    *
    * <p>The plane normal is raw and should be normalised to unit length if required.
    *
    * @param face the face
-   * @param result the result
+   * @param normal the result
+   * @param point the point
    */
-  private void getPlaneNormal(int[] face, double[] result) {
+  private void getPlane(int[] face, double[] normal, double[] point) {
     // Use Newell's method to compute the normal N of the best fit plane of all the vertices.
     double a = 0;
     double b = 0;
     double c = 0;
+    double px = 0;
+    double py = 0;
+    double pz = 0;
     for (int i = face.length, i1 = 0; i-- > 0; i1 = i) {
       final int v1 = face[i];
       final int v2 = face[i1];
@@ -268,10 +272,16 @@ public final class Hull3d implements Hull {
       a += (y - y1) * (z + z1);
       b += (z - z1) * (x + x1);
       c += (x - x1) * (y + y1);
+      px += x;
+      py += y;
+      pz += z;
     }
-    result[0] = a;
-    result[1] = b;
-    result[2] = c;
+    normal[0] = a;
+    normal[1] = b;
+    normal[2] = c;
+    point[0] = px / face.length;
+    point[1] = py / face.length;
+    point[2] = pz / face.length;
   }
 
   /**
@@ -357,6 +367,8 @@ public final class Hull3d implements Hull {
     // and some will be subtracted. The centroid is the integral of all points x with the volume
     // divided by the volume.)
     final double[] normal = new double[3];
+    final double[] point = new double[3];
+    final double[] sumni = new double[3];
     double[] v1 = new double[3];
     double[] v2 = new double[3];
     final double[] ni = new double[3];
@@ -364,9 +376,11 @@ public final class Hull3d implements Hull {
     double a = 0;
     double v = 0;
     for (final int[] face : faces) {
-      // Compute the plane normal so the properties correspond to the correct plane orientation.
-      // This normal is used to orient each triangle of the face.
-      getPlaneNormal(face, normal);
+      // Compute the plane normal and point on a plane so the properties correspond to the correct
+      // plane orientation. This normal is used to orient each triangle of the face. The point
+      // is projected to the origin by each triangle normal:
+      // sum(dot(point, ni)) == dot(point, sum(ni))
+      getPlane(face, normal, point);
 
       // The face may not be a triangle. We can split each into triangles using a fan approach
       // with the first point fixed.
@@ -377,7 +391,7 @@ public final class Hull3d implements Hull {
       vector(ai, ci, v2);
       cross(v1, v2, ni);
       copySign(ni, normal);
-      v += dot(ai, ni);
+      System.arraycopy(ni, 0, sumni, 0, 3);
       a += norm(ni);
       for (int d = 0; d < 3; d++) {
         c[d] += ni[d] * (pow2(ai[d] + bi[d]) + pow2(bi[d] + ci[d]) + pow2(ci[d] + ai[d]));
@@ -395,12 +409,13 @@ public final class Hull3d implements Hull {
         vector(ai, ci, v2);
         cross(v1, v2, ni);
         copySign(ni, normal);
-        v += dot(ai, ni);
+        add(ni, sumni, sumni);
         a += norm(ni);
         for (int d = 0; d < 3; d++) {
           c[d] += ni[d] * (pow2(ai[d] + bi[d]) + pow2(bi[d] + ci[d]) + pow2(ci[d] + ai[d]));
         }
       }
+      v += dot(point, sumni);
     }
     volume = v / 6;
     area = a / 2;
@@ -419,6 +434,20 @@ public final class Hull3d implements Hull {
     v[0] = p2[0] - p1[0];
     v[1] = p2[1] - p1[1];
     v[2] = p2[2] - p1[2];
+  }
+
+  /**
+   * Compute the addition of point 1 and point 2 ({@code p1 + p2}) and store the result in
+   * {@code v}.
+   *
+   * @param p1 the first point
+   * @param p2 the second point
+   * @param v the result
+   */
+  private static void add(double[] p1, double[] p2, double[] v) {
+    v[0] = p2[0] + p1[0];
+    v[1] = p2[1] + p1[1];
+    v[2] = p2[2] + p1[2];
   }
 
   /**
