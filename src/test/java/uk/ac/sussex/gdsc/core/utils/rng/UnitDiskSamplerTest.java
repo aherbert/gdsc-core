@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,12 +41,13 @@ class UnitDiskSamplerTest {
     final UnitDiskSampler s = UnitDiskSampler.of(rng);
     final UnitDiskSampler s2 = s.withUniformRandomProvider(rng);
     // No statistical test. Just verify within a circle.
-    double[] p;
     for (int i = 0; i < 100; i++) {
-      p = s.sample();
-      Assertions.assertTrue(Math.hypot(p[0], p[1]) <= 1.0);
-      p = s2.sample();
-      Assertions.assertTrue(Math.hypot(p[0], p[1]) <= 1.0);
+      assertSample(s.sample());
+      assertSample(s2.sample());
     }
+  }
+
+  private static void assertSample(double[] p) {
+    Assertions.assertTrue(Math.sqrt(p[0] * p[0] + p[1] * p[1]) <= 1.0, () -> Arrays.toString(p));
   }
 }

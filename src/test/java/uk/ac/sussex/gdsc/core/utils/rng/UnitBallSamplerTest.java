@@ -42,12 +42,13 @@ class UnitBallSamplerTest {
     final UnitBallSampler s2 = s.withUniformRandomProvider(rng);
     // No statistical test. Just verify within a ball.
     for (int i = 0; i < 100; i++) {
-      final double[] p = s.sample();
-      Assertions.assertTrue(Math.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]) <= 1.0,
-          () -> Arrays.toString(p));
-      final double[] p2 = s2.sample();
-      Assertions.assertTrue(Math.sqrt(p2[0] * p2[0] + p2[1] * p2[1] + p2[2] * p2[2]) <= 1.0,
-          () -> Arrays.toString(p2));
+      assertSample(s.sample());
+      assertSample(s2.sample());
     }
+  }
+
+  private static void assertSample(double[] p) {
+    Assertions.assertTrue(Math.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]) <= 1.0,
+        () -> Arrays.toString(p));
   }
 }
