@@ -31,13 +31,13 @@ package uk.ac.sussex.gdsc.core.math.hull;
 import gnu.trove.list.array.TDoubleArrayList;
 import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.UnitSphereSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.LocalCollectors;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.UnitBallSampler;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
@@ -244,14 +244,13 @@ class ConvexHull3dTest {
 
   @Test
   void canBuildWithManyPoints() {
-    // Sample from a unit sphere.
-    // TODO - change to a unit ball.
-    final UnitSphereSampler sampler = new UnitSphereSampler(3, RngUtils.create(126487618L));
-    final int n = 500;
+    // Sample from a unit ball.
+    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L));
+    final int n = 5000;
     final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
     final double[] centroid = {1, -2, 3};
     for (int i = 0; i < n; i++) {
-      final double[] sample = sampler.nextVector();
+      final double[] sample = sampler.sample();
       for (int j = 0; j < 3; j++) {
         sample[j] += centroid[j];
       }
@@ -259,9 +258,9 @@ class ConvexHull3dTest {
     }
     // Test volume and area
     final Hull3d hull = builder.build();
-    Assertions.assertEquals(4 * Math.PI, hull.getArea(), 0.2);
-    Assertions.assertEquals(4 * Math.PI / 3, hull.getVolume(), 0.2);
-    Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);
+    Assertions.assertEquals(4 * Math.PI, hull.getArea(), 0.5, "Area");
+    Assertions.assertEquals(4 * Math.PI / 3, hull.getVolume(), 0.3, "Volume");
+    Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01, "Centroid");
   }
 
   /**
