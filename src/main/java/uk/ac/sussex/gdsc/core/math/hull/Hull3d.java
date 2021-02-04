@@ -28,12 +28,16 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Contains a set of coordinates representing the hull of a set of points. This should be a
  * non-self-intersecting (simple) polyhedron, which can be convex or concave.
+ *
+ * <p>Computation of the volume and centroid of the hull requires the faces to be convex polygons
+ * (which are split using a simple fan method to triangles).
  *
  * @since 2.0
  */
@@ -84,6 +88,9 @@ public final class Hull3d implements Hull {
     ValidationUtils.checkArgument(faces.length >= 4, "faces length");
     ValidationUtils.checkArgument(faces.length <= 2 * vertices.length - 4, "F > 2V - 4: F=%d, V=%d",
         faces.length, vertices.length);
+
+    // Note: Potential face validation
+    // Each face should be a distinct set.
 
     // Note: Potential edge validation.
     // Each edge (E) is a consecutive pair on the face. There should be pairs of corresponding
@@ -369,58 +376,90 @@ public final class Hull3d implements Hull {
     final double[] normal = new double[3];
     final double[] point = new double[3];
     final double[] sumni = new double[3];
-    double[] v1 = new double[3];
-    double[] v2 = new double[3];
+    final double[] v1 = new double[3];
+    final double[] v2 = new double[3];
     final double[] ni = new double[3];
     final double[] c = new double[3];
     double a = 0;
     double v = 0;
-    for (final int[] face : faces) {
+    final LocalList<int[]> triangles = new LocalList<>();
+    for (final int[] fullFace : faces) {
       // Compute the plane normal and point on a plane so the properties correspond to the correct
       // plane orientation. This normal is used to orient each triangle of the face. The point
-      // is projected to the origin by each triangle normal:
-      // sum(dot(point, ni)) == dot(point, sum(ni))
-      getPlane(face, normal, point);
+      // is projected to the origin by each triangle normal.
+      getPlane(fullFace, normal, point);
 
-      // The face may not be a triangle. We can split each into triangles using a fan approach
-      // with the first point fixed.
-      final double[] ai = vertices[face[0]];
-      final double[] bi = vertices[face[1]];
-      double[] ci = vertices[face[2]];
-      vector(ai, bi, v1);
-      vector(ai, ci, v2);
-      cross(v1, v2, ni);
-      copySign(ni, normal);
-      System.arraycopy(ni, 0, sumni, 0, 3);
-      a += norm(ni);
-      for (int d = 0; d < 3; d++) {
-        c[d] += ni[d] * (pow2(ai[d] + bi[d]) + pow2(bi[d] + ci[d]) + pow2(ci[d] + ai[d]));
-      }
-      // Process remaining triangles.
-      // TODO - Fix this as it will not work for polygons which are not convex,
-      // e.g. a partial/full doughnut.
-      for (int k = 3; k < face.length; k++) {
-        // Previous ci becomes bi so rotate the vectors to avoid recomputing v1 as (bi - ai)
-        final double[] tmp = v1;
-        v1 = v2;
-        v2 = tmp;
-        // Compute next vector
-        ci = vertices[face[k]];
+      // The face may not be a triangle.
+      if (fullFace.length == 3) {
+        final double[] ai = vertices[fullFace[0]];
+        final double[] bi = vertices[fullFace[1]];
+        final double[] ci = vertices[fullFace[2]];
+        vector(ai, bi, v1);
         vector(ai, ci, v2);
         cross(v1, v2, ni);
         copySign(ni, normal);
-        add(ni, sumni, sumni);
         a += norm(ni);
+        v += dot(point, ni);
         for (int d = 0; d < 3; d++) {
           c[d] += ni[d] * (pow2(ai[d] + bi[d]) + pow2(bi[d] + ci[d]) + pow2(ci[d] + ai[d]));
         }
+      } else {
+        // Reset the sum of the normals. This allows use of a single dot product.
+        // sum(dot(point, ni)) == dot(point, sum(ni))
+        sumni[0] = 0;
+        sumni[1] = 0;
+        sumni[2] = 0;
+        for (final int[] face : triangulate(fullFace, normal, triangles)) {
+          final double[] ai = vertices[face[0]];
+          final double[] bi = vertices[face[1]];
+          final double[] ci = vertices[face[2]];
+          vector(ai, bi, v1);
+          vector(ai, ci, v2);
+          cross(v1, v2, ni);
+          copySign(ni, normal);
+          add(ni, sumni, sumni);
+          a += norm(ni);
+          for (int d = 0; d < 3; d++) {
+            c[d] += ni[d] * (pow2(ai[d] + bi[d]) + pow2(bi[d] + ci[d]) + pow2(ci[d] + ai[d]));
+          }
+        }
+        v += dot(point, sumni);
       }
-      v += dot(point, sumni);
     }
     volume = v / 6;
     area = a / 2;
     SimpleArrayUtils.multiply(c, 1.0 / (48.0 * volume));
     centroid = c;
+  }
+
+  /**
+   * Triangulate the face into triangles.
+   *
+   * @param face the face
+   * @param normal the normal
+   * @param triangles the triangles working list
+   * @return the list of triangles
+   */
+  private static LocalList<int[]> triangulate(int[] face, double[] normal,
+      LocalList<int[]> triangles) {
+
+    // TODO: This should be updated to handle non convex polygons. E.g. using
+    // a simple polygon to monotone polygon to triangle algorithm.
+    // Fournier, A.; Montuno, D. Y. (1984),
+    // "Triangulating simple polygons and equivalent problems",
+    // ACM Transactions on Graphics, 3 (2): 153–174,
+    // https://doi.org/10.1145%2F357337.357341
+
+    triangles.ensureCapacity(face.length - 2);
+    triangles.clear();
+    // This works for convex polygons to create a triangle fan.
+    // The fan is not optimal as it does not avoid small wedges.
+    // The fan can be improved by selecting the common vertex as the vertex with
+    // the largest angle. Here we just pick the first vertex.
+    for (int k = 2; k < face.length; k++) {
+      triangles.add(new int[] {face[0], face[k - 1], face[k]});
+    }
+    return triangles;
   }
 
   /**
