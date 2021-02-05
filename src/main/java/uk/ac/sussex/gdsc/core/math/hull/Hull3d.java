@@ -81,7 +81,8 @@ public final class Hull3d implements Hull {
      * @return [-1, 0, 1]
      */
     static int compare(Edge e1, Edge e2) {
-      return Integer.compare(e1.from, e2.from) == 0 ? 0 : Integer.compare(e1.to, e2.to);
+      final int result = Integer.compare(e1.from, e2.from);
+      return result == 0 ? Integer.compare(e1.to, e2.to) : result;
     }
 
     // Note: We do not override equals as it is not used in the TreeMap. Only the comparator is used
