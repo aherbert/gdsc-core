@@ -252,4 +252,62 @@ public final class GeometryUtils {
     final double uB = numB / denom;
     return (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1);
   }
+
+  /**
+   * Gets the intersection between the line segment {@code p1,p2} and the plane {@code a,b,c,d} with
+   * the plane in Hessian normal form where {@code (a,b,c)} is the plane normal and d is the
+   * distance of the plane from the origin.
+   *
+   * <pre>
+   * line: p = p1 + mu (p2 - p1)
+   * plane: a x + b y + c z + d = 0
+   * </pre>
+   *
+   * <p>If the line is parallel to the plane this returns false. This occurs even if the line is
+   * coincident with the plane as the intersection is required to be a unique point.
+   *
+   * <p>If the intersect with the plane is not between point 1 and 2 (inclusive) this returns false.
+   *
+   * <p>Otherwise the unique point of intersection {@code p} is placed in the provided array and
+   * this returns true.
+   *
+   * @param p1 the first point of the line segment
+   * @param p2 the second point of the line segment
+   * @param plane the plane
+   * @param intersection the intersection
+   * @return true if an intersection was found
+   * @see <a href="http://paulbourke.net/geometry/polygonmesh/">Determining whether a line segment
+   *      intersects a 3 vertex facet</a>
+   */
+  public static boolean getIntersection3d(double[] p1, double[] p2, double[] plane,
+      double[] intersection) {
+    // Substitute a point on the line into the equation of the plane:
+    // 0 = a x + b y + c z + d
+    // 0 = a (p1x + mu (p2x-p1x)) + b (p1y + mu (p2y-p1y)) + z (p1z + mu (p2z-p1z)) + d
+    // 0 = a p1x + a mu (p2x-p1x) + b p1y + b mu (p2y-p1y) + c p1z + c mu (p2z-p1z) + d
+    // 0 = a p1x + b p1y + c p1z + a mu (p2x-p1x) + b mu (p2x-p1x) + c mu (p2z-p1z) + d
+    // a mu (p1x-p2x) + b mu (p1x-p2x) + c mu (p1z-p2z) = a p1x + b p1y + c p1z + d
+    // mu = (a p1x + b p1y + c p1z + d) / (a (p1x-p2x) + b (p1x-p2x) + c (p1z-p2z))
+    // mu = -(a p1x + b p1y + c p1z + d) / (a (p2x-p1x) + b (p2x-p1x) + c (p2z-p1z))
+
+    final double p2mp1x = p2[0] - p1[0];
+    final double p2mp1y = p2[1] - p1[1];
+    final double p2mp1z = p2[2] - p1[2];
+
+    // Compute the denominator
+    final double denom = plane[0] * p2mp1x + plane[1] * p2mp1y + plane[2] * p2mp1z;
+    if (Math.abs(denom) < Double.MIN_NORMAL) {
+      // Line and plane don't intersect
+      return false;
+    }
+    final double mu = -(plane[0] * p1[0] + plane[1] * p1[1] + plane[2] * p1[2] + plane[3]) / denom;
+    if (mu < 0 || mu > 1) {
+      // Intersection not along line segment
+      return false;
+    }
+    intersection[0] = p1[0] + mu * p2mp1x;
+    intersection[1] = p1[1] + mu * p2mp1y;
+    intersection[2] = p1[2] + mu * p2mp1z;
+    return true;
+  }
 }
