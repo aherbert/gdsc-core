@@ -146,44 +146,42 @@ class GeometryUtilsTest {
   @Test
   void canComputeIntersection3d() {
     // Simple line through XYZ
-    canComputeIntersection3d(SimpleArrayUtils.newDoubleArray(3, Math.sqrt(0.25 / 3)),
+    canComputeIntersection3d(0, SimpleArrayUtils.newDoubleArray(3, Math.sqrt(0.25 / 3)),
         new double[] {0, 0, 0}, new double[] {1, 1, 1}, new double[] {1, 1, 1, -0.5});
     final double[] p = SimpleArrayUtils.newDoubleArray(3, Math.sqrt(1.0 / 3));
-    canComputeIntersection3d(p, new double[] {0, 0, 0}, new double[] {1, 1, 1},
+    canComputeIntersection3d(0, p, new double[] {0, 0, 0}, new double[] {1, 1, 1},
         new double[] {1, 1, 1, -1});
     // Start in the plane
-    canComputeIntersection3d(p, p, new double[] {1, 1, 1}, new double[] {1, 1, 1, -1});
+    canComputeIntersection3d(0, p, p, new double[] {1, 1, 1}, new double[] {1, 1, 1, -1});
     // End in the plane
-    canComputeIntersection3d(p, new double[] {0, 0, 0}, p, new double[] {1, 1, 1, -1});
+    canComputeIntersection3d(0, p, new double[] {0, 0, 0}, p, new double[] {1, 1, 1, -1});
     // Line below plane
-    canComputeIntersection3d(null, new double[] {0, 0, 0}, new double[] {0.5, 0.5, 0.5},
+    canComputeIntersection3d(1, null, new double[] {0, 0, 0}, new double[] {0.5, 0.5, 0.5},
         new double[] {1, 1, 1, -1});
     // Line above plane
-    canComputeIntersection3d(null, new double[] {1, 1, 1}, new double[] {2, 2, 2},
+    canComputeIntersection3d(1, null, new double[] {1, 1, 1}, new double[] {2, 2, 2},
         new double[] {1, 1, 1, -1});
     // Line parallel to plane
-    canComputeIntersection3d(null, new double[] {0, 0, 0}, new double[] {0, 1, 0},
+    canComputeIntersection3d(2, null, new double[] {0, 0, 0}, new double[] {0, 1, 0},
         new double[] {1, 0, 0, -0.5});
     // Line parallel to plane but inside the plane
-    canComputeIntersection3d(null, new double[] {0, 0, 0}, new double[] {0, 1, 0},
+    canComputeIntersection3d(2, null, new double[] {0, 0, 0}, new double[] {0, 1, 0},
         new double[] {1, 0, 0, 0});
-    canComputeIntersection3d(null, new double[] {1, 1, 1}, new double[] {1, 2, 1},
+    canComputeIntersection3d(2, null, new double[] {1, 1, 1}, new double[] {1, 2, 1},
         new double[] {1, 0, 0, -1});
   }
 
-  private static void canComputeIntersection3d(double[] exp, double[] p1, double[] p2,
-      double[] plane) {
+  private static void canComputeIntersection3d(int expResult, double[] exp, double[] p1,
+      double[] p2, double[] plane) {
     // Normalise the plane for convenience
     double norm = 1.0 / Math.sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
     for (int i = 0; i < 3; i++) {
       plane[i] *= norm;
     }
     final double[] obs = new double[3];
-    final boolean result = GeometryUtils.getIntersection3d(p1, p2, plane, obs);
-    if (exp == null) {
-      Assertions.assertFalse(result);
-    } else {
-      Assertions.assertTrue(result);
+    final int result = GeometryUtils.getIntersection3d(p1, p2, plane, obs);
+    Assertions.assertEquals(expResult, result);
+    if (exp != null) {
       Assertions.assertArrayEquals(exp, obs, 1e-10);
     }
   }

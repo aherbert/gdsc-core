@@ -275,11 +275,12 @@ public final class GeometryUtils {
    * @param p2 the second point of the line segment
    * @param plane the plane
    * @param intersection the intersection
-   * @return true if an intersection was found
+   * @return 0 if an intersection was found; 1 if intersection not along line segment; 2 if line and
+   *         plane are parallel.
    * @see <a href="http://paulbourke.net/geometry/polygonmesh/">Determining whether a line segment
    *      intersects a 3 vertex facet</a>
    */
-  public static boolean getIntersection3d(double[] p1, double[] p2, double[] plane,
+  public static int getIntersection3d(double[] p1, double[] p2, double[] plane,
       double[] intersection) {
     // Substitute a point on the line into the equation of the plane:
     // 0 = a x + b y + c z + d
@@ -298,16 +299,16 @@ public final class GeometryUtils {
     final double denom = plane[0] * p2mp1x + plane[1] * p2mp1y + plane[2] * p2mp1z;
     if (Math.abs(denom) < Double.MIN_NORMAL) {
       // Line and plane don't intersect
-      return false;
+      return 2;
     }
     final double mu = -(plane[0] * p1[0] + plane[1] * p1[1] + plane[2] * p1[2] + plane[3]) / denom;
     if (mu < 0 || mu > 1) {
       // Intersection not along line segment
-      return false;
+      return 1;
     }
     intersection[0] = p1[0] + mu * p2mp1x;
     intersection[1] = p1[1] + mu * p2mp1y;
     intersection[2] = p1[2] + mu * p2mp1z;
-    return true;
+    return 0;
   }
 }
