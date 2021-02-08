@@ -133,6 +133,17 @@ class SortUtilsTest {
   }
 
   @Test
+  void canSortAscendingDataUsingTDataIntValues() {
+    final Integer[] data = {70, 80, 90};
+    final int[] values = {44, 0, 1};
+    final Integer[] expectedData = {80, 90, 70};
+    final int[] expectedValues = values.clone();
+    SortUtils.sortData(data, values, false, false);
+    Assertions.assertArrayEquals(expectedData, data, "Data not ascending order");
+    Assertions.assertArrayEquals(expectedValues, values, "Values have changed");
+  }
+
+  @Test
   void canSortAscendingDataUsingIntDataDoubleValues() {
     final int[] data = {70, 80, 90};
     final double[] values = {44, -0D, 0D};
@@ -185,6 +196,18 @@ class SortUtilsTest {
     final double[] values = {44, 0, 1};
     final Integer[] expectedData = {80, 90, 70};
     final double[] expectedValues = values.clone();
+    Arrays.sort(expectedValues);
+    SortUtils.sortData(data, values, true, false);
+    Assertions.assertArrayEquals(expectedData, data, "Data not ascending order");
+    Assertions.assertArrayEquals(expectedValues, values, "Values not ascending order");
+  }
+
+  @Test
+  void canSortAscendingDataAndValuesUsingTDataIntValues() {
+    final Integer[] data = {70, 80, 90};
+    final int[] values = {44, 0, 1};
+    final Integer[] expectedData = {80, 90, 70};
+    final int[] expectedValues = values.clone();
     Arrays.sort(expectedValues);
     SortUtils.sortData(data, values, true, false);
     Assertions.assertArrayEquals(expectedData, data, "Data not ascending order");
@@ -248,6 +271,17 @@ class SortUtilsTest {
   }
 
   @Test
+  void canSortDescendingDataUsingTDataIntValues() {
+    final Integer[] data = {70, 80, 90};
+    final int[] values = {44, 0, 1};
+    final Integer[] expectedData = {70, 90, 80};
+    final int[] expectedValues = values.clone();
+    SortUtils.sortData(data, values, false, true);
+    Assertions.assertArrayEquals(expectedData, data, "Data not ascending order");
+    Assertions.assertArrayEquals(expectedValues, values, "Values have changed");
+  }
+
+  @Test
   void canSortDescendingDataUsingIntDataDoubleValues() {
     final int[] data = {70, 80, 90};
     final double[] values = {44, -0D, 0D};
@@ -303,6 +337,19 @@ class SortUtilsTest {
     final double[] values = {44, 0, 1};
     final Integer[] expectedData = {70, 90, 80};
     final double[] expectedValues = values.clone();
+    Arrays.sort(expectedValues);
+    SimpleArrayUtils.reverse(expectedValues);
+    SortUtils.sortData(data, values, true, true);
+    Assertions.assertArrayEquals(expectedData, data, "Data not descending order");
+    Assertions.assertArrayEquals(expectedValues, values, "Values not descending order");
+  }
+
+  @Test
+  void canSortDescendingDataAndValuesUsingTDataIntValues() {
+    final Integer[] data = {70, 80, 90};
+    final int[] values = {44, 0, 1};
+    final Integer[] expectedData = {70, 90, 80};
+    final int[] expectedValues = values.clone();
     Arrays.sort(expectedValues);
     SimpleArrayUtils.reverse(expectedValues);
     SortUtils.sortData(data, values, true, true);

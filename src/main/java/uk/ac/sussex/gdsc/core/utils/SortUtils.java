@@ -51,6 +51,21 @@ public final class SortUtils {
     }
   }
 
+  /**
+   * Store an object and an int value.
+   *
+   * @param <T> the generic type
+   */
+  private static class TInt<T> {
+    final T item;
+    final int value;
+
+    TInt(T item, int value) {
+      this.item = item;
+      this.value = value;
+    }
+  }
+
   /** No public construction. */
   private SortUtils() {}
 
@@ -404,6 +419,55 @@ public final class SortUtils {
     if (sortValues) {
       for (int i = data.length; i-- > 0;) {
         final TDouble<T> pair = list.unsafeGet(i);
+        values[i] = pair.value;
+        data[i] = pair.item;
+      }
+    } else {
+      for (int i = data.length; i-- > 0;) {
+        data[i] = list.unsafeGet(i).item;
+      }
+    }
+  }
+
+  /**
+   * Sorts the {@code data} using the provided {@code values}.
+   *
+   * <p>The {@code values} array must match the length of the {@code data} array.
+   *
+   * <pre>
+   * <code>
+   *   Integer[] data = {70, 80, 90};
+   *   int[] values = {44, 0, 1};
+   *   SortUtils.sortData(data, values, true, false);
+   *   // data == [ 80, 90, 70 ];
+   *   // values  == [ 0, 1, 44 ];
+   * </code>
+   * </pre>
+   *
+   * @param data the data
+   * @param values the values
+   * @param sortValues set to true to also sort the values
+   * @param descending set to true to sort in descending order
+   */
+  public static <T> void sortData(T[] data, int[] values, boolean sortValues,
+      boolean descending) {
+    // Convert data for sorting
+    final LocalList<TInt<T>> list = new LocalList<>(data.length);
+    for (int i = data.length; i-- > 0;) {
+      list.push(new TInt<>(data[i], values[i]));
+    }
+
+    final Comparator<TInt<T>> cmp = descending
+        // Largest first
+        ? (o1, o2) -> Integer.compare(o2.value, o1.value)
+        // Smallest first
+        : (o1, o2) -> Integer.compare(o1.value, o2.value);
+    list.sort(cmp);
+
+    // Copy back
+    if (sortValues) {
+      for (int i = data.length; i-- > 0;) {
+        final TInt<T> pair = list.unsafeGet(i);
         values[i] = pair.value;
         data[i] = pair.item;
       }
