@@ -30,11 +30,16 @@ package uk.ac.sussex.gdsc.core.math.hull;
 
 import gnu.trove.list.array.TDoubleArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.UnitSphereSampler;
+import org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.LocalCollectors;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.UnitBallSampler;
@@ -261,6 +266,49 @@ class ConvexHull3dTest {
     Assertions.assertEquals(4 * Math.PI, hull.getArea(), 0.5, "Area");
     Assertions.assertEquals(4 * Math.PI / 3, hull.getVolume(), 0.3, "Volume");
     Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01, "Centroid");
+  }
+
+  @Test
+  void canCutHullWithManyPoints() {
+    // Sample from a unit sphere.
+    final UniformRandomProvider rng = RngUtils.create(126487618L);
+    final UnitSphereSampler sampler = new UnitSphereSampler(3, rng);
+    final int n = 500;
+    final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
+    for (int i = 0; i < n; i++) {
+      builder.add(sampler.nextVector());
+    }
+    // Test volume and area
+    final Hull3d hull = builder.build();
+    Assertions.assertEquals(4 * Math.PI, hull.getArea(), 0.5, "Area");
+    Assertions.assertEquals(4 * Math.PI / 3, hull.getVolume(), 0.3, "Volume");
+    Assertions.assertArrayEquals(new double[3], hull.getCentroid(), 0.01, "Centroid");
+
+    // Now cut the sphere.
+    // Each result should be an approximate circle.
+    // Offset a random distance (avoid close to the edge)
+    final SharedStateContinuousSampler offset = ContinuousUniformSampler.of(rng, -0.9, 0.9);
+    for (int i = 0; i < 10; i++) {
+      // Random plane through the origin
+      final double[] plane = Arrays.copyOf(sampler.nextVector(), 4);
+      // Offset the plane
+      final double r = offset.sample();
+      plane[3] = r;
+      final List<List<double[]>> polygons = hull.getPolygons(plane);
+      Assertions.assertEquals(1, polygons.size());
+      // Compute the diameter
+      double diameter = 0;
+      final List<double[]> polygon = polygons.get(0);
+      for (int j = polygon.size(), j1 = 0; j-- > 0; j1 = j) {
+        final double[] p1 = polygon.get(j);
+        final double[] p2 = polygon.get(j1);
+        diameter += MathUtils.distance(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2]);
+      }
+      // Compute the expected diameter
+      // https://en.wikipedia.org/wiki/Circle_of_a_sphere
+      final double radius = Math.sqrt(1 - r * r);
+      Assertions.assertEquals(2 * Math.PI * radius, diameter, 0.1);
+    }
   }
 
   /**
