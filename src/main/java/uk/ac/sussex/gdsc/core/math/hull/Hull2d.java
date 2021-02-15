@@ -110,7 +110,7 @@ public final class Hull2d implements Hull {
   }
 
   /**
-   * {@inheritDoc}.
+   * {@inheritDoc}
    *
    * <p>The returned result is a copy of the vertices.
    */
