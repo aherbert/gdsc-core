@@ -72,6 +72,11 @@ public final class ConvexHull3d {
       return this;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This will return null if the number of points is less than 4.
+     */
     @Override
     public Hull3d build() {
       // Not possible with less than 4 points
