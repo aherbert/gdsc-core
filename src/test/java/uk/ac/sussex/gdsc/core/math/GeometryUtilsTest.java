@@ -185,4 +185,15 @@ class GeometryUtilsTest {
       Assertions.assertArrayEquals(exp, obs, 1e-10);
     }
   }
+
+  @Test
+  void canComputeDistanceToLine() {
+    Assertions.assertEquals(Double.NaN, GeometryUtils.getDistanceToLine(1, 2, 1, 2, 0, 0));
+    Assertions.assertEquals(2.0, GeometryUtils.getDistanceToLine(1, 2, 0, 2, 0, 0));
+    Assertions.assertEquals(2.0, GeometryUtils.getDistanceToLine(1, 2, 10, 2, 0, 0));
+    Assertions.assertEquals(0.0, GeometryUtils.getDistanceToLine(0, 0, 1, 1, 1, 1));
+    Assertions.assertEquals(0.0, GeometryUtils.getDistanceToLine(0, 0, 1, 1, 0, 0));
+    Assertions.assertEquals(Math.sqrt(0.5), GeometryUtils.getDistanceToLine(0, 0, 1, 1, 0, 1),
+        1e-12);
+  }
 }

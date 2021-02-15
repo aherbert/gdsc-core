@@ -311,4 +311,31 @@ public final class GeometryUtils {
     intersection[2] = p1[2] + mu * p2mp1z;
     return 0;
   }
+
+  /**
+   * Gets the distance from a point {@code (x,y)} to a line through points p1 {@code (x1,y1)} and p2
+   * {@code (x2,y2)}. This is the shortest distance from the given point to any point on an infinite
+   * straight line.
+   *
+   * <p>Note: The line segment connecting the point to the line may not connect between the points
+   * p1 and p2 (the line is infinite).
+   *
+   * <p>If point p1 and p2 are coincident then there is no line and this method returns NaN.
+   *
+   * @param x1 the first point x
+   * @param y1 the first point y
+   * @param x2 the second point x
+   * @param y2 the second point y
+   * @param x the x
+   * @param y the y
+   * @return the distance
+   * @see <a href="https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line">Distance from a
+   *      point to a line (Wikipedia)</a>
+   */
+  public static double getDistanceToLine(double x1, double y1, double x2, double y2, double x,
+      double y) {
+    final double x2mx1 = x2 - x1;
+    final double y2my1 = y2 - y1;
+    return Math.abs(x2mx1 * (y1 - y) - (x1 - x) * y2my1) / Math.sqrt(x2mx1 * x2mx1 + y2my1 * y2my1);
+  }
 }
