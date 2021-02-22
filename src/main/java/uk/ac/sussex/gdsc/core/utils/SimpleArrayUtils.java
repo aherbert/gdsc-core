@@ -31,14 +31,17 @@ package uk.ac.sussex.gdsc.core.utils;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 import java.util.Arrays;
+import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
 import java.util.function.IntUnaryOperator;
 import java.util.function.LongUnaryOperator;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
+import uk.ac.sussex.gdsc.core.utils.function.FloatPredicate;
 import uk.ac.sussex.gdsc.core.utils.function.FloatUnaryOperator;
 
 /**
@@ -827,6 +830,120 @@ public final class SimpleArrayUtils {
       }
     }
     return new int[] {min, max};
+  }
+
+  /**
+   * Returns the index of the first element in the array that matches the given filter, or -1 if the
+   * array does not contain a match. More formally, returns the lowest index <tt>i</tt> such that
+   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   *
+   * @param data the data
+   * @param filter a filter to identify the element
+   * @return the index of the first match in the array, or -1 if the array does not contain a
+   *         matching element
+   */
+  public static int findIndex(int[] data, IntPredicate filter) {
+    for (int i = 0, len = data.length; i < len; i++) {
+      if (filter.test(data[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the first element in the array that matches the given filter, or -1 if the
+   * array does not contain a match. More formally, returns the lowest index <tt>i</tt> such that
+   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   *
+   * @param data the data
+   * @param filter a filter to identify the element
+   * @return the index of the first match in the array, or -1 if the array does not contain a
+   *         matching element
+   */
+  public static int findIndex(float[] data, FloatPredicate filter) {
+    for (int i = 0, len = data.length; i < len; i++) {
+      if (filter.test(data[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the first element in the array that matches the given filter, or -1 if the
+   * array does not contain a match. More formally, returns the lowest index <tt>i</tt> such that
+   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   *
+   * @param data the data
+   * @param filter a filter to identify the element
+   * @return the index of the first match in the array, or -1 if the array does not contain a
+   *         matching element
+   */
+  public static int findIndex(double[] data, DoublePredicate filter) {
+    for (int i = 0, len = data.length; i < len; i++) {
+      if (filter.test(data[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the last element in the array that matches the given filter, or -1 if the
+   * array does not contain a match. More formally, returns the highest index <tt>i</tt> such that
+   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   *
+   * @param data the data
+   * @param filter a filter to identify the element
+   * @return the index of the last match in the array, or -1 if the array does not contain a
+   *         matching element
+   */
+  public static int findLastIndex(int[] data, IntPredicate filter) {
+    for (int i = data.length - 1; i >= 0; i--) {
+      if (filter.test(data[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the last element in the array that matches the given filter, or -1 if the
+   * array does not contain a match. More formally, returns the highest index <tt>i</tt> such that
+   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   *
+   * @param data the data
+   * @param filter a filter to identify the element
+   * @return the index of the last match in the array, or -1 if the array does not contain a
+   *         matching element
+   */
+  public static int findLastIndex(float[] data, FloatPredicate filter) {
+    for (int i = data.length - 1; i >= 0; i--) {
+      if (filter.test(data[i])) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the last element in the array that matches the given filter, or -1 if the
+   * array does not contain a match. More formally, returns the highest index <tt>i</tt> such that
+   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   *
+   * @param data the data
+   * @param filter a filter to identify the element
+   * @return the index of the last match in the array, or -1 if the array does not contain a
+   *         matching element
+   */
+  public static int findLastIndex(double[] data, DoublePredicate filter) {
+    for (int i = data.length - 1; i >= 0; i--) {
+      if (filter.test(data[i])) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /**

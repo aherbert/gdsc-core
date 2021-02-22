@@ -664,6 +664,66 @@ class SimpleArrayUtilsTest {
   }
 
   @Test
+  void canFindIntIndex() {
+    Assertions.assertEquals(-1, SimpleArrayUtils.findIndex(new int[0], j -> j == 10));
+    final int[] data = {1, 2, 3, 1, 2};
+    Assertions.assertEquals(-1, SimpleArrayUtils.findIndex(data, j -> j == 10));
+    Assertions.assertEquals(0, SimpleArrayUtils.findIndex(data, j -> j == 1));
+    Assertions.assertEquals(1, SimpleArrayUtils.findIndex(data, j -> j == 2));
+    Assertions.assertEquals(2, SimpleArrayUtils.findIndex(data, j -> j == 3));
+  }
+
+  @Test
+  void canFindFloatIndex() {
+    Assertions.assertEquals(-1, SimpleArrayUtils.findIndex(new float[0], j -> j == 10));
+    final float[] data = {1, 2, 3, 1, 2};
+    Assertions.assertEquals(-1, SimpleArrayUtils.findIndex(data, j -> j == 10));
+    Assertions.assertEquals(0, SimpleArrayUtils.findIndex(data, j -> j == 1));
+    Assertions.assertEquals(1, SimpleArrayUtils.findIndex(data, j -> j == 2));
+    Assertions.assertEquals(2, SimpleArrayUtils.findIndex(data, j -> j == 3));
+  }
+
+  @Test
+  void canFindDoubleIndex() {
+    Assertions.assertEquals(-1, SimpleArrayUtils.findIndex(new double[0], j -> j == 10));
+    final double[] data = {1, 2, 3, 1, 2};
+    Assertions.assertEquals(-1, SimpleArrayUtils.findIndex(data, j -> j == 10));
+    Assertions.assertEquals(0, SimpleArrayUtils.findIndex(data, j -> j == 1));
+    Assertions.assertEquals(1, SimpleArrayUtils.findIndex(data, j -> j == 2));
+    Assertions.assertEquals(2, SimpleArrayUtils.findIndex(data, j -> j == 3));
+  }
+
+  @Test
+  void canFindLastIntIndex() {
+    Assertions.assertEquals(-1, SimpleArrayUtils.findLastIndex(new int[0], j -> j == 10));
+    final int[] data = {1, 2, 3, 1, 2};
+    Assertions.assertEquals(-1, SimpleArrayUtils.findLastIndex(data, j -> j == 10));
+    Assertions.assertEquals(3, SimpleArrayUtils.findLastIndex(data, j -> j == 1));
+    Assertions.assertEquals(4, SimpleArrayUtils.findLastIndex(data, j -> j == 2));
+    Assertions.assertEquals(2, SimpleArrayUtils.findLastIndex(data, j -> j == 3));
+  }
+
+  @Test
+  void canFindLastFloatIndex() {
+    Assertions.assertEquals(-1, SimpleArrayUtils.findLastIndex(new float[0], j -> j == 10));
+    final float[] data = {1, 2, 3, 1, 2};
+    Assertions.assertEquals(-1, SimpleArrayUtils.findLastIndex(data, j -> j == 10));
+    Assertions.assertEquals(3, SimpleArrayUtils.findLastIndex(data, j -> j == 1));
+    Assertions.assertEquals(4, SimpleArrayUtils.findLastIndex(data, j -> j == 2));
+    Assertions.assertEquals(2, SimpleArrayUtils.findLastIndex(data, j -> j == 3));
+  }
+
+  @Test
+  void canFindLastDoubleIndex() {
+    Assertions.assertEquals(-1, SimpleArrayUtils.findLastIndex(new double[0], j -> j == 10));
+    final double[] data = {1, 2, 3, 1, 2};
+    Assertions.assertEquals(-1, SimpleArrayUtils.findLastIndex(data, j -> j == 10));
+    Assertions.assertEquals(3, SimpleArrayUtils.findLastIndex(data, j -> j == 1));
+    Assertions.assertEquals(4, SimpleArrayUtils.findLastIndex(data, j -> j == 2));
+    Assertions.assertEquals(2, SimpleArrayUtils.findLastIndex(data, j -> j == 3));
+  }
+
+  @Test
   void canGetRanges() {
     testGetRanges(null, new int[0]);
     testGetRanges(new int[0], new int[0]);
