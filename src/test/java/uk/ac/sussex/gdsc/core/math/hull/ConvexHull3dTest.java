@@ -248,7 +248,7 @@ class ConvexHull3dTest {
 
     // Should triangulate the square base. There are two possible ways to triangulate
     // a square so this test is not robust to changes in the implementation.
-    builder.setTriangulate(true);
+    Assertions.assertSame(builder, builder.setTriangulate(true));
     Assertions.assertTrue(builder.isTriangulate());
     final Hull3d hull2 = builder.build();
     final double[][] v2 = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 0, 1}};

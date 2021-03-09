@@ -71,9 +71,11 @@ public final class ConvexHull3d {
      * small, and hence appear to be non-convex.
      *
      * @param triangulate true if the hull faces are split to triangles
+     * @return the builder
      */
-    public void setTriangulate(boolean triangulate) {
+    public ConvexHull3d.Builder setTriangulate(boolean triangulate) {
       this.triangulate = triangulate;
+      return this;
     }
 
     /**
