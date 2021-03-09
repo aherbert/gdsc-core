@@ -46,12 +46,34 @@ public final class ConvexHull3d {
    */
   public static final class Builder implements Hull.Builder {
     private final LocalList<Point3d> points = new LocalList<>();
+    private boolean triangulate;
 
     /**
      * Private constructor.
      */
     private Builder() {
       // Do nothing
+    }
+
+    /**
+     * Checks if the hull faces will be triangulated.
+     *
+     * @return true if the hull faces are split to triangles
+     */
+    public boolean isTriangulate() {
+      return triangulate;
+    }
+
+    /**
+     * Sets if the hull faces will be triangulated.
+     *
+     * <p>Note: In some cases, due to precision issues, the resulting triangles may be very thin or
+     * small, and hence appear to be non-convex.
+     *
+     * @param triangulate true if the hull faces are split to triangles
+     */
+    public void setTriangulate(boolean triangulate) {
+      this.triangulate = triangulate;
     }
 
     /**
@@ -99,6 +121,9 @@ public final class ConvexHull3d {
       for (int i = 0; i < size; i++) {
         final Point3d p = vertices[i];
         v[i] = new double[] {p.x, p.y, p.z};
+      }
+      if (isTriangulate()) {
+        hull.triangulate();
       }
       return new Hull3d(v, hull.getFaces());
     }

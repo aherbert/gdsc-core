@@ -231,6 +231,32 @@ class ConvexHull3dTest {
   }
 
   @Test
+  void canTriangulate() {
+    final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
+    builder.add(0, 0, 0);
+    builder.add(1, 0, 0);
+    builder.add(0, 1, 0);
+    builder.add(1, 1, 0);
+    builder.add(0, 0, 1);
+    Assertions.assertFalse(builder.isTriangulate());
+    final Hull3d hull = builder.build();
+    Assertions.assertEquals(5, hull.getNumberOfVertices());
+    Assertions.assertEquals(3, hull.dimensions());
+    final double[][] v = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 0, 1}};
+    final int[][] f = {{0, 3, 2, 1}, {0, 1, 4}, {1, 2, 4}, {2, 3, 4}, {3, 0, 4}};
+    check(v, f, hull);
+
+    // Should triangulate the square base. There are two possible ways to triangulate
+    // a square so this test is not robust to changes in the implementation.
+    builder.setTriangulate(true);
+    Assertions.assertTrue(builder.isTriangulate());
+    final Hull3d hull2 = builder.build();
+    final double[][] v2 = {{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 0, 1}};
+    final int[][] f2 = {{0, 3, 2}, {0, 2, 1}, {0, 1, 4}, {1, 2, 4}, {2, 3, 4}, {3, 0, 4}};
+    check(v2, f2, hull2);
+  }
+
+  @Test
   void canClearBuilder() {
     final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
     builder.add(0, 0, 0);
