@@ -637,9 +637,9 @@ public final class Hull3d implements Hull {
     // Outer unit normal ui = ni / |ni|, ni = (bi-ai) x (ci-ai)
     // Area Ai = 1/2 |ni|
     // Volume = 1/6 sum ( ai . ni )
-    // (The volume is the projection of each triangle as a pyramid to the origin, some are added
-    // and some will be subtracted. The centroid is the integral of all points x with the volume
-    // divided by the volume.)
+    // (The volume is the projection of each triangle as a (slanted) pyramid to the origin, some are
+    // added and some will be subtracted. The centroid is the integral of all points x within the
+    // volume divided by the volume.)
     final double[] normal = new double[3];
     final double[] point = new double[3];
     final double[] sumni = new double[3];
@@ -676,7 +676,7 @@ public final class Hull3d implements Hull {
         sumni[0] = 0;
         sumni[1] = 0;
         sumni[2] = 0;
-        for (final int[] face : triangulate(fullFace, normal, triangles)) {
+        for (final int[] face : triangulate(fullFace, triangles)) {
           final double[] ai = vertices[face[0]];
           final double[] bi = vertices[face[1]];
           final double[] ci = vertices[face[2]];
@@ -703,12 +703,10 @@ public final class Hull3d implements Hull {
    * Triangulate the face into triangles.
    *
    * @param face the face
-   * @param normal the normal
    * @param triangles the triangles working list
    * @return the list of triangles
    */
-  private static LocalList<int[]> triangulate(int[] face, double[] normal,
-      LocalList<int[]> triangles) {
+  private static LocalList<int[]> triangulate(int[] face, LocalList<int[]> triangles) {
 
     // TODO: This should be updated to handle non convex polygons. E.g. using
     // a simple polygon to monotone polygon to triangle algorithm.
