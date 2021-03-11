@@ -202,6 +202,7 @@ class BooleanArrayTest {
     Thread.sleep(1000);
     count.countDown();
     ConcurrencyUtils.waitForCompletion(futures);
+    es.shutdown();
 
     // All the arrays are the same so add multiple
     final LocalList<Boolean> expected = new LocalList<>();

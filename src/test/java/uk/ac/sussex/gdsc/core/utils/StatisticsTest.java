@@ -337,6 +337,7 @@ class StatisticsTest {
     Thread.sleep(1000);
     count.countDown();
     ConcurrencyUtils.waitForCompletion(futures);
+    es.shutdown();
 
     // All the arrays are the same so add multiple
     final DescriptiveStatistics expected = new DescriptiveStatistics();

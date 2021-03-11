@@ -692,9 +692,8 @@ public class DensityCounter {
         from = to;
       }
 
-      ConcurrencyUtils.waitForCompletionUnchecked(futures, DensityCounter::logException);
-
       executor.shutdown();
+      ConcurrencyUtils.waitForCompletionUnchecked(futures, DensityCounter::logException);
     }
 
     return results;
@@ -750,9 +749,8 @@ public class DensityCounter {
         molecule = to;
       }
 
-      ConcurrencyUtils.waitForCompletionUnchecked(futures, DensityCounter::logException);
-
       executor.shutdown();
+      ConcurrencyUtils.waitForCompletionUnchecked(futures, DensityCounter::logException);
     }
 
     return results;

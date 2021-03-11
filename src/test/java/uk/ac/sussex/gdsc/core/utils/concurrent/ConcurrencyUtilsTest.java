@@ -56,6 +56,7 @@ class ConcurrencyUtilsTest {
     for (int i = 0; i < loops; i++) {
       futures.add(es.submit(() -> count.getAndIncrement()));
     }
+    es.shutdown();
     ConcurrencyUtils.waitForCompletion(futures);
     Assertions.assertEquals(loops, count.get());
   }
@@ -69,6 +70,7 @@ class ConcurrencyUtilsTest {
     for (int i = 0; i < loops; i++) {
       futures.add(es.submit(() -> count.getAndIncrement()));
     }
+    es.shutdown();
     ConcurrencyUtils.waitForCompletionUnchecked(futures);
     Assertions.assertEquals(loops, count.get());
   }
@@ -86,6 +88,7 @@ class ConcurrencyUtilsTest {
         // Ignore
       }
     }));
+    es.shutdown();
     // Do all work in a thread which will be interrupted while waiting
     final ConcurrentRuntimeException[] ex = new ConcurrentRuntimeException[1];
     final Thread t = new Thread(() -> {
@@ -115,6 +118,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final RuntimeException ex = Assertions.assertThrows(RuntimeException.class,
         () -> ConcurrencyUtils.waitForCompletionUnchecked(futures));
     Assertions.assertSame(error, ex);
@@ -129,6 +133,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final ConcurrentRuntimeException ex = Assertions.assertThrows(ConcurrentRuntimeException.class,
         () -> ConcurrencyUtils.waitForCompletionUnchecked(futures));
     Assertions.assertSame(error, ex.getCause());
@@ -143,6 +148,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final Error ex = Assertions.assertThrows(Error.class,
         () -> ConcurrencyUtils.waitForCompletionUnchecked(futures));
     Assertions.assertSame(error, ex);
@@ -157,6 +163,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final AtomicInteger count = new AtomicInteger();
     final Error ex = Assertions.assertThrows(Error.class,
         () -> ConcurrencyUtils.waitForCompletionUnchecked(futures, e -> {
@@ -177,6 +184,7 @@ class ConcurrencyUtilsTest {
     for (int i = 0; i < loops; i++) {
       futures.add(es.submit(() -> count.getAndIncrement()));
     }
+    es.shutdown();
     ConcurrencyUtils.waitForCompletionT(futures);
     Assertions.assertEquals(loops, count.get());
   }
@@ -190,6 +198,7 @@ class ConcurrencyUtilsTest {
     for (int i = 0; i < loops; i++) {
       futures.add(es.submit(() -> count.getAndIncrement()));
     }
+    es.shutdown();
     ConcurrencyUtils.waitForCompletionUncheckedT(futures);
     Assertions.assertEquals(loops, count.get());
   }
@@ -208,6 +217,7 @@ class ConcurrencyUtilsTest {
       }
       return 1;
     }));
+    es.shutdown();
     // Do all work in a thread which will be interrupted while waiting
     final ConcurrentRuntimeException[] ex = new ConcurrentRuntimeException[1];
     final Thread t = new Thread(() -> {
@@ -237,6 +247,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final RuntimeException ex = Assertions.assertThrows(RuntimeException.class,
         () -> ConcurrencyUtils.waitForCompletionUncheckedT(futures));
     Assertions.assertSame(error, ex);
@@ -251,6 +262,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final ConcurrentRuntimeException ex = Assertions.assertThrows(ConcurrentRuntimeException.class,
         () -> ConcurrencyUtils.waitForCompletionUncheckedT(futures));
     Assertions.assertSame(error, ex.getCause());
@@ -265,6 +277,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final Error ex = Assertions.assertThrows(Error.class,
         () -> ConcurrencyUtils.waitForCompletionUncheckedT(futures));
     Assertions.assertSame(error, ex);
@@ -279,6 +292,7 @@ class ConcurrencyUtilsTest {
     futures.add(es.submit(() -> {
       throw error;
     }));
+    es.shutdown();
     final AtomicInteger count = new AtomicInteger();
     final Error ex = Assertions.assertThrows(Error.class,
         () -> ConcurrencyUtils.waitForCompletionUncheckedT(futures, e -> {
@@ -300,6 +314,7 @@ class ConcurrencyUtilsTest {
       tasks.add(() -> count.getAndIncrement());
     }
     ConcurrencyUtils.invokeAllUnchecked(es, tasks);
+    es.shutdown();
     Assertions.assertEquals(loops, count.get());
   }
 
@@ -334,6 +349,7 @@ class ConcurrencyUtilsTest {
       // 5 seconds
       t.wait(5000);
     }
+    es.shutdown();
     Assertions.assertTrue(ex[0].getCause() instanceof InterruptedException);
   }
 
