@@ -104,6 +104,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.github.quickhull3d</groupId>
+      <artifactId>quickhull3d</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
     <!-- Managed dependencies -->
     <dependency>
       <groupId>uk.ac.sussex.gdsc</groupId>
@@ -136,11 +142,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.quickhull3d</groupId>
-      <artifactId>quickhull3d</artifactId>
-      <version>1.0.0</version>
     </dependency>
 
     <!-- TESTING -->
