@@ -76,7 +76,7 @@ public class UnitBallSampler implements SharedStateSampler<UnitBallSampler> {
       x = next();
       y = next();
       z = next();
-    } while (x * x + y * y + z * z > 1.0);
+    } while (x * x + y * y + z * z >= 1.0);
     return new double[] {x, y, z};
   }
 
