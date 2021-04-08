@@ -39,8 +39,6 @@ import org.apache.commons.rng.sampling.SharedStateSampler;
  */
 public class UnitDiskSampler implements SharedStateSampler<UnitDiskSampler> {
 
-  private static final double TWO_PI = 2 * Math.PI;
-
   /** The generator of uniformly distributed random numbers. */
   private final UniformRandomProvider rng;
 
@@ -69,12 +67,24 @@ public class UnitDiskSampler implements SharedStateSampler<UnitDiskSampler> {
    * @return the sample
    */
   public double[] sample() {
-    // Generate a random point within a unit disk uniformly.
-    final double t = TWO_PI * rng.nextDouble();
-    final double r = Math.sqrt(rng.nextDouble());
-    final double x = r * Math.cos(t);
-    final double y = r * Math.sin(t);
+    // Generate via rejection method of a circle inside a square of edge length 2.
+    // This should compute approximately 2^2 / pi = 1.27 square positions per sample.
+    double x;
+    double y;
+    do {
+      x = next();
+      y = next();
+    } while (x * x + y * y >= 1.0);
     return new double[] {x, y};
+  }
+
+  /**
+   * Compute the next double in the interval {@code [-1, 1)}.
+   *
+   * @return the double
+   */
+  private double next() {
+    return NumberUtils.makeSignedDouble(rng.nextLong());
   }
 
   @Override
