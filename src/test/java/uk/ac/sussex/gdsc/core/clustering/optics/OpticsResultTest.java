@@ -355,7 +355,10 @@ class OpticsResultTest {
 
   @Test
   void testHierarchicalResults() {
-    final UniformRandomProvider rng = RngUtils.create(123L);
+    // This test depends on the output from the UnitDiskSampler and is not robust to
+    // using any seed.
+    final UniformRandomProvider rng = RngUtils.create(1234L);
+
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
     // hierarchical clusters.
