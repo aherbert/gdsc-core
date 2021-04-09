@@ -176,6 +176,23 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <artifactId>elki</artifactId>
       <version>${elki.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>it.unimi.dsi</groupId>
+          <artifactId>fastutil</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>it.unimi.dsi</groupId>
+          <artifactId>fastutil-extra</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil-core</artifactId>
+      <!-- Elki requires version [8, 9). As of 8.5.4 there are some duplicate classes. -->
+      <version>8.5.3</version>
+      <scope>test</scope>
     </dependency>
     <!-- Used to test the Digest algorithms -->
     <dependency>
@@ -192,7 +209,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <!-- Used to test the FileUtils -->
     <dependency>
       <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
+      <artifactId>commons-io</artifactId>   
       <scope>test</scope>
     </dependency>
     <dependency>
