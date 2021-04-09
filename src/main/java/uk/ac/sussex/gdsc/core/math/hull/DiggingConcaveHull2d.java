@@ -316,7 +316,7 @@ public final class DiggingConcaveHull2d {
           //              e2 - p
           //              |
           //              |
-          //              e4
+          //              e3
           // @formatter:on
           // It is also unclear what distance to use to measure closeness.
           // Choosing the widest angle makes the most visually pleasing concave hull
