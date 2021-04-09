@@ -519,7 +519,7 @@ public final class DiggingConcaveHull2d {
     private static ActiveList createActiveList(int size, CircularList hull) {
       final ActiveList active = new ActiveList(size);
       active.enableAll();
-      hull.forEach(v -> active.disable(v));
+      hull.forEach(active::disable);
       return active;
     }
 
