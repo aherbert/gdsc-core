@@ -335,18 +335,22 @@ public final class DiggingConcaveHull2d {
           com[1] = (p[1] + e1[1] + e2[1]) / 3;
 
           // Find the search radius using the maximum distance to the vertices.
-          final double search = Math.max(Math.max(distanceSquared(com, p), distanceSquared(p, e1)),
-              distanceSquared(p, e2));
+          final double search =
+              Math.max(Math.max(distanceSquared(com, p), distanceSquared(com, e1)),
+                  distanceSquared(com, e2));
 
           // Find any other candidate with a larger angle.
           angle[0] = cosAngle(e1, p, e2);
           tree.findNeighbours(com, search, DISTANCE_FUNCTION, (t, d) -> {
             if (active.isEnabled(t)) {
               // Compute angle. For cosine(angle) lower is wider.
-              final double cosAng = cosAngle(e1, points[t].toArray(), e2);
+              final double[] p2 = points[t].toArray();
+              final double cosAng = cosAngle(e1, p2, e2);
               if (cosAng < angle[0]) {
                 k.set(t, d);
                 angle[0] = cosAng;
+                // Update the point
+                System.arraycopy(p2, 0, p, 0, p.length);
               }
             }
           });
@@ -375,7 +379,7 @@ public final class DiggingConcaveHull2d {
           // @formatter:on
           final double[] e0 = getPoint(points, hull.peek(-1));
           final double[] e3 = getPoint(points, hull.peek(2));
-          if (cosAngle(e1, p, e2) > Math.min(cosAngle(e0, p, e1), cosAngle(e2, p, e3))) {
+          if (angle[0] > Math.min(cosAngle(e0, p, e1), cosAngle(e2, p, e3))) {
             continue;
           }
 
@@ -505,7 +509,8 @@ public final class DiggingConcaveHull2d {
         final int next = hull.next();
         queue.add(new Edge(prev, next, distance(points[prev].toArray(), points[next].toArray())));
         prev = next;
-      } while (prev != head);
+      }
+      while (prev != head);
       return queue;
     }
 
@@ -634,7 +639,8 @@ public final class DiggingConcaveHull2d {
   /**
    * No instances.
    */
-  private DiggingConcaveHull2d() {}
+  private DiggingConcaveHull2d() {
+  }
 
   /**
    * Create a new builder.
