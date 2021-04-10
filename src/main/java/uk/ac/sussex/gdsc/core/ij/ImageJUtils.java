@@ -812,10 +812,11 @@ public final class ImageJUtils {
    * Refresh the text window within the provided reference. If the window is showing then it is
    * returned. Otherwise a new window is created using the supplier, stored in the reference and
    * returned.
-   *
+   * 
    * <p>A window listener is added to any newly created window to remove itself from the reference
    * when the window closes. This releases memory.
    *
+   * @param <T> the generic type
    * @param reference the reference
    * @param supplier the supplier
    * @return the text window
