@@ -259,6 +259,7 @@ public final class DiggingConcaveHull2d {
       // neighbour of the first point.
       final Neighbour n1 = new Neighbour();
       final Neighbour n2 = new Neighbour();
+      final Neighbour k = new Neighbour();
       int n1EdgeIndex = -1;
       final int hullStartIndex = hull.current();
       final double[] com = new double[2];
@@ -289,6 +290,13 @@ public final class DiggingConcaveHull2d {
         // then search for points within the triangle created to find the point with the largest
         // angle to become the new candidate. This is a compromise for speed as computing the
         // angle to all possible candidates is too expensive.
+        //
+        // Note:
+        // The neighbour should be on the correct side of the line so that:
+        // p-e1 or p-e2 does not intersect the existing hull edges e0-e1 or e2-e3
+        // Turn angle e0-e1-p > e0-e1-e2 - 0.5
+        // i.e. it does not go 180 degrees back on itself from existing direction e1-e2.
+        // This is handled at the end when testing for intersection with itself.
 
         // Reuse cache if possible
         if (n1EdgeIndex != edge.start) {
@@ -297,7 +305,12 @@ public final class DiggingConcaveHull2d {
         tree.nearestNeighbour(e2, DISTANCE_FUNCTION, active::isEnabled, n2::set);
 
         // Closest neighbour:
-        final Neighbour k = n1.distance < n2.distance ? n1 : n2;
+        // Copy as this may be adjusted.
+        if (n1.distance < n2.distance) {
+          k.copy(n1);
+        } else {
+          k.copy(n2);
+        }
 
         // Decision distance
         double dd = Math.sqrt(k.distance);
@@ -350,7 +363,8 @@ public final class DiggingConcaveHull2d {
                 k.set(t, d);
                 angle[0] = cosAng;
                 // Update the point
-                System.arraycopy(p2, 0, p, 0, p.length);
+                p[0] = p2[0];
+                p[1] = p2[1];
               }
             }
           });
@@ -509,8 +523,7 @@ public final class DiggingConcaveHull2d {
         final int next = hull.next();
         queue.add(new Edge(prev, next, distance(points[prev].toArray(), points[next].toArray())));
         prev = next;
-      }
-      while (prev != head);
+      } while (prev != head);
       return queue;
     }
 
@@ -639,8 +652,7 @@ public final class DiggingConcaveHull2d {
   /**
    * No instances.
    */
-  private DiggingConcaveHull2d() {
-  }
+  private DiggingConcaveHull2d() {}
 
   /**
    * Create a new builder.
