@@ -37,7 +37,8 @@ public final class GeometryUtils {
   private static final int MIN_VERTICES = 3;
 
   /** No public construction. */
-  private GeometryUtils() {}
+  private GeometryUtils() {
+  }
 
   /**
    * Gets the area of the triangle from its vertices.
@@ -180,24 +181,49 @@ public final class GeometryUtils {
       // If the denominator for the equations for ua and ub is 0 then the two lines are parallel.
       if (numA == 0 && numB == 0) {
         // If the denominator and numerator for the equations for ua and ub are 0 then the
-        // two lines are coincident.
-        // Find a point of coincidence.
-        // A point is on a line if the distance from both ends is equal to the line length.
-        // d13 + d23 >= length
-        // d14 + d24 >= length
-        // Pick the smallest length
-        final double d13 = Math.hypot(x3 - x1, y3 - y1);
-        final double d23 = Math.hypot(x3 - x2, y3 - y2);
-        final double d14 = Math.hypot(x4 - x1, y4 - y1);
-        final double d24 = Math.hypot(x4 - x2, y4 - y2);
-        if (d13 + d23 < d14 + d24) {
-          intersection[0] = x3;
-          intersection[1] = y3;
-        } else {
-          intersection[0] = x4;
-          intersection[1] = y4;
+        // two line segments are on the same line. Check if they are coincident (i.e. overlap).
+
+        // Dot product of the point with the line vector is the distance along
+        // the line from the origin.
+        // Compute this and then compare distances.
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        final double invNorm = 1.0 / Math.hypot(dx, dy);
+        dx *= invNorm;
+        dy *= invNorm;
+
+        double d1 = x1 * dx + y1 * dy;
+        double d2 = x2 * dx + y2 * dy;
+        double d3 = x3 * dx + y3 * dy;
+        double d4 = x4 * dx + y4 * dy;
+
+        // Sort. Swap the line start for use as the return value.
+        if (d2 < d1) {
+          final double tmp = d1;
+          d1 = d2;
+          d2 = tmp;
+          x1 = x2;
+          y1 = y2;
         }
-        return true;
+        if (d4 < d3) {
+          final double tmp = d3;
+          d3 = d4;
+          d4 = tmp;
+          x3 = x4;
+          y3 = y4;
+        }
+
+        if (overlap(d1, d2, d3, d4)) {
+          // Use the start of the internal line
+          if (d1 < d3) {
+            intersection[0] = x3;
+            intersection[1] = y3;
+          } else {
+            intersection[0] = x1;
+            intersection[1] = y1;
+          }
+          return true;
+        }
       }
       return false;
     }
@@ -215,6 +241,26 @@ public final class GeometryUtils {
     }
 
     return false;
+  }
+
+  /**
+   * Test the overlap between the two line segments.
+   *
+   * @param start1 the start point of line 1
+   * @param end1 the end point of line 1
+   * @param start2 the start point of line 2
+   * @param end2 the end point of line 2
+   * @return true if the line segments overlap
+   */
+  private static boolean overlap(double start1, double end1, double start2, double end2) {
+    // Overlap:
+    // S-----------E
+    // ......... S---------E
+    //
+    // Gap:
+    // S-----------E
+    // .............. S---------E
+    return Math.max(start1, start2) - Math.min(end1, end2) <= 0;
   }
 
   /**
@@ -244,7 +290,32 @@ public final class GeometryUtils {
 
     if (denom == 0) {
       // Parallel. Check if coincident.
-      return (numA == 0 && numB == 0);
+      if (numA == 0 && numB == 0) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        final double invNorm = 1.0 / Math.hypot(dx, dy);
+        dx *= invNorm;
+        dy *= invNorm;
+
+        double d1 = x1 * dx + y1 * dy;
+        double d2 = x2 * dx + y2 * dy;
+        double d3 = x3 * dx + y3 * dy;
+        double d4 = x4 * dx + y4 * dy;
+
+        // Sort
+        if (d2 < d1) {
+          final double tmp = d1;
+          d1 = d2;
+          d2 = tmp;
+        }
+        if (d4 < d3) {
+          final double tmp = d3;
+          d3 = d4;
+          d4 = tmp;
+        }
+
+        return overlap(d1, d2, d3, d4);
+      }
     }
 
     // Check if intersection is within the line segments.

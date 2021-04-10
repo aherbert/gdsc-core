@@ -119,6 +119,11 @@ class GeometryUtilsTest {
     canComputeIntersection(null, 0, 0, 0, 1, 1, 0, 1, 1);
     canComputeIntersection(null, 0, 0, 1, 1, 0, 1, 1, 2);
     canComputeIntersection(null, 0, 1, 1, 1, 0, 0, 1, 0);
+    // same line but not overlapping segments
+    canComputeIntersection(null, 0, 0, 1, 1, 3, 3, 7, 7);
+    canComputeIntersection(null, 0, 0, 1, 2, 2, 4, 13, 26);
+    canComputeIntersection(null, 0, 0, 0, 1, 0, 2, 0, 3);
+    canComputeIntersection(null, 0, 0, 1, 0, 2, 0, 3, 0);
     // intersection
     canComputeIntersection(new double[] {0.5, 0.5}, 0, 0, 1, 1, 1, 0, 0, 1);
     canComputeIntersection(new double[] {0, 0}, 0, 0, 1, 1, 0, 0, 0, 1);
@@ -126,7 +131,11 @@ class GeometryUtilsTest {
     canComputeIntersection(new double[] {1, 1}, 0, 0, 1, 1, 1, 1, 4, 2);
     // coincident
     canComputeIntersection(new double[] {0.5, 0.5}, 0, 0, 1, 1, 0.5, 0.5, 2, 2);
-    canComputeIntersection(new double[] {0.25, 0.25}, 0, 0, 1, 1, -0.25, -0.25, 0.25, 0.25);
+    canComputeIntersection(new double[] {0, 0}, 0, 0, 1, 1, -0.25, -0.25, 0.25, 0.25);
+    canComputeIntersection(new double[] {-0.5, -0.5}, 0, 0, -1, -1, -0.5, -0.5, -2, -2);
+    // coincident touching at the end
+    canComputeIntersection(new double[] {1, 1}, 0, 0, 1, 1, 1, 1, 2, 2);
+    canComputeIntersection(new double[] {0, 0}, 0, 0, 1, 1, -1, -1, 0, 0);
   }
 
   private static void canComputeIntersection(double[] exp, double x1, double y1, double x2,
@@ -134,12 +143,12 @@ class GeometryUtilsTest {
     final double[] obs = new double[2];
     final boolean result = GeometryUtils.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, obs);
     final boolean result2 = GeometryUtils.testIntersect(x1, y1, x2, y2, x3, y3, x4, y4);
-    Assertions.assertEquals(result, result2);
+    Assertions.assertEquals(result, result2, "getIntersection != testIntersect");
     if (exp == null) {
-      Assertions.assertFalse(result);
+      Assertions.assertFalse(result, "Expected no intersection");
     } else {
-      Assertions.assertTrue(result);
-      Assertions.assertArrayEquals(exp, obs, 1e-10);
+      Assertions.assertTrue(result, "Expected intersection");
+      Assertions.assertArrayEquals(exp, obs, 1e-10, "Incorrect intersection");
     }
   }
 
