@@ -63,6 +63,11 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * the edge is removed and replaced by two edges from the previous edge vertices to the internal
  * point.
  *
+ * <p>The algorithm has been changed to select not the closest internal point but a similarly close
+ * point with the largest angle subtended to the two edge vertices. This describes a triangle with
+ * no other points within it and avoids construction of an invalid hull with points outside after a
+ * digging action.
+ *
  * <blockquote>Park and Oh (2012) <br>A New Concave Hull Algorithm and Concaveness Measure for
  * n-dimensional Datasets. <br>Journal of Information Science and Engineering
  * 28:587-600.</blockquote>
