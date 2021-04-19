@@ -41,12 +41,22 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 class RampedScoreTest {
   @Test
   void testConstructorThrows() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> new RampedScore(2, 1));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> RampedScore.of(3, 3));
   }
 
   @Test
-  void testScoreNoRamp() {
-    final RampedScore score = new RampedScore(3, 3);
+  void testScoreNoRampLowIsZero() {
+    final RampedScore score = RampedScore.of(3, 3, true);
+    Assertions.assertEquals(0, score.score(2));
+    Assertions.assertEquals(0, score.score(Math.nextDown(3)));
+    Assertions.assertEquals(0, score.score(3));
+    Assertions.assertEquals(1, score.score(Math.nextUp(3)));
+    Assertions.assertEquals(1, score.score(4));
+  }
+
+  @Test
+  void testScoreNoRampLowIsOne() {
+    final RampedScore score = RampedScore.of(3, 3, false);
     Assertions.assertEquals(1, score.score(2));
     Assertions.assertEquals(1, score.score(Math.nextDown(3)));
     Assertions.assertEquals(1, score.score(3));
@@ -56,7 +66,7 @@ class RampedScoreTest {
 
   @Test
   void testScore() {
-    final RampedScore score = new RampedScore(3, 5);
+    final RampedScore score = RampedScore.of(5, 3, true);
     Assertions.assertEquals(1, score.score(2));
     Assertions.assertEquals(1, score.score(3));
     Assertions.assertEquals(0, score.score(5));
@@ -64,18 +74,23 @@ class RampedScoreTest {
     double last = score.score(3);
     for (int i = 1; i <= 100; i++) {
       final double current = score.score(3 + i / 50.0);
-      Assertions.assertTrue(current < last);
+      final double old = last;
+      Assertions.assertTrue(current < last, () -> current + " not < " + old);
       last = current;
     }
   }
 
   @Test
   void testScoreAndFlatten() {
-    final RampedScore score = new RampedScore(3, 5);
+    final RampedScore score = RampedScore.of(3, 5);
     final int steps = 256;
+    double last = score.score(3);
     for (int i = 1; i <= 100; i++) {
       final double value = 3 + i / 50.0;
       final double current = score.score(value);
+      final double old = last;
+      Assertions.assertTrue(current > last, () -> current + " not > " + old);
+      last = current;
       Assertions.assertEquals(RampedScore.flatten(current, steps),
           score.scoreAndFlatten(value, steps));
     }
@@ -110,7 +125,7 @@ class RampedScoreTest {
   @SeededTest
   void testCopy(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
-    final RampedScore score1 = new RampedScore(0.25, 0.75);
+    final RampedScore score1 = RampedScore.of(0.25, 0.75);
     final RampedScore score2 = score1.copy();
     Assertions.assertNotSame(score1, score2);
     for (int i = 0; i < 10; i++) {
