@@ -382,9 +382,9 @@ public final class SortUtils {
 
   /**
    * Sorts the {@code data} using the provided {@code values}.
-   * 
+   *
    * <p>The {@code values} array must match the length of the {@code data} array.
-   * 
+   *
    * <pre>
    * <code>
    *   Integer[] data = {70, 80, 90};
@@ -432,9 +432,9 @@ public final class SortUtils {
 
   /**
    * Sorts the {@code data} using the provided {@code values}.
-   * 
+   *
    * <p>The {@code values} array must match the length of the {@code data} array.
-   * 
+   *
    * <pre>
    * <code>
    *   Integer[] data = {70, 80, 90};
