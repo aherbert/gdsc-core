@@ -42,6 +42,27 @@ class RampedScoreTest {
   @Test
   void testConstructorThrows() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> RampedScore.of(3, 3));
+    for (final double d : new double[] {Double.NaN, Double.POSITIVE_INFINITY,
+        Double.NEGATIVE_INFINITY}) {
+      Assertions.assertThrows(IllegalArgumentException.class, () -> RampedScore.of(d, 3));
+      Assertions.assertThrows(IllegalArgumentException.class, () -> RampedScore.of(3, d));
+    }
+  }
+
+  @Test
+  void testNoRangeConstructorThrows() {
+    // Allowed
+    RampedScore.of(3, 3, true);
+    RampedScore.of(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, true);
+    RampedScore.of(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, true);
+    for (final double d : new double[] {Double.NaN, Double.POSITIVE_INFINITY,
+        Double.NEGATIVE_INFINITY}) {
+      Assertions.assertThrows(IllegalArgumentException.class, () -> RampedScore.of(d, 3, true));
+      Assertions.assertThrows(IllegalArgumentException.class, () -> RampedScore.of(3, d, true));
+    }
+    // Infinite range not allowed
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RampedScore.of(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true));
   }
 
   @Test

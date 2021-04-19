@@ -31,14 +31,15 @@ package uk.ac.sussex.gdsc.core.utils;
 /**
  * Provide a score function that ramps smoothly between the configured limits.
  *
- * <p>Uses the smoother step function with zero 1st- and 2nd-order derivatives at x=0 and x=1.
+ * <p>Uses the sigmoid-like smoother step function with zero 1st- and 2nd-order derivatives at x=0
+ * and x=1.
  *
  * <pre>
  * x = (value - edge0) / (edge1 - edge0)
  *
- * smotherstep(x) = 0                     when x &leq; 0
- *                  6x^5 - 15x^4 + 10x^3  when 0 &lt; x &lt; 1
- *                  1                     when x &geq; 1
+ * smotherstep(x) = 0                     when x &leq; 0 (or value is beyond edge0)
+ *                  6x^5 - 15x^4 + 10x^3  when 0 &lt; x &lt; 1 (or value is between the edges)
+ *                  1                     when x &geq; 1 (or value is beyond edge1)
  * </pre>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Smoothstep">Smoother step (Wikipedia)</a>
@@ -108,9 +109,11 @@ public class RampedScore {
    * @param edge0 The edge of the range assigned a score of zero
    * @param edge1 The edge of the range assigned a score of one
    * @return the ramped score
-   * @throws IllegalArgumentException if there is no range
+   * @throws IllegalArgumentException if there is no range or the edges are not finite
    */
   public static RampedScore of(double edge0, double edge1) {
+    ValidationUtils.checkArgument(Double.isFinite(edge0), "Edge0 (%f) must be finite", edge0);
+    ValidationUtils.checkArgument(Double.isFinite(edge1), "Edge1 (%f) must be finite", edge1);
     ValidationUtils.checkArgument(edge0 != edge1, "Edge0 (%f) must not equal edge1 (%f)", edge0,
         edge1);
     return new RampedScore(edge0, edge1);
@@ -124,17 +127,22 @@ public class RampedScore {
    * object that sets the score as 0 or 1 if the value is less than or equal to the edge0 range. The
    * behaviour is configured based on the {@code noRangeLowIsZero} parameter.
    *
+   * <p>This method will allow infinite edges if they are the same. The returned score function is a
+   * threshold function set using an infinite value for the threshold.
+   *
    * @param edge0 The edge of the range assigned a score of zero
    * @param edge1 The edge of the range assigned a score of one
    * @param noRangeLowIsZero Set to true to return 0 for any value below {@code edge0} when
    *        {@code edge0 == edge1}, otherwise return 1
    * @return the ramped score
+   * @throws IllegalArgumentException if an edge is NaN; if one edge is infinite; or if both edges
+   *         are infinite and opposite signs
    */
   public static RampedScore of(double edge0, double edge1, boolean noRangeLowIsZero) {
     if (edge0 == edge1) {
       return noRangeLowIsZero ? new Low0ThresholdScore(edge0) : new Low1ThresholdScore(edge0);
     }
-    return new RampedScore(edge0, edge1);
+    return RampedScore.of(edge0, edge1);
   }
 
   /**
