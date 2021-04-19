@@ -111,7 +111,7 @@ public class RampedScore {
    * @throws IllegalArgumentException if there is no range
    */
   public static RampedScore of(double edge0, double edge1) {
-    ValidationUtils.checkArgument(edge0 != edge1, "Lower (%f) must not equal edge1 (%f)", edge0,
+    ValidationUtils.checkArgument(edge0 != edge1, "Edge0 (%f) must not equal edge1 (%f)", edge0,
         edge1);
     return new RampedScore(edge0, edge1);
   }
