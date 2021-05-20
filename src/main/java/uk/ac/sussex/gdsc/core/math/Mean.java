@@ -98,12 +98,12 @@ public final class Mean {
     final double mean1 = mean;
     final long n2 = other.size;
     final double mean2 = other.mean;
-    // Adapted from
-    // org.apache.commons.math3.stat.regression.SimpleRegression.append(SimpleRegression)
+    // Weighted mean
     final long n = n1 + n2;
-    final double f = n2 / (double) n;
-    final double delta = mean2 - mean1;
-    mean = mean1 + delta * f;
+    // w1 = n1 / n
+    // w2 = n2 / n == 1 - w1
+    final double w1 = n1 / (double) n;
+    mean = mean1 * w1 + mean2 * (1 - w1);
     size = n;
   }
 
