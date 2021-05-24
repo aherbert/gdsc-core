@@ -1080,6 +1080,8 @@ public class ExtendedGenericDialog extends GenericDialog {
   @Override
   public void setVisible(boolean value) {
     if (silent) {
+      // Call dispose to reset counters and activate the recorder
+      dispose();
       return;
     }
 
