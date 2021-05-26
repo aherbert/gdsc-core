@@ -438,9 +438,42 @@ public class RandIndex {
   /**
    * Compute the Rand index for two classifications of a set of data.
    *
+   * <p>For a set of {@code n} elements {@code S} and two partitions of {@code S},
+   * {@code X = (X1, ..., Xr)} into {@code r} subsets and {@code Y = (Y1, ..., Ys)} into {@code s}
+   * subsets define:
+   *
+   * <ul>
+   *
+   * <li>{@code a}, the number of pairs of elements in {@code S} that are in the
+   * <strong>same</strong> subset in {@code X} and in the <strong>same</strong> subset in {@code Y}.
+   *
+   * <li>{@code b}, the number of pairs of elements in {@code S} that are in
+   * <strong>different</strong> subsets in {@code X} and in <strong>different</strong> subsets in
+   * {@code Y}.
+   *
+   * <li>{@code c}, the number of pairs of elements in {@code S} that are in the
+   * <strong>same</strong> subset in {@code X} and in <strong>different</strong> subsets in
+   * {@code Y}.
+   *
+   * <li>{@code d}, the number of pairs of elements in {@code S} that are in
+   * <strong>different</strong> subsets in {@code X} and in the <strong>same</strong> subset in
+   * {@code Y}.
+   *
+   * </ul>
+   *
+   * <pre>
+   *         a + b
+   * R = -------------
+   *     a + b + c + d
+   * </pre>
+   *
    * <p>The Rand index has a value between 0 and 1, with 0 indicating that the two data
    * classifications do not agree on any pair of points and 1 indicating that the data
    * classifications are exactly the same.
+   *
+   * <p>Since the denominator is the total number of pairs, the Rand index represents the frequency
+   * of occurrence of agreements over the total pairs, or the probability that {@code X}
+   * and {@code Y} will agree on a randomly chosen pair.
    *
    * <p>Uses the pre-computed contingency table.
    *
@@ -536,6 +569,11 @@ public class RandIndex {
   /**
    * Gets the true positives from the last call to compute().
    *
+   * <p>For a set of {@code n} elements {@code S} and two partitions of {@code S},
+   * {@code X = (X1, ..., Xr)} into {@code r} subsets and {@code Y = (Y1, ..., Ys)} into {@code s}
+   * subsets, return the number of pairs of elements in {@code S} that are in the
+   * <strong>same</strong> subset in {@code X} and in the <strong>same</strong> subset in {@code Y}.
+   *
    * @return the true positives
    */
   public long getTruePositives() {
@@ -544,6 +582,12 @@ public class RandIndex {
 
   /**
    * Gets the true negatives from the last call to compute().
+   *
+   * <p>For a set of {@code n} elements {@code S} and two partitions of {@code S},
+   * {@code X = (X1, ..., Xr)} into {@code r} subsets and {@code Y = (Y1, ..., Ys)} into {@code s}
+   * subsets, return the number of pairs of elements in {@code S} that are in
+   * <strong>different</strong> subsets in {@code X} and in <strong>different</strong> subsets in
+   * {@code Y}.
    *
    * @return the true negatives
    */
@@ -555,6 +599,12 @@ public class RandIndex {
   /**
    * Gets the false positives from the last call to compute().
    *
+   * <p>For a set of {@code n} elements {@code S} and two partitions of {@code S},
+   * {@code X = (X1, ..., Xr)} into {@code r} subsets and {@code Y = (Y1, ..., Ys)} into {@code s}
+   * subsets, return the number of pairs of elements in {@code S} that are in the
+   * <strong>same</strong> subset in {@code X} and in <strong>different</strong> subsets in
+   * {@code Y}.
+   *
    * @return the false positives
    */
   public long getFalsePositives() {
@@ -563,6 +613,12 @@ public class RandIndex {
 
   /**
    * Gets the false negatives from the last call to compute().
+   *
+   * <p>For a set of {@code n} elements {@code S} and two partitions of {@code S},
+   * {@code X = (X1, ..., Xr)} into {@code r} subsets and {@code Y = (Y1, ..., Ys)} into {@code s}
+   * subsets, return the number of pairs of elements in {@code S} that are in
+   * <strong>different</strong> subsets in {@code X} and in the <strong>same</strong> subset in
+   * {@code Y}.
    *
    * @return the false negatives
    */
