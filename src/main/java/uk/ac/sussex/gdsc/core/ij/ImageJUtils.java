@@ -65,7 +65,9 @@ import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,8 +76,11 @@ import uk.ac.sussex.gdsc.core.annotation.Nullable;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
+import uk.ac.sussex.gdsc.core.utils.BitFlagUtils;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 /**
@@ -141,6 +146,18 @@ public final class ImageJUtils {
 
   /** The last time to ImageJ status bar was updated. */
   private static long lastTime;
+
+  /**
+   * Test the image is not null.
+   */
+  private static class NotNullPredicate implements Predicate<ImagePlus> {
+    static final NotNullPredicate INSTANCE = new NotNullPredicate();
+
+    @Override
+    public boolean test(ImagePlus t) {
+      return t != null;
+    }
+  }
 
   /**
    * No public construction.
@@ -1003,7 +1020,7 @@ public final class ImageJUtils {
    * @return The list of images
    */
   public static @NotNull String[] getImageList(final int flags) {
-    return getImageList(flags, null);
+    return toArray(flags, getImages(createImageFilter(flags)));
   }
 
   /**
@@ -1014,44 +1031,100 @@ public final class ImageJUtils {
    * @return The list of images
    */
   public static @NotNull String[] getImageList(final int flags, String[] ignoreSuffix) {
-    final ArrayList<String> newImageList = new ArrayList<>();
-
-    if ((flags & NO_IMAGE) == NO_IMAGE) {
-      newImageList.add(NO_IMAGE_TITLE);
+    Predicate<ImagePlus> filter = createImageFilter(flags);
+    if (ignoreSuffix != null) {
+      filter = filter.and(createImageFilter(ignoreSuffix));
     }
+    return toArray(flags, getImages(createImageFilter(flags)));
+  }
 
+  /**
+   * Build a list of all the image names.
+   *
+   * @param filter A filter used to select the images
+   * @return The list of images
+   * @throws NullPointerException if filter is null
+   */
+  public static @NotNull String[] getImageList(Predicate<ImagePlus> filter) {
+    return toArray(0, getImages(NotNullPredicate.INSTANCE.and(filter)));
+  }
+
+  /**
+   * Creates the image filter.
+   *
+   * @param flags the flags
+   * @return the filter
+   */
+  public static Predicate<ImagePlus> createImageFilter(int flags) {
+    Predicate<ImagePlus> f = NotNullPredicate.INSTANCE;
+    if (BitFlagUtils.areSet(flags, SINGLE)) {
+      f = f.and(imp -> imp.getNDimensions() == 2);
+    }
+    if (BitFlagUtils.areSet(flags, BINARY)) {
+      f = f.and(imp -> imp.getProcessor().isBinary());
+    }
+    if (BitFlagUtils.areSet(flags, GREY_SCALE)) {
+      f = f.and(imp -> imp.getBitDepth() != 24);
+    }
+    if (BitFlagUtils.areSet(flags, GREY_8_16)) {
+      f = f.and(imp -> imp.getBitDepth() == 8 || imp.getBitDepth() == 16);
+    }
+    return f;
+  }
+
+  /**
+   * Creates the filter to ignore images with a suffix from the specified collection.
+   *
+   * @param ignoreSuffix A collection of title suffixes to ignore
+   * @return the filter
+   * @throws NullPointerException if the suffixes collection is null
+   */
+  public static @NotNull Predicate<ImagePlus> createImageFilter(String... ignoreSuffix) {
+    ValidationUtils.checkNotNull(ignoreSuffix, "ignoreSuffix");
+    return imp -> ignoreImage(ignoreSuffix, imp.getTitle());
+  }
+
+  /**
+   * Build a list of all the image names.
+   *
+   * @param filter A filter used to select the images
+   * @return The list of images
+   */
+  private static @NotNull List<String> getImages(Predicate<ImagePlus> filter) {
+    final LocalList<String> newImageList = new LocalList<>();
     for (final int id : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(id);
-      if ((imp == null)
-          // Single image
-          || ((flags & SINGLE) == SINGLE && imp.getNDimensions() > 2)
-          // Binary image
-          || ((flags & BINARY) == BINARY && !imp.getProcessor().isBinary())
-          // Greyscale image
-          || ((flags & GREY_SCALE) == GREY_SCALE && imp.getBitDepth() == 24)
-          // 8/16-bit only
-          || ((flags & GREY_8_16) == GREY_8_16
-              && (imp.getBitDepth() != 8 && imp.getBitDepth() != 16))
-          // Ignore image suffix
-          || (ignoreImage(ignoreSuffix, imp.getTitle()))) {
-        continue;
+      if (filter.test(imp)) {
+        newImageList.add(imp.getTitle());
       }
-
-      newImageList.add(imp.getTitle());
     }
+    return newImageList;
+  }
 
+  /**
+   * Convert the list to an array. Optionally inserted the no image title at the start of the array.
+   *
+   * @param flags the flags
+   * @param newImageList the new image list
+   * @return the array
+   */
+  private static String[] toArray(int flags, List<String> newImageList) {
+    if ((flags & NO_IMAGE) == NO_IMAGE) {
+      newImageList.add(0, NO_IMAGE_TITLE);
+    }
     return newImageList.toArray(new String[0]);
   }
 
   /**
    * Return true if the image title ends with any of the specified suffixes.
    *
-   * @param ignoreSuffix A list of title suffixes to ignore
+   * @param ignoreSuffix A collection of title suffixes to ignore
    * @param title The image title
    * @return true if the image title ends with any of the specified suffixes
    */
-  public static boolean ignoreImage(String[] ignoreSuffix, String title) {
-    if (ignoreSuffix != null) {
+  @VisibleForTesting
+  static boolean ignoreImage(String[] ignoreSuffix, String title) {
+    if (title != null) {
       for (final String suffix : ignoreSuffix) {
         if (title.endsWith(suffix)) {
           return true;

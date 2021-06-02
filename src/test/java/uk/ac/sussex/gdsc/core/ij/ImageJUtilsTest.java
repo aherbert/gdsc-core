@@ -41,6 +41,7 @@ import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -154,17 +155,48 @@ class ImageJUtilsTest {
   @Test
   void testGetImageList() {
     Assertions.assertArrayEquals(new String[0], ImageJUtils.getImageList(0));
+    Assertions.assertArrayEquals(new String[0], ImageJUtils.getImageList(0, (String[]) null));
     Assertions.assertArrayEquals(new String[] {ImageJUtils.NO_IMAGE_TITLE},
         ImageJUtils.getImageList(ImageJUtils.NO_IMAGE));
+    Assertions.assertArrayEquals(new String[0], ImageJUtils.getImageList(0, new String[] {".txt"}));
+    Assertions.assertArrayEquals(new String[] {ImageJUtils.NO_IMAGE_TITLE},
+        ImageJUtils.getImageList(ImageJUtils.NO_IMAGE, new String[] {".txt"}));
+    Assertions.assertArrayEquals(new String[0],
+        ImageJUtils.getImageList(imp -> imp.getBitDepth() == 17));
   }
 
   @Test
   void testIgnoreImage() {
-    Assertions.assertFalse(ImageJUtils.ignoreImage(null, null));
-    Assertions.assertFalse(ImageJUtils.ignoreImage(null, "test.tif"));
-    Assertions.assertFalse(ImageJUtils.ignoreImage(new String[] {"jpg"}, "test.tif"));
-    Assertions.assertTrue(ImageJUtils.ignoreImage(new String[] {"jpg"}, "test.jpg"));
+    Assertions.assertFalse(ImageJUtils.ignoreImage(new String[0], null));
+    Assertions.assertFalse(ImageJUtils.ignoreImage(new String[0], "test.tif"));
+    Assertions.assertFalse(ImageJUtils.ignoreImage(new String[] {"tif"}, null));
     Assertions.assertTrue(ImageJUtils.ignoreImage(new String[] {"tif"}, "test.tif"));
+    // Test the filter too
+    final Predicate<ImagePlus> filter = ImageJUtils.createImageFilter("jpg");
+    final ImagePlus imp = IJ.createImage("test.tif", 3, 4, 1, 8);
+    Assertions.assertFalse(filter.test(imp));
+    imp.setTitle("test.jpg");
+    Assertions.assertTrue(filter.test(imp));
+  }
+
+  @Test
+  void testCreateImageFilter() {
+    final ImagePlus single = IJ.createImage(null, 3, 4, 1, 8);
+    final ImagePlus binary = IJ.createImage(null, 3, 4, 1, 8);
+    binary.getProcessor().threshold(15);
+    final ImagePlus color = IJ.createImage(null, 3, 4, 1, 24);
+    final ImagePlus grey16Stack = IJ.createImage(null, 3, 4, 2, 16);
+    Assertions.assertTrue(ImageJUtils.createImageFilter(0).test(single));
+    Assertions.assertFalse(ImageJUtils.createImageFilter(0).test(null));
+    Assertions.assertTrue(ImageJUtils.createImageFilter(ImageJUtils.SINGLE).test(single));
+    Assertions.assertFalse(ImageJUtils.createImageFilter(ImageJUtils.SINGLE).test(grey16Stack));
+    Assertions.assertTrue(ImageJUtils.createImageFilter(ImageJUtils.BINARY).test(binary));
+    Assertions.assertFalse(ImageJUtils.createImageFilter(ImageJUtils.BINARY).test(grey16Stack));
+    Assertions.assertTrue(ImageJUtils.createImageFilter(ImageJUtils.GREY_SCALE).test(binary));
+    Assertions.assertFalse(ImageJUtils.createImageFilter(ImageJUtils.GREY_SCALE).test(color));
+    Assertions.assertTrue(ImageJUtils.createImageFilter(ImageJUtils.GREY_8_16).test(binary));
+    Assertions.assertTrue(ImageJUtils.createImageFilter(ImageJUtils.GREY_8_16).test(grey16Stack));
+    Assertions.assertFalse(ImageJUtils.createImageFilter(ImageJUtils.GREY_8_16).test(color));
   }
 
   @Test
