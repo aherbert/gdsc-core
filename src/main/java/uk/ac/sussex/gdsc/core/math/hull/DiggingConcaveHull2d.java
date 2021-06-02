@@ -99,7 +99,7 @@ public final class DiggingConcaveHull2d {
     /**
      * Private constructor.
      */
-    private Builder() {
+    Builder() {
       clear();
     }
 

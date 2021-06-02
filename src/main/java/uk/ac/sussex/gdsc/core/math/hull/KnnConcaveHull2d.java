@@ -68,7 +68,7 @@ public final class KnnConcaveHull2d {
     /**
      * Private constructor.
      */
-    private Builder() {
+    Builder() {
       clear();
     }
 

@@ -55,7 +55,7 @@ public final class ConvexHull2d {
     /**
      * Private constructor.
      */
-    private Builder() {
+    Builder() {
       // Do nothing
     }
 
