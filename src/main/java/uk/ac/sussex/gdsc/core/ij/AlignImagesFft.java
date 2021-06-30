@@ -31,13 +31,13 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ColorProcessor;
-import ij.process.FHT;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.util.Tools;
 import java.awt.Rectangle;
 import java.util.function.Consumer;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.ij.process.Fht;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow;
@@ -136,7 +136,7 @@ public class AlignImagesFft {
   private ImageProcessor refIp;
   private double[] rollingSum;
   private double[] rollingSumSq;
-  private FHT refFht;
+  private Fht refFht;
 
   private TrackProgress progress = NullTrackProgress.getInstance();
 
@@ -223,7 +223,7 @@ public class AlignImagesFft {
       calculateRollingSums(normalisedRefIp, sum, sumSq);
     }
 
-    final FHT referenceFht = fht(normalisedRefIp);
+    final Fht referenceFht = fht(normalisedRefIp);
 
     final Rectangle localBounds =
         (bounds == null)
@@ -313,8 +313,8 @@ public class AlignImagesFft {
    * Aligns the target image to the pre-initialised reference and return the shift and score for the
    * alignment.
    *
-   * <p>The target is allowed to be an FHT as returned from
-   * {@link #transformTarget(ImageProcessor, WindowMethod)}. If the FHT is not the correct size then
+   * <p>The target is allowed to be an Fht as returned from
+   * {@link #transformTarget(ImageProcessor, WindowMethod)}. If the Fht is not the correct size then
    * an exception is thrown.
    *
    * @param targetIp the target ip
@@ -322,7 +322,7 @@ public class AlignImagesFft {
    * @param bounds the bounds
    * @param subPixelMethod the sub pixel method
    * @return [ x_shift, y_shift, score ]
-   * @throws IllegalArgumentException if the target is an FHT that is the incorrect size
+   * @throws IllegalArgumentException if the target is an Fht that is the incorrect size
    */
   public double[] align(ImageProcessor targetIp, WindowMethod windowMethod, Rectangle bounds,
       SubPixelMethod subPixelMethod) {
@@ -708,7 +708,7 @@ public class AlignImagesFft {
   /**
    * Align images.
    *
-   * @param refFht the ref FHT
+   * @param refFht the ref Fht
    * @param rollingSum the rolling sum
    * @param rollingSumSq the rolling sum of squares
    * @param targetIp the target ip
@@ -722,7 +722,7 @@ public class AlignImagesFft {
    * @param clipOutput the clip output
    * @return the image processor
    */
-  private ImageProcessor alignImages(FHT refFht, double[] rollingSum, double[] rollingSumSq,
+  private ImageProcessor alignImages(Fht refFht, double[] rollingSum, double[] rollingSumSq,
       ImageProcessor targetIp, int slice, WindowMethod windowMethod, Rectangle bounds,
       FloatProcessor fpCorrelation, FloatProcessor fpNormalised, SubPixelMethod subPixelMethod,
       int interpolationMethod, boolean clipOutput) {
@@ -751,7 +751,7 @@ public class AlignImagesFft {
     final ImageProcessor paddedTargetIp =
         padAndZero(targetIp, maxN, windowMethod, targetImageBounds);
     final FloatProcessor normalisedTargetIp = normaliseImage(paddedTargetIp);
-    final FHT targetFht = fht(normalisedTargetIp);
+    final Fht targetFht = fht(normalisedTargetIp);
 
     final FloatProcessor subCorrMat = correlate(refFht, targetFht);
 
@@ -810,7 +810,7 @@ public class AlignImagesFft {
   /**
    * Align images.
    *
-   * @param refFht the ref FHT
+   * @param refFht the ref Fht
    * @param rollingSum the rolling sum
    * @param rollingSumSq the rolling sum of squares
    * @param targetIp the target ip
@@ -819,7 +819,7 @@ public class AlignImagesFft {
    * @param subPixelMethod the sub pixel method
    * @return [ x_shift, y_shift, score ]
    */
-  private double[] alignImages(FHT refFht, double[] rollingSum, double[] rollingSumSq,
+  private double[] alignImages(Fht refFht, double[] rollingSum, double[] rollingSumSq,
       ImageProcessor targetIp, WindowMethod windowMethod, Rectangle bounds,
       SubPixelMethod subPixelMethod) {
     lastXOffset = lastYOffset = 0;
@@ -858,13 +858,13 @@ public class AlignImagesFft {
 
     final int maxN = refFht.getWidth();
 
-    // Allow the input target to be a FHT
-    FHT targetFht;
-    if (targetIp instanceof FHT) {
+    // Allow the input target to be a Fht
+    Fht targetFht;
+    if (targetIp instanceof Fht) {
       if (targetIp.getWidth() != maxN) {
-        throw new IllegalArgumentException("Invalid FHT target");
+        throw new IllegalArgumentException("Invalid Fht target");
       }
-      targetFht = (FHT) targetIp;
+      targetFht = (Fht) targetIp;
     } else {
       targetFht = transformTarget(targetIp, windowMethod);
     }
@@ -905,7 +905,7 @@ public class AlignImagesFft {
   }
 
   /**
-   * Transforms a target image processor for alignment with the initialised reference. The FHT can
+   * Transforms a target image processor for alignment with the initialised reference. The Fht can
    * be passed to the
    * {@link #align(ImageProcessor, ImageWindow.WindowMethod, Rectangle, SubPixelMethod)} method.
    *
@@ -917,9 +917,9 @@ public class AlignImagesFft {
    *
    * @param targetIp the target ip
    * @param windowMethod the window method
-   * @return The FHT
+   * @return The Fht
    */
-  public FHT transformTarget(ImageProcessor targetIp, WindowMethod windowMethod) {
+  public Fht transformTarget(ImageProcessor targetIp, WindowMethod windowMethod) {
     if (refFht == null || targetIp == null) {
       return null;
     }
@@ -1099,9 +1099,8 @@ public class AlignImagesFft {
    * @param targetComplex the target complex
    * @return the float processor
    */
-  private static FloatProcessor correlate(FHT refComplex, FHT targetComplex) {
-    final FHT fht = refComplex.conjugateMultiply(targetComplex);
-    fht.setShowProgress(false);
+  private static FloatProcessor correlate(Fht refComplex, Fht targetComplex) {
+    final Fht fht = refComplex.conjugateMultiply(targetComplex);
     fht.inverseTransform();
     fht.swapQuadrants();
     fht.resetMinAndMax();
@@ -1115,10 +1114,10 @@ public class AlignImagesFft {
    * @param ip the image
    * @return the fht
    */
-  FHT fht(ImageProcessor ip) {
-    final FHT fht = new FHT(ip);
-    fht.setShowProgress(false);
+  Fht fht(ImageProcessor ip) {
+    final Fht fht = new Fht(ip);
     fht.transform();
+    fht.initialiseFastMultiply();
     return fht;
   }
 
@@ -1204,7 +1203,7 @@ public class AlignImagesFft {
    * @return the insert
    */
   private static int getInsert(int maxN, int width) {
-    // Note the FHT power spectrum centre is at n/2 of an even sized image.
+    // Note the Fht power spectrum centre is at n/2 of an even sized image.
     // So we must insert the centre at that point. To do this we check for odd/even
     // and offset if necessary.
     final int diff = maxN - width;

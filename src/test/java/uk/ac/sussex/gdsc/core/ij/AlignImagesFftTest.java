@@ -32,7 +32,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ColorProcessor;
-import ij.process.FHT;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Rectangle;
@@ -45,6 +44,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.AlignImagesFft.SubPixelMethod;
+import uk.ac.sussex.gdsc.core.ij.process.Fht;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
@@ -706,14 +706,14 @@ class AlignImagesFftTest {
     Assertions.assertEquals(2, result1[1], "Y shift");
 
     // Align an FHT
-    final FHT fht = align1.transformTarget(ip, windowMethod);
+    final Fht fht = align1.transformTarget(ip, windowMethod);
     final double[] result2 = align1.align(fht, windowMethod, bounds, subPixelMethod);
     Assertions.assertEquals(1, result2[0], "X shift");
     Assertions.assertEquals(2, result2[1], "Y shift");
 
     // Bad FHT (wrong size)
     ip.setRoi(0, 0, ip.getWidth() / 2, ip.getHeight() / 2);
-    final FHT badFht1 = new FHT(ip.crop());
+    final Fht badFht1 = new Fht(ip.crop());
     Assertions.assertThrows(IllegalArgumentException.class,
         () -> align1.align(badFht1, windowMethod, bounds, subPixelMethod));
   }
