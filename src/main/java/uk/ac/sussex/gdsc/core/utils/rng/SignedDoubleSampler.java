@@ -70,7 +70,7 @@ public class SignedDoubleSampler implements SharedStateContinuousSampler {
   }
 
   @Override
-  public SharedStateContinuousSampler withUniformRandomProvider(UniformRandomProvider rng) {
+  public SignedDoubleSampler withUniformRandomProvider(UniformRandomProvider rng) {
     return new SignedDoubleSampler(rng);
   }
 }
