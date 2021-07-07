@@ -490,10 +490,10 @@ public final class NumberUtils {
    * @return the double
    */
   public static double makeSignedDouble(long bits) {
-    // Upper 53-bits is a positive number in the range [0, 1).
-    // This has 1 optionally subtracted. Do not use the lower bits on the
-    // assumption they are less random. Use integer subtraction.
-    return ((bits >>> 11) * 0x1.0p-53d) - (int) ((bits >>> 10) & 0x1);
+    // Use the upper 54 bits on the assumption they are more random.
+    // The sign bit is maintained by the signed shift.
+    // The next 53 bits generates a magnitude in the range [0, 2^53) or [-2^53, 0).
+    return (bits >> 10) * 0x1.0p-53d;
   }
 
   /**

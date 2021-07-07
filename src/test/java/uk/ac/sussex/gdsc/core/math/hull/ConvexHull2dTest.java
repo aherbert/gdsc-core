@@ -169,7 +169,7 @@ class ConvexHull2dTest {
   void canCreateWithManyPoints() {
     // This test depends on the output from the UnitDiskSampler and is not robust to
     // using any seed.
-    final UnitDiskSampler sampler = UnitDiskSampler.of(RngUtils.create(123L));
+    final UnitDiskSampler sampler = UnitDiskSampler.of(RngUtils.create(12345L));
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
     final TDoubleArrayList yy = new TDoubleArrayList(n);

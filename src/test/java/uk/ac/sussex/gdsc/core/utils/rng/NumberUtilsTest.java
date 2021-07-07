@@ -688,15 +688,14 @@ class NumberUtilsTest {
 
   @Test
   void testMakeSignedDouble() {
-    // upper 53-bits for the magnitiude; another bit is used to select the sign
-    final long sign = 1L << 10;
     Assertions.assertEquals(0.0, NumberUtils.makeSignedDouble(0L));
-    Assertions.assertEquals(-1.0, NumberUtils.makeSignedDouble(sign));
-    Assertions.assertEquals(Math.nextDown(1.0), NumberUtils.makeSignedDouble(0xfffffffffffff800L));
-    Assertions.assertEquals(-0x1.0p-53, NumberUtils.makeSignedDouble(0xfffffffffffff800L + sign));
-    Assertions.assertEquals(-0x2.0p-53, NumberUtils.makeSignedDouble(0xfffffffffffff000L + sign));
-    Assertions.assertEquals(-0x3.0p-53, NumberUtils.makeSignedDouble(0xffffffffffffe800L + sign));
-    Assertions.assertEquals(-0x4.0p-53, NumberUtils.makeSignedDouble(0xffffffffffffe000L + sign));
+    Assertions.assertEquals(Math.nextDown(1.0), NumberUtils.makeSignedDouble(Long.MAX_VALUE));
+    Assertions.assertEquals(-1.0, NumberUtils.makeSignedDouble(Long.MIN_VALUE));
+    Assertions.assertEquals(-1.0 + 0x1.0p-53, NumberUtils.makeSignedDouble(Long.MIN_VALUE + (1L << 10)));
+    Assertions.assertEquals(-0x1.0p-53, NumberUtils.makeSignedDouble(-1L));
+    Assertions.assertEquals(-0x2.0p-53, NumberUtils.makeSignedDouble(-2L << 10));
+    Assertions.assertEquals(-0x3.0p-53, NumberUtils.makeSignedDouble(-3L << 10));
+    Assertions.assertEquals(-0x4.0p-53, NumberUtils.makeSignedDouble(-4L << 10));
   }
 
   @Test
