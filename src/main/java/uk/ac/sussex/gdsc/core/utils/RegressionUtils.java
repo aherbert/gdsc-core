@@ -48,7 +48,8 @@ public final class RegressionUtils {
    * F = ((rss1 - rss2) / (p2 - p1)) / (rss2 / (n - p2))
    * </pre>
    *
-   * <p>F will have an F distribution, with (p2−p1, n−p2) degrees of freedom.
+   * <p>Under the null hypothesis that model 2 does not provide a significantly better fit than
+   * model 1, F will have an F distribution, with (p2−p1, n−p2) degrees of freedom.
    *
    * <p>It is expected that the residual sum of squares for model 2 is lower or equal to model 1 and
    * {@code n > p2 > p1}.
@@ -88,10 +89,12 @@ public final class RegressionUtils {
    * F = ((rss1 - rss2) / (p2 - p1)) / (rss2 / (n - p2))
    * </pre>
    *
-   * <p>F will have an F distribution, with (p2−p1, n−p2) degrees of freedom.
+   * <p>Under the null hypothesis that model 2 does not provide a significantly better fit than
+   * model 1, F will have an F distribution, with (p2−p1, n−p2) degrees of freedom.
    *
    * <p>The number returned is the smallest significance level at which one can reject the null
-   * hypothesis that model 2 does not provide a significantly better fit than model 1.
+   * hypothesis that model 2 does not provide a significantly better fit than model 1; a smaller
+   * value is more significant.
    *
    * <p>The probability returned is the tail probability beyond
    * {@link #residualsFStatistic(double, int, double, int, int)} in the F distribution with the
@@ -111,13 +114,13 @@ public final class RegressionUtils {
    */
   public static double residualsFTest(double residualSumSquares1, int numberOfParameters1,
       double residualSumSquares2, int numberOfParameters2, int numberOfPoints) {
-    // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
     final double f = residualsFStatistic(residualSumSquares1, numberOfParameters1,
         residualSumSquares2, numberOfParameters2, numberOfPoints);
     // Edge case when rss2 is zero.
     if (f == Double.POSITIVE_INFINITY) {
       return 0;
     }
+    // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
     final FDistribution distribution = new FDistribution(null,
         numberOfParameters2 - numberOfParameters1, numberOfPoints - numberOfParameters2);
     return 1.0 - distribution.cumulativeProbability(f);
@@ -125,9 +128,9 @@ public final class RegressionUtils {
 
   /**
    * Performs a F-Test for two nested regression models evaluating the null hypothesis that model 2
-   * provides a significantly better fit than model 1, with significance level {@code alpha}.
-   * Returns true iff the null hypothesis can be rejected with {@code 100 * (1 - alpha)} percent
-   * confidence.
+   * does not provide a significantly better fit than model 1, with significance level
+   * {@code alpha}. Returns true iff the null hypothesis can be rejected with
+   * {@code 100 * (1 - alpha)} percent confidence.
    *
    * <p>Returns true iff {@link #residualsFTest(double, int, double, int, int) } {@code < alpha}</p>
    *
@@ -140,7 +143,8 @@ public final class RegressionUtils {
    * @param numberOfParameters2 the number of parameters in model 2 (p2)
    * @param numberOfPoints the number of points (n)
    * @param alpha significance level of the test
-   * @return true iff null hypothesis can be rejected with confidence 1 - alpha
+   * @return true iff null hypothesis can be rejected with confidence 1 - alpha; that is model 2 is
+   *         significantly better
    * @throws IllegalArgumentException if @{@code rss2 > rss1} or {@code p1 >= p2} or {@code p2 >= n}
    *         or {@code alpha} is not strictly greater than zero and less than or equal to 0.5
    * @see <a href="https://en.wikipedia.org/wiki/F-test#Regression_problems">F-Test</a>
