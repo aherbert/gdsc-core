@@ -93,6 +93,7 @@ class ConvexHull3dTest {
 
   @SeededTest
   void canComputeConvexHullFromCubeWithInternalPoints(RandomSeed seed) {
+    // Upgrade to BoxSampler from commons RNG 1.4
     final double[][] v = {{1, 1, -1}, {-1, 1, -1}, {-1, -1, -1}, {1, -1, -1}, {1, 1, 1}, {-1, 1, 1},
         {-1, -1, 1}, {1, -1, 1}};
     final int[][] f =
@@ -123,6 +124,7 @@ class ConvexHull3dTest {
 
   @SeededTest
   void canComputeConvexHullFromTetrahedronWithInternalPoints(RandomSeed seed) {
+    // Upgrade to TetrahedronSampler from commons RNG 1.4
     final double[][] v = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
     final int[][] f = {{0, 2, 1}, {2, 3, 1}, {0, 3, 2}, {0, 1, 3}};
     final int extra = 10;
