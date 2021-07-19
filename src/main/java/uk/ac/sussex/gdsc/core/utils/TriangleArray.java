@@ -258,7 +258,7 @@ public class TriangleArray {
   /**
    * Convert from linear index to ij.
    *
-   * @param n the size of the array in 1 dimension (total length = n*(n-1)/2) 
+   * @param n the size of the array in 1 dimension (total length = n*(n-1)/2)
    * @param k the linear index (Must be with the bound 0:length-1)
    * @return the ij data
    */

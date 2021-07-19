@@ -691,7 +691,8 @@ class NumberUtilsTest {
     Assertions.assertEquals(0.0, NumberUtils.makeSignedDouble(0L));
     Assertions.assertEquals(Math.nextDown(1.0), NumberUtils.makeSignedDouble(Long.MAX_VALUE));
     Assertions.assertEquals(-1.0, NumberUtils.makeSignedDouble(Long.MIN_VALUE));
-    Assertions.assertEquals(-1.0 + 0x1.0p-53, NumberUtils.makeSignedDouble(Long.MIN_VALUE + (1L << 10)));
+    Assertions.assertEquals(-1.0 + 0x1.0p-53,
+        NumberUtils.makeSignedDouble(Long.MIN_VALUE + (1L << 10)));
     Assertions.assertEquals(-0x1.0p-53, NumberUtils.makeSignedDouble(-1L));
     Assertions.assertEquals(-0x2.0p-53, NumberUtils.makeSignedDouble(-2L << 10));
     Assertions.assertEquals(-0x3.0p-53, NumberUtils.makeSignedDouble(-3L << 10));
