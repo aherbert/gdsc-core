@@ -71,7 +71,7 @@ public final class XoRoShiRo128PP extends XoRoShiRo128PlusPlus
    * @param seed the seed for the state
    */
   public XoRoShiRo128PP(long seed) {
-    super(Mixers.stafford13(seed), Mixers.stafford13(seed + GOLDEN_RATIO));
+    super(Mixers.stafford13(seed + GOLDEN_RATIO), Mixers.stafford13(seed + 2 * GOLDEN_RATIO));
   }
 
   /**
@@ -88,7 +88,8 @@ public final class XoRoShiRo128PP extends XoRoShiRo128PlusPlus
     super(seed0, seed1);
     // Combine bits and check for zero seed
     if ((seed0 | seed1) == 0) {
-      this.state1 = Mixers.stafford13(GOLDEN_RATIO);
+      this.state0 = Mixers.stafford13(GOLDEN_RATIO);
+      this.state1 = Mixers.stafford13(2 * GOLDEN_RATIO);
     }
   }
 
