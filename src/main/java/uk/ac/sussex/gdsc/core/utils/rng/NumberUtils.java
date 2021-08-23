@@ -254,25 +254,16 @@ public final class NumberUtils {
     final long ay = a * y;
     final long ax = a * x;
 
+    // Compute carry from the upper 32-bits of by and lower 32-bits of bx and ay
     // @formatter:off
-    result[0] = by & INT_TO_UNSIGNED_BYTE_MASK;
-
-    // Sum each 32-bit column using a long.
-    // The upper 32-bits (carry) are added to the next column sum.
-    long sum = (by >>> 32) +
-               (bx & INT_TO_UNSIGNED_BYTE_MASK) +
-               (ay & INT_TO_UNSIGNED_BYTE_MASK);
-    result[0] |= sum << 32;
-
-    sum = (sum >>> 32) +
-          (bx >>> 32) +
-          (ay >>> 32) +
-          (ax & INT_TO_UNSIGNED_BYTE_MASK);
-    result[1] = sum & INT_TO_UNSIGNED_BYTE_MASK;
-
-    result[1] |= ((sum >>> 32) +
-                  (ax >>> 32)) << 32;
+    final long carry = ((by >>> 32) +
+                        (bx & INT_TO_UNSIGNED_BYTE_MASK) +
+                        (ay & INT_TO_UNSIGNED_BYTE_MASK)) >>> 32;
     // @formatter:on
+
+    result[0] = value1 * value2;
+    //result[0] = by + (bx << 32) + (ay << 32);
+    result[1] = ax + (bx >>> 32) + (ay >>> 32) + carry;
   }
 
   /**
