@@ -93,13 +93,15 @@ class NoiseEstimatorTest {
     }
     final NoiseEstimator ie1 = NoiseEstimator.wrap(data, width, height);
     final NoiseEstimator ie2 = NoiseEstimator.wrap(data, width, height);
+    ie1.setRange(10);
     ie1.setPreserveResiduals(false);
-    ie1.setPreserveResiduals(true);
+    ie2.setRange(10);
+    ie2.setPreserveResiduals(true);
     for (final Method m : Method.values()) {
       final double actual1 = ie1.getNoise(m);
-      Assertions.assertEquals(standardDeviation, actual1, 1e-1 * standardDeviation,
-          () -> m.toString());
-      Assertions.assertEquals(actual1, ie2.getNoise(m), () -> m.toString());
+      Assertions.assertEquals(standardDeviation, actual1, 1e-1 * standardDeviation, m::toString);
+      Assertions.assertEquals(actual1, ie2.getNoise(m), m::toString);
+      Assertions.assertEquals(actual1, ie2.getNoise(m), m::toString);
     }
   }
 
