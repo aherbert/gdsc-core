@@ -33,7 +33,7 @@ import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
-import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.ZigguratSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -116,7 +116,7 @@ class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-    final NormalizedGaussianSampler g = new ZigguratNormalizedGaussianSampler(rng);
+    final NormalizedGaussianSampler g = ZigguratSampler.NormalizedGaussian.of(rng);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }

@@ -42,7 +42,7 @@ import org.apache.commons.rng.sampling.distribution.InverseTransformDiscreteSamp
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
-import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.ZigguratSampler;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -99,7 +99,9 @@ public final class SamplerUtils {
    */
   public static <S extends NormalizedGaussianSampler & SharedStateContinuousSampler> S
       createNormalizedGaussianSampler(UniformRandomProvider rng) {
-    return ZigguratNormalizedGaussianSampler.of(rng);
+    @SuppressWarnings("unchecked")
+    final S s = (S) ZigguratSampler.NormalizedGaussian.of(rng);
+    return s;
   }
 
   /**
