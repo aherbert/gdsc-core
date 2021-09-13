@@ -107,4 +107,19 @@ class SamplerUtilsTest {
     final DiscreteSampler sampler = SamplerUtils.createGeometricSamplerFromMean(rng, mean);
     Assertions.assertNotNull(sampler);
   }
+
+  @Test
+  void testCreateExponentialSampler() {
+    final UniformRandomProvider rng = new SplitMix64(0L);
+    final ContinuousSampler sampler = SamplerUtils.createExponentialSampler(rng);
+    Assertions.assertNotNull(sampler);
+  }
+
+  @Test
+  void testCreateExponentialSamplerWithMean() {
+    final UniformRandomProvider rng = new SplitMix64(0L);
+    final double mean = 3.45;
+    final ContinuousSampler sampler = SamplerUtils.createExponentialSampler(rng, mean);
+    Assertions.assertNotNull(sampler);
+  }
 }

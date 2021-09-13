@@ -161,4 +161,27 @@ public final class SamplerUtils {
     final double probabilityOfSuccess = 1 / (1 + mean);
     return createGeometricSampler(rng, probabilityOfSuccess);
   }
+
+  /**
+   * Creates a new {@link SharedStateContinuousSampler} for the exponential distribution with a mean
+   * of 1.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @return the sampler
+   */
+  public static SharedStateContinuousSampler createExponentialSampler(UniformRandomProvider rng) {
+    return ZigguratSampler.Exponential.of(rng);
+  }
+
+  /**
+   * Creates a new {@link SharedStateContinuousSampler} for the exponential distribution.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @param mean Mean of the exponential distribution.
+   * @return the sampler
+   */
+  public static SharedStateContinuousSampler createExponentialSampler(UniformRandomProvider rng,
+      double mean) {
+    return ZigguratSampler.Exponential.of(rng, mean);
+  }
 }
