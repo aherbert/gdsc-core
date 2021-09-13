@@ -75,8 +75,7 @@ public final class PoissonSamplerUtils {
     if (mean == 0) {
       return ZERO;
     }
-    // This works for RNG 1.3
-    return (SharedStateDiscreteSampler) poissonCache.createPoissonSampler(rng, mean);
+    return poissonCache.createSharedStateSampler(rng, mean);
   }
 
   /**
@@ -93,6 +92,6 @@ public final class PoissonSamplerUtils {
     if (mean == 0) {
       return 0;
     }
-    return poissonCache.createPoissonSampler(rng, mean).sample();
+    return poissonCache.createSharedStateSampler(rng, mean).sample();
   }
 }
