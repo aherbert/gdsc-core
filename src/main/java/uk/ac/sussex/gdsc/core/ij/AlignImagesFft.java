@@ -314,8 +314,9 @@ public class AlignImagesFft {
    * alignment.
    *
    * <p>The target is allowed to be an Fht as returned from
-   * {@link #transformTarget(ImageProcessor, WindowMethod)}. If the Fht is not the correct size then
-   * an exception is thrown.
+   * {@link #transformTarget(ImageProcessor, uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod)
+   * transformTarget(ImageProcessor, WindowMethod)}. If the Fht is not the correct size then an
+   * exception is thrown.
    *
    * @param targetIp the target ip
    * @param windowMethod the window method

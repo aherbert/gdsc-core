@@ -37,9 +37,9 @@ package uk.ac.sussex.gdsc.core.utils;
  * <pre>
  * x = (value - edge0) / (edge1 - edge0)
  *
- * smotherstep(x) = 0                     when x &leq; 0 (or value is beyond edge0)
- *                  6x^5 - 15x^4 + 10x^3  when 0 &lt; x &lt; 1 (or value is between the edges)
- *                  1                     when x &geq; 1 (or value is beyond edge1)
+ * smootherstep(x) = 0                     when x &le; 0 (or value is beyond edge0)
+ *                   6x^5 - 15x^4 + 10x^3  when 0 &lt; x &lt; 1 (or value is between the edges)
+ *                   1                     when x &ge; 1 (or value is beyond edge1)
  * </pre>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Smoothstep">Smoother step (Wikipedia)</a>
