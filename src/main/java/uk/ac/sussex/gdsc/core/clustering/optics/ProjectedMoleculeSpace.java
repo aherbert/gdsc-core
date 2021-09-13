@@ -450,7 +450,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   private Supplier<double[]> createUnitVectorGenerator(int localNumberOfProjections) {
     if (useRandomVectors || opticsManager.is3d()) {
-      return new UnitSphereSampler(opticsManager.is3d() ? 3 : 2, rand)::nextVector;
+      return UnitSphereSampler.of(rand, opticsManager.is3d() ? 3 : 2)::sample;
     }
     // For a 2D vector we can just uniformly distribute them around a semi-circle
     final double increment = Math.PI / localNumberOfProjections;

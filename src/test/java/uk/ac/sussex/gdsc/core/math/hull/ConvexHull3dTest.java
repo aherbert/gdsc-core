@@ -300,11 +300,11 @@ class ConvexHull3dTest {
   void canCutHullWithManyPoints() {
     // Sample from a unit sphere.
     final UniformRandomProvider rng = RngUtils.create(126487618L);
-    final UnitSphereSampler sampler = new UnitSphereSampler(3, rng);
+    final UnitSphereSampler sampler = UnitSphereSampler.of(rng, 3);
     final int n = 500;
     final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
     for (int i = 0; i < n; i++) {
-      builder.add(sampler.nextVector());
+      builder.add(sampler.sample());
     }
     // Test volume and area
     final Hull3d hull = builder.build();
@@ -318,7 +318,7 @@ class ConvexHull3dTest {
     final SharedStateContinuousSampler offset = ContinuousUniformSampler.of(rng, -0.9, 0.9);
     for (int i = 0; i < 10; i++) {
       // Random plane through the origin
-      final double[] plane = Arrays.copyOf(sampler.nextVector(), 4);
+      final double[] plane = Arrays.copyOf(sampler.sample(), 4);
       // Offset the plane
       final double r = offset.sample();
       plane[3] = r;
