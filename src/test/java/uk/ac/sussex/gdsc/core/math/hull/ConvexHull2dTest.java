@@ -29,6 +29,10 @@
 package uk.ac.sussex.gdsc.core.math.hull;
 
 import gnu.trove.list.array.TDoubleArrayList;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.CompositeSamplers;
+import org.apache.commons.rng.sampling.ObjectSampler;
+import org.apache.commons.rng.sampling.shape.TriangleSampler;
 import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -182,6 +186,42 @@ class ConvexHull2dTest {
     final Hull2d hull = ConvexHull2d.create(xx.toArray(), yy.toArray());
     Assertions.assertEquals(2 * Math.PI, hull.getLength(), 0.2);
     Assertions.assertEquals(Math.PI, hull.getArea(), 0.2);
+    Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);
+  }
+
+  @Test
+  void canCreateWithManyPointsHexagon() {
+    // This test depends on the output from the sampler and is not robust to
+    // using any seed.
+    final UniformRandomProvider rng = RngUtils.create(12345L);
+    // Height and width of half an equilateral triangle with edge length 1
+    final double h = Math.sqrt(0.75);
+    final double w = 0.5;
+    final double[] a = {-1, 0};
+    final double[] b = {-w, h};
+    final double[] c = {w, h};
+    final double[] d = {1, 0};
+    final double[] e = {w, -h};
+    final double[] f = {-w, -h};
+    final double[] o = {0, 0};
+
+    final ObjectSampler<double[]> sampler = CompositeSamplers.<double[]>newObjectSamplerBuilder()
+        .add(TriangleSampler.of(rng, a, b, o), 1).add(TriangleSampler.of(rng, b, c, o), 1)
+        .add(TriangleSampler.of(rng, c, d, o), 1).add(TriangleSampler.of(rng, d, e, o), 1)
+        .add(TriangleSampler.of(rng, e, f, o), 1).add(TriangleSampler.of(rng, f, a, o), 1)
+        .build(rng);
+    final int n = 5000;
+    final TDoubleArrayList xx = new TDoubleArrayList(n);
+    final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final double[] centroid = {1, -2};
+    for (int i = 0; i < n; i++) {
+      final double[] p = sampler.sample();
+      xx.add(p[0] + centroid[0]);
+      yy.add(p[1] + centroid[1]);
+    }
+    final Hull2d hull = ConvexHull2d.create(xx.toArray(), yy.toArray());
+    Assertions.assertEquals(6, hull.getLength(), 0.2);
+    Assertions.assertEquals(6 * h * w, hull.getArea(), 0.2);
     Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);
   }
 }
