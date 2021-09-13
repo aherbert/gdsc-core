@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 class CustomTricubicFunctionTest {
   @Test
   void canGetCoefficients() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
     final float[] fa = new float[64];
     final double[] da = new double[64];
     for (int i = 0; i < fa.length; i++) {
@@ -77,7 +77,7 @@ class CustomTricubicFunctionTest {
 
   @Test
   void canConvert() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
     final float[] fa = new float[64];
     final double[] da = new double[64];
     for (int i = 0; i < fa.length; i++) {

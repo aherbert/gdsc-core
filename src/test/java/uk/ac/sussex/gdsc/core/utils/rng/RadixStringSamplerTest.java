@@ -57,7 +57,7 @@ class RadixStringSamplerTest {
 
   @Test
   void testConstructor() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
     final int length = 1;
     for (int radix = 2; radix <= 64; radix++) {
       final RadixStringSampler s = new RadixStringSampler(rng, length, radix);
@@ -70,7 +70,7 @@ class RadixStringSamplerTest {
   @SuppressWarnings("unused")
   @Test
   void testConstructorThrows() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
     final int length = 1;
     final int radix = 16;
     Assertions.assertThrows(NullPointerException.class, () -> {
@@ -106,8 +106,8 @@ class RadixStringSamplerTest {
   }
 
   private void testSamples(int radix) {
-    final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.SPLIT_MIX_64);
-    final RestorableUniformRandomProvider rng2 = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final RestorableUniformRandomProvider rng1 = RandomSource.SPLIT_MIX_64.create();
+    final RestorableUniformRandomProvider rng2 = RandomSource.SPLIT_MIX_64.create();
     rng2.restoreState(rng1.saveState());
     // Test long enough strings that the algorithm edge cases are hit
     final int[] lengths = new int[] {1, 2, 3, 4, 5, 10};
@@ -171,7 +171,7 @@ class RadixStringSamplerTest {
   private void testSamplesAreUniform(int radix) {
     final long[] h = new long[radix];
 
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
     final int length = 1000;
     final int repeats = 100;
     final RadixStringSampler s = new RadixStringSampler(rng, length, radix);

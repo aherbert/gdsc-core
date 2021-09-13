@@ -154,7 +154,7 @@ class AsciiStringSamplerTest {
   void testAll() {
     final Level level = Level.INFO;
     Assumptions.assumeTrue(logger.isLoggable(level));
-    final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final RestorableUniformRandomProvider rng1 = RandomSource.SPLIT_MIX_64.create();
     final AsciiStringSampler s = new AsciiStringSampler(rng1);
     final int count = 200;
     logger.log(level, () -> "Alphabetic:        " + s.nextAlphabetic(count));
@@ -320,7 +320,7 @@ class AsciiStringSamplerTest {
 
   private static void testSamples(BiFunction<AsciiStringSampler, Integer, String> fun,
       Function<String, Boolean> test, int[]... range) {
-    final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final RestorableUniformRandomProvider rng1 = RandomSource.SPLIT_MIX_64.create();
     final AsciiStringSampler s = new AsciiStringSampler(rng1);
     // Test short enough strings that the algorithm edge cases are hit
     final int[] lengths = new int[] {1, 2, 3, 4, 5, 10, 1000};
