@@ -29,10 +29,10 @@
 package uk.ac.sussex.gdsc.core.math.hull;
 
 import gnu.trove.list.array.TDoubleArrayList;
+import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.math.GeometryUtils;
-import uk.ac.sussex.gdsc.core.utils.rng.UnitDiskSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
@@ -201,7 +201,7 @@ class DiggingConcaveHull2dTest {
 
   @Test
   void canCreateWithMultiplePointsCircular() {
-    final UnitDiskSampler sampler = UnitDiskSampler.of(RngUtils.create(126487618L));
+    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 2);
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
     final TDoubleArrayList yy = new TDoubleArrayList(n);
@@ -224,7 +224,7 @@ class DiggingConcaveHull2dTest {
 
   @Test
   void canCreateWithMultiplePointsCircularMinusWedge() {
-    final UnitDiskSampler sampler = UnitDiskSampler.of(RngUtils.create(126487618L));
+    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 2);
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
     final TDoubleArrayList yy = new TDoubleArrayList(n);

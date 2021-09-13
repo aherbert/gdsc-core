@@ -29,9 +29,9 @@
 package uk.ac.sussex.gdsc.core.math.hull;
 
 import gnu.trove.list.array.TDoubleArrayList;
+import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.core.utils.rng.UnitDiskSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -169,7 +169,7 @@ class ConvexHull2dTest {
   void canCreateWithManyPoints() {
     // This test depends on the output from the UnitDiskSampler and is not robust to
     // using any seed.
-    final UnitDiskSampler sampler = UnitDiskSampler.of(RngUtils.create(12345L));
+    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(12345L), 2);
     final int n = 500;
     final TDoubleArrayList xx = new TDoubleArrayList(n);
     final TDoubleArrayList yy = new TDoubleArrayList(n);

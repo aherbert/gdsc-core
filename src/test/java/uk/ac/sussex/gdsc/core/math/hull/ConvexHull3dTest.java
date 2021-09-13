@@ -35,6 +35,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.UnitSphereSampler;
 import org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
+import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.LocalCollectors;
@@ -42,7 +43,6 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.core.utils.rng.UnitBallSampler;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
@@ -278,7 +278,7 @@ class ConvexHull3dTest {
   @Test
   void canBuildWithManyPoints() {
     // Sample from a unit ball.
-    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L));
+    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 3);
     final int n = 5000;
     final ConvexHull3d.Builder builder = ConvexHull3d.newBuilder();
     final double[] centroid = {1, -2, 3};

@@ -32,7 +32,10 @@ import java.util.Objects;
 import org.apache.commons.rng.UniformRandomProvider;
 
 /**
- * Decorate a {@link UniformRandomProvider} to accumulate usage statistics.
+ * Decorate a {@link UniformRandomProvider}. By default all methods in the
+ * {@code UniformRandomProvider} interface are implemented using an underlying instance of the
+ * interface. These may be selectively overridden in child classes for example to monitor call
+ * frequency or alter the output.
  *
  * @since 2.0
  */

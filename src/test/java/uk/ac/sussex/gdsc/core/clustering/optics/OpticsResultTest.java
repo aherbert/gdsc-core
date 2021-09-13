@@ -37,6 +37,7 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsResult.SteepDownArea;
@@ -46,7 +47,6 @@ import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
 import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.math.hull.Hull2d;
-import uk.ac.sussex.gdsc.core.utils.rng.UnitDiskSampler;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -364,7 +364,7 @@ class OpticsResultTest {
     // hierarchical clusters.
     final TFloatArrayList x = new TFloatArrayList();
     final TFloatArrayList y = new TFloatArrayList();
-    final UnitDiskSampler s = UnitDiskSampler.of(rng);
+    final UnitBallSampler s = UnitBallSampler.of(rng, 2);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
     addCircle(s, 9, 9, 3, 50, x, y);
@@ -483,7 +483,7 @@ class OpticsResultTest {
     // hierarchical clusters.
     final TFloatArrayList x = new TFloatArrayList();
     final TFloatArrayList y = new TFloatArrayList();
-    final UnitDiskSampler s = UnitDiskSampler.of(rng);
+    final UnitBallSampler s = UnitBallSampler.of(rng, 2);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
     addCircle(s, 9, 9, 3, 50, x, y);
@@ -545,7 +545,7 @@ class OpticsResultTest {
     // hierarchical clusters.
     final TFloatArrayList x = new TFloatArrayList();
     final TFloatArrayList y = new TFloatArrayList();
-    final UnitDiskSampler s = UnitDiskSampler.of(rng);
+    final UnitBallSampler s = UnitBallSampler.of(rng, 2);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
     addCircle(s, 9, 9, 3, 50, x, y);
@@ -573,7 +573,7 @@ class OpticsResultTest {
     Assertions.assertArrayEquals(expected, actual);
   }
 
-  private static void addCircle(UnitDiskSampler s, float cx, float cy, float r, int n,
+  private static void addCircle(UnitBallSampler s, float cx, float cy, float r, int n,
       TFloatArrayList x, TFloatArrayList y) {
     for (int i = 0; i < n; i++) {
       final double[] p = s.sample();
