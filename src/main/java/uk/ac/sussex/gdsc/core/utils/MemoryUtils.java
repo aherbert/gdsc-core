@@ -195,14 +195,23 @@ public final class MemoryUtils {
    * <p>This method is intended for use when resizing arrays:
    *
    * <pre>
-   * {@code int[] data = ...;
+   * // Current data and size
+   * int[] data = ...;
    * int size = ...;
+   *
+   * // Data to add (in full) 
    * int[] newData = ...;
+   *
    * int oldCapacity = data.length;
-   * int newCapacity = MemoryUtils.createNewCapacity(data.length + newData.length, oldCapacity));
-   * data = Arrays.copyOf(data, newCapacity);
-   * System.arraycopy(newData, newData.length, data, size, newData.length);
-   * size += newData.length;
+   * int minCapacity = data.length + newData.length;
+   *
+   * // Overflow safe size check
+   * if (minCapacity - oldCapacity > 0) {
+   *   // Resize required
+   *   int newCapacity = MemoryUtils.createNewCapacity(minCapacity, oldCapacity));
+   *   data = Arrays.copyOf(data, newCapacity);
+   *   System.arraycopy(newData, newData.length, data, size, newData.length);
+   *   size += newData.length;
    * }
    * </pre>
    *
