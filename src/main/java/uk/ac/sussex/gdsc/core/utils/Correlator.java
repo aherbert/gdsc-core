@@ -318,7 +318,7 @@ public class Correlator {
   }
 
   /**
-   * Clear all stored values.
+   * Clear all stored values. Does not free memory from allocated arrays.
    */
   public void clear() {
     sumx = sumy = 0;

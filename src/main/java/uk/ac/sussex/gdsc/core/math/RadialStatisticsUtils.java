@@ -121,7 +121,7 @@ public final class RadialStatisticsUtils {
    *
    * @param size the size (in one dimension)
    * @param data the data (m arrays of size*size)
-   * @return the sum
+   * @return the sum (m arrays)
    * @throws IllegalArgumentException if the size is not strictly positive, or if each array in the
    *         data is not is not size*size.
    */
@@ -200,12 +200,12 @@ public final class RadialStatisticsUtils {
    * Compute the radial sum of circles up to radius size/2. The sum includes all pixels that are at
    * a radius (r) equal to or greater than n and less than n+1.
    *
-   * <p>This is a utility method to compute multiple radial sums concurrently. A final sum is append
-   * to the results containing the count of the number of pixels at each distance.
+   * <p>This is a utility method to compute multiple radial sums concurrently. A final array is
+   * appended to the results containing the count of the number of pixels at each distance.
    *
    * @param size the size (in one dimension)
    * @param data the data (m arrays of size*size)
-   * @return the sum
+   * @return the sum (m+1 arrays: m arrays of sums and a final array of counts)
    * @throws IllegalArgumentException if the size is not strictly positive, or if each array in the
    *         data is not is not size*size.
    */
