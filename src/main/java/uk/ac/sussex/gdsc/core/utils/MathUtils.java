@@ -1516,4 +1516,188 @@ public final class MathUtils {
   public static int averageIndex(int index1, int index2) {
     return (index1 + index2) >>> 1;
   }
+
+  /**
+   * Returns {@code log(1 + x) - x}. This function is accurate when {@code x -> 0}.
+   *
+   * <p>This function uses a Taylor series expansion when x is small ({@code |x| < 0.01}):
+   *
+   * <pre>
+   * ln(1 + x) - x = -x^2/2 + x^3/3 - x^4/4 + ...
+   * </pre>
+   *
+   * <p>or around 0 ({@code -0.791 <= x <= 1}):
+   *
+   * <pre>
+   * ln(1 + x) = ln(a) + 2 [z + z^3/3 + z^5/5 + z^7/7 + ... ]
+   *
+   * z = x / (2a + x)
+   * </pre>
+   *
+   * <p>For a = 1:
+   *
+   * <pre>
+   * ln(x + 1) - x = -x + 2 [z + z^3/3 + z^5/5 + z^7/7 + ... ]
+   *               = z * (-x + 2z [ 1/3 + z^2/5 + z^4/7 + ... ])
+   * </pre>
+   *
+   * <p>The code is based on the {@code log1pmx} documentation for the <a
+   * href="https://rdrr.io/rforge/DPQ/man/log1pmx.html">R DPQ package</a> with addition of the
+   * direct Taylor series for tiny x.
+   *
+   * <p>See Abramowitz, M. and Stegun, I. A. (1972) Handbook of Mathematical Functions. New York:
+   * Dover. Formulas 4.1.24 and 4.2.29, p.68. <a
+   * href="https://en.wikipedia.org/wiki/Abramowitz_and_Stegun">Wikipedia: Abramowitz_and_Stegun</a>
+   * provides links to the full text which is in public domain.
+   *
+   * @param x Value x
+   * @return {@code log(1 + x) - x}
+   */
+  public static double log1pmx(double x) {
+    if (x < -1) {
+      return Double.NaN;
+    }
+    if (x == -1) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    // Use the threshold documented in the R implementation
+    if (x < -0.79149064 || x > 1) {
+      return Math.log1p(x) - x;
+    }
+    final double a = Math.abs(x);
+
+    // Addition to the R version for small x.
+    // Use a direct Taylor series:
+    // ln(1 + x) = x - x^2/2 + x^3/3 - x^4/4 + ...
+    // Reverse the summation (small to large) for a marginal increase in precision.
+    // To stop the Taylor series the next term must be less than 1 ulp from the answer.
+    // x^n/n < |log(1+x)-x| * eps
+    // eps = machine epsilon = 2^-53
+    // x^n < |log(1+x)-x| * eps
+    // n < (log(|log(1+x)-x|) + log(eps)) / log(x)
+    // In practice this is a conservative limit.
+
+    // +/-0.015625: log1pmx = -0.00012081346403474586 : -0.00012335696813916864
+    // n = 10.9974
+    if (a < 0x1.0p-6) {
+      final double x2 = x * x;
+      final double x4 = x2 * x2;
+
+      // +/-2.44140625E-4: log1pmx = -2.9797472637290841e-08 : -2.9807173914456693e-08
+      // n = 6.49
+      if (a < 0x1.0p-12) {
+
+        // +/-9.5367431640625e-07: log1pmx = -4.547470617660916e-13 : -4.5474764000725028e-13
+        // n = 4.69
+        // @formatter:off
+        if (a < 0x1.0p-20) {
+
+          if (a < 0x1.0p-53) {
+            // Below machine epsilon. Addition of x^3/3 is not possible.
+            return -x2 / 2;
+          }
+
+          // n=5
+          return x * x4 / 5 -
+                     x4 / 4 +
+                 x * x2 / 3 -
+                     x2 / 2;
+        }
+
+        // n=7
+        return x * x2 * x4 / 7 -
+                   x2 * x4 / 6 +
+                    x * x4 / 5 -
+                        x4 / 4 +
+                    x * x2 / 3 -
+                        x2 / 2;
+      }
+
+      // n=11
+      final double x8 = x4 * x4;
+      return x * x2 * x8 / 11 -
+                 x2 * x8 / 10 +
+                  x * x8 /  9 -
+                      x8 /  8 +
+             x * x2 * x4 /  7 -
+                 x2 * x4 /  6 +
+                  x * x4 /  5 -
+                      x4 /  4 +
+                  x * x2 /  3 -
+                      x2 /  2;
+      // @formatter:on
+    }
+
+    // The use of the following series is faster converging:
+    // ln(x + 1) - x = -x + 2 [z + z^3/3 + z^5/5 + z^7/7 + ... ]
+    // z = x / (2 + x)
+    // Test show this is more accurate when |x| > 1e-4 than the direct Taylor series.
+    // The direct series can be modified to sum multiple terms together for an increase in
+    // precision. The direct series takes approximately 3x longer to converge and cannot
+    // be optimised with a threshold as high as 0.01.
+
+    final double t = x / (2 + x);
+    final double y = t * t;
+
+    // Continued fraction
+    // sum(k=0,...,Inf; y^k/(i+k*d)) = 1/3 + y/5 + y^2/7 + y^3/9 + ... )
+
+    double sum = 1.0 / 3;
+    double numerator = 1;
+    int denominator = 3;
+    for (;;) {
+      numerator *= y;
+      denominator += 2;
+      final double sum2 = sum + numerator / denominator;
+      // Since x <= 1 the additional terms will reduce in magnitude.
+      // Iterate until convergence. Expected iterations:
+      // x iterations
+      // -0.79 38
+      // -0.5 15
+      // -0.1 5
+      // 0.1 5
+      // 0.5 10
+      // 1.0 15
+      if (sum2 == sum) {
+        break;
+      }
+      sum = sum2;
+    }
+    return t * (2 * y * sum - x);
+  }
+
+  /**
+   * Returns {@code pow(x, y) - 1}. This function is accurate when {@code x -> 1} or {@code y} is
+   * small.
+   *
+   * @param x the x
+   * @param y the y
+   * @return {@code pow(x, y) - 1}
+   */
+  public static double powm1(double x, double y) {
+    if (x > 0) {
+      // Check for small y or x close to 1.
+      // Require term < 0.5
+      // => log(x) * y < 0.5
+      // Assume log(x) ~ (x - 1) [true when x is close to 1]
+      // => |(x-1) * y| < 0.5
+      if ((Math.abs(y) < 0.25 || Math.abs((x - 1) * y) < 0.5)) {
+        // Use expm1 when the term is close to 0.0 or negative (and result < 1)
+        final double term = Math.log(x) * y;
+        if (term < 0.5) {
+          return Math.expm1(term);
+        }
+      }
+      // Fall through to default
+    } else if (x < 0) {
+      // x is negative.
+      // pow(x, y) only allowed if y is an integer.
+      // if y is even then we can invert non-zero finite x.
+      if (Math.rint(y * 0.5) == y * 0.5) {
+        return powm1(-x, y);
+      }
+      // Fall through to default
+    }
+    return Math.pow(x, y) - 1;
+  }
 }

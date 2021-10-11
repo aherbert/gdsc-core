@@ -29,11 +29,17 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.special.Erf;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
@@ -849,5 +855,394 @@ class MathUtilsTest {
     final long expected = ((long) index1 + (long) index2) / 2L;
     Assertions.assertEquals(expected, MathUtils.averageIndex(index1, index2),
         () -> "Index1=" + index1 + ", Index2=" + index2);
+  }
+
+  @Test
+  @Disabled("This outputs the mean and max error for two log1pmx implementations")
+  void testLog1pmxVersions() {
+    final UniformRandomProvider rng = RngUtils.createWithFixedSeed();
+    final int trials = 1000;
+    final double n = trials;
+    final DoubleUnaryOperator fa = MathUtilsTest::log1pmxa;
+    final DoubleUnaryOperator fb = MathUtilsTest::log1pmxb;
+    //final DoubleUnaryOperator fb = MathUtils::log1pmx;
+    final DoubleUnaryOperator fc = MathUtilsTest::log1pmxc;
+    for (final int exp : new int[] {
+        // No error
+        // -150, -140, -130, -120, -110, -100, -90, -80, -70, -60,
+        -54, -53, -52, -51, -50, -49, -48, -47, -46, -45, -44, -43, -42, -41, -40, -39, -38, -37,
+        -36, -35, -34, -33, -32, -31, -30, -29, -28, -27, -26, -25, -24, -23, -22, -21, -20, -19,
+        -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2,
+        // Note: No methods are good when x -> -0.84.. as the result -> 1
+        // and there is loss of precision
+        -1
+      }) {
+      final double xx = Math.scalb(1.0, exp);
+      final long bits = Double.doubleToRawLongBits(xx);
+      long ea1 = 0;
+      long eb1 = 0;
+      long ea2 = 0;
+      long eb2 = 0;
+      long ma1 = 0;
+      long mb1 = 0;
+      long ma2 = 0;
+      long mb2 = 0;
+      for (int i = 0; i < trials; i++) {
+        final double x = Double.longBitsToDouble(bits | (rng.nextLong() >>> 12));
+        final double a1 = fa.applyAsDouble(x);
+        final double b1 = fb.applyAsDouble(x);
+        final double c1 = fc.applyAsDouble(x);
+        final long ba1 = Double.doubleToLongBits(a1);
+        final long bb1 = Double.doubleToLongBits(b1);
+        final long bc1 = Double.doubleToLongBits(c1);
+        long da = Math.abs(bc1 - ba1);
+        long db = Math.abs(bc1 - bb1);
+        ea1 += da;
+        eb1 += db;
+        ma1 = Math.max(ma1, da);
+        mb1 = Math.max(mb1, db);
+        final double a2 = fa.applyAsDouble(-x);
+        final double b2 = fb.applyAsDouble(-x);
+        final double c2 = fc.applyAsDouble(-x);
+        final long ba2 = Double.doubleToLongBits(a2);
+        final long bb2 = Double.doubleToLongBits(b2);
+        final long bc2 = Double.doubleToLongBits(c2);
+        da = Math.abs(bc2 - ba2);
+        db = Math.abs(bc2 - bb2);
+        // When x -> -1 then the reference implementation using BigDecimal is very different.
+        // if (db > 1000) {
+        // System.out.printf("x=%s %s : %s %d %s %d%n", x, c2, a2, da, b2, db);
+        // }
+        ea2 += da;
+        eb2 += db;
+        ma2 = Math.max(ma2, da);
+        mb2 = Math.max(mb2, db);
+      }
+      System.out.printf("exp=%3d x=%25s %25s : %10.6g %2d %10.6g %2d : %10.6g %2d %10.6g %2d%n",
+          exp, xx, log1pmxc(xx), ea1 / n, ma1, eb1 / n, mb1, ea2 / n, ma2, eb2 / n, mb2);
+    }
+  }
+
+  /**
+   * Returns {@code log(1 + x) - x}. This function is accurate when {@code x -> 0}.
+   *
+   * <p>This function uses a Taylor series expansion when x is small:
+   *
+   * <pre>
+   * ln(1 + x) = x - x^2/2 + x^3/3 - x^4/4 + ...
+   * </pre>
+   *
+   * <p>See <a href="https://en.wikipedia.org/wiki/Abramowitz_and_Stegun">Abramowitz, M. and Stegun,
+   * I. A.</a> (1972) Handbook of Mathematical Functions. New York: Dover. Formula (4.1.24), p.68.
+   *
+   * @param x the x
+   * @return {@code log(1 + x) - x}
+   */
+  private static double log1pmxa(double x) {
+    final double a = Math.abs(x);
+    // log1p = 0.40546510810816438486
+    // log1p(0.25) = 0.22314355131420976
+    // log1p(-0.25) = -0.2876820724517809
+    // log1p(-0.5) = -0.69314718055994528623
+    // Note: Boost uses 0.95
+    if (a > 0.5) {
+      return Math.log1p(x) - x;
+    }
+
+    // Sum in reverse order (small + big) for less round-off error.
+    // This computes more accurately than the traditional big -> small order.
+
+    final double xx = x * x;
+    double xp = xx * xx;
+    double sum = -xp / 4 + x * xx / 3 - xx / 2;
+
+    // To stop the Taylor series the next term must be less than 1 ulp from the answer.
+    // x^n/n < |log(1+x)-x| * eps
+    // eps = machine epsilon = 2^-53
+    // x^n < |log(1+x)-x| * eps
+    // n >= (log(|log(1+x)-x|) + log(eps)) / log(x)
+
+    // +/-9.5367431640625e-07: log1pmx = -4.547470617660916e-13 : -4.5474764000725028e-13
+    // n = 4.69
+    if (a < 0x1.0p-20) {
+      // No point in the series expansion as additional terms are too small to be added
+      return sum;
+    }
+    // +/-2.44140625E-4: log1pmx = -2.9797472637290841e-08 : -2.9807173914456693e-08
+    // n = 6.49
+    // @formatter:off
+    if (a < 0x1.0p-12) {
+      // 7 iterations
+      return x * xx * xp / 7 -
+                 xx * xp / 6 +
+                  x * xp / 5 -
+                      xp / 4 +
+                  x * xx / 3 -
+                      xx / 2;
+    }
+    // +/-0.00390625: log1pmx = -7.6095843426769861e-06 : -7.6493211363290911e-06
+    // n = 8.75
+    if (a < 0x1.0p-8) {
+      // 9 iterations
+      return x * xp * xp / 9 -
+                 xp * xp / 8 +
+             x * xx * xp / 7 -
+                 xx * xp / 6 +
+                  x * xp / 5 -
+                      xp / 4 +
+                  x * xx / 3 -
+                      xx / 2;
+    }
+    // +/-0.015625: log1pmx = -0.00012081346403474586 : -0.00012335696813916864
+    // n = 10.9974
+    if (a < 0x1.0p-6) {
+      // 11 iterations
+      return x * xx * xp * xp / 11 -
+                 xx * xp * xp / 10 +
+                  x * xp * xp /  9 -
+                      xp * xp /  8 +
+                  x * xx * xp /  7 -
+                      xx * xp /  6 +
+                       x * xp /  5 -
+                           xp /  4 +
+                       x * xx /  3 -
+                           xx /  2;
+    }
+    // @formatter:on
+
+    // ln(1 + x) -x = x^2/2 + x^3/3 - x^4/4 + ...
+    // Add 2 terms at a time, smallest first
+    for (int n = 5;; n += 2) {
+      final double xp2 = xp * xx;
+      final double sum2 = -xp2 / (n + 1) + x * xp / n + sum;
+      // Since x < 1 the additional terms will reduce in magnitude.
+      // Iterate until convergence.
+      if (sum2 == sum) {
+        break;
+      }
+      xp = xp2;
+      sum = sum2;
+    }
+
+    return sum;
+  }
+
+  /**
+   * Returns {@code log(1 + x) - x}. This function is accurate when {@code x -> 0}.
+   *
+   * <p>This function uses a Taylor series expansion when x is small:
+   *
+   * <pre>
+   * ln(1 + x) = x - x^2/2 + x^3/3 - x^4/4 + ...
+   * </pre>
+   *
+   * <p>See <a href="https://en.wikipedia.org/wiki/Abramowitz_and_Stegun">Abramowitz, M. and Stegun,
+   * I. A.</a> (1972) Handbook of Mathematical Functions. New York: Dover. Formula (4.1.24), p.68.
+   *
+   * @param x the x
+   * @return {@code log(1 + x) - x}
+   */
+  private static double log1pmxa2(double x) {
+    final double a = Math.abs(x);
+    if (a > 0.5) {
+      return Math.log1p(x) - x;
+    }
+
+    final double xx = x * x;
+    double xp = -xx * xx;
+    double sum = -xx / 2 + x * xx / 3 + xp / 4;
+    if (a < 0x1.0p-20) {
+      // No point in the series expansion as additional terms are too small to be added
+      return sum;
+    }
+
+    // Continue the series
+    // ln(1 + x) -x = x^2/2 + x^3/3 - x^4/4 + ...
+    for (int n = 5;; n++) {
+      xp *= -x;
+      final double sum2 = sum + xp / n;
+      // Since x < 1 the additional terms will reduce in magnitude.
+      // Iterate until convergence. Worst case scenario is ~48 iterations
+      // when x=0.5
+      if (sum2 == sum) {
+        break;
+      }
+      sum = sum2;
+    }
+
+    return sum;
+  }
+
+  /**
+   * Returns {@code log(1 + x) - x}. This function is accurate when {@code x -> 0}.
+   *
+   * <p>This function uses a Taylor series expansion when x is small:
+   *
+   * <pre>
+   * ln(1 + x) = ln(a) + 2 [z + z^3/3 + z^5/5 + z^7/7 + ... ]
+   *
+   * with z = x / (2a + x), a = 1:
+   *
+   * ln(x + 1) - x = -x + 2 [z + z^3/3 + z^5/5 + z^7/7 + ... ]
+   * ln(x + 1) - x = z * (-x/z + 2 + 2 [ z^2/3 + z^4/5 + z^6/7 + ... ])
+   *               = z * (-x/(x/(2+x)) + 2 + 2 [ z^2/3 + z^4/5 + z^6/7 + ... ])
+   *               = z * (-(2+x) + 2 + 2 [ z^2/3 + z^4/5 + z^6/7 + ... ])
+   *               = z * (-x + 2 [ z^2/3 + z^4/5 + z^6/7 + ... ])
+   *               = z * (-x + 2z [ 1/3 + z^2/5 + z^4/7 + ... ])
+   * </pre>
+   *
+   * <p>The code is based on the {@code log1pmx} documentation for the <a
+   * href="https://rdrr.io/rforge/DPQ/man/log1pmx.html">R DPQ package</a>.
+   *
+   * <p>Abramowitz, M. and Stegun, I. A. (1972) Handbook of Mathematical Functions. New York: Dover.
+   * <a href="https://en.wikipedia.org/wiki/Abramowitz_and_Stegun">Wikipedia:
+   * Abramowitz_and_Stegun</a> provides links to the full text which is in public domain. Formula
+   * (4.1.29), p.68.
+   *
+   * @param x the x
+   * @return {@code log(1 + x) - x}
+   */
+  private static double log1pmxb(double x) {
+    if (x < -1) {
+      return Double.NaN;
+    }
+    if (x == -1) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    // Use the threshold documented in the R implementation
+    if (x < -0.79149064 || x > 1) {
+      return Math.log1p(x) - x;
+    }
+    final double t = x / (2 + x);
+    final double y = t * t;
+    if (Math.abs(x) < 0.01) {
+      // Optimise result when series expansion is not required
+      return t * ((((2.0 / 9 * y + 2.0 / 7) * y + 2.0 / 5) * y + 2.0 / 3) * y - x);
+      // This should be optimised in the range 2^-19 to 2^-6 as it has more error than 
+      // the Taylor series. None of these changes make any difference.
+
+      // Round-off from 2/3 = 3.700743415417188E-17
+      //return t * ((((2.0 / 9 * y + 2.0 / 7) * y + 2.0 / 5) * y + 3.700743415417188E-17 + 2.0 / 3) * y - x);
+      //return t * (y * 2 * (1.0/3 + y/5 + y*y/7 + y*y*y/9) - x);
+      //return t * (2 * (y/3 + y*y/5 + y*y*y/7 + y*y*y*y/9) - x);
+      //return t * (-x + 2*y/3 + 2*y*y/5 + 2*y*y*y/7 + 2*y*y*y*y/9);
+      //return t * (2*y*y*y*y/9 + 2*y*y*y/7 + 2*y*y/5 + 3.700743415417188E-17*y + 2*y/3 - x);
+    }
+
+    // Continued fraction
+    // sum(k=0,...,Inf; y^k/(i+k*d)) = 1/3 + y/5 + y^2/7 + y^3/9 + ... )
+
+    double numerator = 1;
+    int denominator = 3;
+    double sum = 1.0 / 3;
+    for (;;) {
+      numerator *= y;
+      denominator += 2;
+      final double sum2 = sum + numerator / denominator;
+      // Since x <= 1 the additional terms will reduce in magnitude.
+      // Iterate until convergence. Worst case scenario:
+      // x iterations
+      // -0.79 38
+      // -0.5 15
+      // -0.1 5
+      // 0.1 5
+      // 0.5 10
+      // 1.0 15
+      if (sum2 == sum) {
+        break;
+      }
+      sum = sum2;
+    }
+    return t * (2 * y * sum - x);
+  }
+
+  /**
+   * Returns {@code log(1 + x) - x}. This function is accurate when {@code x -> 0}.
+   *
+   * <p>This function uses a Taylor series expansion:
+   *
+   * <pre>
+   * ln(1 + x) = x - x^2/2 + x^3/3 - x^4/4 + ...
+   * </pre>
+   *
+   * @param x the x
+   * @return {@code log(1 + x) - x}
+   */
+  private static double log1pmxc(double x) {
+    // final double a = Math.abs(x);
+    // if (a > 0.5) {
+    // return Math.log1p(x) - x;
+    // }
+
+    // ln(1 + x) -x = x^2/2 + x^3/3 - x^4/4 + ...
+    BigDecimal sum = BigDecimal.ZERO;
+    final BigDecimal nx = new BigDecimal(-x);
+    BigDecimal xp = new BigDecimal(x);
+    final MathContext mc = new MathContext(100);
+    for (int n = 2;; n++) {
+      xp = xp.multiply(nx, mc);
+      final BigDecimal sum2 = sum.add(xp.divide(new BigDecimal(n), mc), mc);
+      // Since x < 1 the additional terms will reduce in magnitude.
+      // Iterate until convergence.
+      if (sum2.equals(sum)) {
+        return sum.doubleValue();
+      }
+      sum = sum2;
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(doubles = {-1, -1.1, 1, 1.5, 2, 3})
+  void testLog1pmxStandard(double x) {
+    Assertions.assertEquals(Math.log1p(x) - x, MathUtils.log1pmx(x));
+  }
+
+  // @formatter:off
+  @ParameterizedTest
+  @ValueSource(doubles = {
+      1e-100, 1e-50, 1e-20, 1e-10, 1e-6, 1e-4, 0.1, 0.2, 0.3, 0.4,
+      -1e-100, -1e-50, -1e-20, -1e-10, -1e-6, -1e-4, -0.1, -0.2, -0.3, -0.4,
+  })
+  void testLog1pmx(double x) {
+    final double expected = log1pmxc(x);
+    if (Math.abs(x) > 1e-16) {
+      // Verify the reference method is correct
+      Assertions.assertEquals(Math.log1p(x) - x, expected, Math.abs(expected) * 1e-6);
+    }
+    Assertions.assertEquals(expected, MathUtils.log1pmx(x), 2 * Math.ulp(expected));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "0, 0",
+    "0, 1",
+    "0, -0.1",
+    "NaN, 2",
+    "2, NaN",
+    "2, 2",
+    "-2, 3",
+    "-2, 4",
+    "4.3, 2.23",
+    "4.3, -2.23",
+    "22, 0.2",
+  })
+  void testPowm1Standard(double x, double y) {
+    Assertions.assertEquals(Math.pow(x, y) - 1, MathUtils.powm1(x, y));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "1.1, 0.1, 0.009576582776887034",
+    "0.9, 0.1, -0.010480741793785605",
+    "1.1, 1.234, 0.12480845830764926",
+    "0.9, 1.234, -0.12191763181244",
+    "5.67, 0.1, 0.18948318179396795",
+    "5.67, -0.1, -0.15929874814050846",
+    "1.000001, 1.234, 1.234000144276446e-06",
+    "0.999999, 1.234, -1.2339998556574477e-06",
+    "-1.000001, 2, 2.0000009998354665e-06",
+  })
+  void testPowm1(double x, double y, double expected) {
+    Assertions.assertEquals(expected, MathUtils.powm1(x, y), Math.ulp(expected));
   }
 }
