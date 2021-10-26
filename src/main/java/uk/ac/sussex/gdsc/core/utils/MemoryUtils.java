@@ -8,7 +8,7 @@
  *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
- * Copyright (C) 2011 - 2020 Alex Herbert
+ * Copyright (C) 2011 - 2021 Alex Herbert
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -199,7 +199,7 @@ public final class MemoryUtils {
    * int[] data = ...;
    * int size = ...;
    *
-   * // Data to add (in full) 
+   * // Data to add (in full)
    * int[] newData = ...;
    *
    * int oldCapacity = data.length;

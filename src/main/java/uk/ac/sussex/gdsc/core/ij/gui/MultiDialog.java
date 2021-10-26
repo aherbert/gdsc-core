@@ -8,7 +8,7 @@
  *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
- * Copyright (C) 2011 - 2020 Alex Herbert
+ * Copyright (C) 2011 - 2021 Alex Herbert
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -24,9 +24,6 @@
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
- */
-/*
- *
  */
 
 package uk.ac.sussex.gdsc.core.ij.gui;

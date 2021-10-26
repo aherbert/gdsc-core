@@ -8,7 +8,7 @@
  *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
- * Copyright (C) 2011 - 2020 Alex Herbert
+ * Copyright (C) 2011 - 2021 Alex Herbert
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -865,7 +865,7 @@ class MathUtilsTest {
     final double n = trials;
     final DoubleUnaryOperator fa = MathUtilsTest::log1pmxa;
     final DoubleUnaryOperator fb = MathUtilsTest::log1pmxb;
-    //final DoubleUnaryOperator fb = MathUtils::log1pmx;
+    // final DoubleUnaryOperator fb = MathUtils::log1pmx;
     final DoubleUnaryOperator fc = MathUtilsTest::log1pmxc;
     for (final int exp : new int[] {
         // No error
@@ -875,8 +875,7 @@ class MathUtilsTest {
         -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2,
         // Note: No methods are good when x -> -0.84.. as the result -> 1
         // and there is loss of precision
-        -1
-      }) {
+        -1}) {
       final double xx = Math.scalb(1.0, exp);
       final long bits = Double.doubleToRawLongBits(xx);
       long ea1 = 0;
@@ -1118,15 +1117,16 @@ class MathUtilsTest {
     if (Math.abs(x) < 0.01) {
       // Optimise result when series expansion is not required
       return t * ((((2.0 / 9 * y + 2.0 / 7) * y + 2.0 / 5) * y + 2.0 / 3) * y - x);
-      // This should be optimised in the range 2^-19 to 2^-6 as it has more error than 
+      // This should be optimised in the range 2^-19 to 2^-6 as it has more error than
       // the Taylor series. None of these changes make any difference.
 
       // Round-off from 2/3 = 3.700743415417188E-17
-      //return t * ((((2.0 / 9 * y + 2.0 / 7) * y + 2.0 / 5) * y + 3.700743415417188E-17 + 2.0 / 3) * y - x);
-      //return t * (y * 2 * (1.0/3 + y/5 + y*y/7 + y*y*y/9) - x);
-      //return t * (2 * (y/3 + y*y/5 + y*y*y/7 + y*y*y*y/9) - x);
-      //return t * (-x + 2*y/3 + 2*y*y/5 + 2*y*y*y/7 + 2*y*y*y*y/9);
-      //return t * (2*y*y*y*y/9 + 2*y*y*y/7 + 2*y*y/5 + 3.700743415417188E-17*y + 2*y/3 - x);
+      // return t * ((((2.0 / 9 * y + 2.0 / 7) * y + 2.0 / 5) * y + 3.700743415417188E-17 + 2.0 / 3)
+      // * y - x);
+      // return t * (y * 2 * (1.0/3 + y/5 + y*y/7 + y*y*y/9) - x);
+      // return t * (2 * (y/3 + y*y/5 + y*y*y/7 + y*y*y*y/9) - x);
+      // return t * (-x + 2*y/3 + 2*y*y/5 + 2*y*y*y/7 + 2*y*y*y*y/9);
+      // return t * (2*y*y*y*y/9 + 2*y*y*y/7 + 2*y*y/5 + 3.700743415417188E-17*y + 2*y/3 - x);
     }
 
     // Continued fraction

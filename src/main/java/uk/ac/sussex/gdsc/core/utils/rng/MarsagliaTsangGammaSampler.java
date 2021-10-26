@@ -1,5 +1,16 @@
-//@formatter:off
-/*
+/*-
+ * %%Ignore-License
+ *
+ * GDSC Software
+ *
+ * This is an extension of the
+ * org.apache.commons.rng.sampling.distribtion.AhrensDieterMarsagliaTsangGammaSampler
+ *
+ * Modifications have been made to allow parameters to be changed after construction.
+ * The AhrensDieter method is not supported.
+ *
+ * The code is released under the original Apache licence:
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,7 +26,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//@formatter:on
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
