@@ -127,9 +127,12 @@ class XmlUtilsTest {
     // Can ignore comments
     Assertions.assertEquals("<root>\n    <!-- comment -->\n</root>\n",
         XmlUtils.prettyPrintXml("<root><!-- comment --></root>"));
-    // Can ignore processing instructions
-    Assertions.assertEquals("<root><?my-application do this ?>\n</root>\n",
-        XmlUtils.prettyPrintXml("<root><?my-application do this ?></root>"));
+    // Can ignore processing instructions.
+    // Newline formatting is platform dependent so just check the contents
+    final String xml = XmlUtils.prettyPrintXml("<root><?my-application do this ?></root>");
+    Assertions.assertTrue(xml.startsWith("<root>"));
+    Assertions.assertTrue(xml.contains("<?my-application do this ?>"));
+    Assertions.assertTrue(xml.endsWith("</root>\n"));
   }
 
   @Test
