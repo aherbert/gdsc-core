@@ -978,25 +978,35 @@ public class ExtendedGenericDialog extends GenericDialog {
   /**
    * Adds the directory field.
    *
+   * <p>Note: A method of the same name was added to ImageJ v1.53.
+   * Previously this method returned a TextField. It now returns void to
+   * be a valid override of the ImageJ method. If access is required to the
+   * added text field then a new method must be created to return the field.
+   *
    * @param label the label
    * @param defaultText the default directory
-   * @return the text field
    * @throws NullPointerException if the option lister is null
    */
-  public TextField addDirectoryField(String label, String defaultText) {
-    return addDirectoryField(label, defaultText, 30);
+  @Override
+  public void addDirectoryField(String label, String defaultText) {
+    addDirectoryField(label, defaultText, 30);
   }
 
   /**
    * Adds the directory field.
    *
+   * <p>Note: A method of the same name was added to ImageJ v1.53.
+   * Previously this method returned a TextField. It now returns void to
+   * be a valid override of the ImageJ method. If access is required to the
+   * added text field then a new method must be created to return the field.
+   *
    * @param label the label
    * @param defaultText the default directory
    * @param columns the columns
-   * @return the text field
    * @throws NullPointerException if the option lister is null
    */
-  public TextField addDirectoryField(final String label, String defaultText, int columns) {
+  @Override
+  public void addDirectoryField(final String label, String defaultText, int columns) {
     final TextField tf = addAndGetStringField(label, defaultText, columns);
     final GridBagConstraints c = grid.getConstraints(tf);
     remove(tf);
@@ -1016,8 +1026,6 @@ public class ExtendedGenericDialog extends GenericDialog {
     newPanel.add(button);
     grid.setConstraints(newPanel, c);
     add(newPanel);
-
-    return tf;
   }
 
   private Double convertToDouble(String theText) {
