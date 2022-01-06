@@ -1,0 +1,18 @@
+GDSC Core
+Copyright 2011-2022 Alex Herbert
+
+The uk.ac.sussex.gdsc.core.utils.rng.MarsagliaTsangGammaSampler class contains derivative
+work originating from the Apache Commons RNG project.
+https://commons.apache.org/proper/commons-rng/
+Copyright 2016-2021 The Apache Software Foundation
+
+The uk.ac.sussex.gdsc.core.math.interpolation package classes
+CustomTricubicFunction and CustomTricubicInterpolatingFunction
+contain derivative work originating from the Apache Commons Math project.
+https://commons.apache.org/proper/commons-math/
+Copyright 2001-2016 The Apache Software Foundation
+
+The uk.ac.sussex.gdsc.core.trees and uk.ac.sussex.gdsc.core.trees.heaps packages
+contain derivative work originating from Rednaxela's KD-tree.
+https://robowiki.net/wiki/User:Rednaxela/kD-Tree
+Copyright 2009 Rednaxela
