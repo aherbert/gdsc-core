@@ -1,6 +1,4 @@
 /*-
- * %%Ignore-License
- *
  * GDSC Software
  *
  * This is an extension of the

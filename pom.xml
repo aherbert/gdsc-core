@@ -90,6 +90,15 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   <properties>
     <license.licenseName>gpl_v3</license.licenseName>
     <license.copyrightOwners>Alex Herbert</license.copyrightOwners>
+    <!-- Note: The trees package has implementations under the original license
+       but not the interfaces and helper functions. -->
+    <license.excludes>${scijava.excludedLicensePatterns},
+        **/main/java/**/trees/*NdTree.java,
+        **/main/java/**/heaps/*.java,
+        **/main/java/**/MarsagliaTsangGammaSampler.java,
+        **/main/java/**/CustomTricubicFunction.java,
+        **/main/java/**/CustomTricubicInterpolatingFunction.java
+    </license.excludes>
 
     <!-- Workaround to avoid duplicating config files. -->
     <gdsc.parent.dir>${basedir}</gdsc.parent.dir>
@@ -263,18 +272,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/main/java/**/ags/utils/**/*.java</exclude>
-            <exclude>**/main/java/**/trees/*.java</exclude>
-            <exclude>**/main/java/**/heaps/*.java</exclude>
-            <exclude>**/main/java/**/MarsagliaTsangGammaSampler.java</exclude>
-          </excludes>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
