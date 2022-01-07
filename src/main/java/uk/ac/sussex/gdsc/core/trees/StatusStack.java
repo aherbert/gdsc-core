@@ -41,7 +41,7 @@ class StatusStack {
    *
    * <p>Warning: this is indexed starting at 1.
    */
-  private final int[] values;
+  private final byte[] values;
 
   /** The size. */
   private int size;
@@ -52,7 +52,7 @@ class StatusStack {
    * @param capacity the capacity
    */
   StatusStack(int capacity) {
-    this.values = new int[capacity + 1];
+    this.values = new byte[capacity + 1];
   }
 
   /**
@@ -62,7 +62,7 @@ class StatusStack {
    *
    * @param value the value
    */
-  void push(int value) {
+  void push(byte value) {
     final int s = size + 1;
     values[s] = value;
     size = s;
@@ -77,7 +77,7 @@ class StatusStack {
    * @return the element (or 0 on the first call when empty)
    * @throws IndexOutOfBoundsException If empty
    */
-  int pop() {
+  byte pop() {
     // Note: This deliberately decrements after. It means when the size is 0 it will return 0
     // for the first call when empty.
     return values[size--];

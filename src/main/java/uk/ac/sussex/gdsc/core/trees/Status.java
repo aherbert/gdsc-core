@@ -39,13 +39,13 @@ package uk.ac.sussex.gdsc.core.trees;
  */
 final class Status {
   /** Status indicating that neither child has been visited. */
-  static final int NONE = 0x0;
+  static final byte NONE = 0x0;
   /** Status indicating that the left has been visited. */
-  static final int LEFTVISITED = 0x1;
+  static final byte LEFTVISITED = 0x1;
   /** Status indicating that the right has been visited. */
-  static final int RIGHTVISITED = 0x2;
+  static final byte RIGHTVISITED = 0x2;
   /** Status indicating that both the left and the right have been visited. */
-  static final int ALLVISITED = 0x3;
+  static final byte ALLVISITED = 0x3;
 
   /** No instances. */
   private Status() {}
