@@ -236,22 +236,6 @@ class PartialSortTest {
         Assertions.assertArrayEquals(e, o, () -> this.getName());
       }
     });
-    ts.execute(new MyTimingTaskDouble("select" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        final double[] arr = (double[]) data;
-        PartialSort.select(size - 1, arr.length, arr);
-        return Arrays.copyOf(arr, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        bottomSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
 
     // Sometimes this fails
     // if ((double) size / total > 0.5)
@@ -557,22 +541,6 @@ class PartialSortTest {
       @Override
       public Object run(Object data) {
         return heap.bottom(0, (float[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        bottomSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskFloat("select" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        final float[] arr = (float[]) data;
-        PartialSort.select(size - 1, arr.length, arr);
-        return Arrays.copyOf(arr, size);
       }
 
       @Override
