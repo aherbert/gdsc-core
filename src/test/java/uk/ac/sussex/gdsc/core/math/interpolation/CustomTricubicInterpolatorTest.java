@@ -37,7 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
-import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -632,7 +631,7 @@ class CustomTricubicInterpolatorTest {
       for (int yy = 0; yy < y; yy++) {
         final double othery = MathUtils.pow2(yy - cy) / sy2;
         for (int xx = 0; xx < x; xx++) {
-          final double value = norm * FastMath.exp(otherx[xx] - othery);
+          final double value = norm * Math.exp(otherx[xx] - othery);
           fval[xx][yy][zz] = value;
           // pixels[i++] = (float) value;
         }
