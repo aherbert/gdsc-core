@@ -221,7 +221,7 @@ public class DoubleEquality {
   public static long complement(double v1, double v2) {
     long bits1 = Double.doubleToRawLongBits(v1);
     long bits2 = Double.doubleToRawLongBits(v2);
-    if (((bits1 ^ bits2) & 0x8000000000000000L) == 0) {
+    if ((bits1 ^ bits2) >= 0) {
       // Same sign
       return Math.abs(bits1 - bits2);
     }
@@ -254,7 +254,7 @@ public class DoubleEquality {
   public static long signedComplement(double v1, double v2) {
     long bits1 = Double.doubleToRawLongBits(v1);
     long bits2 = Double.doubleToRawLongBits(v2);
-    if (((bits1 ^ bits2) & 0x8000000000000000L) == 0) {
+    if ((bits1 ^ bits2) >= 0) {
       // Same sign - no overflow
       return bits1 - bits2;
     }

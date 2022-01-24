@@ -221,7 +221,7 @@ public class FloatEquality {
   public static int complement(float v1, float v2) {
     int bits1 = Float.floatToRawIntBits(v1);
     int bits2 = Float.floatToRawIntBits(v2);
-    if (((bits1 ^ bits2) & 0x80000000) == 0) {
+    if ((bits1 ^ bits2) >= 0) {
       // Same sign
       return Math.abs(bits1 - bits2);
     }
@@ -254,7 +254,7 @@ public class FloatEquality {
   public static int signedComplement(float v1, float v2) {
     int bits1 = Float.floatToRawIntBits(v1);
     int bits2 = Float.floatToRawIntBits(v2);
-    if (((bits1 ^ bits2) & 0x80000000) == 0) {
+    if ((bits1 ^ bits2) >= 0) {
       // Same sign - no overflow
       return bits1 - bits2;
     }
