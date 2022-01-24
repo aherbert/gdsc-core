@@ -37,7 +37,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 @SuppressWarnings({"javadoc"})
 class StatusStackTest {
   @ParameterizedTest
-  @ValueSource(ints = {1, 2, 3, 5, 10, 15})
+  @ValueSource(ints = {1, 2, 3, 5, 10, 15, 32, 33, 50})
   void testStack(int capacity) {
     final UniformRandomProvider rng = RngUtils.createWithFixedSeed();
     final byte[] choice =
@@ -49,6 +49,14 @@ class StatusStackTest {
         final byte next = choice[rng.nextInt(choice.length)];
         expected[j] = next;
         stack.push(next);
+
+        for (int k = j + 1; k < capacity; k++) {
+          expected[k] = next;
+          stack.push(next);
+        }
+        for (int k = capacity; k-- > j + 1;) {
+          Assertions.assertEquals(expected[k], stack.pop());
+        }
       }
       for (int j = capacity; j-- > 0;) {
         Assertions.assertEquals(expected[j], stack.pop());

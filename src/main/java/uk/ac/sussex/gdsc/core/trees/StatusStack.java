@@ -37,7 +37,7 @@ package uk.ac.sussex.gdsc.core.trees;
  */
 abstract class StatusStack {
   /**
-   * Contains the status stack as an array
+   * Contains the status stack as an array.
    */
   private static class ArrayStatusStack extends StatusStack {
     /**
@@ -73,6 +73,32 @@ abstract class StatusStack {
   }
 
   /**
+   * Contains the status stack as long.
+   *
+   * <p>This assumes the stack entries are 2-bits of the stored byte.
+   * It has a maximum capacity of 32 2-bit values.
+   */
+  private static class LongStatusStack extends StatusStack {
+    /**
+     * The values.
+     */
+    private long values;
+
+    @Override
+    void push(byte value) {
+      values <<= 2;
+      values |= (value & 0x3);
+    }
+
+    @Override
+    byte pop() {
+      final byte s = (byte) (values & 0x3);
+      values >>>= 2;
+      return s;
+    }
+  }
+
+  /**
    * Pushes the element onto the top of the stack.
    *
    * <p>Note: The method may throw an exception if the stack is at maximum capacity.
@@ -94,10 +120,15 @@ abstract class StatusStack {
   /**
    * Create a new instance.
    *
+   * <p>The stack is suitable for storing only the first 2 bits of the status byte.
+   *
    * @param capacity the capacity
    * @return the status stack
    */
   static StatusStack create(int capacity) {
+    if (capacity <= 32) {
+      return new LongStatusStack();
+    }
     return new ArrayStatusStack(capacity);
   }
 }
