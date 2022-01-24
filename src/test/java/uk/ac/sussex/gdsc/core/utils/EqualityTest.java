@@ -279,26 +279,22 @@ class EqualityTest {
   }
 
   @Test
-  void doubleCanComputeRelativeErrorFromSignificantDigits() {
-    Assertions.assertEquals(0, DoubleEquality.getRelativeErrorTerm(0));
-    Assertions.assertEquals(0,
-        DoubleEquality.getRelativeErrorTerm(DoubleEquality.getMaxSignificantDigits() + 1));
-    for (int s = 1; s <= DoubleEquality.getMaxSignificantDigits(); s++) {
-      final BigDecimal error = new BigDecimal("1e-" + (s - 1));
-      final double e = error.doubleValue();
-      Assertions.assertEquals(e, DoubleEquality.getRelativeErrorTerm(s));
+  void doubleCanComputeRelativeEpsilonFromSignificantBits() {
+    Assertions.assertEquals(0, DoubleEquality.getRelativeEpsilon(0));
+    Assertions.assertEquals(0, DoubleEquality.getRelativeEpsilon(53));
+    for (int s = 1; s <= 52; s++) {
+      final double e = Math.pow(2, -s);
+      Assertions.assertEquals(e, DoubleEquality.getRelativeEpsilon(s));
     }
   }
 
   @Test
-  void floatCanComputeRelativeErrorFromSignificantDigits() {
-    Assertions.assertEquals(0, FloatEquality.getRelativeErrorTerm(0));
-    Assertions.assertEquals(0,
-        FloatEquality.getRelativeErrorTerm(FloatEquality.getMaxSignificantDigits() + 1));
-    for (int s = 1; s <= FloatEquality.getMaxSignificantDigits(); s++) {
-      final BigDecimal error = new BigDecimal("1e-" + (s - 1));
-      final float e = error.floatValue();
-      Assertions.assertEquals(e, FloatEquality.getRelativeErrorTerm(s));
+  void floatCanComputeRelativeEpsilonFromSignificantBits() {
+    Assertions.assertEquals(0, FloatEquality.getRelativeEpsilon(0));
+    Assertions.assertEquals(0, FloatEquality.getRelativeEpsilon(24));
+    for (int s = 1; s < 23; s++) {
+      final double e = Math.pow(2, -s);
+      Assertions.assertEquals(e, FloatEquality.getRelativeEpsilon(s));
     }
   }
 

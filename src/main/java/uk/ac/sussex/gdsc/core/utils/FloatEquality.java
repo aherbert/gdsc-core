@@ -37,21 +37,6 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public class FloatEquality {
 
-  /**
-   * Contains the relative error for ascending numbers of significant digits using base 10.
-   *
-   * <p>1e-0, 1e-1, 1e-2, 1e-3, etc.
-   */
-  private static final float[] RELATIVE_ERROR_TABLE;
-
-  static {
-    final int precision = Math.abs((int) Math.floor(Math.log10(Float.MIN_VALUE))) + 1;
-    RELATIVE_ERROR_TABLE = new float[precision];
-    for (int p = 0; p < precision; p++) {
-      RELATIVE_ERROR_TABLE[p] = Float.parseFloat("1e-" + p);
-    }
-  }
-
   private float maxRelativeError;
   private float maxAbsoluteError;
 
@@ -169,37 +154,23 @@ public class FloatEquality {
   }
 
   /**
-   * Gets the supported max significant digits.
-   *
-   * @return the max significant digits
-   * @see #getRelativeErrorTerm(int)
-   */
-  public static int getMaxSignificantDigits() {
-    return RELATIVE_ERROR_TABLE.length;
-  }
-
-  /**
-   * Get the relative error in terms of the number of decimal significant digits that will be
+   * Get the relative error epsilon in terms of the number of significant bits that will be
    * compared between two real values, e.g. the relative error to use for equality testing at
-   * approximately n significant digits.
+   * approximately n significant binary digits.
    *
-   * <p>Note that the relative error term is just 1e^-(n-1). This method is to provide backward
-   * support for equality testing when the significant digits term was used to generate an
-   * approximate ULP (Unit of Least Precision) value for direct float comparisons using the
-   * complement.
+   * <p>Note that the relative error epsilon is 2^-bits.
    *
-   * <p>If significant digits is below 1 or above the precision of the float datatype then zero is
-   * returned.
+   * <p>If significant digits is below 1 or above the machine precision of the float datatype
+   * (23-bits) then zero is returned, i.e. 24-bits required exact equality.
    *
-   * @param significantDigits The number of significant digits for comparisons
+   * @param bits The number of significant bits for comparisons
    * @return the max relative error
-   * @see #getMaxSignificantDigits()
    */
-  public static float getRelativeErrorTerm(int significantDigits) {
-    if (significantDigits < 1 || significantDigits > RELATIVE_ERROR_TABLE.length) {
+  public static float getRelativeEpsilon(int bits) {
+    if (bits < 1 || bits > 23) {
       return 0;
     }
-    return RELATIVE_ERROR_TABLE[significantDigits - 1];
+    return Math.scalb(1.0f, -bits);
   }
 
   /**
