@@ -418,7 +418,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
     // Current point in tree
     IntDoubleNdTree cursor = this;
     // The status of the path taken to the point in the tree
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
 
@@ -494,7 +494,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
 
     IntDoubleNdTree cursor = this;
     // The status of the path taken to the point in the tree
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     boolean found = false;
 
@@ -562,7 +562,7 @@ class IntDoubleNdTree implements IntDoubleKdTree {
     }
 
     IntDoubleNdTree cursor = this;
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
     int item = 0;

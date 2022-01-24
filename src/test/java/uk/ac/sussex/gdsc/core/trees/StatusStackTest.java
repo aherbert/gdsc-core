@@ -28,23 +28,33 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 @SuppressWarnings({"javadoc"})
 class StatusStackTest {
-  @Test
-  void testStack() {
-    final StatusStack stack = new StatusStack(3);
-    stack.push(Status.ALLVISITED);
-    stack.push(Status.RIGHTVISITED);
-    stack.push(Status.LEFTVISITED);
-    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> stack.push(Status.NONE));
-    Assertions.assertEquals(Status.LEFTVISITED, stack.pop());
-    Assertions.assertEquals(Status.RIGHTVISITED, stack.pop());
-    Assertions.assertEquals(Status.ALLVISITED, stack.pop());
-    // Allows pop to be called once when empty
-    Assertions.assertEquals(0, stack.pop());
-    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> stack.pop());
+  @ParameterizedTest
+  @ValueSource(ints = {1, 2, 3, 5, 10, 15})
+  void testStack(int capacity) {
+    final UniformRandomProvider rng = RngUtils.createWithFixedSeed();
+    final byte[] choice =
+        {Status.RIGHTVISITED, Status.NONE, Status.LEFTVISITED, Status.ALLVISITED,};
+    for (int i = 0; i < 10; i++) {
+      final StatusStack stack = StatusStack.create(capacity);
+      final byte[] expected = new byte[capacity];
+      for (int j = 0; j < capacity; j++) {
+        final byte next = choice[rng.nextInt(choice.length)];
+        expected[j] = next;
+        stack.push(next);
+      }
+      for (int j = capacity; j-- > 0;) {
+        Assertions.assertEquals(expected[j], stack.pop());
+      }
+      // Allows pop to be called once when empty
+      Assertions.assertEquals(0, stack.pop());
+    }
   }
 }

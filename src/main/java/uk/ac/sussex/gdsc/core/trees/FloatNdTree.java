@@ -376,7 +376,7 @@ class FloatNdTree implements FloatKdTree {
     // Current point in tree
     FloatNdTree cursor = this;
     // The status of the path taken to the point in the tree
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
     final DoubleMinHeap resultHeap = new DoubleMinHeap(count);
@@ -452,7 +452,7 @@ class FloatNdTree implements FloatKdTree {
 
     FloatNdTree cursor = this;
     // The status of the path taken to the point in the tree
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     boolean found = false;
 
@@ -513,7 +513,7 @@ class FloatNdTree implements FloatKdTree {
     }
 
     FloatNdTree cursor = this;
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
     boolean found = false;

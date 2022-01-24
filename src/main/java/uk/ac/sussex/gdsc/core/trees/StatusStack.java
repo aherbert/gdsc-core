@@ -35,51 +35,69 @@ package uk.ac.sussex.gdsc.core.trees;
  *
  * @since 2.0
  */
-class StatusStack {
+abstract class StatusStack {
   /**
-   * The values.
-   *
-   * <p>Warning: this is indexed starting at 1.
+   * Contains the status stack as an array
    */
-  private final byte[] values;
+  private static class ArrayStatusStack extends StatusStack {
+    /**
+     * The values.
+     *
+     * <p>Warning: this is indexed starting at 1.
+     */
+    private final byte[] values;
 
-  /** The size. */
-  private int size;
+    /** The size. */
+    private int size;
 
-  /**
-   * Create a new instance.
-   *
-   * @param capacity the capacity
-   */
-  StatusStack(int capacity) {
-    this.values = new byte[capacity + 1];
+    /**
+     * @param capacity the capacity
+     */
+    ArrayStatusStack(int capacity) {
+      this.values = new byte[capacity + 1];
+    }
+
+    @Override
+    void push(byte value) {
+      final int s = size + 1;
+      values[s] = value;
+      size = s;
+    }
+
+    @Override
+    byte pop() {
+      // Note: This deliberately decrements after. It means when the size is 0 it will return 0
+      // for the first call when empty.
+      return values[size--];
+    }
   }
 
   /**
    * Pushes the element onto the top of the stack.
    *
-   * <p>No capacity checking is performed.
+   * <p>Note: The method may throw an exception if the stack is at maximum capacity.
    *
    * @param value the value
    */
-  void push(byte value) {
-    final int s = size + 1;
-    values[s] = value;
-    size = s;
-  }
+  abstract void push(byte value);
 
   /**
    * Pops an element from the top of the stack.
    *
-   * <p>No capacity checking is performed. This will return 0 on the first call when empty,
-   * otherwise will throw an exception.
+   * <p>Note: This must return 0 on the first call when empty,
+   * otherwise the method may throw an exception.
    *
    * @return the element (or 0 on the first call when empty)
-   * @throws IndexOutOfBoundsException If empty
    */
-  byte pop() {
-    // Note: This deliberately decrements after. It means when the size is 0 it will return 0
-    // for the first call when empty.
-    return values[size--];
+  abstract byte pop();
+
+  /**
+   * Create a new instance.
+   *
+   * @param capacity the capacity
+   * @return the status stack
+   */
+  static StatusStack create(int capacity) {
+    return new ArrayStatusStack(capacity);
   }
 }

@@ -421,7 +421,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
     // Current point in tree
     ObjDoubleNdTree<T> cursor = this;
     // The status of the path taken to the point in the tree
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
 
@@ -498,7 +498,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
 
     ObjDoubleNdTree<T> cursor = this;
     // The status of the path taken to the point in the tree
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     boolean found = false;
 
@@ -567,7 +567,7 @@ final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
     }
 
     ObjDoubleNdTree<T> cursor = this;
-    final StatusStack searchStatus = new StatusStack(maximumDepth);
+    final StatusStack searchStatus = StatusStack.create(maximumDepth);
     int status = Status.NONE;
     double range = Double.POSITIVE_INFINITY;
     Object item = null;
