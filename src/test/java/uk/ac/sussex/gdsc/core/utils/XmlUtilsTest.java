@@ -139,7 +139,9 @@ class XmlUtilsTest {
   void testGetString() throws SAXException, IOException, ParserConfigurationException {
     final String xml = "<root><node/></root>";
     assertGetString(xml, xml, false);
-    assertGetString("<root>\n<node/>\n</root>\n", xml, true);
+    // Different JDKs implement different indentation.
+    // Make the test robust to this using a regex.
+    assertGetString("<root>\n *<node/>\n</root>\n", xml, true);
     assertGetString("<root><node/></root>", "<root><node></node></root>", false);
   }
 
@@ -148,7 +150,8 @@ class XmlUtilsTest {
     final InputSource src = new InputSource(new StringReader(xml));
     final Node document =
         DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
-    Assertions.assertEquals(expected, XmlUtils.getString(document, indent));
+    final String actual = XmlUtils.getString(document, indent);
+    Assertions.assertTrue(actual.matches(expected), () -> actual + " does not match " + expected);
   }
 
   @Test
