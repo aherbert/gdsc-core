@@ -42,8 +42,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.core.ij.ImageJTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -312,7 +312,7 @@ class ClusteringEngineTest {
     points.add(ClusterPoint.newTimeClusterPoint(id++, 1, 0, 3, 3));
 
     // Test with an ended tracker
-    final TrackProgress tracker = new ImageJTrackProgress() {
+    final TrackProgress tracker = new TrackProgressAdaptor() {
       @Override
       public boolean isEnded() {
         return true;
@@ -353,7 +353,7 @@ class ClusteringEngineTest {
     final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
 
     // Test with a tracker to exercise code paths
-    final TrackProgress tracker = new ImageJTrackProgress() {
+    final TrackProgress tracker = new TrackProgressAdaptor() {
       @Override
       public void log(String format, Object... args) {
         // Do nothing

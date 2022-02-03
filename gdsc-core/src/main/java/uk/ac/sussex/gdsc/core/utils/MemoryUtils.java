@@ -206,7 +206,7 @@ public final class MemoryUtils {
    * int minCapacity = data.length + newData.length;
    *
    * // Overflow safe size check
-   * if (minCapacity - oldCapacity > 0) {
+   * if (minCapacity - oldCapacity &gt; 0) {
    *   // Resize required
    *   int newCapacity = MemoryUtils.createNewCapacity(minCapacity, oldCapacity));
    *   data = Arrays.copyOf(data, newCapacity);

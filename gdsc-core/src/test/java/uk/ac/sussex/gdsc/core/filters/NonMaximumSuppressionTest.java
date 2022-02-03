@@ -28,10 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.filters;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.PointRoi;
-import ij.process.FloatProcessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
@@ -45,7 +41,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.filters.NonMaximumSuppression.FloatScanCandidate;
 import uk.ac.sussex.gdsc.core.filters.NonMaximumSuppression.IntScanCandidate;
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -451,31 +446,10 @@ class NonMaximumSuppressionTest {
         }
       }
       logger.info(sb.toString());
+      if (!Arrays.equals(indices1, indices2)) {
+        logger.info("Arrays are not equal");
+      }
     }
-    if (!Arrays.equals(indices1, indices2)) {
-      // Show image
-      floatShowImage(width, height, data, indices1, "i1");
-      floatShowImage(width, height, data, indices2, "i2");
-    }
-  }
-
-  private static void floatShowImage(int width, int height, float[] data, int[] indices,
-      String title) {
-    final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
-    final int[] ox = new int[indices.length];
-    final int[] oy = new int[indices.length];
-    int points = 0;
-    for (final int i : indices) {
-      ox[points] = i % width;
-      oy[points++] = i / width;
-    }
-    final PointRoi roi = new PointRoi(ox, oy, points);
-    imp.setRoi(roi);
-    // imp.getWindow().getCanvas().setMagnification(16);
-    for (int i = 7; i-- > 0;) {
-      imp.getWindow().getCanvas().zoomIn(0, 0);
-    }
-    IJ.save(imp, "/tmp/" + title + ".tif");
   }
 
   @Test
@@ -1581,28 +1555,9 @@ class NonMaximumSuppressionTest {
         }
       }
       logger.info(sb.toString());
-    }
-    if (!Arrays.equals(indices1, indices2)) {
-      // Show image
-      intShowImage(width, height, data, indices1, "i1");
-      intShowImage(width, height, data, indices2, "i2");
-    }
-  }
-
-  private static void intShowImage(int width, int height, int[] data, int[] indices, String title) {
-    final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
-    final int[] ox = new int[indices.length];
-    final int[] oy = new int[indices.length];
-    int points = 0;
-    for (final int i : indices) {
-      ox[points] = i % width;
-      oy[points++] = i / width;
-    }
-    final PointRoi roi = new PointRoi(ox, oy, points);
-    imp.setRoi(roi);
-    // imp.getWindow().getCanvas().setMagnification(16);
-    for (int i = 7; i-- > 0;) {
-      imp.getWindow().getCanvas().zoomIn(0, 0);
+      if (!Arrays.equals(indices1, indices2)) {
+        logger.info("Arrays are not equal");
+      }
     }
   }
 

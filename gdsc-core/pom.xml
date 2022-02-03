@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>uk.ac.sussex.gdsc</groupId>
+    <artifactId>gdsc-core-parent</artifactId>
+    <version>2.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>gdsc-core</artifactId>
+  <packaging>jar</packaging>
+
+  <name>GDSC Core</name>
+  <description>Genome Damage and Stability Centre Core Package
+
+Contains core utilities for image analysis and is used by: 
+
+GDSC ImageJ Plugins - Microscopy image analysis
+
+GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
+</description>
+
+  <!-- Required for scijava enforcer rules -->
+  <url>http:///github.com/aherbert/gdsc-core</url>
+  <organization>
+    <name>Genome Damage and Stability Centre</name>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>GNU General Public License (GPL) version 3.0</name>
+      <url>http://www.gnu.org/licenses/gpl.txt</url>
+      <distribution>manual</distribution>
+    </license>
+  </licenses>
+
+  <inceptionYear>2011</inceptionYear>
+  <scm>
+    <connection>scm:git:git://github.com/aherbert/gdsc-core.git</connection>
+    <developerConnection>scm:git:ssh://github.com/aherbert/gdsc-core.git</developerConnection>
+    <url>https://github.com/aherbert/gdsc-core</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/aherbert/gdsc-core/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>Travis CI</system>
+    <url>https://travis-ci.com/aherbert/gdsc-core</url>
+  </ciManagement>
+  <mailingLists>
+    <mailingList>
+      <name>ImageJ Forum</name>
+      <archive>http://forum.imagej.net/</archive>
+    </mailingList>
+  </mailingLists>
+
+  <developers>
+    <developer>
+      <id>aherbert</id>
+      <name>Alex Herbert</name>
+      <email>a.herbert@sussex.ac.uk</email>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+  </developers>
+  <contributors>
+    <contributor>
+      <name>Alex Herbert</name>
+    </contributor>
+  </contributors>
+
+  <properties>
+    <license.licenseName>gpl_v3</license.licenseName>
+    <license.copyrightOwners>Alex Herbert</license.copyrightOwners>
+
+    <gdsc.automatic.module.name>uk.ac.sussex.gdsc.core</gdsc.automatic.module.name>
+
+    <!-- Workaround to avoid duplicating config files. -->
+    <gdsc.parent.dir>${basedir}/..</gdsc.parent.dir>
+  </properties>
+
+</project>

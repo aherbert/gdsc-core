@@ -9,11 +9,11 @@
     <relativePath>../gdsc-ij-parent</relativePath>
   </parent>
 
-  <artifactId>gdsc-core</artifactId>
+  <artifactId>gdsc-core-parent</artifactId>
   <version>2.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
-  <name>GDSC Core library for ImageJ</name>
+  <name>GDSC Core library for image analysis</name>
   <url>http:///github.com/aherbert/gdsc-core</url>
   <organization>
     <name>Genome Damage and Stability Centre</name>
@@ -125,10 +125,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>uk.ac.sussex.gdsc</groupId>
       <artifactId>gdsc-analytics</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.imagej</groupId>
-      <artifactId>ij</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -299,5 +295,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       </resource>
     </resources>
   </build>
+
+  <modules>
+    <module>gdsc-core</module>
+    <module>gdsc-core-ij</module>
+  </modules>
 
 </project>
