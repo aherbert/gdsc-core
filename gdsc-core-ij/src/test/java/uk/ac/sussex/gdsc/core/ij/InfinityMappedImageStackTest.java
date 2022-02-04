@@ -30,9 +30,9 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
-import ij.process.InfinityMappedFloatProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.core.ij.process.InfinityMappedFloatProcessor;
 
 @SuppressWarnings({"javadoc"})
 class InfinityMappedImageStackTest {

@@ -26,8 +26,9 @@
  * #L%
  */
 
-package ij.process;
+package uk.ac.sussex.gdsc.core.ij.process;
 
+import ij.process.ImageProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +48,15 @@ class InfinityMappedFloatProcessorTest {
     Assertions.assertFalse(fp.isMapPositiveInfinity());
     Assertions.assertEquals(width, fp.getWidth());
     Assertions.assertEquals(height, fp.getHeight());
+
+    // Check the color model is passed through
+    java.awt.image.ColorModel cm = fp.getColorModel();
+
+    fp = new InfinityMappedFloatProcessor(width, height, new float[width * height], cm);
+    Assertions.assertFalse(fp.isMapPositiveInfinity());
+    Assertions.assertEquals(width, fp.getWidth());
+    Assertions.assertEquals(height, fp.getHeight());
+    Assertions.assertSame(cm, fp.getColorModel());
 
     fp = new InfinityMappedFloatProcessor(width, height, new int[width * height]);
     Assertions.assertFalse(fp.isMapPositiveInfinity());
@@ -72,8 +82,8 @@ class InfinityMappedFloatProcessorTest {
   @Test
   void testPixelCache() {
     final InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(10, 4);
-    final byte[] pixels = fp.create8BitImage();
-    Assertions.assertSame(pixels, fp.create8BitImage());
+    final java.awt.Image pixels = fp.createImage();
+    Assertions.assertSame(pixels, fp.createImage());
   }
 
   @Test
@@ -94,11 +104,34 @@ class InfinityMappedFloatProcessorTest {
       boolean mapInfinity) {
     final InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(width, height, pixels);
     fp.setMapPositiveInfinity(mapInfinity);
+    assert8BitImage(fp, expected);
+  }
+
+  private static void assert8BitImage(final InfinityMappedFloatProcessor fp, final int[] expected) {
     // Convert to byte
     final byte[] bytes = new byte[expected.length];
     for (int i = 0; i < expected.length; i++) {
       bytes[i] = (byte) expected[i];
     }
-    Assertions.assertArrayEquals(bytes, fp.create8BitImage());
+    fp.createImage();
+    Assertions.assertArrayEquals(bytes, fp.getPixels8());
+  }
+
+  @Test
+  void testThresholdingModes() {
+    final InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(1, 4, new float[] {1, 2, 3, 4});
+    assert8BitImage(fp, new int[] {1, 86, 170, 255});
+    fp.setThreshold(0, 100, ImageProcessor.NO_LUT_UPDATE);
+    assert8BitImage(fp, new int[] {1, 86, 170, 255});
+    fp.setThreshold(10, 100, ImageProcessor.BLACK_AND_WHITE_LUT);
+    assert8BitImage(fp, new int[] {0, 0, 0, 0});
+    fp.setThreshold(3, 100, ImageProcessor.BLACK_AND_WHITE_LUT);
+    assert8BitImage(fp, new int[] {0, 0, 255, 255});
+    fp.setThreshold(2, 3, ImageProcessor.BLACK_AND_WHITE_LUT);
+    assert8BitImage(fp, new int[] {0, 255, 255, 0});
+    fp.setThreshold(2, 3, ImageProcessor.RED_LUT);
+    assert8BitImage(fp, new int[] {1, 255, 255, 254});
+    fp.setThreshold(3, 100, ImageProcessor.RED_LUT);
+    assert8BitImage(fp, new int[] {1, 85, 255, 255});
   }
 }

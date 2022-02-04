@@ -26,8 +26,9 @@
  * #L%
  */
 
-package ij.process;
+package uk.ac.sussex.gdsc.core.ij.process;
 
+import ij.process.FloatProcessor;
 import java.awt.image.ColorModel;
 
 /**
@@ -39,14 +40,14 @@ import java.awt.image.ColorModel;
  * FloatProcessor functionality (histograms, min/max value, etc). This is not the case for NaN which
  * breaks ImageJ data display.
  *
- * <p>Note: This is not a native ImageJ class but must exist in the {@code ij.process} package to
- * override package private methods.
+ * <p>Note: This is not a native ImageJ class and can only override public or protected
+ * functionality. Any package-private or private method to render the image will have default ImageJ
+ * behaviour. This class is specialised for the display of float pixels in the ImageJ GUI and
+ * display of composite images is not supported.
  *
  * @see FloatProcessor
  */
-public class InfinityMappedFloatProcessor extends FloatProcessor {
-  private static final int MAX_BYTE_VALUE = 255;
-
+public class InfinityMappedFloatProcessor extends AbstractMappedFloatProcessor {
   private boolean mapPositiveInfinity;
 
   /**
@@ -75,7 +76,7 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
    * @param pixels the pixels
    */
   public InfinityMappedFloatProcessor(int width, int height, float[] pixels) {
-    this(width, height, pixels, null);
+    super(width, height, pixels);
   }
 
   /**
@@ -98,7 +99,7 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
    * @param height the height
    */
   public InfinityMappedFloatProcessor(int width, int height) {
-    super(width, height, new float[width * height], null);
+    super(width, height);
   }
 
   /**
@@ -142,12 +143,9 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
   }
 
   @Override
-  protected byte[] create8BitImage() {
-    // In previous versions this method was protected. In ImageJ 1.52i it has changed to be
-    // package private. This class has been moved into the ij.process package to support
-    // the functionality.
-
-    // Map all values to the range 1-255. Negative infinity maps to zero.
+  byte[] create8BitImage(boolean thresholding) {
+    final int max = thresholding ? 254 : 255;
+    // Map all values to the range 1-max. Negative infinity maps to zero.
     final int size = width * height;
     if (pixels8 == null) {
       pixels8 = new byte[size];
@@ -160,7 +158,7 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
     final float min2 = (float) getMin();
     final float max2 = (float) getMax();
 
-    final float scale = 254f / (max2 - min2);
+    final float scale = (max - 1f) / (max2 - min2);
 
     if (mapPositiveInfinity) {
       for (int i = 0; i < size; i++) {
@@ -171,8 +169,8 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
           // Map all values to the range 1-255.
           value = pixels[i] - min2;
           ivalue = 1 + (int) ((value * scale) + 0.5f);
-          if (ivalue >= MAX_BYTE_VALUE) {
-            pixels8[i] = (byte) MAX_BYTE_VALUE;
+          if (ivalue >= max) {
+            pixels8[i] = (byte) max;
           } else {
             pixels8[i] = (byte) ivalue;
           }
@@ -190,8 +188,8 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
           // comparing to max byte value as the cast of infinity will be the max
           // int value and adding 1 will rollover to negative.
           ivalue = (int) ((value * scale) + 0.5f);
-          if (ivalue >= MAX_BYTE_VALUE) {
-            pixels8[i] = (byte) MAX_BYTE_VALUE;
+          if (ivalue >= max) {
+            pixels8[i] = (byte) max;
           } else {
             pixels8[i] = (byte) (1 + ivalue);
           }

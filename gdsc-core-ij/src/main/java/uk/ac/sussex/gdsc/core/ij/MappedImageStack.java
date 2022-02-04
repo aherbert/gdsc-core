@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import ij.process.MappedFloatProcessor;
 import java.awt.image.ColorModel;
+import uk.ac.sussex.gdsc.core.ij.process.MappedFloatProcessor;
 
 /**
  * Extends the ImageJ {@link ImageStack} class to support a mapped float processor for float data.

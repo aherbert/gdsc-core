@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import ij.process.InfinityMappedFloatProcessor;
 import java.awt.image.ColorModel;
+import uk.ac.sussex.gdsc.core.ij.process.InfinityMappedFloatProcessor;
 
 /**
  * Extends the ImageJ {@link ImageStack} class to support an infinity mapped float processor for

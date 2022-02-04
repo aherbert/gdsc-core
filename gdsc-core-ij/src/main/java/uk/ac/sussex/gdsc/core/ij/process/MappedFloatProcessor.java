@@ -26,8 +26,9 @@
  * #L%
  */
 
-package ij.process;
+package uk.ac.sussex.gdsc.core.ij.process;
 
+import ij.process.FloatProcessor;
 import java.awt.image.ColorModel;
 
 /**
@@ -39,14 +40,15 @@ import java.awt.image.ColorModel;
  * to 0. This allows for example display of the results of a probability calculation where 0 is a
  * valid display value. -0.0f can be used when no probability exists.
  *
- * <p>Note: This is not a native ImageJ class but must exist in the {@code ij.process} package to
- * override package private methods.
+ * <p>Note: This is not a native ImageJ class and can only override public or protected
+ * functionality. Any package-private or private method to render the image will have default ImageJ
+ * behaviour. This class is specialised for the display of float pixels in the ImageJ GUI and
+ * display of composite images is not supported.
  *
  * @see FloatProcessor
  */
-public class MappedFloatProcessor extends FloatProcessor {
+public class MappedFloatProcessor extends AbstractMappedFloatProcessor {
   private static final int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
-  private static final int MAX_BYTE_VALUE = 255;
 
   private boolean mapZero;
 
@@ -78,7 +80,7 @@ public class MappedFloatProcessor extends FloatProcessor {
    * @param pixels the pixels
    */
   public MappedFloatProcessor(int width, int height, float[] pixels) {
-    this(width, height, pixels, null);
+    super(width, height, pixels);
   }
 
   /**
@@ -101,7 +103,7 @@ public class MappedFloatProcessor extends FloatProcessor {
    * @param height the height
    */
   public MappedFloatProcessor(int width, int height) {
-    super(width, height, new float[width * height], null);
+    super(width, height);
   }
 
   /**
@@ -144,16 +146,12 @@ public class MappedFloatProcessor extends FloatProcessor {
     super(array);
   }
 
-  // scale from float to 8-bits
   @Override
-  protected byte[] create8BitImage() {
-    // In previous versions this method was protected. In ImageJ 1.52i it has changed to be
-    // package private. This class has been moved into the ij.process package to support
-    // the functionality.
-
-    // Map all non zero values to the range 1-255.
+  byte[] create8BitImage(boolean thresholding) {
+    final int max = thresholding ? 254 : 255;
+    // Map all non zero values to the range 1-max.
     //
-    // Optionally map +zero to the range 1-255 as well.
+    // Optionally map +zero to the range 1-max as well.
     //
     // Must find the minimum value above zero. This will be mapped to 1. Or special case is mapping
     // +0f to 1 but -0f to 0.
@@ -176,25 +174,14 @@ public class MappedFloatProcessor extends FloatProcessor {
       }
     }
 
-    final float scale = 254f / (maxAbove0 - minAbove0);
+    final float scale = (max - 1f) / (maxAbove0 - minAbove0);
 
     if (isMapZero() && minAbove0 == 0) {
-      mapIncludingZero(pixels, size, scale);
+      mapIncludingZero(pixels, size, scale, max);
     } else {
-      mapAboveZero(pixels, size, minAbove0, scale);
+      mapAboveZero(pixels, size, minAbove0, scale, max);
     }
     return pixels8;
-  }
-
-  /**
-   * Creates the 8 bit pixels.
-   *
-   * @param size the size
-   */
-  private void create8bitPixels(final int size) {
-    if (pixels8 == null) {
-      pixels8 = new byte[size];
-    }
   }
 
   /**
@@ -203,8 +190,9 @@ public class MappedFloatProcessor extends FloatProcessor {
    * @param pixels the pixels
    * @param size the size
    * @param scale the scale
+   * @param max the max
    */
-  private void mapIncludingZero(final float[] pixels, final int size, final float scale) {
+  private void mapIncludingZero(final float[] pixels, final int size, final float scale, int max) {
     // We map equal or below -0 to 0.
     // Special case of mapping +0 to 1.
     for (int i = 0; i < size; i++) {
@@ -219,11 +207,10 @@ public class MappedFloatProcessor extends FloatProcessor {
         pixels8[i] = (byte) 0;
       } else {
         // +0 or above maps to 1-255
-        pixels8[i] = (byte) Math.min(MAX_BYTE_VALUE, 1 + (int) ((pixels[i] * scale) + 0.5f));
+        pixels8[i] = (byte) Math.min(max, 1 + (int) ((pixels[i] * scale) + 0.5f));
       }
     }
   }
-
 
   /**
    * Map all {@code value > 0} to the range 1-255. {@code 0} and below maps to 0.
@@ -232,9 +219,10 @@ public class MappedFloatProcessor extends FloatProcessor {
    * @param size the size
    * @param minAbove0 the min above 0
    * @param scale the scale
+   * @param max the max
    */
   private void mapAboveZero(final float[] pixels, final int size, float minAbove0,
-      final float scale) {
+      final float scale, int max) {
     for (int i = 0; i < size; i++) {
       // This also checks == 0 as the minAboveZero may be zero.
       if (pixels[i] < minAbove0 || pixels[i] == 0) {
@@ -242,8 +230,7 @@ public class MappedFloatProcessor extends FloatProcessor {
         pixels8[i] = (byte) 0;
       } else {
         // Map all non zero values to the range 1-255.
-        pixels8[i] =
-            (byte) Math.min(MAX_BYTE_VALUE, 1 + Math.round((pixels[i] - minAbove0) * scale));
+        pixels8[i] = (byte) Math.min(max, 1 + Math.round((pixels[i] - minAbove0) * scale));
       }
     }
   }
