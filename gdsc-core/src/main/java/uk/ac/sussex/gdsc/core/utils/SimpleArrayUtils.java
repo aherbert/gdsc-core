@@ -834,8 +834,8 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns the index of the first element in the array that matches the given filter, or -1 if the
-   * array does not contain a match. More formally, returns the lowest index <tt>i</tt> such that
-   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   * array does not contain a match. More formally, returns the lowest index {@code i} such that
+   * {@code filter.test(data[i]) == true}, or -1 if there is no such index.
    *
    * @param data the data
    * @param filter a filter to identify the element
@@ -853,8 +853,8 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns the index of the first element in the array that matches the given filter, or -1 if the
-   * array does not contain a match. More formally, returns the lowest index <tt>i</tt> such that
-   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   * array does not contain a match. More formally, returns the lowest index {@code i} such that
+   * {@code filter.test(data[i]) == true}, or -1 if there is no such index.
    *
    * @param data the data
    * @param filter a filter to identify the element
@@ -872,8 +872,8 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns the index of the first element in the array that matches the given filter, or -1 if the
-   * array does not contain a match. More formally, returns the lowest index <tt>i</tt> such that
-   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   * array does not contain a match. More formally, returns the lowest index {@code i} such that
+   * {@code filter.test(data[i]) == true}, or -1 if there is no such index.
    *
    * @param data the data
    * @param filter a filter to identify the element
@@ -891,8 +891,8 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns the index of the last element in the array that matches the given filter, or -1 if the
-   * array does not contain a match. More formally, returns the highest index <tt>i</tt> such that
-   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   * array does not contain a match. More formally, returns the highest index {@code i} such that
+   * {@code filter.test(data[i]) == true}, or -1 if there is no such index.
    *
    * @param data the data
    * @param filter a filter to identify the element
@@ -910,8 +910,8 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns the index of the last element in the array that matches the given filter, or -1 if the
-   * array does not contain a match. More formally, returns the highest index <tt>i</tt> such that
-   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   * array does not contain a match. More formally, returns the highest index {@code i} such that
+   * {@code filter.test(data[i]) == true}, or -1 if there is no such index.
    *
    * @param data the data
    * @param filter a filter to identify the element
@@ -929,8 +929,8 @@ public final class SimpleArrayUtils {
 
   /**
    * Returns the index of the last element in the array that matches the given filter, or -1 if the
-   * array does not contain a match. More formally, returns the highest index <tt>i</tt> such that
-   * <tt>filter.test(data[i]) == true</tt>, or -1 if there is no such index.
+   * array does not contain a match. More formally, returns the highest index {@code i} such that
+   * {@code filter.test(data[i]) == true}, or -1 if there is no such index.
    *
    * @param data the data
    * @param filter a filter to identify the element

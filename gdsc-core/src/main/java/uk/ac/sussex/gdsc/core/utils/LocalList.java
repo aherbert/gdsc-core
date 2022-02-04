@@ -68,7 +68,7 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
  *
  * <p>In addition to implementing the {@link List} interface methods have been added to manipulate
  * the size of the array as per {@link java.util.ArrayList}. Methods signatures match those in
- * {@code ArrayList} (<tt>ensureCapacity</tt>, <tt>trimToSize</tt>).
+ * {@code ArrayList} ({@code ensureCapacity}, {@code trimToSize}).
  *
  * <p>Unlike the {@code ArrayList} the list is not {@link java.io.Serializable Serializable} or
  * {@link Cloneable}. The {@link #copy()} and {@link #copyOfRange(int, int)} methods are used to
@@ -654,7 +654,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * internal data structures.
    *
    * @param c list containing elements to be added to this list
-   * @return <tt>true</tt> if this list changed as a result of the call
+   * @return {@code true} if this list changed as a result of the call
    * @see #addAll(Collection)
    */
   public boolean addAll(LocalList<? extends E> c) {
@@ -667,7 +667,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * @param all the data
    * @param len the length
-   * @return <tt>true</tt> if this list changed as a result of the call
+   * @return {@code true} if this list changed as a result of the call
    */
   private boolean addAll(Object[] all, int len) {
     if (len == 0) {
@@ -705,9 +705,9 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * @param index index at which to insert the first element from the specified collection
    * @param c list containing elements to be added to this list
-   * @return <tt>true</tt> if this list changed as a result of the call
-   * @throws IndexOutOfBoundsException if the index is out of range (<tt>index &lt; 0 || index &gt;
-   *         size()</tt>)
+   * @return {@code true} if this list changed as a result of the call
+   * @throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > 
+   *         size()})
    */
   public boolean addAll(int index, LocalList<? extends E> c) {
     checkRangeForInsert(index);
@@ -721,7 +721,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @param index the index
    * @param all the data
    * @param len the length
-   * @return <tt>true</tt> if this list changed as a result of the call
+   * @return {@code true} if this list changed as a result of the call
    */
   private boolean addAll(int index, Object[] all, int len) {
     if (len == 0) {
@@ -1059,8 +1059,8 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
   /**
    * Returns the index of the first element in this list that matches the given predicate, or -1 if
-   * this list does not contain a match. More formally, returns the lowest index <tt>i</tt> such
-   * that <tt>filter.test(get(i)) == true</tt>, or -1 if there is no such index.
+   * this list does not contain a match. More formally, returns the lowest index {@code i} such that
+   * {@code filter.test(get(i)) == true}, or -1 if there is no such index.
    *
    * @param filter a predicate to identify the element
    * @return the index of the first match in this list, or -1 if this list does not contain a
@@ -1080,8 +1080,8 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
   /**
    * Returns the index of the last element in this list that matches the given predicate, or -1 if
-   * this list does not contain a match. More formally, returns the highest index <tt>i</tt> such
-   * that <tt>filter.test(get(i)) == true</tt>, or -1 if there is no such index.
+   * this list does not contain a match. More formally, returns the highest index {@code i} such
+   * that {@code filter.test(get(i)) == true}, or -1 if there is no such index.
    *
    * @param filter a predicate to identify the element
    * @return the index of the last match in this list, or -1 if this list does not contain a
