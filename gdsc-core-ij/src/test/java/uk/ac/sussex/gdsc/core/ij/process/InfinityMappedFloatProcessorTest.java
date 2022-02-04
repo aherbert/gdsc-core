@@ -119,7 +119,8 @@ class InfinityMappedFloatProcessorTest {
 
   @Test
   void testThresholdingModes() {
-    final InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(1, 4, new float[] {1, 2, 3, 4});
+    final InfinityMappedFloatProcessor fp =
+        new InfinityMappedFloatProcessor(1, 4, new float[] {1, 2, 3, 4});
     assert8BitImage(fp, new int[] {1, 86, 170, 255});
     fp.setThreshold(0, 100, ImageProcessor.NO_LUT_UPDATE);
     assert8BitImage(fp, new int[] {1, 86, 170, 255});

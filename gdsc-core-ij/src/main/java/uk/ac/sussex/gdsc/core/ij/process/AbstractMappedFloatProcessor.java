@@ -149,7 +149,7 @@ abstract class AbstractMappedFloatProcessor extends FloatProcessor {
     final boolean thresholding = minThreshold != NO_THRESHOLD && lutUpdateMode < NO_LUT_UPDATE;
     final float[] pixels = (float[]) getPixels();
 
-    // *** 
+    // ***
     // Changed from ImageJ to always call this method.
     // The FloatProcessor does this if (firstTime || !lutAnimation)
     // There is no way to set the lutAnimation flag to true as

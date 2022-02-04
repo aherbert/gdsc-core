@@ -51,6 +51,8 @@ abstract class StatusStack {
     private int size;
 
     /**
+     * Create an instance.
+     *
      * @param capacity the capacity
      */
     ArrayStatusStack(int capacity) {

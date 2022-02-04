@@ -706,7 +706,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @param index index at which to insert the first element from the specified collection
    * @param c list containing elements to be added to this list
    * @return {@code true} if this list changed as a result of the call
-   * @throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > 
+   * @throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index >
    *         size()})
    */
   public boolean addAll(int index, LocalList<? extends E> c) {
