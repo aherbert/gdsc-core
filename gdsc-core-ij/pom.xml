@@ -15,7 +15,7 @@
   <name>GDSC Core ImageJ</name>
   <description>Genome Damage and Stability Centre Core ImageJ Package
 
-Contains core utilities for image analysis in ImageJ and is used by: 
+Contains core utilities for image analysis in ImageJ and is used by:
 
 GDSC ImageJ Plugins - Microscopy image analysis
 
