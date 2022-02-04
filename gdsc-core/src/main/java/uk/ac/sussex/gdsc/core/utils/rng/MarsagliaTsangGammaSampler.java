@@ -52,7 +52,6 @@ import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
  * sampler is only suitable for a scale parameter above 1; the scale and shape parameter can be set
  * after construction.</p>
  *
- * @since 2.0
  * @see <a href="https://en.wikipedia.org/wiki/Gamma_distribution">Wikipedia Gamma distribution</a>
  */
 public class MarsagliaTsangGammaSampler implements ContinuousSampler {

@@ -30,8 +30,6 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 /**
  * Number utilities.
- *
- * @since 2.0
  */
 public final class NumberUtils {
   /**
@@ -77,7 +75,6 @@ public final class NumberUtils {
    * @param n Bound on the random number to be returned. Must be positive.
    * @return a random {@code int} value between 0 (inclusive) and {@code n} (exclusive).
    * @throws IllegalArgumentException if {@code n} is negative.
-   * @since 1.3
    */
   public static int makeIntInRange(int value, int n) {
     if (n <= 0) {
@@ -133,7 +130,6 @@ public final class NumberUtils {
    * @param n Bound on the random number to be returned. Must be positive.
    * @return a random {@code long} value between 0 (inclusive) and {@code n} (exclusive).
    * @throws IllegalArgumentException if {@code n} is negative.
-   * @since 1.3
    */
   public static long makeLongInRange(long value, long n) {
     if (n <= 0) {

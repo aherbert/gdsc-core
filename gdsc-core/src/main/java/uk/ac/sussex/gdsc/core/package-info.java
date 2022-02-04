@@ -29,6 +29,6 @@
 /**
  * Provides code to be used with the GDSC ImageJ plugins.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core;

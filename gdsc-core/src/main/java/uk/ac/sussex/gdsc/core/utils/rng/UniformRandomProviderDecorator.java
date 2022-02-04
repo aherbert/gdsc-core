@@ -36,8 +36,6 @@ import org.apache.commons.rng.UniformRandomProvider;
  * {@code UniformRandomProvider} interface are implemented using an underlying instance of the
  * interface. These may be selectively overridden in child classes for example to monitor call
  * frequency or alter the output.
- *
- * @since 2.0
  */
 public abstract class UniformRandomProviderDecorator implements UniformRandomProvider {
   /** The rng. */

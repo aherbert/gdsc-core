@@ -48,8 +48,6 @@ import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler
  * // Samples from 2^53 dyadic rationals with no branch condition
  * x = 2 * rng.nextDouble() - 1.0;
  * </pre>
- *
- * @since 2.0
  */
 public class SignedDoubleSampler implements SharedStateContinuousSampler {
   /** Underlying source of randomness. */

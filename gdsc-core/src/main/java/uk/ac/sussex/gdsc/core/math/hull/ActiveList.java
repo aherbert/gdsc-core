@@ -32,8 +32,6 @@ import java.util.Arrays;
 
 /**
  * A class to maintain a list of active indexes.
- *
- * @since 2.0
  */
 final class ActiveList {
   private final boolean[] enabled;

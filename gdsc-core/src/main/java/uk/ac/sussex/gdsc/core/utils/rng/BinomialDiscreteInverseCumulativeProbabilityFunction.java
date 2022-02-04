@@ -37,8 +37,6 @@ import org.apache.commons.rng.sampling.distribution.DiscreteInverseCumulativePro
  * Provides the inverse cumulative probability of the Binomial distribution.
  *
  * <p>Allows the number of trials and the probability of success to be updated.
- *
- * @since 2.0
  */
 public class BinomialDiscreteInverseCumulativeProbabilityFunction
     implements DiscreteInverseCumulativeProbabilityFunction {

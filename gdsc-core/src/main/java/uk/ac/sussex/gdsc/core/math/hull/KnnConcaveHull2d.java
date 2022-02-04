@@ -47,15 +47,11 @@ import uk.ac.sussex.gdsc.core.trees.KdTrees;
  * computation of the region occupied by a set of points. <br>Conference: GRAPP 2007, Proceedings of
  * the Second International Conference on Computer Graphics Theory and Applications, Barcelona,
  * Spain.</blockquote>
- *
- * @since 2.0
  */
 public final class KnnConcaveHull2d {
 
   /**
    * A builder to create a 2D concave hull.
-   *
-   * @since 2.0
    */
   public static final class Builder implements Hull.Builder {
 

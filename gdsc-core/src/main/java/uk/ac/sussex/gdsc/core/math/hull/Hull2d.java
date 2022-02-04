@@ -33,8 +33,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 /**
  * Contains a set of paired coordinates representing the hull of a set of points. This should be a
  * non-self-intersecting (simple) polygon, which can be convex or concave.
- *
- * @since 2.0
  */
 public final class Hull2d implements Hull {
 

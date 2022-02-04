@@ -43,7 +43,6 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
  * Square Weyl Sequence RNG</a>.</p>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Middle-square_method">Middle Square Method</a>
- * @since 2.0
  */
 public final class MiddleSquareWeylSequence
     implements RestorableUniformRandomProvider, SplittableUniformRandomProvider {

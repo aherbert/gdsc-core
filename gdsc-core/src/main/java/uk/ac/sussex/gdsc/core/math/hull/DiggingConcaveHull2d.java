@@ -71,15 +71,11 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * <blockquote>Park and Oh (2012) <br>A New Concave Hull Algorithm and Concaveness Measure for
  * n-dimensional Datasets. <br>Journal of Information Science and Engineering
  * 28:587-600.</blockquote>
- *
- * @since 2.0
  */
 public final class DiggingConcaveHull2d {
 
   /**
    * A builder to create a 2D concave hull.
-   *
-   * @since 2.0
    */
   public static final class Builder implements Hull.Builder {
     /** Default value for decision threshold. */

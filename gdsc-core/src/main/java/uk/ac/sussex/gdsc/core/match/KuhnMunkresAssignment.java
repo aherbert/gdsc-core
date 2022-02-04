@@ -47,8 +47,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * @see <a href="https://dl.acm.org/citation.cfm?id=362945">Bourgeois and Lassalle (1971) An
  *      extension of the Munkres algorithm for the assignment problem to rectangular matrices.
  *      Communications of the ACM Volume 14, Issue 12, 802-804.</a>
- *
- * @since 2.0
  */
 public class KuhnMunkresAssignment {
   /** The constant for no assignment. */

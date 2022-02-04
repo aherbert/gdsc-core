@@ -32,6 +32,6 @@
  * @see <a href="https://en.wikipedia.org/wiki/DBSCAN">DBSCAN</a>
  * @see <a href="https://en.wikipedia.org/wiki/OPTICS_algorithm">OPTICS</a>
  * @see <a href="http://doi.org/10.1145/2505515.2505590">FastOPTICS</a>
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;

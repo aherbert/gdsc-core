@@ -29,6 +29,6 @@
 /**
  * Provides functionality for 2D clustering, tracking (2D + time) and density analysis.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.clustering;

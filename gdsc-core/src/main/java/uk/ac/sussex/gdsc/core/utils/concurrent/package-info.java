@@ -29,6 +29,6 @@
 /**
  * Provides data structures and utilities for concurrent processing.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.utils.concurrent;

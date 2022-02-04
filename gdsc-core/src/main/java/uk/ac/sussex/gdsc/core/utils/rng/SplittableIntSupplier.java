@@ -48,7 +48,6 @@ import java.util.function.IntSupplier;
  * near 2<sup>-68</sup> for {@code p=}2<sup>128</sup> and near 2<sup>-964</sup> for
  * {@code p=}2<sup>1024</sup>.
  *
- * @since 2.0
  * @see <a href="https://doi.org/10.1016/j.matcom.2016.05.005">L&#39;Ecuyer, et al. Random numbers
  *      for parallel computers: Requirements and methods, with emphasis on GPUs. (2017), Mathematics
  *      and Computers in Simulation 135, pp. 3-17</a>

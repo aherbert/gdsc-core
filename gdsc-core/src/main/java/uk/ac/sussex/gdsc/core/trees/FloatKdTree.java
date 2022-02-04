@@ -33,8 +33,6 @@ import java.util.function.DoubleConsumer;
 
 /**
  * A KD-tree of {@code float}-valued locations.
- *
- * @since 2.0
  */
 public interface FloatKdTree {
   /**

@@ -36,8 +36,6 @@ import org.apache.commons.rng.UniformRandomProvider;
  * Implement the SplitMix algorithm from {@link java.util.SplittableRandom SplittableRandom} and the
  * {@link UniformRandomProvider} interface. Adds functions to allow the state to be advanced and
  * copied.
- *
- * @since 2.0
  */
 public abstract class SplitMix implements RestorableUniformRandomProvider {
   /**

@@ -55,7 +55,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * consumer can accept this as a shutdown signal.
  *
  * @param <E> the element type
- * @since 2.0
  * @see ConcurrentMonoStack
  */
 public class CloseableBlockingQueue<E> {

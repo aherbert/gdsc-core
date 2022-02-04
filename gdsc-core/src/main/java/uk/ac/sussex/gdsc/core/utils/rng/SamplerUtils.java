@@ -47,8 +47,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Sampler utilities.
- *
- * @since 2.0
  */
 public final class SamplerUtils {
 

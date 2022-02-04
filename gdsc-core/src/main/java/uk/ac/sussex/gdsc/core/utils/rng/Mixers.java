@@ -30,8 +30,6 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 /**
  * Contains bit-mix functions.
- *
- * @since 2.0
  */
 public final class Mixers {
   /** The 64-bit RXS-M-XS multiplier. */

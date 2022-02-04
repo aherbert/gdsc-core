@@ -50,7 +50,6 @@ import org.apache.commons.rng.RestorableUniformRandomProvider;
  * @see <a href="https://ieeexplore.ieee.org/document/718715">Using Linear Congruential Generators
  *      For Parallel Random Number Generation. S 3.1: Different additive constants in a maximum
  *      potency congruential generator</a>
- * @since 2.0
  */
 public abstract class Pcg32
     implements RestorableUniformRandomProvider, SplittableUniformRandomProvider {
@@ -76,7 +75,6 @@ public abstract class Pcg32
    * 2<sup>64</sup>.
    *
    * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
-   * @since 2.0
    */
   private static final class PcgXshRs32 extends Pcg32 {
     /** Mask for the lower 26 bits of a long, left-shifted by 27 bits. */
@@ -166,7 +164,6 @@ public abstract class Pcg32
    * 2<sup>64</sup>.
    *
    * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
-   * @since 2.0
    */
   private static final class PcgXshRr32 extends Pcg32 {
     /**

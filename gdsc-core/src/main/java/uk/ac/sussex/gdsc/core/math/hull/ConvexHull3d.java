@@ -34,15 +34,11 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 /**
  * Build a set of paired coordinates representing the 3D convex hull of a set of points.
- *
- * @since 2.0
  */
 public final class ConvexHull3d {
 
   /**
    * A builder to create a 3D convex hull.
-   *
-   * @since 2.0
    */
   public static final class Builder implements Hull.Builder {
     private final LocalList<Point3d> points = new LocalList<>();

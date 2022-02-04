@@ -32,8 +32,6 @@ import java.util.function.IntConsumer;
 
 /**
  * A class to maintain a circular list of {@code int} values. This list can never be empty.
- *
- * @since 2.0
  */
 final class CircularList {
   /**

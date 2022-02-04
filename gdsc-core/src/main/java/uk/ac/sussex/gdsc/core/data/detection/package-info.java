@@ -29,6 +29,6 @@
 /**
  * Provides classes to compute collision detections between a 2D point and a set of objects.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.data.detection;

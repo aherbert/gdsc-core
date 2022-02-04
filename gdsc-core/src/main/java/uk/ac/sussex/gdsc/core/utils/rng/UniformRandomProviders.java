@@ -38,8 +38,6 @@ import org.apache.commons.rng.simple.RandomSource;
  *
  * <p>This class provides a simple entry path to create all-purpose providers for most random
  * requirements.
- *
- * @since 2.0
  */
 public final class UniformRandomProviders {
 

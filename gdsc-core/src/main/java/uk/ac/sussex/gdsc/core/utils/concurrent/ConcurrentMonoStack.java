@@ -58,7 +58,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * (pop, poll, peek).
  *
  * @param <E> the element type
- * @since 1.2.0
  * @see CloseableBlockingQueue
  */
 public class ConcurrentMonoStack<E> {

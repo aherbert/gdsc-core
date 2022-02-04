@@ -30,6 +30,6 @@
  * Provides classes for constructing and thresholding histograms of discrete ({@code int}) and
  * continuous ({@code float}) data.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.threshold;

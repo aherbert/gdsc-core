@@ -53,8 +53,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *
  * <p>Computation of the volume and centroid of the hull requires the faces to be convex polygons
  * (which are split using a simple fan method to triangles).
- *
- * @since 2.0
  */
 public final class Hull3d implements Hull {
 

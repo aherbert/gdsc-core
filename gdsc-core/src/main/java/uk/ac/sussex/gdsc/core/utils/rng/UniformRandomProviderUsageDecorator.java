@@ -37,8 +37,6 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
  * Decorate a {@link UniformRandomProvider} to accumulate usage statistics.
  *
  * <p>Supports counting invocations up to 2<sup>64</sup> - 1.
- *
- * @since 2.0
  */
 public class UniformRandomProviderUsageDecorator extends UniformRandomProviderDecorator {
   /**

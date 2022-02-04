@@ -30,6 +30,6 @@
  * Provides classes for filtering 2D data including area statistics and non-maximum suppression
  * (finding local maxima).
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.filters;

@@ -36,15 +36,11 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 /**
  * Build a set of paired coordinates representing the convex hull of a set of points.
- *
- * @since 2.0
  */
 public final class ConvexHull2d {
 
   /**
    * A builder to create a 2D convex hull.
-   *
-   * @since 2.0
    */
   public static final class Builder implements Hull.Builder {
     /** Default value for tolerance. */

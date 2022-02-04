@@ -30,8 +30,6 @@ package uk.ac.sussex.gdsc.core.trees;
 
 /**
  * Provide implementations for distance computation.
- *
- * @since 2.0
  */
 public enum FloatDistanceFunctions implements FloatDistanceFunction {
   /**

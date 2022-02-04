@@ -30,6 +30,6 @@
  * Provides data structures for performing utility tasks including random number generation, partial
  * sorting, rolling data filtering, and statistics analysis.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.utils;

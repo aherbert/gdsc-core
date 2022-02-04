@@ -31,8 +31,6 @@ import uk.ac.sussex.gdsc.core.utils.function.IntDoubleConsumer;
  *
  * <p>The search methods are safe for concurrent use under the assumption that the tree does not
  * have any structural modification during the search (i.e. concurrent additions).
- *
- * @since 2.0
  */
 class IntDoubleNdTree implements IntDoubleKdTree {
   /** The bucket size. */

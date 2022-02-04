@@ -53,8 +53,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *      extension of the Munkres algorithm for the assignment problem to rectangular matrices.
  *      Communications of the ACM Volume 14, Issue 12, 802-804.</a>
  * @see KuhnMunkresAssignment
- *
- * @since 2.0
  */
 public class DoubleKuhnMunkresAssignment {
   /** The constant for no assignment. */

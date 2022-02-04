@@ -41,7 +41,6 @@ import java.util.Objects;
  * manipulation of {@code float} values.
  *
  * @see java.util.function.UnaryOperator
- * @since 2.0
  */
 @FunctionalInterface
 public interface FloatUnaryOperator {

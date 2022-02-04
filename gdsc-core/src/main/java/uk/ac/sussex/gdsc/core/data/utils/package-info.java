@@ -29,6 +29,6 @@
 /**
  * Provides data utilities such as unit converters and rounding.
  *
- * @since 1.2.0
+ * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.data.utils;

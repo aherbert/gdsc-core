@@ -32,8 +32,6 @@ import java.util.function.IntToDoubleFunction;
 
 /**
  * Utility class for creating KD-trees.
- *
- * @since 2.0
  */
 public final class KdTrees {
 

@@ -30,8 +30,6 @@ import uk.ac.sussex.gdsc.core.trees.heaps.DoubleMinHeap;
  *
  * <p>The search methods are safe for concurrent use under the assumption that the tree does not
  * have any structural modification during the search (i.e. concurrent additions).
- *
- * @since 2.0
  */
 class FloatNdTree implements FloatKdTree {
   /** The bucket size. */

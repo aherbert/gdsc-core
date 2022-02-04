@@ -35,7 +35,6 @@ import java.util.NoSuchElementException;
  * A helper for working with all elements of an enum in their declared order.
  *
  * @param <E> the enum element type
- * @since 2.0
  */
 public final class EnumList<E extends Enum<E>> implements Iterable<E> {
 

@@ -32,8 +32,6 @@ package uk.ac.sussex.gdsc.core.trees;
  * A Last-In-First-Out (LIFO) stack of node status used to descend the branches of a binary tree.
  *
  * <p>This is a specialised structure used for searching a KD-tree. It has no bounds checking.
- *
- * @since 2.0
  */
 abstract class StatusStack {
   /**

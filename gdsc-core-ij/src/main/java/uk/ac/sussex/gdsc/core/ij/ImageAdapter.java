@@ -44,8 +44,6 @@ import ij.ImagePlus;
  * {@link ImagePlus#addImageListener(ImageListener)}.
  *
  * @see ImageListener
- *
- * @since 2.0
  */
 public abstract class ImageAdapter implements ImageListener {
 

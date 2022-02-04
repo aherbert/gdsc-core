@@ -32,8 +32,6 @@ import java.util.function.BiPredicate;
 
 /**
  * Provide implementations for equality computation for {@code float[]} arrays.
- *
- * @since 2.0
  */
 public enum FloatArrayPredicates implements BiPredicate<float[], float[]> {
   /**

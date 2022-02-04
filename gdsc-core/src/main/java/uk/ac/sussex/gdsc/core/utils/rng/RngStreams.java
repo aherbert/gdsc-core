@@ -39,8 +39,6 @@ import java.util.stream.StreamSupport;
 
 /**
  * Support for using random number generators in streams.
- *
- * @since 2.0
  */
 public final class RngStreams {
   /** Error message when the range is incorrect. */

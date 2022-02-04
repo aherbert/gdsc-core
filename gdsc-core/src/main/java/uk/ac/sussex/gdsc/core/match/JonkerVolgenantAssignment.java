@@ -45,8 +45,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * @see <a href="https://doi.org/10.1016/0305-0548(96)00010-X">Volgenant (1996) Linear and
  *      semi-assignment problems: A core oriented approach. Computers &amp; Operations Research 23,
  *      917-932.</a>
- *
- * @since 2.0
  */
 public class JonkerVolgenantAssignment {
   /** A suitably large number. */

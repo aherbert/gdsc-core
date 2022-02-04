@@ -41,7 +41,6 @@ import java.util.Objects;
  * of {@code float} values.
  *
  * @see java.util.function.Predicate
- * @since 2.0
  */
 @FunctionalInterface
 public interface FloatPredicate {

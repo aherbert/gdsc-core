@@ -22,9 +22,6 @@ import java.util.function.ObjDoubleConsumer;
 
 /**
  * A minimum heap for tracking up to N smallest values with an associated item.
- *
- * @param <T> the type of the item
- * @since 2.0
  */
 public class ObjDoubleMinHeap<T> {
   /** The values. */

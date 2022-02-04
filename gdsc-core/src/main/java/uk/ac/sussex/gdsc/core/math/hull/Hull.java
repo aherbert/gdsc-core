@@ -34,8 +34,6 @@ package uk.ac.sussex.gdsc.core.math.hull;
  *
  * <p>Note: Implementing classes for dimensions higher than 2 should add additional methods to
  * define the hull.
- *
- * @since 2.0
  */
 public interface Hull {
 

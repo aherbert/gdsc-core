@@ -49,8 +49,6 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *      Augmenting Path Algorithm for Dense and Sparse Linear Assignment Problems. Computing 38,
  *      325-340.</a>
  * @see JonkerVolgenantAssignment
- *
- * @since 2.0
  */
 public class DoubleJonkerVolgenantAssignment {
   /** A suitably large number. */

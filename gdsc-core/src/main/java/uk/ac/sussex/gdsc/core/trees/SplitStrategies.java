@@ -30,8 +30,6 @@ package uk.ac.sussex.gdsc.core.trees;
 
 /**
  * Utility class for splitting KD-trees.
- *
- * @since 2.0
  */
 final class SplitStrategies {
 

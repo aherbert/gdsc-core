@@ -34,7 +34,6 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
  * Class to compute scores for a binary match analysis.
  *
  * @see <a href="https://en.wikipedia.org/wiki/Binary_classification">Binary classification</a>
- * @since 2.0
  */
 public final class MatchScores {
   /** No public construction. */

@@ -36,8 +36,6 @@ import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
 
 /**
  * Supply splittable instances.
- *
- * @since 2.0
  */
 public final class Splittables {
 

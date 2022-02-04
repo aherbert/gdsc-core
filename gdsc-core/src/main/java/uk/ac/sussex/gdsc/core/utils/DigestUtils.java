@@ -62,8 +62,6 @@ public final class DigestUtils {
    * The SHA-224 hash algorithm defined in the FIPS PUB 180-3.
    *
    * <p>Present in Oracle Java 8. </p>
-   *
-   * @since 1.11
    */
   public static final String SHA_224 = "SHA-224";
 
