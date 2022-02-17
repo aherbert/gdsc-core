@@ -131,8 +131,8 @@ public class RankedScoreCalculator {
     final BitSet obsA = new BitSet(maxA + 1);
     final BitSet obsP = new BitSet(maxP + 1);
     for (final FractionalAssignment a : assignments) {
-      obsA.set(a.getTargetId(), true);
-      obsP.set(a.getPredictedId(), true);
+      obsA.set(a.getTargetId());
+      obsP.set(a.getPredictedId());
     }
 
     final int newMaxA = obsA.length();
