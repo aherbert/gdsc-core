@@ -57,7 +57,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 public final class Hull3d implements Hull {
 
   /** The precision epsilon of a double number (gap between 1.0 and the next higher number). */
-  private static final double EPSILON = Math.nextUp(1.0) - 1.0;
+  private static final double EPSILON = Math.ulp(1.0);
 
   /** Non-existing intersection of line and the plane. */
   private static final Integer NO_INDEX = -1;
