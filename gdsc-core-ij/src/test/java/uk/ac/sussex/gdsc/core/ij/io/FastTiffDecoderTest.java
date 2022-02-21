@@ -65,9 +65,9 @@ import uk.ac.sussex.gdsc.core.ij.process.LutHelper;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutColour;
 import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
 import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
  * This tests reading image metadata using the the {@link FastTiffDecoder} matches the metadata read
@@ -89,7 +89,7 @@ class FastTiffDecoderTest {
 
   @SeededTest
   void canGetOrigin(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
 
     for (int i = 0; i < 5; i++) {
       final int x = rng.nextInt(100);

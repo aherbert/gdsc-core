@@ -37,9 +37,9 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class RollingStatisticsTest {
@@ -103,7 +103,7 @@ class RollingStatisticsTest {
 
   @SeededTest
   void canAddMultipleValues(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final RollingStatistics observed = new RollingStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, 123));
@@ -121,7 +121,7 @@ class RollingStatisticsTest {
 
   @SeededTest
   void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     DescriptiveStatistics expected;
     RollingStatistics observed;
     final RollingStatistics observed2 = new RollingStatistics();

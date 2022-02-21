@@ -39,11 +39,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
@@ -65,7 +65,7 @@ class SimpleArrayUtilsTest {
   @SeededTest
   void canFlatten(RandomSeed seed) {
     Assertions.assertArrayEquals(new int[0], SimpleArrayUtils.flatten(null), "Null input");
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final TIntHashSet set = new TIntHashSet();
     testFlatten(set, new int[0]);
     testFlatten(set, new int[10]);
@@ -133,7 +133,7 @@ class SimpleArrayUtilsTest {
   void testMergeOnIndexData(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
 
     final double[] f = new double[] {0.1, 0.5, 0.75};
     for (final int size : new int[] {100, 1000, 10000}) {
@@ -186,7 +186,7 @@ class SimpleArrayUtilsTest {
   void testMergeOnRedundantData(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
 
     final int[] n = new int[] {2, 4, 8};
     final int[] size = new int[] {100, 1000, 10000};

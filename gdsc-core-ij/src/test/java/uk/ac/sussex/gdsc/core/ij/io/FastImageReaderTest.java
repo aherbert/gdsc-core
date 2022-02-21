@@ -42,9 +42,9 @@ import java.util.function.Consumer;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
  * This tests read pixels using the {@link FastImageReader} matches the original binary data written
@@ -127,46 +127,46 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 100, rng, FastImageReaderTest::createGrey8, 1));
   }
 
   @SeededTest
   void canReadGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 50, rng, FastImageReaderTest::createGrey16, 1));
   }
 
   @SeededTest
   void canReadGrey16Signed(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 50, rng, FastImageReaderTest::createGrey16, 1),
         fi -> fi.fileType = FileInfo.GRAY16_SIGNED);
   }
 
   @SeededTest
   void canReadGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 25, rng, FastImageReaderTest::createGrey32, 1));
   }
 
   @SeededTest
   void canReadGrey32Unsigned(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 50, rng, FastImageReaderTest::createGrey32, 1),
         fi -> fi.fileType = FileInfo.GRAY32_UNSIGNED);
   }
 
   @SeededTest
   void canReadGrey32Int(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 50, rng, FastImageReaderTest::createGrey32, 1),
         fi -> fi.fileType = FileInfo.GRAY32_INT);
   }
 
   @SeededTest
   void canReadGrey64Float(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(96, 100, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.GRAY64_FLOAT;
@@ -176,20 +176,20 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadRgb(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 75, rng, FastImageReaderTest::createRgb, 1));
   }
 
   @SeededTest
   void canReadBgr(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 75, rng, FastImageReaderTest::createRgb, 1),
         fi -> fi.fileType = FileInfo.BGR);
   }
 
   @SeededTest
   void canReadArgb(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(16, 5, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.ARGB;
@@ -199,7 +199,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadAbgr(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(16, 5, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.ABGR;
@@ -209,7 +209,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadBarg(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(16, 5, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.BARG;
@@ -219,7 +219,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadCmyk(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     // Bigger image so hopefully some black pixels (1/256 chance)
     canRead(createImage(96, 100, rng, FastImageReaderTest::createGrey8, 1), fi -> {
@@ -230,21 +230,21 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadRgbPlanar(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(90, 75, rng, FastImageReaderTest::createRgb, 1),
         fi -> fi.fileType = FileInfo.RGB_PLANAR);
   }
 
   @SeededTest
   void canReadBitmap(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(10, 5, rng, FastImageReaderTest::createGrey8, 1),
         fi -> fi.fileType = FileInfo.BITMAP);
   }
 
   @SeededTest
   void canReadTinyBitmap(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Edge case where the width is modulo 8
     canRead(createImage(8, 8, rng, FastImageReaderTest::createGrey8, 1),
         fi -> fi.fileType = FileInfo.BITMAP);
@@ -252,7 +252,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadRgb48(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(12, 5, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       fi.fileType = FileInfo.RGB48;
       fi.width /= 3;
@@ -262,7 +262,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadRgb48Planar(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(12, 5, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       fi.fileType = FileInfo.RGB48_PLANAR;
       fi.width /= 3;
@@ -271,7 +271,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadGrey12Unsigned(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(96, 100, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.GRAY12_UNSIGNED;
@@ -281,7 +281,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadGrey12UnsignedOddWidth(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(95, 100, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.GRAY12_UNSIGNED;
@@ -291,7 +291,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadGrey24Unsigned(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     // Use random bytes and then set to correct width for reading
     canRead(createImage(96, 100, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       fi.fileType = FileInfo.GRAY24_UNSIGNED;
@@ -301,7 +301,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(200, 90, rng, FastImageReaderTest::createGrey8, 1), fi -> {
       final int size = fi.width * fi.height;
       fi.stripOffsets = new int[] {0, size / 2};
@@ -311,7 +311,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(200, 90, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       final int size = fi.width * fi.height * 2;
       fi.stripOffsets = new int[] {0, size / 2};
@@ -321,7 +321,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedGrey16Signed(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(5, 10, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       fi.fileType = FileInfo.GRAY16_SIGNED;
       final int size = fi.width * fi.height * 2;
@@ -332,7 +332,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(200, 90, rng, FastImageReaderTest::createGrey32, 1), fi -> {
       final int size = fi.width * fi.height * 4;
       fi.stripOffsets = new int[] {0, size / 2};
@@ -342,7 +342,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedGrey32Unsigned(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(5, 10, rng, FastImageReaderTest::createGrey32, 1), fi -> {
       fi.fileType = FileInfo.GRAY32_UNSIGNED;
       final int size = fi.width * fi.height * 4;
@@ -353,7 +353,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedGrey32Int(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(5, 10, rng, FastImageReaderTest::createGrey32, 1), fi -> {
       fi.fileType = FileInfo.GRAY32_INT;
       final int size = fi.width * fi.height * 4;
@@ -364,7 +364,7 @@ class FastImageReaderTest {
 
   @SeededTest
   void canReadStrippedRgb48(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canRead(createImage(12, 5, rng, FastImageReaderTest::createGrey16, 1), fi -> {
       fi.fileType = FileInfo.RGB48;
       fi.width /= 3;

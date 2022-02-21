@@ -44,9 +44,9 @@ import java.nio.file.Paths;
 import java.util.function.BiFunction;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
  * This tests writing pixels and image metadata using the the {@link CustomTiffEncoder} matches the
@@ -57,79 +57,79 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteTiffGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(90, 100, rng, CustomTiffEncoderTest::createGrey8, 1));
   }
 
   @SeededTest
   void canWriteTiffGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(90, 50, rng, CustomTiffEncoderTest::createGrey16, 1));
   }
 
   @SeededTest
   void canWriteTiffGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(90, 25, rng, CustomTiffEncoderTest::createGrey32, 1));
   }
 
   @SeededTest
   void canWriteTiffRgb(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(90, 75, rng, CustomTiffEncoderTest::createRgb, 1));
   }
 
   @SeededTest
   void canWriteTiffStackGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(2, 3, rng, CustomTiffEncoderTest::createGrey8, 3));
   }
 
   @SeededTest
   void canWriteTiffStackGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(2, 3, rng, CustomTiffEncoderTest::createGrey16, 3));
   }
 
   @SeededTest
   void canWriteTiffStackGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(2, 3, rng, CustomTiffEncoderTest::createGrey32, 3));
   }
 
   @SeededTest
   void canWriteTiffStackRgb(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createImage(2, 3, rng, CustomTiffEncoderTest::createRgb, 3));
   }
 
   @SeededTest
   void canWriteVirtualTiffStackGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createVirtualImage(2, 3, rng, CustomTiffEncoderTest::createGrey8, 2));
   }
 
   @SeededTest
   void canWriteVirtualTiffStackGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createVirtualImage(2, 3, rng, CustomTiffEncoderTest::createGrey16, 2));
   }
 
   @SeededTest
   void canWriteVirtualTiffStackGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createVirtualImage(2, 3, rng, CustomTiffEncoderTest::createGrey32, 2));
   }
 
   @SeededTest
   void canWriteVirtualTiffStackRgb(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     canWriteTiff(createVirtualImage(2, 3, rng, CustomTiffEncoderTest::createRgb, 2));
   }
 
   @SeededTest
   void canWriteTiffRgb48(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey16, 3);
     final ImageStack stack = imp.getImageStack();
     stack.setSliceLabel("Red", 1);
@@ -230,7 +230,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteInvertedGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey8, 1);
     imp.setLut(imp.getProcessor().getLut().createInvertedLut());
     canWriteTiff(imp);
@@ -238,7 +238,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteInvertedGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey16, 1);
     imp.setLut(imp.getProcessor().getLut().createInvertedLut());
     canWriteTiff(imp);
@@ -246,7 +246,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteInvertedGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey32, 1);
     imp.setLut(imp.getProcessor().getLut().createInvertedLut());
     canWriteTiff(imp);
@@ -254,7 +254,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteColourMappedGrey8(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey8, 1);
     changeColorModel(imp);
     canWriteTiff(imp);
@@ -262,7 +262,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteColourMappedGrey16(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey16, 1);
     changeColorModel(imp);
     canWriteTiff(imp);
@@ -270,7 +270,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteColourMappedGrey32(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey32, 1);
     changeColorModel(imp);
     canWriteTiff(imp);
@@ -284,7 +284,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteMetadata(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey8, 3);
     final Calibration cal = imp.getCalibration();
     cal.pixelWidth = 23.6;
@@ -324,7 +324,7 @@ class CustomTiffEncoderTest {
 
   @SeededTest
   void canWriteMetadata2(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ImagePlus imp = createImage(2, 3, rng, CustomTiffEncoderTest::createGrey8, 3);
     final Calibration cal = imp.getCalibration();
     cal.pixelWidth = 1000000.0 / (Integer.MAX_VALUE + 1.0);

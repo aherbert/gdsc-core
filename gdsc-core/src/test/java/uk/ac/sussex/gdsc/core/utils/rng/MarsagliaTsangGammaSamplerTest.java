@@ -32,16 +32,16 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.AhrensDieterMarsagliaTsangGammaSampler;
 import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
 import org.junit.jupiter.api.Assertions;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class MarsagliaTsangGammaSamplerTest {
   @SeededTest
   void testGammaSampler(RandomSeed seed) {
-    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
-    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng1 = RngUtils.create(seed.get());
+    final UniformRandomProvider rng2 = RngUtils.create(seed.get());
     final double shape = 6.11;
     final double scale = 4.23;
     // Test against the source implementation.
@@ -55,8 +55,8 @@ class MarsagliaTsangGammaSamplerTest {
 
   @SeededTest
   void testGammaSamplerAtShapeLimit(RandomSeed seed) {
-    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
-    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng1 = RngUtils.create(seed.get());
+    final UniformRandomProvider rng2 = RngUtils.create(seed.get());
     final double shape = 1.0;
     final double scale = 4.23;
     // Test against the source implementation.
@@ -71,8 +71,8 @@ class MarsagliaTsangGammaSamplerTest {
 
   @SeededTest
   void testGammaSamplerUseProperties(RandomSeed seed) {
-    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
-    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng1 = RngUtils.create(seed.get());
+    final UniformRandomProvider rng2 = RngUtils.create(seed.get());
     final double shape = 6.11;
     final double scale = 4.23;
     // Test against the source implementation.

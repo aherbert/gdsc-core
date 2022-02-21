@@ -42,8 +42,8 @@ import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.IntsSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomDoublesSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomIntsSpliterator;
 import uk.ac.sussex.gdsc.core.utils.rng.RngStreams.RandomLongsSpliterator;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class RngStreamsTest {
@@ -73,7 +73,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomInts(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng).limit(size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -81,7 +81,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomIntsWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng, size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -89,7 +89,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomIntsWithSmallRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -102,7 +102,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomIntsWithLargeRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
     final int lower = Integer.MIN_VALUE / 2 - 1;
@@ -116,7 +116,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomIntsWithSmallRangeWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -229,7 +229,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomLongs(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng).limit(size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -237,7 +237,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomLongsWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng, size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -245,7 +245,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomLongsWithSmallRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -258,7 +258,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomLongsWithLargeRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
     final long lower = Long.MIN_VALUE / 2 - 1;
@@ -272,7 +272,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomLongsWithSmallRangeWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -385,7 +385,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomDoubles(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng).limit(size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -393,7 +393,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomDoublesWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng, size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -401,7 +401,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomDoublesWithRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -414,7 +414,7 @@ class RngStreamsTest {
 
   @SeededTest
   void testRandomDoublesWithRangeWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;

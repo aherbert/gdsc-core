@@ -39,9 +39,9 @@ import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class BooleanArrayTest {
@@ -73,7 +73,7 @@ class BooleanArrayTest {
 
   @SeededTest
   void canAddMultipleValues(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final BooleanArray observed = new BooleanArray(10);
     final LocalList<Boolean> expected = new LocalList<>();
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, true));
@@ -91,7 +91,7 @@ class BooleanArrayTest {
 
   @SeededTest
   void canAdd(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     LocalList<Boolean> expected;
     BooleanArray observed;
     for (int i = 0; i < 10; i++) {

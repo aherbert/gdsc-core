@@ -31,9 +31,9 @@ package uk.ac.sussex.gdsc.core.math;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
  * Test for {@link SumOfSquaredDeviations}.
@@ -88,7 +88,7 @@ class SumOfSquaredDeviationsTest {
   @SeededTest
   void canAddValues(RandomSeed seed) {
     // Test vs Apache Commons Math
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (int i = 0; i < 3; i++) {
       final SumOfSquaredDeviations m = new SumOfSquaredDeviations();
       final org.apache.commons.math3.stat.descriptive.moment.Mean m1 =
@@ -123,7 +123,7 @@ class SumOfSquaredDeviationsTest {
   @SeededTest
   void canAddInstances(RandomSeed seed) {
     // Test vs Apache Commons Math
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (int i = 0; i < 3; i++) {
       final SumOfSquaredDeviations m1 = new SumOfSquaredDeviations();
       final SumOfSquaredDeviations m2 = new SumOfSquaredDeviations();

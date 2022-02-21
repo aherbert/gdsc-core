@@ -26,28 +26,21 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.data.utils;
+package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.Assertions;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.RandomSeed;
+import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-class NonRounderTest {
+class IndexSetTest {
+  @Test
+  void test() {
+    TIntHashSet set = new TIntHashSet();
+    set.size();
 
-  @SeededTest
-  void testNonRounder(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
-    final Rounder r = NonRounder.INSTANCE;
-    for (int i = 0; i < 10; i++) {
-      final double d = rng.nextDouble();
-      Assertions.assertEquals(d, r.round(d));
-      Assertions.assertEquals(String.valueOf(d), r.toString(d));
-      final float f = rng.nextFloat();
-      Assertions.assertEquals(f, r.round(f));
-      Assertions.assertEquals(String.valueOf(f), r.toString(f));
-    }
+    IntOpenHashSet set2 = new IntOpenHashSet();
+    set2.intStream();
+    set2.clear();
   }
 }

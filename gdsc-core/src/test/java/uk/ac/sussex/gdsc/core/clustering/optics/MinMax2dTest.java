@@ -32,9 +32,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class MinMax2dTest {
@@ -45,7 +45,7 @@ class MinMax2dTest {
 
   @SeededTest
   void testBounds(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final MinMax2d mm = new MinMax2d();
     for (final int n : new int[] {1, 5, 10}) {
       final float[] x = new float[n];

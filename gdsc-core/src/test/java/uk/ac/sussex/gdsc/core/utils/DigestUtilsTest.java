@@ -35,15 +35,15 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.RadixStringSampler;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class DigestUtilsTest {
   @SeededTest
   void canComputeMD5Hex(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
 
     final byte[] testBytes = new byte[50];
 

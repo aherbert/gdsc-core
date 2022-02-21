@@ -43,9 +43,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
  * Test for {@link AucCalculator}.
@@ -178,7 +178,7 @@ class ClosestPairCalculatorTest {
   }
 
   private static void assertClosestPairPartitioned(int size, RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final List<Point2D> list = IntStream.range(0, size)
         .mapToObj(i -> (Point2D) new Point2D.Double(rng.nextDouble(), rng.nextDouble()))
         .collect(Collectors.toList());
@@ -205,7 +205,7 @@ class ClosestPairCalculatorTest {
   }
 
   private static void assertClosestPairAllVsAll(int size, RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final List<Point2D> list = IntStream.range(0, size)
         .mapToObj(i -> (Point2D) new Point2D.Double(rng.nextDouble(), rng.nextDouble()))
         .collect(Collectors.toList());
@@ -254,7 +254,7 @@ class ClosestPairCalculatorTest {
   }
 
   private static void assertClosestPair(int size, RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final List<Point2D> list = IntStream.range(0, size)
         .mapToObj(i -> (Point2D) new Point2D.Double(rng.nextDouble(), rng.nextDouble()))
         .collect(Collectors.toList());

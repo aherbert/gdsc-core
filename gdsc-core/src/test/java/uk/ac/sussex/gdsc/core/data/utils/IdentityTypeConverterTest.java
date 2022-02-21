@@ -31,16 +31,16 @@ package uk.ac.sussex.gdsc.core.data.utils;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class IdentityTypeConverterTest {
 
   @SeededTest
   void testConverter(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final IdentityTypeConverter<TimeUnit> c = new IdentityTypeConverter<>(TimeUnit.MILLISECONDS);
     Assertions.assertEquals("x", c.getFunction());
     for (int i = 0; i < 10; i++) {

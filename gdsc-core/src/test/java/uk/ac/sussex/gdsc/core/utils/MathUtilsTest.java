@@ -40,9 +40,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class MathUtilsTest {
@@ -382,7 +382,7 @@ class MathUtilsTest {
 
   @SeededTest
   void canGetTotalSumOfSquares(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final double[] values = new double[7];
     for (int i = 1; i <= 10; i++) {
       final SummaryStatistics stats = new SummaryStatistics();
@@ -522,7 +522,7 @@ class MathUtilsTest {
         MathUtils.roundUsingDecimalPlacesToBigDecimal(value, 1).toPlainString());
 
     // Random test that rounding does the same as String.format
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     for (int i = 0; i < 10; i++) {
       final String format = "%." + i + "f";
       for (int j = 0; j < 10; j++) {
@@ -830,7 +830,7 @@ class MathUtilsTest {
   void testErf(RandomSeed seed) {
     Assertions.assertEquals(-1, MathUtils.erf(-7));
     Assertions.assertEquals(1, MathUtils.erf(7));
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     for (int i = 0; i < 10; i++) {
       final double x = r.nextDouble();
       for (int j = 1; j <= 5; j++) {

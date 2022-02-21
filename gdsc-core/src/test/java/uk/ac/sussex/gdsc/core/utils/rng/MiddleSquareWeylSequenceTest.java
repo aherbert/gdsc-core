@@ -43,8 +43,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class MiddleSquareWeylSequenceTest {
@@ -117,7 +117,7 @@ class MiddleSquareWeylSequenceTest {
    */
   @SeededTest
   void testNextLong(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
     for (int i = 0; i < 200; i++) {
@@ -131,7 +131,7 @@ class MiddleSquareWeylSequenceTest {
    */
   @SeededTest
   void testNextBooleanIsSignTest(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
     for (int i = 0; i < 200; i++) {
@@ -144,7 +144,7 @@ class MiddleSquareWeylSequenceTest {
    */
   @SeededTest
   void testNextFloatIs24BitProduct(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
     for (int i = 0; i < 200; i++) {
@@ -157,7 +157,7 @@ class MiddleSquareWeylSequenceTest {
    */
   @SeededTest
   void testNextDoubleIs53BitProduct(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final UniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = MiddleSquareWeylSequence.newInstance(seed);
     for (int i = 0; i < 200; i++) {
@@ -364,7 +364,7 @@ class MiddleSquareWeylSequenceTest {
 
   @SeededTest
   void testSaveAndRestoreState(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final RestorableUniformRandomProvider rng = MiddleSquareWeylSequence.newInstance(seed);
     final RandomProviderState state = rng.saveState();
     final int[] seq1 = new int[10];
@@ -384,7 +384,7 @@ class MiddleSquareWeylSequenceTest {
 
   @SeededTest
   void testSplit(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableUniformRandomProvider rng1 = MiddleSquareWeylSequence.newInstance(seed);
     final UniformRandomProvider rng2 = rng1.split();
     Assertions.assertNotSame(rng1, rng2);

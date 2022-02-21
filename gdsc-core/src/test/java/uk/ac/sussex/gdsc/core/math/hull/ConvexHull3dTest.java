@@ -43,9 +43,9 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class ConvexHull3dTest {
@@ -76,7 +76,7 @@ class ConvexHull3dTest {
     final double[] x = new double[v.length];
     final double[] y = new double[x.length];
     final double[] z = new double[x.length];
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final double[][] v2 = v.clone();
     for (int n = 0; n < 3; n++) {
       RandomUtils.shuffle(v2, rng);
@@ -102,7 +102,7 @@ class ConvexHull3dTest {
     final double[] x = new double[v.length + extra];
     final double[] y = new double[x.length];
     final double[] z = new double[x.length];
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final double[][] v2 = v.clone();
     for (int n = 0; n < 3; n++) {
       RandomUtils.shuffle(v2, rng);
@@ -131,7 +131,7 @@ class ConvexHull3dTest {
     final double[] x = new double[v.length + extra];
     final double[] y = new double[x.length];
     final double[] z = new double[x.length];
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final double[][] v2 = v.clone();
     // Get the plane equation for points 1, 2, 3
     final double[] plane = getPlane(v[1], v[2], v[3]);

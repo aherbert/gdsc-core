@@ -37,10 +37,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -176,7 +176,7 @@ class FloatLinkedMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final float[] data = MedianWindowTest.createRandomDataFloat(rg, dataSize);
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
@@ -210,7 +210,7 @@ class FloatLinkedMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingDynamicLinkedList(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final float value : values) {
       final float[] data = MedianWindowTest.createSparseDataFloat(rng, dataSize, value);
@@ -281,7 +281,7 @@ class FloatLinkedMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForRange(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     float[] data = new float[] {1, 2, 3, 4, 5};
 
     final FloatLinkedMedianWindow mw = new FloatLinkedMedianWindow(data);
@@ -362,7 +362,7 @@ class FloatLinkedMedianWindowTest {
 
   private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed,
       int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int iterations = 20;
     final float[][] data = new float[iterations][];
     for (int i = 0; i < iterations; i++) {

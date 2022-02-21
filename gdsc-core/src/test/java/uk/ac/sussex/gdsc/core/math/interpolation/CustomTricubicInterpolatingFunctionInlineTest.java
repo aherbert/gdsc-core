@@ -44,10 +44,10 @@ import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
@@ -269,7 +269,7 @@ class CustomTricubicInterpolatingFunctionInlineTest {
   void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
 
     final int N = 3000;
     final double[][] tables = new double[N][];

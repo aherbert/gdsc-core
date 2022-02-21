@@ -33,9 +33,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class NumberUtilsTest {
@@ -477,7 +477,7 @@ class NumberUtilsTest {
   @SeededTest
   void testMultiply(RandomSeed seed) {
     final long[] values = new long[10];
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (int i = 0; i < values.length; i++) {
       values[i] = rng.nextLong();
     }
@@ -664,7 +664,7 @@ class NumberUtilsTest {
     // Known constants taken from the Mixers class
     Assertions.assertEquals(0x2ab9c720d1024adL, NumberUtils.computeInverse(0x9fb21c651e98df25L));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (int i = 0; i < 20; i++) {
       final long x = rng.nextLong() | 1L;
       final long y = NumberUtils.computeInverse(x);
@@ -677,7 +677,7 @@ class NumberUtilsTest {
   void testComputeInverseInt(RandomSeed seed) {
     Assertions.assertThrows(IllegalArgumentException.class, () -> NumberUtils.computeInverse(0));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (int i = 0; i < 20; i++) {
       final int x = rng.nextInt() | 1;
       final int y = NumberUtils.computeInverse(x);

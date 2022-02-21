@@ -32,9 +32,9 @@ import java.util.function.Supplier;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class IntMedianWindowTest {
@@ -85,19 +85,19 @@ class IntMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForRandomDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     canComputeMedianForDataUsingSingleIncrement(MedianWindowTest.createRandomDataInt(rg, dataSize));
   }
 
   @SeededTest
   void canComputeMedianForRandomDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     canComputeMedianForDataUsingSetPosition(MedianWindowTest.createRandomDataInt(rg, dataSize));
   }
 
   @SeededTest
   void canComputeMedianForRandomDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     canComputeMedianForDataUsingBigIncrement(MedianWindowTest.createRandomDataInt(rg, dataSize));
   }
 
@@ -127,7 +127,7 @@ class IntMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final int value : values) {
       canComputeMedianForDataUsingSingleIncrement(
           MedianWindowTest.createSparseDataInt(rng, dataSize, value));
@@ -136,7 +136,7 @@ class IntMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final int value : values) {
       canComputeMedianForDataUsingSetPosition(
           MedianWindowTest.createSparseDataInt(rng, dataSize, value));
@@ -145,7 +145,7 @@ class IntMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final int value : values) {
       canComputeMedianForDataUsingBigIncrement(
           MedianWindowTest.createSparseDataInt(rng, dataSize, value));
@@ -224,7 +224,7 @@ class IntMedianWindowTest {
 
   @SeededTest
   void canIncrementThroughTheDataArray(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int[] data = MedianWindowTest.createRandomDataInt(rg, 300);
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
@@ -255,7 +255,7 @@ class IntMedianWindowTest {
 
   @SeededTest
   void canIncrementThroughTheDataArrayUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int[] data = MedianWindowTest.createRandomDataInt(rg, 300);
     final UpdateableSupplier msg = new UpdateableSupplier();
     final int increment = 10;
@@ -275,7 +275,7 @@ class IntMedianWindowTest {
 
   @SeededTest
   void returnNaNForInvalidPositions(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int[] data = MedianWindowTest.createRandomDataInt(rg, 300);
     for (final int radius : radii) {
       IntMedianWindow mw = new IntMedianWindow(data, radius);

@@ -49,9 +49,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class FileUtilsTest {
@@ -66,7 +66,7 @@ class FileUtilsTest {
 
   @SeededTest
   void canSaveDoubleData(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     double[] data = new double[10];
     final LocalList<String> expected = new LocalList<>(data.length + 1);
     for (int i = 0; i < data.length; i++) {
@@ -85,7 +85,7 @@ class FileUtilsTest {
 
   @SeededTest
   void canSaveFloatData(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     float[] data = new float[10];
     final LocalList<String> expected = new LocalList<>(data.length + 1);
     for (int i = 0; i < data.length; i++) {
@@ -104,7 +104,7 @@ class FileUtilsTest {
 
   @SeededTest
   void canSaveIntData(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     int[] data = new int[10];
     final LocalList<String> expected = new LocalList<>(data.length + 1);
     for (int i = 0; i < data.length; i++) {

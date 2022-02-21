@@ -32,9 +32,9 @@ import java.util.function.Supplier;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class DoubleMedianWindowTest {
@@ -85,20 +85,20 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForRandomDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     canComputeMedianForDataUsingSingleIncrement(
         MedianWindowTest.createRandomDataDouble(rg, dataSize));
   }
 
   @SeededTest
   void canComputeMedianForRandomDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     canComputeMedianForDataUsingSetPosition(MedianWindowTest.createRandomDataDouble(rg, dataSize));
   }
 
   @SeededTest
   void canComputeMedianForRandomDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     canComputeMedianForDataUsingBigIncrement(MedianWindowTest.createRandomDataDouble(rg, dataSize));
   }
 
@@ -128,7 +128,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final double value : values) {
       canComputeMedianForDataUsingSingleIncrement(
           MedianWindowTest.createSparseDataDouble(rng, dataSize, value));
@@ -137,7 +137,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final double value : values) {
       canComputeMedianForDataUsingSetPosition(
           MedianWindowTest.createSparseDataDouble(rng, dataSize, value));
@@ -146,7 +146,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForSparseDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final double value : values) {
       canComputeMedianForDataUsingBigIncrement(
           MedianWindowTest.createSparseDataDouble(rng, dataSize, value));
@@ -155,7 +155,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForNaNDataUsingSingleIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final int start : new int[] {2, 5, 10, 40}) {
       canComputeMedianForDataUsingSingleIncrement(
           MedianWindowTest.createNaNDataDouble(rng, 50, start));
@@ -164,7 +164,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForNaNDataUsingSetPosition(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final int start : new int[] {2, 5, 10, 40}) {
       canComputeMedianForDataUsingSetPosition(MedianWindowTest.createNaNDataDouble(rng, 50, start));
     }
@@ -172,7 +172,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canComputeMedianForNaNDataUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (final int start : new int[] {2, 5, 10, 40}) {
       canComputeMedianForDataUsingBigIncrement(
           MedianWindowTest.createNaNDataDouble(rng, 50, start));
@@ -279,7 +279,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canIncrementThroughTheDataArray(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final double[] data = MedianWindowTest.createRandomDataDouble(rg, 300);
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
@@ -310,7 +310,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void canIncrementThroughTheDataArrayUsingBigIncrement(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final double[] data = MedianWindowTest.createRandomDataDouble(rg, 300);
     final UpdateableSupplier msg = new UpdateableSupplier();
     final int increment = 10;
@@ -330,7 +330,7 @@ class DoubleMedianWindowTest {
 
   @SeededTest
   void returnNaNForInvalidPositions(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final double[] data = MedianWindowTest.createRandomDataDouble(rg, 300);
     for (final int radius : radii) {
       DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);

@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Assertions;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
  * Test for {@link AssignmentComparator}.
@@ -46,7 +46,7 @@ class AssignmentComparatorTest {
   void canSort(RandomSeed seed) {
     final Assignment[] data = IntStream.rangeClosed(1, 10)
         .mapToObj(d -> new ImmutableAssignment(0, 0, d)).toArray(Assignment[]::new);
-    RandomUtils.shuffle(data, RngUtils.create(seed.getSeed()));
+    RandomUtils.shuffle(data, RngUtils.create(seed.get()));
     final List<Assignment> list = Arrays.asList(data.clone());
     AssignmentComparator.sort(data);
     AssignmentComparator.sort(list);

@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -87,7 +87,7 @@ class MedianWindowTest {
 
   @SeededTest
   void testClassCanComputeActualMedian(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final UpdateableSupplier msg = new UpdateableSupplier();
 
     double[] data = createRandomDataDouble(rg, dataSize);
@@ -122,7 +122,7 @@ class MedianWindowTest {
   }
 
   private void isFasterThanLocalSort(RandomSeed seed, int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     for (int i = 0; i < iterations; i++) {
@@ -204,7 +204,7 @@ class MedianWindowTest {
   }
 
   private void floatVersionIsFasterThanDoubleVersion(RandomSeed seed, int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     final float[][] data2 = new float[iterations][];
@@ -314,7 +314,7 @@ class MedianWindowTest {
   }
 
   private void intVersionIsFasterThanDoubleVersion(RandomSeed seed, int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     final int[][] data2 = new int[iterations][];

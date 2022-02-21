@@ -36,8 +36,8 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class JdkRandomAdaptorTest {
@@ -59,7 +59,7 @@ class JdkRandomAdaptorTest {
 
   @SeededTest
   void testGeneratedValues(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final Random random1 = new Random(seed);
     final Random random2 = new Random(seed);
     final UniformRandomProvider source = new UniformRandomProvider() {

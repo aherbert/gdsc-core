@@ -33,9 +33,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class EndianFastTiffDecoderTest {
@@ -52,7 +52,7 @@ class EndianFastTiffDecoderTest {
 
   private static void testEndianFastTiffDecoder(RandomSeed seed, boolean little)
       throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final ByteBuffer bb = ByteBuffer.allocate(1000);
     if (little) {
       bb.order(ByteOrder.LITTLE_ENDIAN);

@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class RandomGeneratorAdaptorTest {
@@ -54,7 +54,7 @@ class RandomGeneratorAdaptorTest {
 
   @SeededTest
   void testNextMethods(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix rng1 = SplitMix.new64(seed);
     final RandomGeneratorAdapter rng2 = new RandomGeneratorAdapter(SplitMix.new64(seed));
     Assertions.assertEquals(rng1.nextDouble(), rng2.nextDouble());

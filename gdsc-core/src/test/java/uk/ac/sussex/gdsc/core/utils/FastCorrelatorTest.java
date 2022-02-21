@@ -32,9 +32,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class FastCorrelatorTest {
@@ -73,7 +73,7 @@ class FastCorrelatorTest {
 
   @SeededTest
   void canComputeCorrelation(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     SimpleCorrelator expected;
     FastCorrelator observed;
     for (int i = 0; i < 10; i++) {

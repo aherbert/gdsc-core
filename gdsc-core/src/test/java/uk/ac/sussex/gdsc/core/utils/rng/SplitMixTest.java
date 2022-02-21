@@ -37,14 +37,14 @@ import org.apache.commons.rng.core.source64.SplitMix64;
 import org.apache.commons.rng.core.util.NumberFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class SplitMixTest {
   @SeededTest
   void testNextInt(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new64(seed);
     for (int i = 0; i < 10; i++) {
@@ -54,7 +54,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextLong(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new64(seed);
     for (int i = 0; i < 10; i++) {
@@ -64,7 +64,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextDouble(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new64(seed);
     for (int i = 0; i < 10; i++) {
@@ -74,7 +74,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextBoolean(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new64(seed);
     for (int i = 0; i < 10; i++) {
@@ -120,7 +120,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextLongInRange(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new64(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
@@ -134,7 +134,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextFloat(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm1 = SplitMix.new64(seed);
     final SplitMix sm2 = SplitMix.new64(seed);
     for (int i = 0; i < 10; i++) {
@@ -147,7 +147,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextBytes(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     // Test verses Commons RNG implementation
     final SplitMix64 sm1 = new SplitMix64(seed);
     final SplitMix sm2 = SplitMix.new64(seed);
@@ -164,7 +164,7 @@ class SplitMixTest {
 
   @SeededTest
   void testAdvance(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm1 = SplitMix.new64(seed);
     final SplitMix sm2 = SplitMix.new64(seed);
     for (final int range : new int[] {1, 10, 32}) {
@@ -180,7 +180,7 @@ class SplitMixTest {
 
   @SeededTest
   void testAdvanceBackwards(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm1 = SplitMix.new64(seed);
     for (final int range : new int[] {1, 10, 32}) {
       final long[] seq1 = new long[range];
@@ -200,7 +200,7 @@ class SplitMixTest {
 
   @SeededTest
   void testCopy(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm1 = SplitMix.new64(seed);
     final SplitMix sm2 = sm1.copy();
     Assertions.assertNotSame(sm1, sm2);
@@ -211,7 +211,7 @@ class SplitMixTest {
 
   @SeededTest
   void testCopyAndJump(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm1 = SplitMix.new64(seed);
     final SplitMix sm2 = sm1.copyAndJump();
     Assertions.assertNotSame(sm1, sm2);
@@ -234,14 +234,14 @@ class SplitMixTest {
 
   @SeededTest
   void testGetState(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm = SplitMix.new64(seed);
     Assertions.assertEquals(seed, sm.getState());
   }
 
   @SeededTest
   void testSaveAndRestoreState(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm = SplitMix.new64(seed);
     final RandomProviderState state = sm.saveState();
     final long[] seq1 = new long[10];
@@ -265,7 +265,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextInt32(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new32(seed);
     for (int i = 0; i < 10; i++) {
@@ -275,7 +275,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextLong32(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new32(seed);
     for (int i = 0; i < 10; i++) {
@@ -286,7 +286,7 @@ class SplitMixTest {
 
   @SeededTest
   void testCopy32(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplitMix sm1 = SplitMix.new32(seed);
     final SplitMix sm2 = sm1.copy();
     Assertions.assertNotSame(sm1, sm2);
@@ -297,7 +297,7 @@ class SplitMixTest {
 
   @SeededTest
   void testNextBytes32(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
+    final long seed = randomSeed.getAsLong();
     final SplittableRandom sr = new SplittableRandom(seed);
     final SplitMix sm = SplitMix.new32(seed);
     for (final int range : new int[] {16, 18}) {

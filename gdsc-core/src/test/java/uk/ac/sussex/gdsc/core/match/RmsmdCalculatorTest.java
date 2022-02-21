@@ -40,11 +40,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
@@ -229,7 +229,7 @@ class RmsmdCalculatorTest {
   }
 
   private static void assertRmsmdNdWithKdTree(RandomSeed seed, int dimensions) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     // Create enough data to trigger use of the tree
     final double[][] p0 = createData(dimensions, rg, 4);
     final double[][] p1 = createData(dimensions, rg, 64);
@@ -259,7 +259,7 @@ class RmsmdCalculatorTest {
   @SeededTest
   void testSumMinimumDistanceSpeed(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     // 2^11 = 2048
     final int n = 1 << 11;
     final double[][] data = createData(rg, n);

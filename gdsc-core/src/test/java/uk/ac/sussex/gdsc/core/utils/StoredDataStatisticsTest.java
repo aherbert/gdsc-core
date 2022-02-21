@@ -35,9 +35,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class StoredDataStatisticsTest {
@@ -99,7 +99,7 @@ class StoredDataStatisticsTest {
 
   @SeededTest
   void canAddMultipleValues(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final StoredDataStatistics observed = new StoredDataStatistics();
     final DescriptiveStatistics expected = new DescriptiveStatistics();
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, 123));
@@ -117,7 +117,7 @@ class StoredDataStatisticsTest {
 
   @SeededTest
   void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     DescriptiveStatistics expected;
     StoredDataStatistics observed;
     final StoredDataStatistics observed2 = new StoredDataStatistics();

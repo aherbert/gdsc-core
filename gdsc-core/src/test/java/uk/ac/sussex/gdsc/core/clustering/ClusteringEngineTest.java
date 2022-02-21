@@ -45,10 +45,10 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -470,7 +470,7 @@ class ClusteringEngineTest {
 
   @SeededTest
   void canClusterClusterPointsAtDifferentDensitiesUsingCentroidLinkage(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     for (final double radius : new double[] {5, 10, 20}) {
       for (final int size : new int[] {1000, 500, 300, 100}) {
         testClusting(rg, ClusteringAlgorithm.CENTROID_LINKAGE, radius, 100, size);
@@ -480,7 +480,7 @@ class ClusteringEngineTest {
 
   @SeededTest
   void canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     for (final double radius : new double[] {5, 10, 20}) {
       for (final int size : new int[] {1000, 500, 300, 100}) {
         testClusting(rg, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius, 100, size);
@@ -493,7 +493,7 @@ class ClusteringEngineTest {
   void pairwiseWithoutNeighboursIsFasterThanCentroidLinkageAtLowDensities(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int repeats = 10;
     final double radius = 50;
     final Object[] points = new Object[repeats];
@@ -513,7 +513,7 @@ class ClusteringEngineTest {
   void pairwiseWithoutNeighboursIsSlowerThanCentroidLinkageAtHighDensities(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int repeats = 10;
     final double radius = 50;
     final Object[] points = new Object[repeats];
@@ -533,7 +533,7 @@ class ClusteringEngineTest {
   void pairwiseIsFasterThanCentroidLinkage(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int repeats = 20;
     final Object[] points = new Object[repeats];
     for (int i = 0; i < repeats; i++) {
@@ -550,105 +550,105 @@ class ClusteringEngineTest {
 
   @SeededTest
   void canMultithreadParticleSingleLinkage(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedParticleSingleLinkageIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
   }
 
   @SeededTest
   void canMultithreadClosest(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.CENTROID_LINKAGE);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedClosestIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.CENTROID_LINKAGE);
   }
 
   @SeededTest
   void canMultithreadClosestParticle(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedClosestParticleIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
   }
 
   @SeededTest
   void canMultithreadClosestDistancePriority(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedClosestDistancePriorityIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY);
   }
 
   @SeededTest
   void canMultithreadClosestTimePriority(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedClosestTimePriorityIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
   }
 
   @SeededTest
   void canMultithreadClosestParticleDistancePriority(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedClosestParticleDistancePriorityIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY);
   }
 
   @SeededTest
   void canMultithreadClosestParticleTimePriority(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedClosestParticleTimePriorityIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY);
   }
 
   @SeededTest
   void canMultithreadPairwiseWithoutNeighbours(RandomSeed seed) {
-    runMultithreadingAlgorithmTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingAlgorithmTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
   }
 
   @SpeedTag
   @SeededTest
   void multithreadedPairwiseWithoutNeighboursIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.getSeed()),
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
         ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
   }
 

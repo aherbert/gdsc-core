@@ -34,9 +34,9 @@ import ij.process.FloatProcessor;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class FilteredNonMaximumSuppressionTest {
@@ -346,7 +346,7 @@ class FilteredNonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFind3x3InternalIgnoresBadBorder(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int maxx = 13;
     final int maxy = 17;
     final float[] data = NonMaximumSuppressionTest.floatCreateData(rg, maxx, maxy);
@@ -554,7 +554,7 @@ class FilteredNonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFind3x3InternalIgnoresBadBorder(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int maxx = 13;
     final int maxy = 17;
     final int[] data = NonMaximumSuppressionTest.intCreateData(rg, maxx, maxy);

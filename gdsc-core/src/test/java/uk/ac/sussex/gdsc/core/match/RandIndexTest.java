@@ -39,9 +39,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -215,7 +215,7 @@ class RandIndexTest {
 
   @SeededTest
   void canComputeRandIndexWithSimpleData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int size = 100;
     for (final int n1 : new int[] {1, 2, 3, 4, 5}) {
       for (final int n2 : new int[] {1, 2, 3, 4, 5}) {
@@ -227,7 +227,7 @@ class RandIndexTest {
   @SeededTest
   void canComputeRandIndexWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int size = 10000;
     for (final int i : new int[] {3, 5, 10}) {
       final int n1 = size / i;
@@ -281,7 +281,7 @@ class RandIndexTest {
 
   @SeededTest
   void adjustedRandIndexIsZeroForRandomData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int size = 100;
     for (final int n1 : new int[] {2, 5, 10}) {
       for (final int n2 : new int[] {2, 5}) {
@@ -354,7 +354,7 @@ class RandIndexTest {
       c1[size] = size % n1;
       c2[size] = size % n2;
     }
-    final UniformRandomProvider rand = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rand = RngUtils.create(seed.get());
     PermutationSampler.shuffle(rand, c1);
 
     final long t1 = System.nanoTime();

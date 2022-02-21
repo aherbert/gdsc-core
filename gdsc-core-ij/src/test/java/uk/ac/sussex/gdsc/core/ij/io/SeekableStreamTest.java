@@ -34,9 +34,9 @@ import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class SeekableStreamTest {
@@ -108,7 +108,7 @@ class SeekableStreamTest {
 
   @SeededTest
   void testReadBytesWithUnderflow(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final byte[] bytes1 = randomBytes(rng, 5);
     final byte[] bytes2 = new byte[10];
     try (SeekableStream ss = create(bytes1)) {
@@ -119,7 +119,7 @@ class SeekableStreamTest {
 
   @SeededTest
   void testReadFully(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final byte[] bytes1 = randomBytes(rng, 5);
     final byte[] bytes2 = new byte[5];
     try (SeekableStream ss = create(bytes1)) {
@@ -138,7 +138,7 @@ class SeekableStreamTest {
 
   @SeededTest
   void testReadBytes(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng = RngUtils.create(seed.get());
     final byte[] bytes1 = randomBytes(rng, 5);
     final byte[] bytes2 = new byte[5];
     try (SeekableStream ss = create(bytes1)) {

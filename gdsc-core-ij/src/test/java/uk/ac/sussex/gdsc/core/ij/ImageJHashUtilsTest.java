@@ -37,9 +37,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class ImageJHashUtilsTest {
@@ -58,7 +58,7 @@ class ImageJHashUtilsTest {
 
   @SeededTest
   void canDigestByteProcessor(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final byte[] data = new byte[size];
     r.nextBytes(data);
 
@@ -72,7 +72,7 @@ class ImageJHashUtilsTest {
 
   @SeededTest
   void canDigestShortProcessor(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final short[] data = new short[size];
     for (int i = 0; i < size; i++) {
       data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
@@ -88,7 +88,7 @@ class ImageJHashUtilsTest {
 
   @SeededTest
   void canDigestFloatProcessor(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final float[] data = new float[size];
     for (int i = 0; i < size; i++) {
       data[i] = (r.nextFloat() - 0.5f) * 2f;
@@ -104,7 +104,7 @@ class ImageJHashUtilsTest {
 
   @SeededTest
   void canDigestColorProcessor(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int[] data = new int[size];
     for (int i = 0; i < size; i++) {
       data[i] = r.nextInt();

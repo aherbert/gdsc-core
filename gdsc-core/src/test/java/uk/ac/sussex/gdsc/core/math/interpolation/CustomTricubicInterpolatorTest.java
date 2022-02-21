@@ -58,13 +58,13 @@ import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.AssertionErrorCounter;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestCounter;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingResult;
@@ -93,7 +93,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canConstructInterpolatingFunction(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
 
     final int x = 4;
     final int y = 5;
@@ -264,7 +264,7 @@ class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolate(RandomSeed seed, boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -405,7 +405,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canInterpolateUsingPrecomputedPoints(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -655,7 +655,7 @@ class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolateWithGradients(RandomSeed seed, boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -682,7 +682,7 @@ class CustomTricubicInterpolatorTest {
 
     // For single precision sometimes there are gradient failures
     final int size = testx.length * testy.length * testz.length;
-    final int failLimit = TestCounter.computeFailureLimit(size, 0.1);
+    final int failLimit = AssertionErrorCounter.computeFailureLimit(size, 0.1);
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
 
     for (int i = 0; i < 3; i++) {
@@ -693,10 +693,10 @@ class CustomTricubicInterpolatorTest {
 
         // Set up the fail limits
         final int testFailLimit = (singlePrecision) ? failLimit : 0;
-        final TestCounter tc1 = new TestCounter(testFailLimit, 3);
-        final TestCounter tc2 = new TestCounter(testFailLimit, 3);
-        final TestCounter tc3 = new TestCounter(testFailLimit, 3);
-        final TestCounter tc4 = new TestCounter(testFailLimit, 3);
+        final AssertionErrorCounter tc1 = new AssertionErrorCounter(testFailLimit, 3);
+        final AssertionErrorCounter tc2 = new AssertionErrorCounter(testFailLimit, 3);
+        final AssertionErrorCounter tc3 = new AssertionErrorCounter(testFailLimit, 3);
+        final AssertionErrorCounter tc4 = new AssertionErrorCounter(testFailLimit, 3);
 
         final CustomTricubicInterpolatingFunction f1 = in.interpolate(xval, yval, zval, fval);
 
@@ -808,7 +808,7 @@ class CustomTricubicInterpolatorTest {
 
   private void canInterpolateWithGradientsUsingPrecomputedPoints(RandomSeed seed,
       boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -926,7 +926,7 @@ class CustomTricubicInterpolatorTest {
 
   private void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed,
       boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1157,7 +1157,7 @@ class CustomTricubicInterpolatorTest {
   void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 6;
     final int y = 5;
     final int z = 4;
@@ -1443,7 +1443,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1494,7 +1494,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1565,7 +1565,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void searchSplineImprovesFunctionValue(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
     final int y = 10;
@@ -1611,7 +1611,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canFindOptimum(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider r = RngUtils.create(seed.get());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
     final int y = 10;
