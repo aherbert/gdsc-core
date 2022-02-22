@@ -1304,7 +1304,8 @@ public final class MathUtils {
    * <p>Warning: This will return {@link Integer#MIN_VALUE} for any value above {@code 1 << 30}.
    * This is the next power of 2 as an unsigned integer.
    *
-   * <p>Adapted from the JTransforms library class org.jtransforms.utils.CommonUtils.
+   * <p>See <a href="https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2">Bit
+   * Hacks: Rounding up to a power of 2</a>
    *
    * @param value the value
    * @return the closest power-of-two number greater than or equal to value
@@ -1314,16 +1315,12 @@ public final class MathUtils {
     if (value < 1) {
       throw new IllegalArgumentException("value must be greater or equal 1");
     }
-    if ((value & (value - 1)) == 0) {
-      return value; // value is already a power-of-two number
-    }
-    int result = value;
+    int result = value - 1;
     result |= (result >>> 1);
     result |= (result >>> 2);
     result |= (result >>> 4);
     result |= (result >>> 8);
-    result |= (result >>> 16);
-    return result + 1;
+    return (result | (result >>> 16)) + 1;
   }
 
   /**
