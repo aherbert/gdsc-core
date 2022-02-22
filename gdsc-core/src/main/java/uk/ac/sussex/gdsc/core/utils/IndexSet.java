@@ -28,28 +28,49 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.Spliterator;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 /**
  * A set for storing positive-valued integers.
+ *
+ * <p>Usage includes filtering array indices to unique values, and conditionally processing the
+ * first occurrence of a positive ID.
  */
 public interface IndexSet {
   /**
    * Add an index into the set.
    *
+   * <p>Note: If the caller does not require the result then use {@link #put(int)}.
+   *
    * @param index the index
    * @return true if the set was modified by the operation
-   * @throws IllegalArgumentException if the index is negative
+   * @throws IndexOutOfBoundsException if the index is negative
+   * @see #put(int)
    */
   boolean add(int index);
+
+  /**
+   * Put an index into the set.
+   *
+   * <p>The default implementation calls {@link #add(int)}. Implementations can override this method
+   * if computing the return value is expensive.
+   *
+   * @param index the index
+   * @throws IndexOutOfBoundsException if the index is negative
+   * @see #add(int)
+   */
+  default void put(int index) {
+    add(index);
+  }
 
   /**
    * Searches the set an index.
    *
    * @param index the index
    * @return true if the set contains the index
-   * @throws IllegalArgumentException if the index is negative
+   * @throws IndexOutOfBoundsException if the index is negative
    */
   boolean contains(int index);
 
@@ -61,13 +82,12 @@ public interface IndexSet {
   int size();
 
   /**
-   * Removes all elements from the set. The set will be empty after the operation.
+   * Removes all indices from the set. The set will be empty after the operation.
    */
   void clear();
 
   /**
-   * Return a stream of indices. Unless explicitly noted by implementations the ordered is
-   * undefined.
+   * Return a stream of indices. Unless explicitly noted by implementations the order is undefined.
    *
    * <p>It is expected the size of the stream is equal to the size of the set. The index set must
    * remain constant during execution of the terminal stream operation, otherwise the result of the
@@ -75,15 +95,24 @@ public interface IndexSet {
    *
    * @return the stream of indices
    */
-  IntStream stream();
+  IntStream intStream();
+
+  /**
+   * Return a spliterator for the indices in the set.
+   *
+   * <p>The spliterator must report at least {@link Spliterator#DISTINCT}.
+   *
+   * @return the spliterator
+   */
+  Spliterator.OfInt spliterator();
 
   /**
    * Perform the action on each index in the set. Unless explicitly noted by implementations the
-   * ordered is undefined.
+   * order is undefined.
    *
    * @param action the action
    */
   default void forEach(IntConsumer action) {
-    stream().forEach(action);
+    intStream().forEach(action);
   }
 }

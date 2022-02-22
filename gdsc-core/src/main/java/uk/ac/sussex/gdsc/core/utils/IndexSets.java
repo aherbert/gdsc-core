@@ -30,7 +30,12 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterator.OfInt;
+import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 /**
  * Creates index sets.
@@ -40,17 +45,18 @@ public final class IndexSets {
   /**
    * An index set backed by a {@link BitSet}.
    */
-  private static class BitSetIndexSet implements IndexSet {
+  static class BitSetIndexSet implements IndexSet {
     /** The set. */
     private final BitSet set;
 
     /**
-     * Create an instance.
+     * Create an instance with initial size to store indices up to the specified maximum.
      *
-     * @param capacity the capacity
+     * @param maximum the maximum
      */
-    BitSetIndexSet(int capacity) {
-      set = new BitSet(capacity);
+    BitSetIndexSet(int maximum) {
+      // maximum is inclusive, nbits is exclusive so add 1 if possible.
+      set = new BitSet(maximum < Integer.MAX_VALUE ? maximum + 1 : maximum);
     }
 
     @Override
@@ -60,6 +66,11 @@ public final class IndexSets {
       }
       set.set(index);
       return true;
+    }
+
+    @Override
+    public void put(int index) {
+      set.set(index);
     }
 
     @Override
@@ -78,39 +89,170 @@ public final class IndexSets {
     }
 
     @Override
-    public IntStream stream() {
+    public IntStream intStream() {
       return set.stream();
+    }
+
+    @Override
+    public OfInt spliterator() {
+      return intStream().spliterator();
     }
   }
 
   /**
-   * An index set backed by a open-addressed hash table using linear hashing.
-   * Table size is a power of 2.
+   * An index set backed by a open-addressed hash table using linear hashing. Table size is a power
+   * of 2 and has a maximum capacity of 2^29 with a load factor of 0.5.
+   *
+   * <p>Values are stored using bit inversion. Any positive index will have a negative
+   * representation when stored. An empty slot is indicated by a zero.
    */
-  private static class HashIndexSet implements IndexSet {
+  static class HashIndexSet implements IndexSet {
+    /** The maximum capacity of the set. */
+    private static final int MAX_CAPACITY = 1 << 29;
+    /** The minimum size of the backing array. */
+    private static final int MIN_SIZE = 16;
+    /** The maximum size of the backing array. */
+    private static final int MAX_SIZE = 1 << 30;
+    /**
+     * Unsigned 32-bit integer numerator of the golden ratio (0.618) with an assumed denominator of
+     * 2^32.
+     *
+     * <pre>
+     * 2654435769 = round(2^32 * (sqrt(5) - 1) / 2)
+     * Long.toHexString((long)(0x1p32 * (Math.sqrt(5.0) - 1) / 2))
+     * </pre>
+     */
+    private static final int PHI = 0x9e3779b9;
+
     /** The set. */
-    private final int[] set;
+    private int[] set;
     /** The size. */
     private int size;
 
     /**
-     * Create an instance.
+     * Create an instance with initial size to store up to the specified capacity.
      *
-     * @param capacity the capacity
+     * @param capacity the initial capacity
      */
     HashIndexSet(int capacity) {
-      // This will generate a load factor of 0.25 to 0.5
-      set = new int[MathUtils.nextPow2(capacity * 2)];
+      if (capacity > MAX_CAPACITY) {
+        throw new IllegalArgumentException("Unsupported capacity: " + capacity);
+      }
+      // This will generate a load factor at capacity in the range (0.25, 0.5]
+      set = new int[MathUtils.nextPow2(Math.max(MIN_SIZE, capacity * 2))];
     }
 
     @Override
     public boolean add(int index) {
+      if (index < 0) {
+        throw new IndexOutOfBoundsException("Invalid index: " + index);
+      }
+      final int[] keys = set;
+      final int key = ~index;
+      final int mask = keys.length - 1;
+      int pos = mix(index) & mask;
+      int curr = keys[pos];
+      if (curr < 0) {
+        if (curr == key) {
+          // Already present
+          return false;
+        }
+        // Probe
+        while ((curr = keys[pos = (pos + 1) & mask]) < 0) {
+          if (curr == key) {
+            // Already present
+            return false;
+          }
+        }
+      }
+      // Insert
+      keys[pos] = key;
+      // Here the load factor is 0.5: size > keys.length * 0.5
+      if (++size > (mask + 1) >>> 1) {
+        grow(pos);
+      }
       return true;
+    }
+
+    /**
+     * Grow the table by rehashing all the current elements. The growth factor is 2.
+     *
+     * <p>If the maximum capacity is exceeded then the last inserted element is removed. This leaves
+     * the table in the state of its maximum capacity and prevents insertion into the over-filled
+     * table. This prevents the table becoming filled in every slot which will result in an infinite
+     * loop when adding a previously unseen index.
+     *
+     * @param lastInserted the last inserted position
+     */
+    private void grow(int lastInserted) {
+      final int[] keys = set;
+      final int len = keys.length;
+      if (len == MAX_SIZE) {
+        keys[lastInserted] = 0;
+        size--;
+        throw new IllegalStateException("Capacity exceeded");
+      }
+      final int[] newKeys = new int[len << 1];
+      final int mask = newKeys.length - 1;
+      int pos;
+      int key;
+      for (int i = keys.length - 1; i >= 0; i--) {
+        if ((key = keys[i]) < 0) {
+          pos = mix(~key) & mask;
+          if (newKeys[pos] < 0) {
+            // Probe
+            while ((newKeys[pos = (pos + 1) & mask]) < 0) {
+              // search for empty
+            }
+          }
+          newKeys[pos] = key;
+        }
+      }
+      set = newKeys;
     }
 
     @Override
     public boolean contains(int index) {
-      return false;
+      if (index < 0) {
+        throw new IndexOutOfBoundsException("Invalid index: " + index);
+      }
+      final int[] keys = set;
+      final int key = ~index;
+      final int mask = keys.length - 1;
+      int pos = mix(index) & mask;
+      int curr = keys[pos];
+      if (curr == 0) {
+        return false;
+      }
+      if (curr == key) {
+        return true;
+      }
+      // Probe
+      while (true) {
+        pos = (pos + 1) & mask;
+        curr = keys[pos];
+        if (curr == 0) {
+          // No more entries
+          return false;
+        }
+        if (curr == key) {
+          return true;
+        }
+      }
+    }
+
+    /**
+     * Mix the bits of an integer.
+     *
+     * <p>This is the fast hash function used in the linear hash implementation in the <a
+     * href="https://github.com/leventov/Koloboke">Koloboke Collections</a>.
+     *
+     * @param x the bits
+     * @return the mixed bits
+     */
+    private static int mix(int x) {
+      final int h = x * PHI;
+      return h ^ (h >>> 16);
     }
 
     @Override
@@ -119,8 +261,24 @@ public final class IndexSets {
     }
 
     @Override
-    public IntStream stream() {
-      return Arrays.stream(set).filter(i -> i < 0).map(i -> ~i);
+    public void forEach(IntConsumer action) {
+      final int[] keys = set;
+      int key;
+      for (int i = keys.length - 1; i >= 0; i--) {
+        if ((key = keys[i]) < 0) {
+          action.accept(~key);
+        }
+      }
+    }
+
+    @Override
+    public IntStream intStream() {
+      return StreamSupport.intStream(spliterator(), false);
+    }
+
+    @Override
+    public OfInt spliterator() {
+      return new SetSpliterator();
     }
 
     @Override
@@ -128,27 +286,159 @@ public final class IndexSets {
       size = 0;
       Arrays.fill(set, 0);
     }
+
+    /**
+     * A spliterator over the set. If the set is resized after creation of the spliterator then the
+     * behaviour is undefined.
+     */
+    private class SetSpliterator implements Spliterator.OfInt {
+      /** The index of the next slot. */
+      private int index;
+      /** The upper bound of slots. */
+      private final int bound;
+      /** The count of elements returned. */
+      private int count;
+      /** Flag to indicate if a split has occurred to cover a subset. */
+      private boolean subSet;
+
+      /** Create an instance to iterate the entire set. */
+      SetSpliterator() {
+        bound = set.length;
+      }
+
+      /**
+       * Create an instance to iterate part of the set.
+       *
+       * @param index the index
+       * @param bound the bound
+       */
+      SetSpliterator(int index, int bound) {
+        this.index = index;
+        this.bound = bound;
+        subSet = true;
+      }
+
+      @Override
+      public long estimateSize() {
+        if (subSet) {
+          // Load factor of 0.5 through the range.
+          // The upper limit is size - count.
+          return Math.min(size - count, (bound - index) / 2);
+        }
+        return size - count;
+      }
+
+      @Override
+      public int characteristics() {
+        if (subSet) {
+          return Spliterator.NONNULL | Spliterator.DISTINCT;
+        }
+        return Spliterator.SIZED | Spliterator.NONNULL | Spliterator.DISTINCT;
+      }
+
+      @Override
+      public OfInt trySplit() {
+        final int upper = bound;
+        final int pos = index;
+        if (pos >= upper) {
+          return null;
+        }
+        final int len = (upper - pos) >> 1;
+        if (len <= 1) {
+          return null;
+        }
+        index = pos + len;
+        subSet = true;
+        return new SetSpliterator(pos, index);
+      }
+
+      @Override
+      public boolean tryAdvance(IntConsumer action) {
+        final int[] keys = set;
+        int key;
+        final int upper = bound;
+        while (index < upper) {
+          if ((key = keys[index++]) < 0) {
+            count++;
+            action.accept(~key);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      @Override
+      public void forEachRemaining(IntConsumer action) {
+        Objects.requireNonNull(action, "action");
+        final int[] keys = set;
+        final int limit = bound;
+        if (index < limit) {
+          int key;
+          do {
+            if ((key = keys[index++]) < 0) {
+              count++;
+              action.accept(~key);
+            }
+          } while (index < limit);
+        }
+      }
+    }
   }
 
   /** No instances. */
   private IndexSets() {}
 
   /**
-   * Creates an index set with the specified initial capacity.
+   * Creates an index set to hold the expected number of unique indices.
    *
-   * <p>Note that a {@link BitSet} can store all indices using 2<sup>25</sup> long values, or 32MiB
-   * of storage. This is equal to a capacity of 2<sup>26</sup> integers. Implementations may be
-   * optimised for smaller capacities for example by using a hash set.
+   * <p>Warning: The returned implementation will support expansion beyond the expected number of
+   * indices but there is no guarantee that the returned implementation will be able to hold all
+   * positive indices. Note that a {@link BitSet} can store all indices using 2<sup>25</sup> long
+   * values, or 32MiB of storage. An expected size above 2<sup>25</sup> will use a BitSet backed
+   * implementation. Smaller sizes use a hash table with a backing array limited to 2<sup>30</sup>
+   * for the table size and a load factor of 0.5 for a maximum number of indices of 2<sup>29</sup>.
    *
-   * @param capacity the capacity
+   * @param expected the expected number of indices
    * @return the index set
-   * @throws IllegalArgumentException if capacity is negative
+   * @throws IllegalArgumentException if expected is negative
+   * @see #create(int, int)
    */
-  public static IndexSet create(int capacity) {
-    ValidationUtils.checkPositive(capacity, "capacity");
-    if (capacity >= (1 << 26)) {
-      return new BitSetIndexSet(capacity);
+  public static IndexSet create(int expected) {
+    ValidationUtils.checkPositive(expected, "expected");
+    // The HashIndexSet has a load factor of 2. Above 2^25 the BitSet has optimal memory usage.
+    if (expected >= (1 << 25)) {
+      // Optimal memory
+      return new BitSetIndexSet(expected);
     }
-    return new BitSetIndexSet(capacity);
+    return new HashIndexSet(expected);
+  }
+
+  /**
+   * Creates an index set to hold the expected number of unique indices within the provided maximum
+   * value.
+   *
+   * <p>Warning: The returned implementation will support expansion beyond the expected number of
+   * indices and maximum value but there is no guarantee that the returned implementation will be
+   * able to hold all positive indices.
+   *
+   * @param expected the expected number of indices
+   * @param max the maximum index (inclusive)
+   * @return the index set
+   * @throws IllegalArgumentException if expected or max are negative
+   * @see #create(int)
+   */
+  public static IndexSet create(int expected, int max) {
+    ValidationUtils.checkPositive(expected, "expected");
+    ValidationUtils.checkPositive(max, "max");
+    // Optimise based on saturation.
+    // Once the BitSet has 2 non-zero bits in each long in the entire array
+    // then it is optimal for storage.
+    // if expected / 2 > (number of longs)
+    // where (number of longs) = 1 + max / 64
+    if (expected >= (1 << 25) || (expected >> 1) >= (1 + (max >> 6))) {
+      // The capacity is the maximum index
+      return new BitSetIndexSet(Math.max(expected, max));
+    }
+    return new HashIndexSet(expected);
   }
 }
