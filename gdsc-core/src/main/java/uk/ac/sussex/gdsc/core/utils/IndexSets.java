@@ -264,7 +264,7 @@ public final class IndexSets {
     public void forEach(IntConsumer action) {
       final int[] keys = set;
       int key;
-      for (int i = keys.length - 1; i >= 0; i--) {
+      for (int i = keys.length; i-- != 0; ) {
         if ((key = keys[i]) < 0) {
           action.accept(~key);
         }
