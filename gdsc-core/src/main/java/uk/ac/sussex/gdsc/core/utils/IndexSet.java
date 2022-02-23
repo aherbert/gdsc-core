@@ -87,7 +87,10 @@ public interface IndexSet {
   void clear();
 
   /**
-   * Return a stream of indices. Unless explicitly noted by implementations the order is undefined.
+   * Return a stream of indices.
+   *
+   * <p>If the set makes any guarantees about the order returned from the forEach action, this
+   * method must return the indices in the same order.
    *
    * <p>It is expected the size of the stream is equal to the size of the set. The index set must
    * remain constant during execution of the terminal stream operation, otherwise the result of the
@@ -112,7 +115,27 @@ public interface IndexSet {
    *
    * @param action the action
    */
-  default void forEach(IntConsumer action) {
-    intStream().forEach(action);
+  void forEach(IntConsumer action);
+
+  /**
+   * Returns an array containing the indices in this set.
+   *
+   * <p>If the set makes any guarantees about the order returned from the forEach action, this
+   * method must return the indices in the same order.
+   *
+   * <p>If the indices fit in the destination array then it will be filled from index 0. If the
+   * array is longer than the current size the remaining array is unchanged. If the array is null or
+   * smaller than the current size a new array allocation is performed; the destination is
+   * unchanged.
+   *
+   * @param destination the destination array
+   * @return the array
+   */
+  default int[] toArray(int[] destination) {
+    final int size = size();
+    final int[] a = destination == null || destination.length < size ? new int[size] : destination;
+    final int[] index = {0};
+    forEach(i -> a[index[0]++] = i);
+    return a;
   }
 }

@@ -97,6 +97,17 @@ public final class IndexSets {
     public OfInt spliterator() {
       return intStream().spliterator();
     }
+
+    @Override
+    public void forEach(IntConsumer action) {
+      for (int i = set.nextSetBit(0); i >= 0; i = set.nextSetBit(i + 1)) {
+        action.accept(i);
+        if (i == Integer.MAX_VALUE) {
+          // or (i+1) would overflow
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -261,14 +272,9 @@ public final class IndexSets {
     }
 
     @Override
-    public void forEach(IntConsumer action) {
-      final int[] keys = set;
-      int key;
-      for (int i = keys.length; i-- != 0; ) {
-        if ((key = keys[i]) < 0) {
-          action.accept(~key);
-        }
-      }
+    public void clear() {
+      size = 0;
+      Arrays.fill(set, 0);
     }
 
     @Override
@@ -282,9 +288,29 @@ public final class IndexSets {
     }
 
     @Override
-    public void clear() {
-      size = 0;
-      Arrays.fill(set, 0);
+    public void forEach(IntConsumer action) {
+      final int[] keys = set;
+      int key;
+      for (int i = keys.length; i-- != 0;) {
+        if ((key = keys[i]) < 0) {
+          action.accept(~key);
+        }
+      }
+    }
+
+    @Override
+    public int[] toArray(int[] destination) {
+      final int len = size;
+      final int[] a = destination == null || destination.length < len ? new int[len] : destination;
+      final int[] keys = set;
+      int key;
+      int c = 0;
+      for (int i = keys.length; i-- != 0;) {
+        if ((key = keys[i]) < 0) {
+          a[c++] = ~key;
+        }
+      }
+      return a;
     }
 
     /**

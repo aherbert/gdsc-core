@@ -80,6 +80,10 @@ class IndexSetTest {
     Assertions.assertEquals(0, actual.size());
     Assertions.assertEquals(0, actual.intStream().count());
     actual.forEach(i -> Assertions.fail("Should be empty"));
+    Assertions.assertArrayEquals(new int[0], actual.toArray(null));
+    final int[] a = {123, 1234, 1234};
+    Assertions.assertSame(a, actual.toArray(a));
+    Assertions.assertArrayEquals(a, actual.toArray(a), "Should be unchanged");
 
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> actual.add(-1));
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> actual.contains(-1));
@@ -94,7 +98,29 @@ class IndexSetTest {
       Assertions.assertTrue(actual.contains(value));
     }
 
-    actual.forEach(i -> Assertions.assertTrue(actual.contains(i)));
+    int[] a1 = actual.toArray(null);
+    int[] a2 = actual.toArray(new int[actual.size()]);
+    int[] a3a = new int[actual.size() + 10];
+    int old1 = -42;
+    int old2 = -999;
+    a3a[actual.size()] = old1;
+    a3a[actual.size() + 1] = old2;
+    int[] a3 = actual.toArray(a3a);
+    int[] count = {0};
+    actual.forEach(i -> {
+      Assertions.assertTrue(actual.contains(i));
+      Assertions.assertEquals(i, a1[count[0]]);
+      Assertions.assertEquals(i, a2[count[0]]);
+      Assertions.assertEquals(i, a3[count[0]]);
+      count[0]++;
+    });
+    Assertions.assertEquals(old1, a3[actual.size()]);
+    Assertions.assertEquals(old2, a3[actual.size() + 1]);
+
+    int[] e = expected.toIntArray();
+    Arrays.sort(e);
+    Arrays.sort(a1);
+    Assertions.assertArrayEquals(e, a1);
 
     final IntOpenHashSet expected2 = new IntOpenHashSet();
     actual.forEach(expected2::add);
