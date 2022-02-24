@@ -56,6 +56,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -703,7 +705,12 @@ class FastTiffDecoderTest {
     Assertions.assertEquals(2, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.WORD));
     Assertions.assertEquals(4, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.DWORD));
     Assertions.assertEquals(8, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.RATIONAL));
+    // Invalid. Prevent logging the warning.
+    final Logger logger = Logger.getLogger(FastTiffDecoder.class.getName());
+    final Level level = logger.getLevel();
+    logger.setLevel(Level.OFF);
     Assertions.assertEquals(1, FastTiffDecoder.getFieldTypeSize(FastTiffDecoder.RATIONAL + 100));
+    logger.setLevel(level);
   }
 
   @Test

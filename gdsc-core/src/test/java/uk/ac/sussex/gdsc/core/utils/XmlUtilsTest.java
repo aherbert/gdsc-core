@@ -29,6 +29,8 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -104,8 +106,20 @@ class XmlUtilsTest {
 
   @Test
   void testPrettyPrintXml() {
-    for (final String xml : new String[] {"bad", "<root><node/>"}) {
-      Assertions.assertEquals(xml, XmlUtils.prettyPrintXml(xml));
+    // Prevent System.err logging here
+    final PrintStream orig = System.err;
+    try (PrintStream ps = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        // Ignore the data
+      }
+    })) {
+      System.setErr(ps);
+      for (final String xml : new String[] {"bad", "<root><node/>"}) {
+        Assertions.assertEquals(xml, XmlUtils.prettyPrintXml(xml));
+      }
+    } finally {
+      System.setErr(orig);
     }
 
     Assertions.assertEquals("<root>\n    <node attribute=\"hello\"/>\n</root>\n",

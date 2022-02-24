@@ -49,6 +49,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -420,7 +421,7 @@ class NonMaximumSuppressionTest {
 
   private static void floatCompareIndices(int width, int height, float[] data, int boxSize,
       int[] indices1, int[] indices2) {
-    if (logger.isLoggable(Level.INFO)) {
+    if (logger.isLoggable(TestLevel.TEST_INFO)) {
       final StringBuilder sb = new StringBuilder();
       try (Formatter formatter = new Formatter(sb)) {
         formatter.format("float [%dx%d@%d] i1 = %d; int i2 =  %d%n", width, height, boxSize,
@@ -445,9 +446,9 @@ class NonMaximumSuppressionTest {
           }
         }
       }
-      logger.info(sb.toString());
+      logger.log(TestLevel.TEST_INFO, sb.toString());
       if (!Arrays.equals(indices1, indices2)) {
-        logger.info("Arrays are not equal");
+        logger.log(TestLevel.TEST_INFO, "Arrays are not equal");
       }
     }
   }
@@ -869,8 +870,9 @@ class NonMaximumSuppressionTest {
       // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
     }
-    logger.info(FunctionUtils.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx",
-        total, internalTotal, (1.0 * total) / internalTotal));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx", total,
+            internalTotal, (1.0 * total) / internalTotal));
     logger.log(TestLogUtils.getTimingRecord("float blockFind (border >= 5)", bigTotal,
         "float blockFindInternal (border >= 5)", bigInternalTotal));
   }
@@ -950,9 +952,10 @@ class NonMaximumSuppressionTest {
       // %d", boxSize,
       // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
     }
-    logger.info(FunctionUtils.getSupplier(
-        "float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
-        noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier(
+            "float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
+            noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
     logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check (border >= 5)",
         bigCheckTotal, "float blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
@@ -1032,8 +1035,9 @@ class NonMaximumSuppressionTest {
       // %d", boxSize,
       // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
     }
-    logger.info(FunctionUtils.getSupplier("float blockFind check %d => blockFind %d = %.2fx",
-        checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier("float blockFind check %d => blockFind %d = %.2fx", checkTotal,
+            noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
     logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
         "float blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
         bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
@@ -1529,7 +1533,7 @@ class NonMaximumSuppressionTest {
 
   private static void intCompareIndices(int width, int height, int[] data, int boxSize,
       int[] indices1, int[] indices2) {
-    if (logger.isLoggable(Level.INFO)) {
+    if (logger.isLoggable(TestLevel.TEST_INFO)) {
       final StringBuilder sb = new StringBuilder();
       try (Formatter formatter = new Formatter(sb)) {
         formatter.format("int [%dx%d@%d] i1 = %d; int i2 =  %d%n", width, height, boxSize,
@@ -1554,9 +1558,9 @@ class NonMaximumSuppressionTest {
           }
         }
       }
-      logger.info(sb.toString());
+      logger.log(TestLevel.TEST_INFO, sb.toString());
       if (!Arrays.equals(indices1, indices2)) {
-        logger.info("Arrays are not equal");
+        logger.log(TestLevel.TEST_INFO, "Arrays are not equal");
       }
     }
   }
@@ -1978,8 +1982,9 @@ class NonMaximumSuppressionTest {
       // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
     }
-    logger.info(FunctionUtils.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total,
-        internalTotal, (1.0 * total) / internalTotal));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total,
+            internalTotal, (1.0 * total) / internalTotal));
     logger.log(TestLogUtils.getTimingRecord("int blockFind (border >= 5)", bigTotal,
         "int blockFindInternal (border >= 5)", bigInternalTotal));
   }
@@ -2059,7 +2064,7 @@ class NonMaximumSuppressionTest {
       // %d", boxSize,
       // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
     }
-    logger.info(
+    logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx",
             checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
     logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check (border >= 5)",
@@ -2141,8 +2146,9 @@ class NonMaximumSuppressionTest {
       // %d", boxSize,
       // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
     }
-    logger.info(FunctionUtils.getSupplier("int blockFind check %d => blockFind %d = %.2fx",
-        checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier("int blockFind check %d => blockFind %d = %.2fx", checkTotal,
+            noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
     logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
         "int blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
         bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));

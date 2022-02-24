@@ -29,6 +29,8 @@
 package uk.ac.sussex.gdsc.core.threshold;
 
 import fiji.threshold.Auto_Threshold;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.Supplier;
@@ -228,86 +230,101 @@ class AutoThresholdTest {
   }
 
   private static int getThreshold(Method method, int[] data) {
+    // Stop Auto_Threshold from writing to System.out when it fails.
+    // Applies to Intermodes, IsoData, MinError, Minimum.
+    // Note this will have side effects if the test is concurrently executed with other
+    // resources that write to System.out. In practice this should not happen.
+    final PrintStream orig = System.out;
     int t = 0;
-    switch (method) {
-      case DEFAULT:
-        t = Auto_Threshold.IJDefault(data);
-        break;
-      case HUANG:
-        t = Auto_Threshold.Huang2(data);
-        // Work around bug when there is no data
-        if (t == 0 && data.length == 1) {
+    try (PrintStream ps = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        // Ignore the data
+      }
+    })) {
+      System.setOut(ps);
+      switch (method) {
+        case DEFAULT:
+          t = Auto_Threshold.IJDefault(data);
+          break;
+        case HUANG:
+          t = Auto_Threshold.Huang2(data);
+          // Work around bug when there is no data
+          if (t == 0 && data.length == 1) {
+            t = -1;
+          }
+          break;
+        case INTERMODES:
+          t = Auto_Threshold.Intermodes(data);
+          break;
+        case ISO_DATA:
+          // Work around bug in isodata for small histograms
+          if (data.length < 4) {
+            final int[] newData = new int[7];
+            System.arraycopy(data, 0, newData, 4, data.length);
+            t = Auto_Threshold.IsoData(newData) - 4;
+          } else {
+            t = Auto_Threshold.IsoData(data);
+          }
+          break;
+        case LI:
+          t = Auto_Threshold.Li(data);
+          break;
+        case MAX_ENTROPY:
+          t = Auto_Threshold.MaxEntropy(data);
+          break;
+        case MEAN:
+          t = Auto_Threshold.Mean(data);
+          break;
+        case MEAN_PLUS_STD_DEV:
+          final double m = AutoThreshold.getStdDevMultiplier();
+          final Statistics stats = new Statistics();
+          for (int i = 0; i < data.length; i++) {
+            stats.add(data[i], i);
+          }
+          t = MathUtils.clip(0, data.length - 1,
+              (int) Math.floor(stats.getMean() + m * stats.getStandardDeviation()));
+          break;
+        case MINIMUM:
+          // Work around bug in minimum
+          if (data.length < 3) {
+            t = -1;
+          } else {
+            t = Auto_Threshold.Minimum(data);
+          }
+          break;
+        case MIN_ERROR_I:
+          t = Auto_Threshold.MinErrorI(data);
+          break;
+        case MOMENTS:
+          t = Auto_Threshold.Moments(data);
+          break;
+        case NONE:
           t = -1;
-        }
-        break;
-      case INTERMODES:
-        t = Auto_Threshold.Intermodes(data);
-        break;
-      case ISO_DATA:
-        // Work around bug in isodata for small histograms
-        if (data.length < 4) {
-          final int[] newData = new int[7];
-          System.arraycopy(data, 0, newData, 4, data.length);
-          t = Auto_Threshold.IsoData(newData) - 4;
-        } else {
-          t = Auto_Threshold.IsoData(data);
-        }
-        break;
-      case LI:
-        t = Auto_Threshold.Li(data);
-        break;
-      case MAX_ENTROPY:
-        t = Auto_Threshold.MaxEntropy(data);
-        break;
-      case MEAN:
-        t = Auto_Threshold.Mean(data);
-        break;
-      case MEAN_PLUS_STD_DEV:
-        final double m = AutoThreshold.getStdDevMultiplier();
-        final Statistics stats = new Statistics();
-        for (int i = 0; i < data.length; i++) {
-          stats.add(data[i], i);
-        }
-        t = MathUtils.clip(0, data.length - 1,
-            (int) Math.floor(stats.getMean() + m * stats.getStandardDeviation()));
-        break;
-      case MINIMUM:
-        // Work around bug in minimum
-        if (data.length < 3) {
-          t = -1;
-        } else {
-          t = Auto_Threshold.Minimum(data);
-        }
-        break;
-      case MIN_ERROR_I:
-        t = Auto_Threshold.MinErrorI(data);
-        break;
-      case MOMENTS:
-        t = Auto_Threshold.Moments(data);
-        break;
-      case NONE:
-        t = -1;
-        break;
-      case OTSU:
-        t = Auto_Threshold.Otsu(data);
-        break;
-      case PERCENTILE:
-        t = Auto_Threshold.Percentile(data);
-        break;
-      case RENYI_ENTROPY:
-        t = Auto_Threshold.RenyiEntropy(data);
-        break;
-      case SHANBHAG:
-        t = Auto_Threshold.Shanbhag(data);
-        break;
-      case TRIANGLE:
-        t = Auto_Threshold.Triangle(data);
-        break;
-      case YEN:
-        t = Auto_Threshold.Yen(data);
-        break;
-      default:
-        throw new RuntimeException("unknown method: " + method);
+          break;
+        case OTSU:
+          t = Auto_Threshold.Otsu(data);
+          break;
+        case PERCENTILE:
+          t = Auto_Threshold.Percentile(data);
+          break;
+        case RENYI_ENTROPY:
+          t = Auto_Threshold.RenyiEntropy(data);
+          break;
+        case SHANBHAG:
+          t = Auto_Threshold.Shanbhag(data);
+          break;
+        case TRIANGLE:
+          t = Auto_Threshold.Triangle(data);
+          break;
+        case YEN:
+          t = Auto_Threshold.Yen(data);
+          break;
+        default:
+          throw new RuntimeException("unknown method: " + method);
+      }
+    } finally {
+      System.setOut(orig);
     }
     return t;
   }

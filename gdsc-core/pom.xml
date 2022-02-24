@@ -83,4 +83,13 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <gdsc.parent.dir>${basedir}/..</gdsc.parent.dir>
   </properties>
 
+  <dependencies>
+    <!-- Prevent logging from QuickHull3D -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
 </project>

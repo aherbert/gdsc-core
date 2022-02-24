@@ -106,6 +106,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -937,8 +938,8 @@ class OpticsManagerTest {
         // for (int i = 0; i < n; i++) {
         // double[] dd = d[i].clone();
         // Arrays.sort(dd);
-        // logger.info(FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1],
-        // dd[minPts]));
+        // logger.log(TestLevel.TEST_INFO,
+        // FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1], dd[minPts]));
         // }
 
         // Use max range
@@ -1023,8 +1024,8 @@ class OpticsManagerTest {
         // for (int i = 0; i < n; i++) {
         // double[] dd = d[i].clone();
         // Arrays.sort(dd);
-        // logger.info(FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1],
-        // dd[minPts]));
+        // logger.log(TestLevel.TEST_INFO,
+        // FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1], dd[minPts]));
         // }
 
         final OpticsResult r1 = om.fastOptics(minPts);
@@ -1104,7 +1105,8 @@ class OpticsManagerTest {
         // for (int i = 0; i < n; i++) {
         // double[] dd = d[i].clone();
         // Arrays.sort(dd);
-        // logger.info(FunctionUtils.getSupplier("%d Core %f, next %f", i, dd[minPts - 1],
+        // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("%d Core %f, next %f", i,
+        // dd[minPts - 1],
         // dd[minPts]));
         // }
 
@@ -1127,7 +1129,8 @@ class OpticsManagerTest {
             clustering.getAllClusters();
         int clusterId = 0;
         for (final de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters) {
-          // logger.info(FunctionUtils.getSupplier("%d-%d", c.getModel().getStartIndex(),
+          // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("%d-%d",
+          // c.getModel().getStartIndex(),
           // c.getModel().getEndIndex()));
 
           // Add the cluster Id to the expClusters
@@ -1140,13 +1143,14 @@ class OpticsManagerTest {
         // check the clusters match
         r1.extractClusters(xi);
         // r1.getAllClusters().forEach(c -> {
-        // logger.info(FunctionUtils.getSupplier("%d-%d", c.start, c.end));
+        // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("%d-%d", c.start, c.end));
         // });
         final int[] obsClusters = r1.getClusters();
 
         // final int[] order = r1.getOrder();
         // for (int i = 0; i < n; i++) {
-        // logger.info(FunctionUtils.getSupplier("%d = %d %d (%d)", i, expClusters[i],
+        // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("%d = %d %d (%d)", i,
+        // expClusters[i],
         // obsClusters[i], order[i]));
         // }
 
@@ -1401,7 +1405,7 @@ class OpticsManagerTest {
               sum += randIndex;
               count++;
               final double ari = ri.getAdjustedRandIndex();
-              logger.info(FunctionUtils.getSupplier(
+              logger.log(TestLogUtils.getRecord(TestLevel.TEST_INFO,
                   "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, "
                       + "approxSets=%b, sampleMode=%s : r=%f (%f)",
                   xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets,
@@ -1671,11 +1675,11 @@ class OpticsManagerTest {
     // }
     // }
     // time = System.nanoTime() - time;
-    // logger.info(FunctionUtils.getSupplier("Time = %d", time));
+    // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("Time = %d", time));
     // if (i < 5)
     // time2 += time;
     // }
-    // logger.info(FunctionUtils.getSupplier("Time = %d", time2));
+    // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("Time = %d", time2));
   }
 
   @SeededTest
@@ -1899,7 +1903,7 @@ class OpticsManagerTest {
     final int[] c2 = r2.getClusters(true);
 
     // for (int i = 0; i < c1.length; i++) {
-    // logger.info(FunctionUtils.getSupplier("[%d] %d == %d", i, c1[i], c2[i]));
+    // logger.log(TestLevel.TEST_INFO, FunctionUtils.getSupplier("[%d] %d == %d", i, c1[i], c2[i]));
     // }
 
     Assertions.assertArrayEquals(c1, c2);
@@ -1931,8 +1935,7 @@ class OpticsManagerTest {
     // - unrealistic data
     // - The optimised Dbscan implementation not computing distances if not needed.
 
-    logger.info(FunctionUtils.getSupplier("dBSCANIsFasterThanOptics %d < %d (%.2f)", t3, t2,
-        (double) t2 / t3));
+    logger.log(TestLogUtils.getTimingRecord("Optics", t2, "DBSCAN", t3));
   }
 
   @SeededTest
@@ -2378,8 +2381,9 @@ class OpticsManagerTest {
           4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
       final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-      logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d",
-          nMoleculesInSquare, moleculesInCircle, generatingDistanceE, maxResolution));
+      logger.log(
+          TestLogUtils.getRecord(TestLevel.TEST_INFO, "Square=%.2f, Circle=%.2f, e=%.1f, r <= %d",
+              nMoleculesInSquare, moleculesInCircle, generatingDistanceE, maxResolution));
 
       final OpticsManager[] om = new OpticsManager[3];
       for (int i = 0; i < om.length; i++) {

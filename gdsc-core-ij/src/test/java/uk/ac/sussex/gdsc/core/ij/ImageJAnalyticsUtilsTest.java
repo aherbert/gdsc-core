@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -94,7 +96,11 @@ class ImageJAnalyticsUtilsTest {
         throw new EOFException("Dummy close exception");
       }
     };
+    final Logger logger = Logger.getLogger(ImageJAnalyticsUtils.class.getName());
+    final Level level = logger.getLevel();
+    logger.setLevel(Level.OFF);
     ImageJAnalyticsUtils.buildPluginMap(map, pluginsStream, charset);
+    logger.setLevel(level);
   }
 
   @Test

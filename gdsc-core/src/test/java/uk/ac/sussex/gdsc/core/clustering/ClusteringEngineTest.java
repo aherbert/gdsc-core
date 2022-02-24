@@ -51,6 +51,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -570,8 +571,7 @@ class ClusteringEngineTest {
   @SpeedTag
   @SeededTest
   void multithreadedClosestIsFaster(RandomSeed seed) {
-    runMultithreadingSpeedTest(RngUtils.create(seed.get()),
-        ClusteringAlgorithm.CENTROID_LINKAGE);
+    runMultithreadingSpeedTest(RngUtils.create(seed.get()), ClusteringAlgorithm.CENTROID_LINKAGE);
   }
 
   @SeededTest
@@ -740,11 +740,13 @@ class ClusteringEngineTest {
   }
 
   private static void print(String name, List<Cluster> clusters) {
-    logger.info(FunctionUtils.getSupplier(name + " : size=%d", clusters.size()));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier(name + " : size=%d", clusters.size()));
     for (int i = 0; i < clusters.size(); i++) {
       final Cluster c = clusters.get(i);
-      logger.info(FunctionUtils.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i,
-          c.getHeadClusterPoint().getId(), c.getSize(), c.getX(), c.getY()));
+      logger.log(TestLevel.TEST_INFO,
+          FunctionUtils.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i,
+              c.getHeadClusterPoint().getId(), c.getSize(), c.getX(), c.getY()));
     }
   }
 

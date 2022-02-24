@@ -30,6 +30,8 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.IJ;
 import java.awt.event.KeyEvent;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
@@ -42,7 +44,19 @@ class SimpleImageJTrackProgressTest {
     instance.progress(0.5);
     instance.progress(3, 4);
     Assertions.assertThrows(NotImplementedException.class, () -> instance.incrementProgress(0.1));
-    instance.log("%s count %d", SimpleImageJTrackProgressTest.class.getSimpleName(), 1);
+    // Prevent System.out logging here
+    final PrintStream orig = System.out;
+    try (PrintStream ps = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        // Ignore the data
+      }
+    })) {
+      System.setOut(ps);
+      instance.log("%s count %d", SimpleImageJTrackProgressTest.class.getSimpleName(), 1);
+    } finally {
+      System.setOut(orig);
+    }
     instance.status("%s count %d", SimpleImageJTrackProgressTest.class.getSimpleName(), 2);
     Assertions.assertTrue(instance.isProgress());
     Assertions.assertTrue(instance.isLog());

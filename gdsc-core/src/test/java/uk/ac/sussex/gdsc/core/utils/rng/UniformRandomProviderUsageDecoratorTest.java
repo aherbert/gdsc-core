@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.rng.UniformRandomProviderUsageDecorator.SizeCounter;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 
 @SuppressWarnings("javadoc")
 class UniformRandomProviderUsageDecoratorTest {
@@ -255,10 +256,10 @@ class UniformRandomProviderUsageDecoratorTest {
     for (int l = size; l-- > 0;) {
       sampler.sample();
     }
-    logger.info(rng.toString());
+    logger.log(TestLevel.TEST_INFO, rng.toString());
     final long total = rng.getNextDoubleCount() + rng.getNextLongCount();
-    logger.info(() -> String.format("%d / %d = %s", rng.getNextDoubleCount(), total,
-        rng.getNextDoubleCount() / (double) total));
+    logger.log(TestLevel.TEST_INFO, () -> String.format("%d / %d = %s", rng.getNextDoubleCount(),
+        total, rng.getNextDoubleCount() / (double) total));
 
     for (final int mean : new int[] {50, 100, 1000}) {
       rng.reset();
@@ -266,10 +267,10 @@ class UniformRandomProviderUsageDecoratorTest {
       for (int l = size; l-- > 0;) {
         sampler2.sample();
       }
-      logger.info(rng.toString());
+      logger.log(TestLevel.TEST_INFO, rng.toString());
       final long total2 = rng.getNextDoubleCount() + rng.getNextLongCount();
-      logger.info(() -> String.format("%d / %d = %s", rng.getNextDoubleCount(), total2,
-          rng.getNextDoubleCount() / (double) total2));
+      logger.log(TestLevel.TEST_INFO, () -> String.format("%d / %d = %s", rng.getNextDoubleCount(),
+          total2, rng.getNextDoubleCount() / (double) total2));
     }
   }
 }

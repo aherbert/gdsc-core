@@ -28,6 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.ErrorManager;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -42,10 +45,25 @@ class ImageJLogHandlerTest {
     final ImageJLogHandler handler = new ImageJLogHandler();
     final LogRecord record =
         new LogRecord(Level.WARNING, "test " + ImageJLogHandlerTest.class.getSimpleName());
-    handler.setLevel(Level.SEVERE);
-    handler.publish(record);
-    handler.setLevel(Level.INFO);
-    handler.publish(record);
+    // Prevent System.out logging here
+    final PrintStream orig = System.out;
+    AtomicInteger count = new AtomicInteger();
+    try (PrintStream ps = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        count.incrementAndGet();
+      }
+    })) {
+      System.setOut(ps);
+      handler.setLevel(Level.SEVERE);
+      handler.publish(record);
+      Assertions.assertEquals(0, count.get());
+      handler.setLevel(Level.INFO);
+      handler.publish(record);
+      Assertions.assertNotEquals(0, count.get());
+    } finally {
+      System.setOut(orig);
+    }
     handler.flush();
     handler.close();
   }

@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.functions.IntArrayFormatSupplier;
 
 @SuppressWarnings("javadoc")
@@ -152,7 +153,7 @@ class AsciiStringSamplerTest {
 
   @Test
   void testAll() {
-    final Level level = Level.INFO;
+    final Level level = TestLevel.TEST_INFO;
     Assumptions.assumeTrue(logger.isLoggable(level));
     final RestorableUniformRandomProvider rng1 = RandomSource.SPLIT_MIX_64.create();
     final AsciiStringSampler s = new AsciiStringSampler(rng1);

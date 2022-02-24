@@ -50,6 +50,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -1057,7 +1058,7 @@ class ArrayMomentTest {
       m2.increment(d);
       r2.add(data);
     }
-    logger.info(
+    logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getMean()[0]),
             Double.toString(r2.getMean()[0]), Double.toString(m1.getStandardDeviation()[0]),
             Double.toString(r2.getStandardDeviation()[0])));

@@ -45,6 +45,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -112,7 +113,7 @@ class MedianWindowTest {
   void isFasterThanLocalSort(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
     final int[] speedRadii2 =
-        (logger.isLoggable(Level.INFO)) ? speedRadii : new int[] {testSpeedRadius};
+        (logger.isLoggable(TestLevel.TEST_INFO)) ? speedRadii : new int[] {testSpeedRadius};
     for (final int radius : speedRadii2) {
       for (final int increment : speedIncrement) {
         isFasterThanLocalSort(seed, radius, increment);
@@ -178,7 +179,7 @@ class MedianWindowTest {
     final long t2 = System.nanoTime() - s2;
 
     Assertions.assertArrayEquals(m1, m2, 1e-6);
-    logger.info(
+    logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("Radius %d, Increment %d : window %d : standard %d = %fx faster",
             radius, increment, t1, t2, (double) t2 / t1));
 
@@ -194,7 +195,7 @@ class MedianWindowTest {
   void floatVersionIsFasterThanDoubleVersion(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
     final int[] speedRadii2 =
-        (logger.isLoggable(Level.INFO)) ? speedRadii : new int[] {testSpeedRadius};
+        (logger.isLoggable(TestLevel.TEST_INFO)) ? speedRadii : new int[] {testSpeedRadius};
     for (final int radius : speedRadii2) {
       for (final int increment : speedIncrement) {
         floatVersionIsFasterThanDoubleVersion(seed, radius, increment);
@@ -295,7 +296,7 @@ class MedianWindowTest {
           "Radius %d, Increment %d : double %d : float %d = %fx faster", radius, increment, t1, t2,
           (double) t1 / t2));
     } else {
-      logger.info(
+      logger.log(TestLevel.TEST_INFO,
           FunctionUtils.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster",
               radius, increment, t1, t2, (double) t1 / t2));
     }

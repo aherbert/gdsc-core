@@ -43,6 +43,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -186,23 +187,23 @@ class DoubleLinkedMedianWindowTest {
       for (int i = 0; i < radius; i++, pos++) {
         final double median = mw.getMedianOldest(i + 1 + radius);
         final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
-        // median2, median));
+        // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g", p,
+        // radius, median2, median));
         Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
       for (int j = startData.length; j < data.length; j++, pos++) {
         final double median = mw.getMedian();
         mw.add(data[j]);
         final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
-        // median2, median));
+        // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g", p,
+        // radius, median2, median));
         Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
       for (int i = 2 * radius + 1; i-- > 0; pos++) {
         final double median = mw.getMedianYoungest(i + 1);
         final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
-        // median2, median));
+        // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g", p,
+        // radius, median2, median));
         Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
     }
@@ -221,23 +222,23 @@ class DoubleLinkedMedianWindowTest {
         for (int i = 0; i < radius; i++, pos++) {
           final double median = mw.getMedianOldest(i + 1 + radius);
           final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int j = startData.length; j < data.length; j++, pos++) {
           final double median = mw.getMedian();
           mw.add(data[j]);
           final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int i = 2 * radius + 1; i-- > 0; pos++) {
           final double median = mw.getMedianYoungest(i + 1);
           final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
       }
@@ -256,23 +257,23 @@ class DoubleLinkedMedianWindowTest {
         for (int i = 0; i < radius; i++, pos++) {
           final double median = mw.getMedianOldest(i + 1 + radius);
           final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int j = startData.length; j < data.length; j++, pos++) {
           final double median = mw.getMedian();
           mw.add(data[j]);
           final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int i = 2 * radius + 1; i-- > 0; pos++) {
           final double median = mw.getMedianYoungest(i + 1);
           final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_INFO, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
       }
@@ -469,7 +470,7 @@ class DoubleLinkedMedianWindowTest {
           "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
           (double) t1 / t2));
     } else {
-      logger.info(
+      logger.log(TestLevel.TEST_INFO,
           FunctionUtils.getSupplier("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster",
               radius, increment, t1, t2, (double) t1 / t2));
     }

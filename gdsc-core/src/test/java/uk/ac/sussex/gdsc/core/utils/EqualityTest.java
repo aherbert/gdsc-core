@@ -35,6 +35,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -446,11 +447,13 @@ class EqualityTest {
   private static void computeComplement(float value) {
     final float f3 = value + value * 1e-2f;
     final float f4 = value - value * 1e-2f;
-    logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f3,
-        FloatEquality.complement(f3, value), DoubleEquality.complement(f3, value),
-        FloatEquality.relativeError(value, f3), DoubleEquality.relativeError(value, f3)));
-    logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f4,
-        FloatEquality.complement(f4, value), DoubleEquality.complement(f4, value),
-        FloatEquality.relativeError(value, f4), DoubleEquality.relativeError(value, f4)));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f3,
+            FloatEquality.complement(f3, value), DoubleEquality.complement(f3, value),
+            FloatEquality.relativeError(value, f3), DoubleEquality.relativeError(value, f3)));
+    logger.log(TestLevel.TEST_INFO,
+        FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f4,
+            FloatEquality.complement(f4, value), DoubleEquality.complement(f4, value),
+            FloatEquality.relativeError(value, f4), DoubleEquality.relativeError(value, f4)));
   }
 }

@@ -34,6 +34,7 @@ import ij.ImageStack;
 import ij.gui.GenericDialog;
 import ij.gui.Plot;
 import ij.plugin.ZProjector;
+import ij.plugin.frame.Recorder;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
@@ -41,6 +42,9 @@ import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -51,6 +55,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 
 @SuppressWarnings({"javadoc"})
 class ImageJUtilsTest {
@@ -130,7 +135,7 @@ class ImageJUtilsTest {
     Assertions.assertThrows(NullPointerException.class, () -> {
       for (final int i : getIdList()) {
         // This will not run as an exception should be generated
-        logger.info("Window ID = " + i);
+        logger.log(TestLevel.TEST_INFO, "Window ID = " + i);
       }
     });
   }
@@ -143,7 +148,7 @@ class ImageJUtilsTest {
   void cantIterateOver_getIdList() {
     for (final int i : ImageJUtils.getIdList()) {
       // This will not run as the ID list should be empty
-      logger.info("Window ID = " + i);
+      logger.log(TestLevel.TEST_INFO, "Window ID = " + i);
     }
   }
 
@@ -267,8 +272,21 @@ class ImageJUtilsTest {
 
   @Test
   void testLog() {
-    // No assertions
-    ImageJUtils.log("hello %s", "world");
+    // Prevent System.out logging here
+    final PrintStream orig = System.out;
+    final AtomicInteger count = new AtomicInteger();
+    try (PrintStream ps = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        count.incrementAndGet();
+      }
+    })) {
+      System.setOut(ps);
+      ImageJUtils.log("hello %s", "world");
+      Assertions.assertNotEquals(0, count.get());
+    } finally {
+      System.setOut(orig);
+    }
   }
 
   @Test
@@ -319,18 +337,28 @@ class ImageJUtilsTest {
 
   @Test
   void testIsExtraOptions() {
+    // The isExtraOptions() method will write "extraoptions" to the Recorder.
+    // This will generate duplicates (and a warning message) if not reset.
+    IJ.setKeyUp(KeyEvent.VK_ALT);
+    IJ.setKeyUp(KeyEvent.VK_SHIFT);
+    Recorder.setCommand(null);
+
     Assertions.assertFalse(ImageJUtils.isExtraOptions());
     IJ.setKeyDown(KeyEvent.VK_ALT);
     try {
       Assertions.assertTrue(ImageJUtils.isExtraOptions());
     } finally {
       IJ.setKeyUp(KeyEvent.VK_ALT);
+      Recorder.setCommand(null);
     }
+    Assertions.assertFalse(ImageJUtils.isExtraOptions());
+
     IJ.setKeyDown(KeyEvent.VK_SHIFT);
     try {
       Assertions.assertTrue(ImageJUtils.isExtraOptions());
     } finally {
       IJ.setKeyUp(KeyEvent.VK_SHIFT);
+      Recorder.setCommand(null);
     }
   }
 

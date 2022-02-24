@@ -30,6 +30,8 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.IJ;
 import java.awt.event.KeyEvent;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -113,7 +115,19 @@ class ImageJTrackProgressTest {
   @Test
   void testLog() {
     final ImageJTrackProgress progress = new ImageJTrackProgress();
-    progress.log("hello %s", "world");
+    // Prevent System.out logging here
+    final PrintStream orig = System.out;
+    try (PrintStream ps = new PrintStream(new OutputStream() {
+      @Override
+      public void write(int b) {
+        // Ignore the data
+      }
+    })) {
+      System.setOut(ps);
+      progress.log("hello %s", "world");
+    } finally {
+      System.setOut(orig);
+    }
     progress.setLogActive(false);
     progress.log("goodbye %s", "world");
   }

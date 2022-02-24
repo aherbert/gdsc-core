@@ -44,6 +44,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -226,7 +227,7 @@ class DensityManagerTest {
 
         final Supplier<String> msg = FunctionUtils
             .getSupplier("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
-        logger.info(msg);
+        logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
       }
     }
@@ -254,7 +255,7 @@ class DensityManagerTest {
 
         final Supplier<String> msg = FunctionUtils
             .getSupplier("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
-        logger.info(msg);
+        logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
       }
     }
@@ -297,7 +298,7 @@ class DensityManagerTest {
 
         final Supplier<String> msg = FunctionUtils.getSupplier(
             "Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
-        logger.info(msg);
+        logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
       }
     }
@@ -357,7 +358,7 @@ class DensityManagerTest {
         final Supplier<String> msg = FunctionUtils.getSupplier(
             "calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
             (double) t1 / t2);
-        logger.info(msg);
+        logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
       }
     }

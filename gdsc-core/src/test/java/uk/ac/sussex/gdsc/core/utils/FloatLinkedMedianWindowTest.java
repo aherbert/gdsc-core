@@ -43,6 +43,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -469,7 +470,7 @@ class FloatLinkedMedianWindowTest {
           "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
           (float) t1 / t2));
     } else {
-      logger.info(
+      logger.log(TestLevel.TEST_INFO,
           FunctionUtils.getSupplier("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster",
               radius, increment, t1, t2, (float) t1 / t2));
     }
