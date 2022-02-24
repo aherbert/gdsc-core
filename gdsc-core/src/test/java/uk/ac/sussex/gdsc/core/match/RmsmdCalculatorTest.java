@@ -32,22 +32,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.ToDoubleBiFunction;
-import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 /**
  * Test for {@link RmsmdCalculator}.
@@ -251,63 +243,6 @@ class RmsmdCalculatorTest {
   }
 
   /**
-   * Test the speed of different methods.
-   *
-   * @param seed the seed
-   */
-  @SpeedTag
-  @SeededTest
-  void testSumMinimumDistanceSpeed(RandomSeed seed) {
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
-    // 2^11 = 2048
-    final int n = 1 << 11;
-    final double[][] data = createData(rg, n);
-    final Logger logger = Logger.getLogger(RmsmdCalculatorTest.class.getName());
-    final ToDoubleBiFunction<double[], double[]> distanceFunction =
-        DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D::distance;
-    for (int k = 8; k <= n; k *= 2) {
-      final double[][] p2 = extractPoints(data, new PermutationSampler(rg, n, k).sample());
-
-      final TimingService ts = new TimingService();
-
-      for (int k1 = k; k1 > 1; k1 /= 2) {
-        final double[][] p1 = extractPoints(data, new PermutationSampler(rg, n, k1).sample());
-        ts.execute(new DummyTimingTask("All-vs-all", k1, k) {
-          @Override
-          public Object run(Object data) {
-            return RmsmdCalculator.sumMinimumDistancesAllVsAll(p1, p2, distanceFunction);
-          }
-        });
-        ts.execute(new DummyTimingTask("Kd-tree", k1, k) {
-          @Override
-          public Object run(Object data) {
-            return RmsmdCalculator.sumMinimumDistancesKdTree(p1, p2,
-                DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D);
-          }
-        });
-      }
-
-      final int size = ts.repeat();
-      ts.repeat(size);
-
-      logger.info(ts.getReport(size));
-    }
-  }
-
-  /**
-   * Creates the data.
-   *
-   * @param rg the random generator
-   * @param size the size
-   * @return the data
-   */
-  private static double[][] createData(UniformRandomProvider rg, int size) {
-    return IntStream.range(0, size).mapToObj(i -> new double[] {rg.nextDouble(), rg.nextDouble()})
-        .toArray(double[][]::new);
-  }
-
-  /**
    * Creates the ND data.
    *
    * @param rg the random generator
@@ -322,39 +257,5 @@ class RmsmdCalculatorTest {
       }
       return tmp;
     }).toArray(double[][]::new);
-  }
-
-  /**
-   * Extract points.
-   *
-   * @param data the data
-   * @param indices the indices
-   * @return the points
-   */
-  private static double[][] extractPoints(double[][] data, int[] indices) {
-    final double[][] d = new double[indices.length][];
-    for (int i = 0; i < indices.length; i++) {
-      d[i] = data[indices[i]];
-    }
-    return d;
-  }
-
-  /**
-   * A simple timing task to create a name and implement unused methods.
-   */
-  private abstract static class DummyTimingTask extends BaseTimingTask {
-    public DummyTimingTask(String name, int size1, int size2) {
-      super(name + " " + size1 + " " + size2);
-    }
-
-    @Override
-    public int getSize() {
-      return 1;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return null;
-    }
   }
 }

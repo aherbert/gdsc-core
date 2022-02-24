@@ -29,71 +29,18 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.ObjectArrayFormatSupplier;
 
 @SuppressWarnings({"javadoc"})
 class PartialSortTest {
-  private static Logger logger;
-
-  @BeforeAll
-  public static void beforeAll() {
-    logger = Logger.getLogger(PartialSortTest.class.getName());
-  }
-
-  @AfterAll
-  public static void afterAll() {
-    logger = null;
-  }
-
-  private abstract class MyTimingTaskDouble extends BaseTimingTask {
-    double[][] data;
-
-    public MyTimingTaskDouble(String name, double[][] data) {
-      super(name);
-      this.data = data;
-    }
-
-    @Override
-    public int getSize() {
-      return data.length;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return data[index].clone();
-    }
-  }
-
-  private abstract class MyTimingTaskFloat extends BaseTimingTask {
-    float[][] data;
-
-    public MyTimingTaskFloat(String name, float[][] data) {
-      super(name);
-      this.data = data;
-    }
-
-    @Override
-    public int getSize() {
-      return data.length;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return data[index].clone();
-    }
-  }
 
   int[] testN = new int[] {2, 3, 5, 10, 30, 50};
   int[] testM = new int[] {50, 100};
@@ -150,104 +97,44 @@ class PartialSortTest {
     Assertions.assertArrayEquals(e, o);
   }
 
-  private void bottomComputeDouble(UniformRandomProvider rng, int length, final int size,
+  private static void bottomComputeDouble(UniformRandomProvider rng, int length, final int size,
       final int total) {
-    final double[][] data = createDataDouble(rng, length, total);
-    final String msg = String.format(" %d of %d", size, total);
-
-    final MyTimingTaskDouble expected = new MyTimingTaskDouble("Sort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return bottomDouble(size, (double[]) data);
-      }
-    };
-
-    final int runs = (logger.isLoggable(Level.INFO)) ? 5 : 1;
-    final TimingService ts = new TimingService(runs);
-    ts.execute(expected);
-    ts.execute(new MyTimingTaskDouble("bottomSort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.bottom((double[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskDouble("bottomHead" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, (double[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        Assertions.assertEquals(e[size - 1], o[0], () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskDouble("bottom" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.bottom(0, (double[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        bottomSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
+    final ObjectArrayFormatSupplier msg = new ObjectArrayFormatSupplier("%s %d of %d", 3);
+    msg.set(1, size);
+    msg.set(2, total);
+    final double[] d = new double[total];
     final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(size);
-    ts.execute(new MyTimingTaskDouble("DoubleSelector" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return ps.bottom(0, (double[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        bottomSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
     final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(size);
-    ts.execute(new MyTimingTaskDouble("DoubleMinHeap" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return heap.bottom(0, (double[]) data);
+    for (int i = 0; i < length; i++) {
+      for (int j = 0; j < total; j++) {
+        d[j] = rng.nextDouble() * 4 * Math.PI;
       }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        bottomSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
-    // Sometimes this fails
-    // if ((double) size / total > 0.5)
-    // Assertions.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(),
-    // ts.get(1).getMean()),
-    // ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
-
-    ts.check();
-
-    if (runs > 1) {
-      logger.info(ts.getReport());
+      // Reference
+      final double[] expected = bottomDouble(size, d.clone());
+      // Test methods
+      assertBottomSortEqual(expected, PartialSort.bottom(d.clone(), size), false, true,
+          msg.set(0, "bottomSort"));
+      assertBottomSortEqual(expected,
+          PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d.clone(), size), true, false,
+          msg.set(0, "bottomHead"));
+      assertBottomSortEqual(expected, PartialSort.bottom(0, d.clone(), size), false, false,
+          msg.set(0, "bottom"));
+      assertBottomSortEqual(expected, ps.bottom(0, d.clone()), false, false,
+          msg.set(0, "DoubleSelector"));
+      assertBottomSortEqual(expected, heap.bottom(0, d.clone()), false, false,
+          msg.set(0, "DoubleMinHeap"));
     }
+  }
+
+  private static void assertBottomSortEqual(double[] expected, double[] actual, boolean head,
+      boolean sorted, Supplier<String> msg) {
+    if (head) {
+      Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
+    }
+    if (!sorted) {
+      bottomSortDouble(actual);
+    }
+    Assertions.assertArrayEquals(expected, actual, msg);
   }
 
   @SeededTest
@@ -301,116 +188,43 @@ class PartialSortTest {
     Assertions.assertArrayEquals(e, o);
   }
 
-  private void topComputeDouble(UniformRandomProvider rng, int length, final int size,
+  private static void topComputeDouble(UniformRandomProvider rng, int length, final int size,
       final int total) {
-    final double[][] data = createDataDouble(rng, length, total);
-    final String msg = String.format(" %d of %d", size, total);
-
-    final MyTimingTaskDouble expected = new MyTimingTaskDouble("Sort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return topDouble(size, (double[]) data);
-      }
-    };
-
-    final int runs = (logger.isLoggable(Level.INFO)) ? 5 : 1;
-    final TimingService ts = new TimingService(runs);
-    ts.execute(expected);
-    ts.execute(new MyTimingTaskDouble("topSort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.top((double[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskDouble("topHead" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.top(PartialSort.OPTION_HEAD_FIRST, (double[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        Assertions.assertEquals(e[size - 1], o[0], () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskDouble("top" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.top(0, (double[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        topSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
+    final ObjectArrayFormatSupplier msg = new ObjectArrayFormatSupplier("%s %d of %d", 3);
+    msg.set(1, size);
+    msg.set(2, total);
+    final double[] d = new double[total];
     final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(size);
-    ts.execute(new MyTimingTaskDouble("DoubleSelector" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return ps.top(0, (double[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        topSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
     final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(size);
-    ts.execute(new MyTimingTaskDouble("DoubleMinHeap" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return heap.top(0, (double[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final double[] e = (double[]) expected.run(expected.getData(index));
-        final double[] o = (double[]) result;
-        topSortDouble(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
-    // // Sometimes this fails
-    // if ((double) size / total > 0.5)
-    // Assertions.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(),
-    // ts.get(1).getMean()),
-    // ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
-
-    ts.check();
-
-    if (runs > 1) {
-      logger.info(ts.getReport());
-    }
-  }
-
-  private static double[][] createDataDouble(UniformRandomProvider rng, int size, int total) {
-    final double[][] data = new double[size][];
-    for (int i = 0; i < size; i++) {
-      final double[] d = new double[total];
+    for (int i = 0; i < length; i++) {
       for (int j = 0; j < total; j++) {
         d[j] = rng.nextDouble() * 4 * Math.PI;
       }
-      data[i] = d;
+      // Reference
+      final double[] expected = topDouble(size, d.clone());
+      // Test methods
+      assertTopSortEqual(expected, PartialSort.top(d.clone(), size), false, true,
+          msg.set(0, "topSort"));
+      assertTopSortEqual(expected, PartialSort.top(PartialSort.OPTION_HEAD_FIRST, d.clone(), size),
+          true, false, msg.set(0, "topHead"));
+      assertTopSortEqual(expected, PartialSort.top(0, d.clone(), size), false, false,
+          msg.set(0, "top"));
+      assertTopSortEqual(expected, ps.top(0, d.clone()), false, false,
+          msg.set(0, "DoubleSelector"));
+      assertTopSortEqual(expected, heap.top(0, d.clone()), false, false,
+          msg.set(0, "DoubleMinHeap"));
     }
-    return data;
+  }
+
+  private static void assertTopSortEqual(double[] expected, double[] actual, boolean head,
+      boolean sorted, Supplier<String> msg) {
+    if (head) {
+      Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
+    }
+    if (!sorted) {
+      topSortDouble(actual);
+    }
+    Assertions.assertArrayEquals(expected, actual, msg);
   }
 
   // XXX copy to here
@@ -465,104 +279,44 @@ class PartialSortTest {
     Assertions.assertArrayEquals(e, o);
   }
 
-  private void bottomComputeFloat(UniformRandomProvider rng, int length, final int size,
+  private static void bottomComputeFloat(UniformRandomProvider rng, int length, final int size,
       final int total) {
-    final float[][] data = createDataFloat(rng, length, total);
-    final String msg = String.format(" %d of %d", size, total);
-
-    final MyTimingTaskFloat expected = new MyTimingTaskFloat("Sort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return bottomFloat(size, (float[]) data);
-      }
-    };
-
-    final int runs = (logger.isLoggable(Level.INFO)) ? 5 : 1;
-    final TimingService ts = new TimingService(runs);
-    ts.execute(expected);
-    ts.execute(new MyTimingTaskFloat("bottomSort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.bottom((float[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskFloat("bottomHead" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, (float[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        Assertions.assertEquals(e[size - 1], o[0], () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskFloat("bottom" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.bottom(0, (float[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        bottomSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
+    final ObjectArrayFormatSupplier msg = new ObjectArrayFormatSupplier("%s %d of %d", 3);
+    msg.set(1, size);
+    msg.set(2, total);
+    final float[] d = new float[total];
     final PartialSort.FloatSelector ps = new PartialSort.FloatSelector(size);
-    ts.execute(new MyTimingTaskFloat("FloatSelector" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return ps.bottom(0, (float[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        bottomSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
     final PartialSort.FloatHeap heap = new PartialSort.FloatHeap(size);
-    ts.execute(new MyTimingTaskFloat("FloatMinHeap" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return heap.bottom(0, (float[]) data);
+    for (int i = 0; i < length; i++) {
+      for (int j = 0; j < total; j++) {
+        d[j] = (float) (rng.nextFloat() * 4 * Math.PI);
       }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        bottomSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
-    // Sometimes this fails
-    // if ((float) size / total > 0.5)
-    // Assertions.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(),
-    // ts.get(1).getMean()),
-    // ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
-
-    ts.check();
-
-    if (runs > 1) {
-      logger.info(ts.getReport());
+      // Reference
+      final float[] expected = bottomFloat(size, d.clone());
+      // Test methods
+      assertBottomSortEqual(expected, PartialSort.bottom(d.clone(), size), false, true,
+          msg.set(0, "bottomSort"));
+      assertBottomSortEqual(expected,
+          PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d.clone(), size), true, false,
+          msg.set(0, "bottomHead"));
+      assertBottomSortEqual(expected, PartialSort.bottom(0, d.clone(), size), false, false,
+          msg.set(0, "bottom"));
+      assertBottomSortEqual(expected, ps.bottom(0, d.clone()), false, false,
+          msg.set(0, "FloatSelector"));
+      assertBottomSortEqual(expected, heap.bottom(0, d.clone()), false, false,
+          msg.set(0, "FloatMinHeap"));
     }
+  }
+
+  private static void assertBottomSortEqual(float[] expected, float[] actual, boolean head,
+      boolean sorted, Supplier<String> msg) {
+    if (head) {
+      Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
+    }
+    if (!sorted) {
+      bottomSortFloat(actual);
+    }
+    Assertions.assertArrayEquals(expected, actual, msg);
   }
 
   @SeededTest
@@ -616,115 +370,41 @@ class PartialSortTest {
     Assertions.assertArrayEquals(e, o);
   }
 
-  private void topComputeFloat(UniformRandomProvider rng, int length, final int size,
+  private static void topComputeFloat(UniformRandomProvider rng, int length, final int size,
       final int total) {
-    final float[][] data = createDataFloat(rng, length, total);
-    final String msg = String.format(" %d of %d", size, total);
-
-    final MyTimingTaskFloat expected = new MyTimingTaskFloat("Sort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return topFloat(size, (float[]) data);
-      }
-    };
-
-    final int runs = (logger.isLoggable(Level.INFO)) ? 5 : 1;
-    final TimingService ts = new TimingService(runs);
-    ts.execute(expected);
-    ts.execute(new MyTimingTaskFloat("topSort" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.top((float[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskFloat("topHead" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.top(PartialSort.OPTION_HEAD_FIRST, (float[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        Assertions.assertEquals(e[size - 1], o[0], () -> this.getName());
-      }
-    });
-    ts.execute(new MyTimingTaskFloat("top" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return PartialSort.top(0, (float[]) data, size);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        topSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
+    final ObjectArrayFormatSupplier msg = new ObjectArrayFormatSupplier("%s %d of %d", 3);
+    msg.set(1, size);
+    msg.set(2, total);
+    final float[] d = new float[total];
     final PartialSort.FloatSelector ps = new PartialSort.FloatSelector(size);
-    ts.execute(new MyTimingTaskFloat("FloatSelector" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return ps.top(0, (float[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        topSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
     final PartialSort.FloatHeap heap = new PartialSort.FloatHeap(size);
-    ts.execute(new MyTimingTaskFloat("FloatMinHeap" + msg, data) {
-      @Override
-      public Object run(Object data) {
-        return heap.top(0, (float[]) data);
-      }
-
-      @Override
-      public void check(int index, Object result) {
-        final float[] e = (float[]) expected.run(expected.getData(index));
-        final float[] o = (float[]) result;
-        topSortFloat(o);
-        Assertions.assertArrayEquals(e, o, () -> this.getName());
-      }
-    });
-
-    // // Sometimes this fails
-    // if ((float) size / total > 0.5)
-    // Assertions.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(),
-    // ts.get(1).getMean()),
-    // ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
-
-    ts.check();
-
-    if (runs > 1) {
-      logger.info(ts.getReport());
-    }
-  }
-
-  private static float[][] createDataFloat(UniformRandomProvider rng, int size, int total) {
-    final float[][] data = new float[size][];
-    for (int i = 0; i < size; i++) {
-      final float[] d = new float[total];
+    for (int i = 0; i < length; i++) {
       for (int j = 0; j < total; j++) {
         d[j] = (float) (rng.nextFloat() * 4 * Math.PI);
       }
-      data[i] = d;
+      // Reference
+      final float[] expected = topFloat(size, d.clone());
+      // Test methods
+      assertTopSortEqual(expected, PartialSort.top(d.clone(), size), false, true,
+          msg.set(0, "topSort"));
+      assertTopSortEqual(expected, PartialSort.top(PartialSort.OPTION_HEAD_FIRST, d.clone(), size),
+          true, false, msg.set(0, "topHead"));
+      assertTopSortEqual(expected, PartialSort.top(0, d.clone(), size), false, false,
+          msg.set(0, "top"));
+      assertTopSortEqual(expected, ps.top(0, d.clone()), false, false, msg.set(0, "FloatSelector"));
+      assertTopSortEqual(expected, heap.top(0, d.clone()), false, false,
+          msg.set(0, "FloatMinHeap"));
     }
-    return data;
+  }
+
+  private static void assertTopSortEqual(float[] expected, float[] actual, boolean head,
+      boolean sorted, Supplier<String> msg) {
+    if (head) {
+      Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
+    }
+    if (!sorted) {
+      topSortFloat(actual);
+    }
+    Assertions.assertArrayEquals(expected, actual, msg);
   }
 }

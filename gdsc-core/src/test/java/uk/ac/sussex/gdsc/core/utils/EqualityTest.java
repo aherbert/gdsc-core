@@ -31,21 +31,10 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.logging.Logger;
-import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.RandomSeed;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -463,85 +452,5 @@ class EqualityTest {
     logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f4,
         FloatEquality.complement(f4, value), DoubleEquality.complement(f4, value),
         FloatEquality.relativeError(value, f4), DoubleEquality.relativeError(value, f4)));
-  }
-
-  @SpeedTag
-  @SeededTest
-  void floatRelativeIsSameSpeedAsDoubleRelative(RandomSeed seed) {
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-
-    final float maxRelativeError = 1e-2f;
-    final float maxAbsoluteError = 1e-16f;
-    final FloatEquality equality = new FloatEquality(maxRelativeError, maxAbsoluteError);
-    final DoubleEquality equality2 = new DoubleEquality(maxRelativeError, maxAbsoluteError);
-
-    // Create data
-    final UniformRandomProvider rand = RngUtils.create(seed.get());
-    final float[] data1 = new float[MAX_ITER];
-    final float[] data2 = new float[data1.length];
-    final double[] data3 = new double[data1.length];
-    final double[] data4 = new double[data1.length];
-
-    for (int i = 0; i < data1.length; i++) {
-      final float f = rand.nextFloat();
-      data1[i] = f * ((rand.nextFloat() > 0.5) ? 1.001f : 1.1f);
-      data2[i] = f * ((rand.nextFloat() > 0.5) ? 1.001f : 1.1f);
-      data3[i] = data1[i];
-      data4[i] = data2[i];
-    }
-
-    final TimingService ts = new TimingService(20);
-    ts.execute(new BaseTimingTask("FloatEquality") {
-      @Override
-      public int getSize() {
-        return 1;
-      }
-
-      @Override
-      public Object getData(int index) {
-        return null;
-      }
-
-      @Override
-      public Object run(Object data) {
-        relative(equality, data1, data2);
-        return null;
-      }
-    });
-    ts.execute(new BaseTimingTask("DoubleEquality") {
-      @Override
-      public int getSize() {
-        return 1;
-      }
-
-      @Override
-      public Object getData(int index) {
-        return null;
-      }
-
-      @Override
-      public Object run(Object data) {
-        relative(equality2, data3, data4);
-        return null;
-      }
-    });
-    ts.repeat();
-    logger.info(ts.getReport());
-
-    final double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
-    logger.log(TestLogUtils.getResultRecord(error < 0.2,
-        "Float and Double relative equality not the same speed: Error=%f", error));
-  }
-
-  private static void relative(FloatEquality equality, float[] data, float[] data2) {
-    for (int i = 0; i < data.length; i++) {
-      equality.almostEqualRelativeOrAbsolute(data[i], data2[i]);
-    }
-  }
-
-  private static void relative(DoubleEquality equality, double[] data, double[] data2) {
-    for (int i = 0; i < data.length; i++) {
-      equality.almostEqualRelativeOrAbsolute(data[i], data2[i]);
-    }
   }
 }

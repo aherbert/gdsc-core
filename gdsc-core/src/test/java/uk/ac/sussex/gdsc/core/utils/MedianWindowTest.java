@@ -46,7 +46,6 @@ import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -302,106 +301,6 @@ class MedianWindowTest {
     }
   }
 
-  @SpeedTag
-  @SeededTest
-  void intVersionIsFasterThanDoubleVersion(RandomSeed seed) {
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
-    for (final int radius : speedRadii) {
-      for (final int increment : speedIncrement) {
-        intVersionIsFasterThanDoubleVersion(seed, radius, increment);
-      }
-    }
-  }
-
-  private void intVersionIsFasterThanDoubleVersion(RandomSeed seed, int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
-    final int iterations = 20;
-    final double[][] data = new double[iterations][];
-    final int[][] data2 = new int[iterations][];
-    for (int i = 0; i < iterations; i++) {
-      data[i] = createRandomDataDouble(rg, dataSize);
-      data2[i] = copyDataInt(data[i]);
-    }
-
-    // Initialise class
-    DoubleMedianWindow mw = new DoubleMedianWindow(data[0], radius);
-    long t1;
-    if (increment == 1) {
-      do {
-        mw.getMedian();
-      } while (mw.increment());
-
-      final long s1 = System.nanoTime();
-      for (int iter = 0; iter < iterations; iter++) {
-        mw = new DoubleMedianWindow(data[iter], radius);
-        do {
-          mw.getMedian();
-        } while (mw.increment());
-      }
-      t1 = System.nanoTime() - s1;
-    } else {
-      while (mw.isValidPosition()) {
-        mw.getMedian();
-        mw.increment(increment);
-      }
-
-      final long s1 = System.nanoTime();
-      for (int iter = 0; iter < iterations; iter++) {
-        mw = new DoubleMedianWindow(data[iter], radius);
-        while (mw.isValidPosition()) {
-          mw.getMedian();
-          mw.increment(increment);
-        }
-      }
-      t1 = System.nanoTime() - s1;
-    }
-
-    // Initialise
-    IntMedianWindow mw2 = new IntMedianWindow(data2[0], radius);
-    long t2;
-    if (increment == 1) {
-      do {
-        mw2.getMedian();
-      } while (mw2.increment());
-
-      final long s2 = System.nanoTime();
-      for (int iter = 0; iter < iterations; iter++) {
-        mw2 = new IntMedianWindow(data2[iter], radius);
-        do {
-          mw2.getMedian();
-        } while (mw2.increment());
-      }
-      t2 = System.nanoTime() - s2;
-    } else {
-      while (mw2.isValidPosition()) {
-        mw2.getMedian();
-        mw2.increment(increment);
-      }
-
-      final long s2 = System.nanoTime();
-      for (int iter = 0; iter < iterations; iter++) {
-        mw2 = new IntMedianWindow(data2[iter], radius);
-        while (mw2.isValidPosition()) {
-          mw2.getMedian();
-          mw2.increment(increment);
-        }
-      }
-      t2 = System.nanoTime() - s2;
-    }
-
-    // Only test the largest radii
-    final TimingResult slow =
-        new TimingResult(String.format("Radius %d, Increment %d : double", radius, increment), t1);
-    final TimingResult fast = new TimingResult("int", t2);
-    if (radius == testSpeedRadius) {
-      // Assertions.assertTrue(t2 < t1, () -> String.format("Radius %d, Increment %d", radius,
-      // increment));
-      logger.log(TestLogUtils.getTimingRecord(slow, fast));
-    } else {
-      logger.log(TestLogUtils.getStageTimingRecord(slow, fast));
-    }
-  }
-
   static double calculateMedian(double[] data, int position, int radius) {
     final int start = Math.max(0, position - radius);
     final int end = Math.min(position + radius + 1, data.length);
@@ -550,13 +449,5 @@ class MedianWindowTest {
 
   private static float[] copyDataFloat(double[] data) {
     return SimpleArrayUtils.toFloat(data);
-  }
-
-  private static int[] copyDataInt(double[] data) {
-    final int[] data2 = new int[data.length];
-    for (int i = 0; i < data.length; i++) {
-      data2[i] = (int) data[i];
-    }
-    return data2;
   }
 }

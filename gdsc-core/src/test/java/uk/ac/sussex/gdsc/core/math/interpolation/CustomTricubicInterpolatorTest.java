@@ -41,7 +41,6 @@ import org.apache.commons.math3.util.Precision;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
@@ -59,16 +58,9 @@ import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.AssertionErrorCounter;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingResult;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 /**
@@ -1067,150 +1059,6 @@ class CustomTricubicInterpolatorTest {
     Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
     Assertions.assertArrayEquals(d2f_da2A, d2f_da2B);
-  }
-
-  private abstract static class MyTimingTask extends BaseTimingTask {
-    CustomTricubicFunction[] nodes;
-    double[] derivative1 = new double[3];
-    double[] derivative2 = new double[3];
-
-    public MyTimingTask(String name, CustomTricubicFunction[] nodes) {
-      super(name + " " + nodes[0].getClass().getSimpleName());
-      this.nodes = nodes;
-    }
-
-    @Override
-    public int getSize() {
-      return 1;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return null;
-    }
-  }
-
-  private abstract class DoubleTimingTask extends MyTimingTask {
-    CubicSplinePosition[][] positions;
-
-    public DoubleTimingTask(String name, CubicSplinePosition[][] positions,
-        CustomTricubicFunction[] nodes) {
-      super(name, nodes);
-      this.positions = positions;
-    }
-  }
-
-  private class Double0TimingTask extends DoubleTimingTask {
-    public Double0TimingTask(CubicSplinePosition[][] positions, CustomTricubicFunction[] nodes) {
-      super(Double0TimingTask.class.getSimpleName(), positions, nodes);
-    }
-
-    @Override
-    public Object run(Object data) {
-      double value = 0;
-      for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < positions.length; j++) {
-          value += nodes[i].value(positions[j][0], positions[j][1], positions[j][2]);
-        }
-      }
-      return value;
-    }
-  }
-
-  private class Double1TimingTask extends DoubleTimingTask {
-    public Double1TimingTask(CubicSplinePosition[][] positions, CustomTricubicFunction[] nodes) {
-      super(Double1TimingTask.class.getSimpleName(), positions, nodes);
-    }
-
-    @Override
-    public Object run(Object data) {
-      double value = 0;
-      for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < positions.length; j++) {
-          value += nodes[i].value(positions[j][0], positions[j][1], positions[j][2], derivative1);
-        }
-      }
-      return value;
-    }
-  }
-
-  private class Double2TimingTask extends DoubleTimingTask {
-    public Double2TimingTask(CubicSplinePosition[][] positions, CustomTricubicFunction[] nodes) {
-      super(Double2TimingTask.class.getSimpleName(), positions, nodes);
-    }
-
-    @Override
-    public Object run(Object data) {
-      double value = 0;
-      for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < positions.length; j++) {
-          value += nodes[i].value(positions[j][0], positions[j][1], positions[j][2], derivative1,
-              derivative2);
-        }
-      }
-      return value;
-    }
-  }
-
-  @SpeedTag
-  @SeededTest
-  void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed) {
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-
-    final UniformRandomProvider r = RngUtils.create(seed.get());
-    final int x = 6;
-    final int y = 5;
-    final int z = 4;
-    final double xscale = 1;
-    final double yscale = 0.5;
-    final double zscale = 2.0;
-    final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
-    final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
-    final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
-    final double[][][] fval = createData(x, y, z, null);
-    final CustomTricubicInterpolatingFunction f1 =
-        new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
-
-    // Extract nodes for testing
-    final CustomTricubicFunction[] nodes = new CustomTricubicFunction[(x - 2) * (y - 2) * (z - 2)];
-    final CustomTricubicFunction[] fnodes = new CustomTricubicFunction[nodes.length];
-    for (int zi = 1, i = 0; zi < x - 1; zi++) {
-      for (int yi = 1; yi < y - 1; yi++) {
-        for (int xi = 1; xi < z - 1; xi++, i++) {
-          nodes[i] = f1.getSplineNodeReference(zi, yi, xi);
-          fnodes[i] = nodes[i].toSinglePrecision();
-        }
-      }
-    }
-
-    // Get points
-    final CubicSplinePosition[][] positions = new CubicSplinePosition[3000][];
-    for (int i = 0; i < positions.length; i++) {
-      positions[i] = new CubicSplinePosition[] {new CubicSplinePosition(r.nextDouble()),
-          new CubicSplinePosition(r.nextDouble()), new CubicSplinePosition(r.nextDouble()),};
-    }
-
-    final TimingService ts = new TimingService();
-
-    // Put in order to pass the speed test
-    ts.execute(new Double2TimingTask(positions, fnodes));
-    ts.execute(new Double2TimingTask(positions, nodes));
-
-    ts.execute(new Double1TimingTask(positions, fnodes));
-    ts.execute(new Double1TimingTask(positions, nodes));
-
-    ts.execute(new Double0TimingTask(positions, fnodes));
-    ts.execute(new Double0TimingTask(positions, nodes));
-
-    final int n = ts.getSize();
-    ts.repeat();
-    logger.info(ts.getReport(n));
-
-    for (int i = 1; i < n; i += 2) {
-      final TimingResult fast = ts.get(-i);
-      final TimingResult slow = ts.get(-i - 1);
-      logger.log(TestLogUtils.getTimingRecord(slow, fast));
-    }
   }
 
   @Test

@@ -82,6 +82,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBinaryHeap;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBinaryHeapIdOrdered;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBinaryHeapReverseIdOrdered;
@@ -102,13 +103,10 @@ import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingResult;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
@@ -2060,7 +2058,7 @@ class OpticsManagerTest {
     SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE
   }
 
-  private abstract class MyTimingTask extends BaseTimingTask {
+  private abstract class ExecutableTask implements Executable {
     TestMoleculeSpace ms;
     boolean generate;
     OpticsManager[] om;
@@ -2072,9 +2070,8 @@ class OpticsManagerTest {
     Option[] options;
     String name;
 
-    public MyTimingTask(TestMoleculeSpace ms, boolean generate, OpticsManager[] om, int minPts,
+    ExecutableTask(TestMoleculeSpace ms, boolean generate, OpticsManager[] om, int minPts,
         float generatingDistanceE, int resolution, Option... options) {
-      super(ms.toString());
       this.ms = ms;
       this.generate = generate;
       this.om = om;
@@ -2085,13 +2082,13 @@ class OpticsManagerTest {
       this.options = options;
     }
 
-    @Override
-    public int getSize() {
-      return om.length;
-    }
-
-    @Override
-    public Object getData(int index) {
+    /**
+     * Gets the data for the task.
+     *
+     * @param index the index
+     * @return the data
+     */
+    MoleculeSpace getData(int index) {
       // Create the molecule space
       if (options != null) {
         om[index].addOptions(options);
@@ -2132,26 +2129,49 @@ class OpticsManagerTest {
       }
     }
 
-    @Override
-    public String getName() {
+    String getName() {
       return name;
     }
+
+    @Override
+    public void execute() {
+      for (int i = 0; i < om.length; i++) {
+        MoleculeSpace space = getData(i);
+        int[][] result = run(space);
+        check(i, result);
+      }
+    }
+
+    /**
+     * Run the task.
+     *
+     * @param data the task data
+     * @return the result
+     */
+    abstract int[][] run(MoleculeSpace data);
+
+    /**
+     * Check the result produced by the given task.
+     *
+     * @param index the task index
+     * @param result the result
+     */
+    abstract void check(int index, int[][] result);
   }
 
-  private abstract class FindNeighboursTimingTask extends MyTimingTask {
-    public FindNeighboursTimingTask(TestMoleculeSpace ms, boolean generate, OpticsManager[] om,
-        int minPts, float generatingDistanceE, int resolution, Option... options) {
+  private abstract class FindNeighboursTask extends ExecutableTask {
+    FindNeighboursTask(TestMoleculeSpace ms, boolean generate, OpticsManager[] om, int minPts,
+        float generatingDistanceE, int resolution, Option... options) {
       super(ms, generate, om, minPts, generatingDistanceE, resolution, options);
     }
 
-    public FindNeighboursTimingTask(TestMoleculeSpace ms, OpticsManager[] om, int minPts,
+    FindNeighboursTask(TestMoleculeSpace ms, OpticsManager[] om, int minPts,
         float generatingDistanceE, int resolution, Option... options) {
       super(ms, false, om, minPts, generatingDistanceE, resolution, options);
     }
 
     @Override
-    public Object run(Object data) {
-      final MoleculeSpace space = (MoleculeSpace) data;
+    int[][] run(MoleculeSpace space) {
       if (!generate) {
         generate(space);
       }
@@ -2169,7 +2189,7 @@ class OpticsManagerTest {
   }
 
   @SeededTest
-  void canTestMoleculeSpaceFindNeighbours(RandomSeed seed) {
+  void canTestMoleculeSpaceFindNeighbours(RandomSeed seed) throws Throwable {
     final UniformRandomProvider rg = RngUtils.create(seed.get());
     final OpticsManager[] om = new OpticsManager[5];
     for (int i = 0; i < om.length; i++) {
@@ -2182,91 +2202,73 @@ class OpticsManagerTest {
     // Results
     final int[][][] n = new int[om.length][][];
 
-    final int loops = (logger.isLoggable(Level.INFO)) ? 5 : 1;
+    // Reference results
+    new FindNeighboursTask(TestMoleculeSpace.SIMPLE, om, minPts, generatingDistanceE, 0) {
+      @Override
+      public void check(int index, int[][] result) {
+        // Store these as the correct results
+        n[index] = format(result);
+      }
+    }.execute();
 
-    final TimingService ts = new TimingService(loops);
-    final boolean check = true;
-
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.SIMPLE, om, minPts, generatingDistanceE, 0) {
+    Assertions.assertAll(
+        new FindNeighboursTask(TestMoleculeSpace.GRID, om, minPts, generatingDistanceE, 0) {
           @Override
-          public void check(int index, Object result) {
-            // Store these as the correct results
-            n[index] = format(result);
-          }
-        }, check);
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.GRID, om, minPts, generatingDistanceE, 0) {
-          @Override
-          public void check(int index, Object result) {
+          public void check(int index, int[][] result) {
             final int[][] e = n[index];
             final int[][] o = format(result);
             Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
           }
-        }, check);
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.GRID, om, minPts, generatingDistanceE, 10) {
+        }, new FindNeighboursTask(TestMoleculeSpace.GRID, om, minPts, generatingDistanceE, 10) {
           @Override
-          public void check(int index, Object result) {
+          public void check(int index, int[][] result) {
             final int[][] e = n[index];
             final int[][] o = format(result);
             Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
           }
-        }, check);
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, om, minPts, generatingDistanceE, 0) {
+        }, new FindNeighboursTask(TestMoleculeSpace.RADIAL, om, minPts, generatingDistanceE, 0) {
           @Override
-          public void check(int index, Object result) {
+          public void check(int index, int[][] result) {
             final String name = getName() + ":" + index + ":";
             final int[][] e = n[index];
             final int[][] o = format(result);
             Assertions.assertArrayEquals(e, o, name);
           }
-        }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, om, minPts,
-        generatingDistanceE, 10) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, om, minPts,
-        generatingDistanceE, 10) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(
-        new FindNeighboursTimingTask(TestMoleculeSpace.TREE, om, minPts, generatingDistanceE, 0) {
+        },
+        new FindNeighboursTask(TestMoleculeSpace.INNER_RADIAL, om, minPts, generatingDistanceE, 0) {
           @Override
-          public void check(int index, Object result) {
+          public void check(int index, int[][] result) {
             final int[][] e = n[index];
             final int[][] o = format(result);
             Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
           }
-        }, check);
-
-    if (loops > 1) {
-      logger.info(ts.getReport());
-    }
+        }, new FindNeighboursTask(TestMoleculeSpace.RADIAL, om, minPts, generatingDistanceE, 10) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        }, new FindNeighboursTask(TestMoleculeSpace.INNER_RADIAL, om, minPts, generatingDistanceE,
+            10) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        }, new FindNeighboursTask(TestMoleculeSpace.TREE, om, minPts, generatingDistanceE, 0) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        });
   }
 
   @SeededTest
-  void canTestMoleculeSpaceFindNeighboursPregenerated(RandomSeed seed) {
+  void canTestMoleculeSpaceFindNeighboursPregenerated(RandomSeed seed) throws Throwable {
     final UniformRandomProvider rg = RngUtils.create(seed.get());
     final OpticsManager[] om = new OpticsManager[5];
     for (int i = 0; i < om.length; i++) {
@@ -2279,96 +2281,82 @@ class OpticsManagerTest {
     // Results
     final int[][][] n = new int[om.length][][];
 
-    final int loops = (logger.isLoggable(Level.INFO)) ? 5 : 1;
-
-    final TimingService ts = new TimingService(loops);
-    final boolean check = true;
-
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.SIMPLE, true, om, minPts,
-        generatingDistanceE, 0) {
+    // Reference results
+    new FindNeighboursTask(TestMoleculeSpace.SIMPLE, true, om, minPts, generatingDistanceE, 0) {
       @Override
-      public void check(int index, Object result) {
+      public void check(int index, int[][] result) {
         // Store these as the correct results
         n[index] = format(result);
       }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.GRID, true, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.GRID, true, om, minPts,
-        generatingDistanceE, 10) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, true, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, true, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, true, om, minPts,
-        generatingDistanceE, 10) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, true, om, minPts,
-        generatingDistanceE, 10) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
-    ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.TREE, true, om, minPts,
-        generatingDistanceE, 0) {
-      @Override
-      public void check(int index, Object result) {
-        final int[][] e = n[index];
-        final int[][] o = format(result);
-        Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
-      }
-    }, check);
+    }.execute();
 
-    if (loops > 1) {
-      logger.info(ts.getReport());
-    }
+    Assertions.assertAll(
+        new FindNeighboursTask(TestMoleculeSpace.GRID, true, om, minPts, generatingDistanceE, 0) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        },
+        new FindNeighboursTask(TestMoleculeSpace.GRID, true, om, minPts, generatingDistanceE, 10) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        },
+        new FindNeighboursTask(TestMoleculeSpace.RADIAL, true, om, minPts, generatingDistanceE, 0) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        }, new FindNeighboursTask(TestMoleculeSpace.INNER_RADIAL, true, om, minPts,
+            generatingDistanceE, 0) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        }, new FindNeighboursTask(TestMoleculeSpace.RADIAL, true, om, minPts, generatingDistanceE,
+            10) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        }, new FindNeighboursTask(TestMoleculeSpace.INNER_RADIAL, true, om, minPts,
+            generatingDistanceE, 10) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        },
+        new FindNeighboursTask(TestMoleculeSpace.TREE, true, om, minPts, generatingDistanceE, 0) {
+          @Override
+          public void check(int index, int[][] result) {
+            final int[][] e = n[index];
+            final int[][] o = format(result);
+            Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
+          }
+        });
   }
 
   /**
-   * This test uses the auto-resolution. It is mainly used to determine when to switch inner circle
-   * processing on.
+   * This test uses the auto-resolution. It was previously used to determine when to switch inner
+   * circle processing on using approximate timing results. Now it simply asserts the results match
+   * between methods.
    */
   @SeededTest
-  void canTestMoleculeSpaceFindNeighboursWithAutoResolution(RandomSeed seed) {
-    Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+  void canTestMoleculeSpaceFindNeighboursWithAutoResolution(RandomSeed seed) throws Throwable {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.VERY_HIGH));
 
     final UniformRandomProvider rg = RngUtils.create(seed.get());
     final int molecules = 20000;
@@ -2377,10 +2365,6 @@ class OpticsManagerTest {
 
     final double moleculesInPixel = (double) molecules / (size * size);
     final int[] moleculesInArea = new int[] {64, 128, 256, 512, 1024};
-
-    // Should this ever be done?
-    // This is slow as the number of sorts in the check method is very large
-    final boolean check = TestSettings.allow(TestComplexity.HIGH);
 
     for (final int m : moleculesInArea) {
       // Increase generatingDistance until we achieve the molecules
@@ -2405,378 +2389,31 @@ class OpticsManagerTest {
       // Results
       final int[][][] n = new int[om.length][][];
 
-      final TimingService ts = new TimingService(1);
-
       final int resolution = 0;
-      ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.GRID, om, minPts,
-          generatingDistanceE, resolution) {
+      // Reference results
+      new FindNeighboursTask(TestMoleculeSpace.GRID, om, minPts, generatingDistanceE, resolution) {
         @Override
-        public void check(int index, Object result) {
+        public void check(int index, int[][] result) {
           n[index] = format(result);
         }
-      }, check);
-      ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, om, minPts,
+      }.execute();
+      Assertions.assertAll(new FindNeighboursTask(TestMoleculeSpace.RADIAL, om, minPts,
           generatingDistanceE, resolution) {
         @Override
-        public void check(int index, Object result) {
+        public void check(int index, int[][] result) {
           final int[][] e = n[index];
           final int[][] o = format(result);
           Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
         }
-      }, check);
-      ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, om, minPts,
-          generatingDistanceE, resolution) {
+      }, new FindNeighboursTask(TestMoleculeSpace.INNER_RADIAL, om, minPts, generatingDistanceE,
+          resolution) {
         @Override
-        public void check(int index, Object result) {
+        public void check(int index, int[][] result) {
           final int[][] e = n[index];
           final int[][] o = format(result);
           Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), index));
         }
-      }, check);
-
-      logger.info(ts.getReport());
-    }
-  }
-
-  /**
-   * This tests what resolution to use for a GridMoleculeSpace.
-   */
-  @SeededTest
-  void canTestGridMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
-    Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
-
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
-    final int molecules = 50000;
-    float generatingDistanceE = 0;
-    final int minPts = 20;
-
-    final double moleculesInPixel = (double) molecules / (size * size);
-    final int[] moleculesInArea = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40,
-        45, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 300};
-
-    for (final int m : moleculesInArea) {
-      // Increase generatingDistance until we achieve the molecules
-      double moleculesInSquare;
-      do {
-        generatingDistanceE += 0.1f;
-        moleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      } while (moleculesInSquare < m && generatingDistanceE < size);
-
-      final double moleculesInCircle =
-          Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      final int maxResolution = (int) Math.ceil(moleculesInSquare);
-
-      logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d",
-          moleculesInSquare, moleculesInCircle, generatingDistanceE, maxResolution));
-
-      final OpticsManager[] om = new OpticsManager[3];
-      for (int i = 0; i < om.length; i++) {
-        om[i] = createOpticsManager(size, molecules, rg);
-      }
-
-      // Results
-      final int[][][] n = new int[om.length][][];
-
-      final TimingService ts = new TimingService(1);
-
-      final double[] best = new double[] {Double.MAX_VALUE};
-      int noChange = 0;
-
-      for (int resolution = 1; resolution <= maxResolution; resolution++) {
-        final double last = best[0];
-        final TimingResult result = ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.GRID,
-            om, minPts, generatingDistanceE, resolution) {
-          @Override
-          public void check(int index, Object result) {
-            n[index] = format(result);
-          }
-        });
-        update(result, best);
-        if (last == best[0]) {
-          noChange++;
-        } else {
-          noChange = 0;
-        }
-        if (noChange == 2) {
-          break;
-        }
-      }
-
-      // ts.check();
-
-      logger.info(ts.getReport());
-    }
-  }
-
-  /**
-   * This tests what resolution to use for a RadialMoleculeSpace.
-   */
-  @SeededTest
-  void canTestRadialMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
-    Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
-
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
-    final int molecules = 20000;
-    float generatingDistanceE = 0;
-    final int minPts = 20;
-
-    final double moleculesInPixel = (double) molecules / (size * size);
-    final int[] moleculesInArea = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40,
-        45, 50, 60, 70, 80, 90, 100, 120, 140, 160, 200, 300};
-
-    for (final int m : moleculesInArea) {
-      // Increase generatingDistance until we achieve the molecules
-      double moleculesInCircle;
-      do {
-        generatingDistanceE += 0.1f;
-        moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      } while (moleculesInCircle < m && generatingDistanceE < size);
-
-      final double nMoleculesInSquare =
-          4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      final int maxResolution = (int) Math.ceil(moleculesInCircle);
-
-      logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d",
-          nMoleculesInSquare, moleculesInCircle, generatingDistanceE, maxResolution));
-
-      final OpticsManager[] om = new OpticsManager[3];
-      for (int i = 0; i < om.length; i++) {
-        om[i] = createOpticsManager(size, molecules, rg);
-      }
-
-      // Results
-      final int[][][] n = new int[om.length][][];
-
-      final TimingService ts = new TimingService(1);
-
-      final double[] best = new double[] {Double.MAX_VALUE};
-      int noChange = 0;
-
-      for (int resolution = 1; resolution <= maxResolution; resolution++) {
-        final double last = best[0];
-        final TimingResult result =
-            ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.RADIAL, om, minPts,
-                generatingDistanceE, resolution) {
-              @Override
-              public void check(int index, Object result) {
-                n[index] = format(result);
-              }
-            });
-        update(result, best);
-        if (last == best[0]) {
-          noChange++;
-        } else {
-          noChange = 0;
-        }
-        if (noChange == 2) {
-          break;
-        }
-      }
-
-      // ts.check();
-
-      logger.info(ts.getReport());
-    }
-  }
-
-  /**
-   * This tests what resolution to use for a InnerRadialMoleculeSpace.
-   */
-  @SeededTest
-  void canTestInnerRadialMoleculeSpaceFindNeighboursWithResolution(RandomSeed seed) {
-    Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
-
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
-    final int molecules = 20000;
-    float generatingDistanceE = 0;
-    final int minPts = 20;
-
-    final double moleculesInPixel = (double) molecules / (size * size);
-    final int[] moleculesInArea = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40,
-        45, 50, 60, 70, 80, 90, 100, 150, 200, 300, 500, 1000};
-
-    int lastMax = 0;
-    for (final int m : moleculesInArea) {
-      // Increase generatingDistance until we achieve the molecules
-      double moleculesInCircle;
-      do {
-        generatingDistanceE += 0.1f;
-        moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      } while (moleculesInCircle < m && generatingDistanceE < size);
-
-      final double nMoleculesInSquare =
-          4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      final int maxResolution = (int) Math.ceil(moleculesInCircle);
-
-      logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d",
-          nMoleculesInSquare, moleculesInCircle, generatingDistanceE, maxResolution));
-
-      final OpticsManager[] om = new OpticsManager[3];
-      for (int i = 0; i < om.length; i++) {
-        om[i] = createOpticsManager(size, molecules, rg);
-      }
-
-      // Results
-      final int[][][] n = new int[om.length][][];
-
-      final TimingService ts = new TimingService(1);
-
-      final double[] best = new double[] {Double.MAX_VALUE};
-      int noChange = 0;
-
-      for (int resolution = Math.max(1, lastMax - 3); resolution <= maxResolution; resolution++) {
-        final double last = best[0];
-        final TimingResult result =
-            ts.execute(new FindNeighboursTimingTask(TestMoleculeSpace.INNER_RADIAL, om, minPts,
-                generatingDistanceE, resolution) {
-              @Override
-              public void check(int index, Object result) {
-                n[index] = format(result);
-              }
-            });
-        update(result, best);
-        if (last == best[0]) {
-          noChange++;
-        } else {
-          noChange = 0;
-          lastMax = resolution;
-        }
-        if (noChange == 2) {
-          break;
-        }
-      }
-
-      // ts.check();
-
-      logger.info(ts.getReport());
-    }
-  }
-
-  private class OpticsTimingTask extends BaseTimingTask {
-    int moleculesInArea;
-    OpticsManager[] om;
-    int minPts;
-    float generatingDistanceE;
-    Option[] options;
-    String name = null;
-
-    public OpticsTimingTask(int moleculesInArea, OpticsManager[] om, int minPts,
-        float generatingDistanceE, Option... options) {
-      super(options.toString());
-      this.moleculesInArea = moleculesInArea;
-      this.om = om;
-      this.generatingDistanceE = generatingDistanceE;
-      this.minPts = minPts;
-      this.options = options;
-      setName();
-    }
-
-    private void setName() {
-      final StringBuilder sb = new StringBuilder();
-      sb.append("m=").append(moleculesInArea);
-      sb.append(" minPts=").append(minPts).append(" e=").append(generatingDistanceE);
-      for (final Option o : options) {
-        sb.append(' ').append(o.toString());
-      }
-      name = sb.toString();
-    }
-
-    @Override
-    public int getSize() {
-      return om.length;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return om[index];
-    }
-
-    @Override
-    public Object run(Object data) {
-      final OpticsManager om = (OpticsManager) data;
-      // Set the options
-      if (options != null) {
-        om.addOptions(options);
-      }
-      final OpticsResult result = om.optics(generatingDistanceE, minPts);
-      // Reset
-      if (options != null) {
-        om.removeOptions(options);
-      }
-      return result;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-  }
-
-  /**
-   * Tests the speed of the different queue structures. The default Heap is faster that the simple
-   * priority queue when the number of molecules within the generating distance is high. When at the
-   * default level then the speed is similar.
-   */
-  @SeededTest
-  void canTestOpticsQueue(RandomSeed seed) {
-    Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
-
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
-    final int molecules = 5000;
-    float generatingDistanceE = 0;
-    final int minPts = 5;
-
-    final double moleculesInPixel = (double) molecules / (size * size);
-    final int[] moleculesInArea = new int[] {0, 5, 10, 20, 50};
-
-    final OpticsManager[] om = new OpticsManager[5];
-    for (int i = 0; i < om.length; i++) {
-      om[i] = createOpticsManager(size, molecules, rg);
-      om[i].addOptions(Option.CACHE);
-    }
-
-    for (final int m : moleculesInArea) {
-      // Increase generatingDistance until we achieve the molecules
-      double moleculesInCircle =
-          Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      while (moleculesInCircle < m && generatingDistanceE < size) {
-        generatingDistanceE += 0.1f;
-        moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      }
-
-      final TimingService ts = new TimingService(3);
-
-      // Run once without timing so the structure is cached
-      final OpticsTimingTask task = new OpticsTimingTask(m, om, minPts, generatingDistanceE);
-      ts.execute(task);
-      ts.clearResults();
-
-      // Note: It is not actually fair to do a speed test without strict ID ordering as the order
-      // may dictate the speed
-      // as the list of items to process will be built in a different order (and to a different
-      // size).
-      // So we can compare ID and reverse ID ordering for different structures.
-      // But not no ID ordering for different structures as the order will be dictated by the
-      // structure itself.
-      ts.execute(task);
-      ts.execute(new OpticsTimingTask(m, om, minPts, generatingDistanceE,
-          Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
-
-      ts.execute(
-          new OpticsTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_STRICT_ID_ORDER));
-      ts.execute(new OpticsTimingTask(m, om, minPts, generatingDistanceE,
-          Option.OPTICS_STRICT_ID_ORDER, Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
-
-      ts.execute(new OpticsTimingTask(m, om, minPts, generatingDistanceE,
-          Option.OPTICS_STRICT_REVERSE_ID_ORDER));
-      ts.execute(new OpticsTimingTask(m, om, minPts, generatingDistanceE,
-          Option.OPTICS_STRICT_REVERSE_ID_ORDER, Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
-
-      logger.info(ts.getReport());
+      });
     }
   }
 
@@ -2857,15 +2494,8 @@ class OpticsManagerTest {
     }
   }
 
-  private static void update(TimingResult result, double[] best) {
-    final double time = result.getMean();
-    if (best[0] > time) {
-      best[0] = time;
-    }
-  }
-
-  private static int[][] format(Object result) {
-    final int[][] n = (int[][]) result;
+  private static int[][] format(int[][] result) {
+    final int[][] n = result;
     for (int i = 0; i < n.length; i++) {
       Arrays.sort(n[i]);
     }

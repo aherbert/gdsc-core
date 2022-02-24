@@ -31,12 +31,8 @@ package uk.ac.sussex.gdsc.core.filters;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 import java.awt.Rectangle;
-import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
@@ -44,28 +40,11 @@ import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({"javadoc"})
 class FloatAreaStatisticsTest {
-  private static Logger logger;
-
-  @BeforeAll
-  public static void beforeAll() {
-    logger = Logger.getLogger(FloatAreaStatisticsTest.class.getName());
-  }
-
-  @AfterAll
-  public static void afterAll() {
-    logger = null;
-  }
 
   boolean[] rollingSums = new boolean[] {true, false};
   int[] boxSizes = new int[] {15, 9, 5, 3, 2, 1};
@@ -289,104 +268,6 @@ class FloatAreaStatisticsTest {
         TestAssertions.assertTest(s, obs[AreaStatistics.INDEX_SD], equality);
       }
     }
-  }
-
-  private class MyTimingtask extends BaseTimingTask {
-    boolean rolling;
-    int size;
-    float[][] data;
-    int[] sample;
-
-    public MyTimingtask(boolean rolling, int size, float[][] data, int[] sample) {
-      super(((rolling) ? "Rolling" : "Simple") + size);
-      this.rolling = rolling;
-      this.size = size;
-      this.data = data;
-      this.sample = sample;
-    }
-
-    @Override
-    public int getSize() {
-      return data.length;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return data[index];
-    }
-
-    @Override
-    public Object run(Object data) {
-      final float[] d = (float[]) data;
-      final FloatAreaStatistics a = FloatAreaStatistics.wrap(d, maxx, maxy);
-      a.setRollingSums(rolling);
-      for (int i = 0; i < sample.length; i += 2) {
-        a.getStatistics(sample[i], sample[i + 1], size);
-      }
-      return null;
-    }
-  }
-
-  @SpeedTag
-  @SeededTest
-  void simpleIsfasterAtLowDensityAndNLessThan10(RandomSeed seed) {
-    // Test the speed for computing the noise around spots at a density of roughly 1 / 100 pixels.
-    speedTest(seed, 1.0 / 100, false, 1, 10);
-  }
-
-  @SpeedTag
-  @SeededTest
-  void simpleIsfasterAtMediumDensityAndNLessThan5(RandomSeed seed) {
-    // Test the speed for computing the noise around each 3x3 box
-    // using a region of 3x3 (size=1) to 9x9 (size=4)
-    speedTest(seed, 1.0 / 9, false, 1, 4);
-  }
-
-  @SpeedTag
-  @SeededTest
-  void rollingIsfasterAtHighDensity(RandomSeed seed) {
-    // Since this is a slow test
-    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-
-    // Test for sampling half the pixels. Ignore the very small box size
-    speedTest(seed, 0.5, true, 2, Integer.MAX_VALUE);
-  }
-
-  private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN,
-      int maxN) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
-
-    final int k = (int) Math.round(maxx * maxy * density);
-    final int[] x = RandomUtils.sample(k, maxx, rng);
-    final int[] y = RandomUtils.sample(k, maxy, rng);
-    final int[] sample = new int[k * 2];
-    for (int i = 0, j = 0; i < x.length; i++) {
-      sample[j++] = x[i];
-      sample[j++] = y[i];
-    }
-
-    final float[][] data = new float[10][];
-    for (int i = 0; i < data.length; i++) {
-      data[i] = createData(rng);
-    }
-
-    final TimingService ts = new TimingService();
-    for (final int size : boxSizes) {
-      if (size < minN || size > maxN) {
-        continue;
-      }
-      ts.execute(new MyTimingtask(true, size, data, sample));
-      ts.execute(new MyTimingtask(false, size, data, sample));
-    }
-    final int size = ts.getSize();
-    ts.repeat();
-    logger.info(ts.getReport(size));
-    // Do not let this fail the test suite
-    // Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
-    logger.log(
-        TestLogUtils.getResultRecord(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
-            "AreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s",
-            density, rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean()));
   }
 
   private float[] createData(UniformRandomProvider rng) {

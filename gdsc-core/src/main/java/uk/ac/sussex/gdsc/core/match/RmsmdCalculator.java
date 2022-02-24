@@ -269,7 +269,7 @@ public final class RmsmdCalculator {
   @VisibleForTesting
   static double sumMinimumDistancesKdTree(double[][] points1, double[][] points2,
       DoubleDistanceFunction distanceFunction) {
-    // Put all points1 in a KD-Tree
+    // Put all points2 in a KD-Tree
     final DoubleKdTree tree = KdTrees.newDoubleKdTree(points2[0].length);
     for (final double[] p : points2) {
       tree.add(p);

@@ -32,11 +32,11 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
 import java.util.Formatter;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -46,11 +46,9 @@ import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 /**
  * This class is used to in-line the computation for the
@@ -238,94 +236,32 @@ class CustomTricubicInterpolatingFunctionInlineTest {
     logger.log(level, inlineComputeCoefficientsCollectTerms());
   }
 
-  private abstract static class MyTimingTask extends BaseTimingTask {
-    static final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
-
-    double[][] expected;
-
-    public MyTimingTask(String name, double[][] expected) {
-      super(name);
-      this.expected = expected;
-    }
-
-    @Override
-    public int getSize() {
-      return 1;
-    }
-
-    @Override
-    public Object getData(int index) {
-      return null;
-    }
-
-    @Override
-    public void check(int index, Object result) {
-      final double[][] observed = (double[][]) result;
-      TestAssertions.assertArrayTest(expected, observed, equality, getName());
-    }
+  @SeededTest
+  void canComputeCoefficientsInline(RandomSeed seed) {
+    canComputeCoefficients(seed, CustomTricubicInterpolatingFunction::computeCoefficientsInline);
   }
 
   @SeededTest
-  void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
+  void canComputeCoefficientsInlineCollectTerms(RandomSeed seed) {
+    canComputeCoefficients(seed,
+        CustomTricubicInterpolatingFunction::computeCoefficientsInlineCollectTerms);
+  }
+
+  private static void canComputeCoefficients(RandomSeed seed, UnaryOperator<double[]> fun) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider r = RngUtils.create(seed.get());
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
 
     final int N = 3000;
-    final double[][] tables = new double[N][];
-    final double[][] a = new double[N][];
-    for (int i = 0; i < tables.length; i++) {
+    for (int i = 0; i < N; i++) {
       final double[] table = new double[64];
       for (int j = 0; j < 64; j++) {
         table[j] = r.nextDouble();
       }
-      tables[i] = table;
-      a[i] = CustomTricubicInterpolatingFunction.computeCoefficients(table);
+      double[] a = CustomTricubicInterpolatingFunction.computeCoefficients(table);
+      double[] b = fun.apply(table);
+      TestAssertions.assertArrayTest(a, b, equality);
     }
-
-    final TimingService ts = new TimingService();
-
-    ts.execute(new MyTimingTask("Standard", a) {
-      @Override
-      public Object run(Object data) {
-        final double[][] a = new double[N][];
-        for (int i = 0; i < N; i++) {
-          a[i] = CustomTricubicInterpolatingFunction.computeCoefficients(tables[i]);
-        }
-        return a;
-      }
-    });
-    ts.execute(new MyTimingTask("Inline", a) {
-      @Override
-      public Object run(Object data) {
-        final double[][] a = new double[N][];
-        for (int i = 0; i < N; i++) {
-          a[i] = CustomTricubicInterpolatingFunction.computeCoefficientsInline(tables[i]);
-        }
-        return a;
-      }
-    });
-    ts.execute(new MyTimingTask("InlineCollectTerms", a) {
-      @Override
-      public Object run(Object data) {
-        final double[][] a = new double[N][];
-        for (int i = 0; i < N; i++) {
-          a[i] =
-              CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(tables[i]);
-        }
-        return a;
-      }
-    });
-
-    final int n = ts.getSize();
-    ts.check();
-    ts.repeat();
-    if (logger.isLoggable(Level.INFO)) {
-      // logger.info(ts.getReport());
-      logger.info(ts.getReport(n));
-    }
-
-    Assertions.assertTrue(ts.get(-1).getMean() < ts.get(-n).getMean(),
-        () -> String.format("%f vs %f", ts.get(-1).getMean(), ts.get(-n).getMean()));
   }
 }
