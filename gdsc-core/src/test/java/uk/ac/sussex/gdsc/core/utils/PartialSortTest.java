@@ -112,21 +112,21 @@ class PartialSortTest {
       // Reference
       final double[] expected = bottomDouble(size, d.clone());
       // Test methods
-      assertBottomSortEqual(expected, PartialSort.bottom(d.clone(), size), false, true,
+      assertBottomSortEqualDouble(expected, PartialSort.bottom(d.clone(), size), false, true,
           msg.set(0, "bottomSort"));
-      assertBottomSortEqual(expected,
+      assertBottomSortEqualDouble(expected,
           PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d.clone(), size), true, false,
           msg.set(0, "bottomHead"));
-      assertBottomSortEqual(expected, PartialSort.bottom(0, d.clone(), size), false, false,
+      assertBottomSortEqualDouble(expected, PartialSort.bottom(0, d.clone(), size), false, false,
           msg.set(0, "bottom"));
-      assertBottomSortEqual(expected, ps.bottom(0, d.clone()), false, false,
+      assertBottomSortEqualDouble(expected, ps.bottom(0, d.clone()), false, false,
           msg.set(0, "DoubleSelector"));
-      assertBottomSortEqual(expected, heap.bottom(0, d.clone()), false, false,
+      assertBottomSortEqualDouble(expected, heap.bottom(0, d.clone()), false, false,
           msg.set(0, "DoubleMinHeap"));
     }
   }
 
-  private static void assertBottomSortEqual(double[] expected, double[] actual, boolean head,
+  private static void assertBottomSortEqualDouble(double[] expected, double[] actual, boolean head,
       boolean sorted, Supplier<String> msg) {
     if (head) {
       Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
@@ -203,20 +203,21 @@ class PartialSortTest {
       // Reference
       final double[] expected = topDouble(size, d.clone());
       // Test methods
-      assertTopSortEqual(expected, PartialSort.top(d.clone(), size), false, true,
+      assertTopSortEqualDouble(expected, PartialSort.top(d.clone(), size), false, true,
           msg.set(0, "topSort"));
-      assertTopSortEqual(expected, PartialSort.top(PartialSort.OPTION_HEAD_FIRST, d.clone(), size),
-          true, false, msg.set(0, "topHead"));
-      assertTopSortEqual(expected, PartialSort.top(0, d.clone(), size), false, false,
+      assertTopSortEqualDouble(expected,
+          PartialSort.top(PartialSort.OPTION_HEAD_FIRST, d.clone(), size), true, false,
+          msg.set(0, "topHead"));
+      assertTopSortEqualDouble(expected, PartialSort.top(0, d.clone(), size), false, false,
           msg.set(0, "top"));
-      assertTopSortEqual(expected, ps.top(0, d.clone()), false, false,
+      assertTopSortEqualDouble(expected, ps.top(0, d.clone()), false, false,
           msg.set(0, "DoubleSelector"));
-      assertTopSortEqual(expected, heap.top(0, d.clone()), false, false,
+      assertTopSortEqualDouble(expected, heap.top(0, d.clone()), false, false,
           msg.set(0, "DoubleMinHeap"));
     }
   }
 
-  private static void assertTopSortEqual(double[] expected, double[] actual, boolean head,
+  private static void assertTopSortEqualDouble(double[] expected, double[] actual, boolean head,
       boolean sorted, Supplier<String> msg) {
     if (head) {
       Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
@@ -294,21 +295,21 @@ class PartialSortTest {
       // Reference
       final float[] expected = bottomFloat(size, d.clone());
       // Test methods
-      assertBottomSortEqual(expected, PartialSort.bottom(d.clone(), size), false, true,
+      assertBottomSortEqualFloat(expected, PartialSort.bottom(d.clone(), size), false, true,
           msg.set(0, "bottomSort"));
-      assertBottomSortEqual(expected,
+      assertBottomSortEqualFloat(expected,
           PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d.clone(), size), true, false,
           msg.set(0, "bottomHead"));
-      assertBottomSortEqual(expected, PartialSort.bottom(0, d.clone(), size), false, false,
+      assertBottomSortEqualFloat(expected, PartialSort.bottom(0, d.clone(), size), false, false,
           msg.set(0, "bottom"));
-      assertBottomSortEqual(expected, ps.bottom(0, d.clone()), false, false,
+      assertBottomSortEqualFloat(expected, ps.bottom(0, d.clone()), false, false,
           msg.set(0, "FloatSelector"));
-      assertBottomSortEqual(expected, heap.bottom(0, d.clone()), false, false,
+      assertBottomSortEqualFloat(expected, heap.bottom(0, d.clone()), false, false,
           msg.set(0, "FloatMinHeap"));
     }
   }
 
-  private static void assertBottomSortEqual(float[] expected, float[] actual, boolean head,
+  private static void assertBottomSortEqualFloat(float[] expected, float[] actual, boolean head,
       boolean sorted, Supplier<String> msg) {
     if (head) {
       Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
@@ -385,19 +386,21 @@ class PartialSortTest {
       // Reference
       final float[] expected = topFloat(size, d.clone());
       // Test methods
-      assertTopSortEqual(expected, PartialSort.top(d.clone(), size), false, true,
+      assertTopSortEqualFloat(expected, PartialSort.top(d.clone(), size), false, true,
           msg.set(0, "topSort"));
-      assertTopSortEqual(expected, PartialSort.top(PartialSort.OPTION_HEAD_FIRST, d.clone(), size),
-          true, false, msg.set(0, "topHead"));
-      assertTopSortEqual(expected, PartialSort.top(0, d.clone(), size), false, false,
+      assertTopSortEqualFloat(expected,
+          PartialSort.top(PartialSort.OPTION_HEAD_FIRST, d.clone(), size), true, false,
+          msg.set(0, "topHead"));
+      assertTopSortEqualFloat(expected, PartialSort.top(0, d.clone(), size), false, false,
           msg.set(0, "top"));
-      assertTopSortEqual(expected, ps.top(0, d.clone()), false, false, msg.set(0, "FloatSelector"));
-      assertTopSortEqual(expected, heap.top(0, d.clone()), false, false,
+      assertTopSortEqualFloat(expected, ps.top(0, d.clone()), false, false,
+          msg.set(0, "FloatSelector"));
+      assertTopSortEqualFloat(expected, heap.top(0, d.clone()), false, false,
           msg.set(0, "FloatMinHeap"));
     }
   }
 
-  private static void assertTopSortEqual(float[] expected, float[] actual, boolean head,
+  private static void assertTopSortEqualFloat(float[] expected, float[] actual, boolean head,
       boolean sorted, Supplier<String> msg) {
     if (head) {
       Assertions.assertEquals(expected[expected.length - 1], actual[0], msg);
