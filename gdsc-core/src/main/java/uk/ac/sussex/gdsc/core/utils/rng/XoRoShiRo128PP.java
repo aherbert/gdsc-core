@@ -112,22 +112,39 @@ public final class XoRoShiRo128PP extends XoRoShiRo128PlusPlus
     return new XoRoShiRo128PP(this);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The new state is created using a bijection mapping of the current 128-bit state to a new
-   * state. After a split the original generator is advanced one cycle of the generator.
-   */
   @Override
   public XoRoShiRo128PP split() {
-    // Each function is a bijection making the entire function a bijection
-    final long seed0 = Mixers.stafford13(state0);
-    final long seed1 = Mixers.stafford13(state1);
-
     // Advance the generator.
     // Allows multiple calls to split to create different generators.
-    next();
+    final long s0 = state0;
+    final long s1 = state1;
+    final long x = next();
 
+    // Mix the bits of the generator. Using the stafford mixer on each state alone
+    // will not cascade the bits across the entire 128-bits. To make the lower
+    // influence the upper (and vice versa) the current random output is combined in.
+    //
+    // Note:
+    //
+    // This method used to use the Stafford mixer on the separate states. It was later
+    // changed to combine in the random bits of current output.
+    //
+    // This may not be the best method to scramble the bits of the state.
+    // It uses 8 xors, 6 shifts, 6 multiplies.
+    //
+    // The Java implementation by Vigna (co-creator of the RNG method)
+    // uses a round of SpookyHash ShortMix which cascades 256-bits.
+    // The upper 128-bits are the state plus random constants.
+    // That method uses 14 additions, 11 xors, 12 left rotates.
+    // See:
+    // Artifact: it.unimi.dsi:dsiutils
+    // Class: it.unimi.dsi.util.XoRoShiRo128PlusPlusRandomGenerator (v 2.7.0)
+    // SpookyHash: http://burtleburtle.net/bob/hash/spooky.html
+
+    final long seed0 = Mixers.stafford13(s0 ^ x);
+    final long seed1 = Mixers.stafford13(s1 ^ x);
+
+    // Use the constructor to avoid a zero initial state
     return new XoRoShiRo128PP(seed0, seed1);
   }
 }

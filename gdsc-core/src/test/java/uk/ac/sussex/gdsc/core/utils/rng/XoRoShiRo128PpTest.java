@@ -83,14 +83,17 @@ class XoRoShiRo128PpTest {
     final long seed0 = ThreadLocalRandom.current().nextLong();
     final long seed1 = seed0 + 2637846284L;
 
-    // Create the split
     final XoRoShiRo128PP rng1 = new XoRoShiRo128PP(seed0, seed1);
+    // Check the split does a mix of the state, combined with the current output
+    final long x = rng1.copy().next();
+
+    // Create the split
     final XoRoShiRo128PP rng2a = rng1.split();
     Assertions.assertNotSame(rng1, rng2a, "Split should be a different object");
 
-    // Check the split does a mix of the state
+    // Create the expected split
     final XoRoShiRo128PP rng2b =
-        new XoRoShiRo128PP(Mixers.stafford13(seed0), Mixers.stafford13(seed1));
+        new XoRoShiRo128PP(Mixers.stafford13(seed0 ^ x), Mixers.stafford13(seed1 ^ x));
 
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(rng2a.nextLong(), rng2b.nextLong());
