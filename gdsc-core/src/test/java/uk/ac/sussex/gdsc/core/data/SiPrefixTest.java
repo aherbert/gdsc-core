@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 
 @SuppressWarnings({"javadoc"})
 class SiPrefixTest {
@@ -52,7 +53,7 @@ class SiPrefixTest {
 
   @Test
   void canGenerateSiPrefix() {
-    final Level level = Level.FINEST;
+    final Level level = TestLevel.TEST_DEBUG;
     // This is not a test. It generates the Enum.
     // It is left to ensure the code will run.
 
@@ -203,8 +204,8 @@ class SiPrefixTest {
   private static void canGetPrefix(int sign, double value, SiPrefix expectedPrefix) {
     value *= sign;
     final SiPrefix o = SiPrefix.getSiPrefix(value);
-    logger.log(TestLogUtils.getRecord(Level.FINE, "Value %s = %s %s (%s)", value, o.convert(value),
-        o.getPrefix(), o.getSymbol()));
+    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG, "Value %s = %s %s (%s)", value,
+        o.convert(value), o.getPrefix(), o.getSymbol()));
     Assertions.assertEquals(expectedPrefix, o);
   }
 }

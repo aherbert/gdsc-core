@@ -35,6 +35,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 
 /**
  * This class is used to in-line the computation for the {@link DoubleCubicSplineData}.
@@ -196,7 +197,7 @@ class CubicSplineDataInlineTest {
     return result;
   }
 
-  private final Level level = Level.FINEST;
+  private final Level level = TestLevel.TEST_DEBUG;
 
   @Test
   void canConstructInlineCubicSplineData() {

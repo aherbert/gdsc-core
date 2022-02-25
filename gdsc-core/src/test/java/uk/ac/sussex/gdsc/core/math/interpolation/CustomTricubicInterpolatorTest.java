@@ -61,6 +61,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.AssertionErrorCounter;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 /**
@@ -1447,9 +1448,10 @@ class CustomTricubicInterpolatorTest {
           @SuppressWarnings("null")
           final double d =
               MathUtils.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-          logger.finer(FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g",
-              ii, cx, cy, cz, i, Arrays.toString(optimum), d,
-              DoubleEquality.relativeError(last[3], optimum[3])));
+          logger.log(TestLevel.TEST_DEBUG,
+              FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx,
+                  cy, cz, i, Arrays.toString(optimum), d,
+                  DoubleEquality.relativeError(last[3], optimum[3])));
           Assertions.assertTrue(optimum[3] >= last[3]);
         }
         last = optimum;

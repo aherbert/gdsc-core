@@ -31,7 +31,6 @@ package uk.ac.sussex.gdsc.core.filters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -69,7 +68,7 @@ class NonMaximumSuppressionTest {
     logger = null;
   }
 
-  private final boolean debug = logger.isLoggable(Level.FINE);
+  private final boolean debug = logger.isLoggable(TestLevel.TEST_DEBUG);
 
   // int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
   // int[] primes = new int[] { 509, 251 };
@@ -688,7 +687,7 @@ class NonMaximumSuppressionTest {
           boxTotal += time;
           blockBoxTotal += blockTime;
           if (debug) {
-            logger.fine(
+            logger.log(TestLevel.TEST_DEBUG,
                 FunctionUtils.getSupplier("float maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx",
                     width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
@@ -758,9 +757,10 @@ class NonMaximumSuppressionTest {
           boxTotal += time;
           blockBoxTotal += blockTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "float maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx", width, height,
-                boxSize, time, blockTime, (1.0 * time) / blockTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "float maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx", width,
+                    height, boxSize, time, blockTime, (1.0 * time) / blockTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
             // height, boxSize,
             // blockTime, time), blockTime < time);
@@ -854,9 +854,10 @@ class NonMaximumSuppressionTest {
           boxTotal += time;
           internalBoxTotal += internalTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "float blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width, height,
-                boxSize, time, internalTime, (1.0 * time) / internalTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "float blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width,
+                    height, boxSize, time, internalTime, (1.0 * time) / internalTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
             // height, boxSize,
             // blockTime, time), blockTime < time);
@@ -935,7 +936,7 @@ class NonMaximumSuppressionTest {
           checkBoxTotal += time;
           noCheckBoxTotal += noCheckTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
+            logger.log(TestLevel.TEST_DEBUG, FunctionUtils.getSupplier(
                 "float blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
                 width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
             // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
@@ -1018,9 +1019,10 @@ class NonMaximumSuppressionTest {
           checkBoxTotal += time;
           noCheckBoxTotal += noCheckTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "float blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx", width, height,
-                boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "float blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx", width,
+                    height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
             // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
             // : %d > %d", width, height, boxSize,
             // blockTime, time), blockTime < time);
@@ -1084,9 +1086,10 @@ class NonMaximumSuppressionTest {
         total += time;
         blockTotal += blockTime;
         if (debug) {
-          logger.fine(FunctionUtils.getSupplier(
-              "float blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx", width, height, time,
-              blockTime, (1.0 * time) / blockTime));
+          logger.log(TestLevel.TEST_DEBUG,
+              FunctionUtils.getSupplier(
+                  "float blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx", width, height, time,
+                  blockTime, (1.0 * time) / blockTime));
           // This can be close so do not allow fail on single cases
           // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
           // blockTime, time),
@@ -1144,9 +1147,10 @@ class NonMaximumSuppressionTest {
         total += time;
         blockTotal += blockTime;
         if (debug) {
-          logger.fine(FunctionUtils.getSupplier(
-              "float blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx", width, height,
-              time, blockTime, (1.0 * time) / blockTime));
+          logger.log(TestLevel.TEST_DEBUG,
+              FunctionUtils.getSupplier(
+                  "float blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx", width,
+                  height, time, blockTime, (1.0 * time) / blockTime));
           // This can be close so do not allow fail on single cases
           // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
           // blockTime, time),
@@ -1200,7 +1204,7 @@ class NonMaximumSuppressionTest {
         total += time;
         blockTotal += blockTime;
         if (debug) {
-          logger.fine(
+          logger.log(TestLevel.TEST_DEBUG,
               FunctionUtils.getSupplier("float maxFind3x3 [%dx%d] : %d => blockFind3x3 %d = %.2fx",
                   width, height, time, blockTime, (1.0 * time) / blockTime));
           // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
@@ -1800,7 +1804,7 @@ class NonMaximumSuppressionTest {
           boxTotal += time;
           blockBoxTotal += blockTime;
           if (debug) {
-            logger.fine(
+            logger.log(TestLevel.TEST_DEBUG,
                 FunctionUtils.getSupplier("int maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx",
                     width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
@@ -1870,9 +1874,10 @@ class NonMaximumSuppressionTest {
           boxTotal += time;
           blockBoxTotal += blockTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "int maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx", width, height,
-                boxSize, time, blockTime, (1.0 * time) / blockTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "int maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx", width, height,
+                    boxSize, time, blockTime, (1.0 * time) / blockTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
             // height, boxSize,
             // blockTime, time), blockTime < time);
@@ -1966,9 +1971,10 @@ class NonMaximumSuppressionTest {
           boxTotal += time;
           internalBoxTotal += internalTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "int blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width, height,
-                boxSize, time, internalTime, (1.0 * time) / internalTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "int blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width, height,
+                    boxSize, time, internalTime, (1.0 * time) / internalTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
             // height, boxSize,
             // blockTime, time), blockTime < time);
@@ -2047,9 +2053,10 @@ class NonMaximumSuppressionTest {
           checkBoxTotal += time;
           noCheckBoxTotal += noCheckTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "int blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
-                width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "int blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
+                    width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
             // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
             // : %d > %d", width, height, boxSize,
             // blockTime, time), blockTime < time);
@@ -2129,9 +2136,10 @@ class NonMaximumSuppressionTest {
           checkBoxTotal += time;
           noCheckBoxTotal += noCheckTime;
           if (debug) {
-            logger.fine(FunctionUtils.getSupplier(
-                "int blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx", width, height,
-                boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            logger.log(TestLevel.TEST_DEBUG,
+                FunctionUtils.getSupplier(
+                    "int blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx", width, height,
+                    boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
             // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
             // : %d > %d", width, height, boxSize,
             // blockTime, time), blockTime < time);
@@ -2195,7 +2203,7 @@ class NonMaximumSuppressionTest {
         total += time;
         blockTotal += blockTime;
         if (debug) {
-          logger.fine(
+          logger.log(TestLevel.TEST_DEBUG,
               FunctionUtils.getSupplier("int blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx",
                   width, height, time, blockTime, (1.0 * time) / blockTime));
           // This can be close so do not allow fail on single cases
@@ -2255,9 +2263,10 @@ class NonMaximumSuppressionTest {
         total += time;
         blockTotal += blockTime;
         if (debug) {
-          logger.fine(FunctionUtils.getSupplier(
-              "int blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx", width, height,
-              time, blockTime, (1.0 * time) / blockTime));
+          logger.log(TestLevel.TEST_DEBUG,
+              FunctionUtils.getSupplier(
+                  "int blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx", width,
+                  height, time, blockTime, (1.0 * time) / blockTime));
           // This can be close so do not allow fail on single cases
           // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
           // blockTime, time),
@@ -2311,7 +2320,7 @@ class NonMaximumSuppressionTest {
         total += time;
         blockTotal += blockTime;
         if (debug) {
-          logger.fine(
+          logger.log(TestLevel.TEST_DEBUG,
               FunctionUtils.getSupplier("int maxFind3x3 [%dx%d] : %d => blockFind3x3 %d = %.2fx",
                   width, height, time, blockTime, (1.0 * time) / blockTime));
           // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,

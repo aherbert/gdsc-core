@@ -35,6 +35,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 
 @SuppressWarnings({"javadoc"})
 class ValidationUtilsTest {
@@ -44,7 +45,7 @@ class ValidationUtilsTest {
   private static Logger logger;
 
   /** The level at which the generated methods are logged. */
-  private final Level level = Level.FINEST;
+  private final Level level = TestLevel.TEST_DEBUG;
 
   enum Arguments {
     NONE, SUPPLIER, VALUE_OF, FORMAT;

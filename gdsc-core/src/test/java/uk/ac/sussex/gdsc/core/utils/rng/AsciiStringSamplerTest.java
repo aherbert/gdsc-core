@@ -338,7 +338,7 @@ class AsciiStringSamplerTest {
       }
     }
     // Check the histogram contains samples at all code points
-    logger.finer(() -> Arrays.toString(h));
+    logger.log(TestLevel.TEST_DEBUG, () -> Arrays.toString(h));
     final IntArrayFormatSupplier msg = new IntArrayFormatSupplier("Missing %c", 1);
     for (final int[] check : range) {
       for (int i = check[0]; i <= check[1]; i++) {

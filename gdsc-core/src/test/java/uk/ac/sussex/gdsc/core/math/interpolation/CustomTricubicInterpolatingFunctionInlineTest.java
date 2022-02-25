@@ -48,6 +48,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 /**
@@ -222,7 +223,7 @@ class CustomTricubicInterpolatingFunctionInlineTest {
     return result;
   }
 
-  private final Level level = Level.FINEST;
+  private final Level level = TestLevel.TEST_DEBUG;
 
   @Test
   void canConstructInlineComputeCoefficients() {

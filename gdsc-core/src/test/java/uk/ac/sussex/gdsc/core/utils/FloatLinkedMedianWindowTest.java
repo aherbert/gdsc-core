@@ -187,23 +187,23 @@ class FloatLinkedMedianWindowTest {
       for (int i = 0; i < radius; i++, pos++) {
         final float median = mw.getMedianOldest(i + 1 + radius);
         final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
-        // median2, median));
+        // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+        // p, radius, median2, median));
         Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
       for (int j = startData.length; j < data.length; j++, pos++) {
         final float median = mw.getMedian();
         mw.add(data[j]);
         final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
-        // median2, median));
+        // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+        // p, radius, median2, median));
         Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
       for (int i = 2 * radius + 1; i-- > 0; pos++) {
         final float median = mw.getMedianYoungest(i + 1);
         final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-        // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
-        // median2, median));
+        // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+        // p, radius, median2, median));
         Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
     }
@@ -222,23 +222,23 @@ class FloatLinkedMedianWindowTest {
         for (int i = 0; i < radius; i++, pos++) {
           final float median = mw.getMedianOldest(i + 1 + radius);
           final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int j = startData.length; j < data.length; j++, pos++) {
           final float median = mw.getMedian();
           mw.add(data[j]);
           final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int i = 2 * radius + 1; i-- > 0; pos++) {
           final float median = mw.getMedianYoungest(i + 1);
           final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
       }
@@ -257,23 +257,23 @@ class FloatLinkedMedianWindowTest {
         for (int i = 0; i < radius; i++, pos++) {
           final float median = mw.getMedianOldest(i + 1 + radius);
           final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int j = startData.length; j < data.length; j++, pos++) {
           final float median = mw.getMedian();
           mw.add(data[j]);
           final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
         for (int i = 2 * radius + 1; i-- > 0; pos++) {
           final float median = mw.getMedianYoungest(i + 1);
           final float median2 = MedianWindowTest.calculateMedian(data, pos, radius);
-          // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
-          // radius, median2, median));
+          // logger.log(TestLog.getRecord(TestLevel.TEST_DEBUG, "Position %d, Radius %d : %g vs %g",
+          // p, radius, median2, median));
           Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
       }

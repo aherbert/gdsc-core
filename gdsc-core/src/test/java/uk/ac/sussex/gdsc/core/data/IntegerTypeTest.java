@@ -33,12 +33,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 
 @SuppressWarnings({"javadoc"})
 class IntegerTypeTest {
   @Test
   void canGenerateIntegerType() {
-    final Level level = Level.FINEST;
+    final Level level = TestLevel.TEST_DEBUG;
     // This is not a test. It generates the Enum.
     // It is left to ensure the code will run.
 

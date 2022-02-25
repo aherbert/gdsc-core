@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
@@ -44,6 +43,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 /**
@@ -269,10 +269,12 @@ class RandIndexTest {
     final long table1 = t3 - t2;
     final long matrix = t4 - t3;
 
-    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f",
-        n, n1, n2, simple, e, table1, o1, simple / (double) table1));
-    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), matrix=%d (%f), %f",
-        n, n1, n2, simple, e, matrix, o2, simple / (double) matrix));
+    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG,
+        "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f", n, n1, n2, simple, e, table1, o1,
+        simple / (double) table1));
+    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG,
+        "[%d,%d,%d] simple=%d (%f), matrix=%d (%f), %f", n, n1, n2, simple, e, matrix, o2,
+        simple / (double) matrix));
 
     TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0),
         "simpleRandIndex and randIndex");
@@ -308,7 +310,8 @@ class RandIndexTest {
     }
 
     sum /= loops;
-    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d,%d] %f", n, n1, n2, loops, sum));
+    logger.log(
+        TestLogUtils.getRecord(TestLevel.TEST_DEBUG, "[%d,%d,%d,%d] %f", n, n1, n2, loops, sum));
 
     final double delta = 0.1;
     Assertions.assertTrue(sum < delta && sum > -delta);
@@ -366,7 +369,7 @@ class RandIndexTest {
     final long table1 = t2 - t1;
     final long table2 = t3 - t2;
 
-    logger.log(TestLogUtils.getRecord(Level.FINE,
+    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG,
         () -> String.format("[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f", n, n1, n2, table1,
             o1, RandIndex.randIndex(c1, c2), table2, o2, table1 / (double) table2)));
 
