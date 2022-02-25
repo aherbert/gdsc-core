@@ -150,10 +150,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.koloboke</groupId>
-      <artifactId>koloboke-impl-jdk8</artifactId>
-    </dependency>
 
     <!-- TESTING -->
     <dependency>
