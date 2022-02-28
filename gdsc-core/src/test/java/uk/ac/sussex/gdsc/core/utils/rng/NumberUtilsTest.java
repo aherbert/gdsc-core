@@ -476,7 +476,7 @@ class NumberUtilsTest {
 
   @SeededTest
   void testMultiply(RandomSeed seed) {
-    final long[] values = new long[10];
+    final long[] values = new long[100];
     final UniformRandomProvider rng = RngUtils.create(seed.get());
     for (int i = 0; i < values.length; i++) {
       values[i] = rng.nextLong();

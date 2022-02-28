@@ -180,8 +180,6 @@ public final class NumberUtils {
     }
 
     // Note:
-    // The result of two unsigned 32-bit integers multiplied together cannot overflow 64 bits.
-    // The carry is the upper 32-bits of the 64-bit result; this is obtained by bit shift.
     // This algorithm thus computes the small numbers multiplied together and then sums
     // the carry on to the result for the next power 2^32.
     // This is a diagram of the bit cascade (using a 4 byte representation):
@@ -191,18 +189,28 @@ public final class NumberUtils {
     // +      ayay ayay 0000
     // + axax axax 0000 0000
     // @formatter:on
+    //
+    // The carry is a composed intermediate which will never overflow:
+    //
+    //             byby byby
+    // +           bxbx 0000
+    // +      ayay ayay 0000
+    //
+    // +      bxbx 0000 0000
+    // + axax axax 0000 0000
 
-    // First step cannot overflow since:
-    // (0xffffffff * 0xffffffffl) >>> 32) + (0xffffffff * 0xffffffffL)
-    // ((2^32-1) * (2^32-1) / 2^32) + (2^32-1) * (2^32-1)
-    // ~ 2^32-1 + (2^64 - 2^33 + 1)
-    final long bx = ((b * y) >>> 32) + (b * x);
+    final long by = b * y;
+    final long bx = b * x;
     final long ay = a * y;
+    final long ax = a * x;
 
-    // Sum the lower and upper 32-bits separately to control overflow
-    final long carry = ((bx & INT_TO_UNSIGNED_BYTE_MASK) + (ay & INT_TO_UNSIGNED_BYTE_MASK)) >>> 32;
+    // @formatter:off
+    final long carry = (by >>> 32) +
+                       (bx & INT_TO_UNSIGNED_BYTE_MASK) +
+                        ay;
+    // @formatter:on
 
-    return carry + (bx >>> 32) + (ay >>> 32) + a * x;
+    return (bx >>> 32) + (carry >>> 32) + ax;
   }
 
   /**
@@ -233,15 +241,30 @@ public final class NumberUtils {
     final long y = value2 & INT_TO_UNSIGNED_BYTE_MASK;
 
     // Note:
-    // The result of two unsigned 32-bit integers multiplied together cannot overflow 64 bits.
-    // The carry is the upper 32-bits of the 64-bit result; this is obtained by bit shift.
-    // This algorithm thus computes the small numbers multiplied together and then sums
+    // This algorithm computes the small numbers multiplied together and then sums
     // the carry on to the result for the next power 2^32.
     // This is a diagram of the bit cascade (using a 4 byte representation):
     // @formatter:off
     //             byby byby
     // +      bxbx bxbx 0000
     // +      ayay ayay 0000
+    // + axax axax 0000 0000
+    //
+    // The products are added in parts to create a carry.
+    // The result of two unsigned 32-bit integers multiplied together plus two full 32-bit
+    // integers cannot overflow 64 bits:
+    // > long x = (1L << 32) - 1
+    // > Long.toBinaryString(x * x)
+    // ==> "1111111111111111111111111111111000000000000000000000000000000001"
+    // > Long.toBinaryString(x * x + x + x)
+    // ==> "1111111111111111111111111111111111111111111111111111111111111111"
+    // The carry is a composed intermediate which will never overflow:
+    //
+    //             byby byby
+    // +           bxbx 0000
+    // +      ayay ayay 0000
+    //
+    // +      bxbx 0000 0000
     // + axax axax 0000 0000
     // @formatter:on
 
@@ -250,16 +273,14 @@ public final class NumberUtils {
     final long ay = a * y;
     final long ax = a * x;
 
-    // Compute carry from the upper 32-bits of by and lower 32-bits of bx and ay
     // @formatter:off
-    final long carry = ((by >>> 32) +
-                        (bx & INT_TO_UNSIGNED_BYTE_MASK) +
-                        (ay & INT_TO_UNSIGNED_BYTE_MASK)) >>> 32;
+    final long carry = (by >>> 32) +
+                       (bx & INT_TO_UNSIGNED_BYTE_MASK) +
+                        ay;
     // @formatter:on
 
-    result[0] = value1 * value2;
-    //result[0] = by + (bx << 32) + (ay << 32);
-    result[1] = ax + (bx >>> 32) + (ay >>> 32) + carry;
+    result[0] = (carry << 32) | (by & INT_TO_UNSIGNED_BYTE_MASK);
+    result[1] = (bx >>> 32) + (carry >>> 32) + ax;
   }
 
   /**
