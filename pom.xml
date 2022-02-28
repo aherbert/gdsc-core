@@ -150,6 +150,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil-core</artifactId>
+    </dependency>
 
     <!-- TESTING -->
     <dependency>
@@ -184,6 +188,8 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <version>${elki.version}</version>
       <scope>test</scope>
       <exclusions>
+        <!-- Elki requires version [8, 9). As of 8.5.4 there are some duplicate classes
+             between fastutil-core and fastutil -->
         <exclusion>
           <groupId>it.unimi.dsi</groupId>
           <artifactId>fastutil</artifactId>
@@ -193,13 +199,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <artifactId>fastutil-extra</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>it.unimi.dsi</groupId>
-      <artifactId>fastutil-core</artifactId>
-      <!-- Elki requires version [8, 9). As of 8.5.4 there are some duplicate classes. -->
-      <version>8.5.3</version>
-      <scope>test</scope>
     </dependency>
     <!-- Used to test the Digest algorithms -->
     <dependency>
