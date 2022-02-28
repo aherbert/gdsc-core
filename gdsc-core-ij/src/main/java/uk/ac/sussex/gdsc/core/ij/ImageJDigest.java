@@ -74,7 +74,7 @@ public class ImageJDigest {
    * A digester for {@code short} pixels.
    */
   private class ShortPixelsDigester extends PixelsDigester {
-    byte[] buffer = new byte[2];
+    final byte[] buffer = new byte[2];
 
     ShortPixelsDigester(MessageDigest digest) {
       super(digest);
@@ -83,10 +83,11 @@ public class ImageJDigest {
     @Override
     void update(Object pixels) {
       final short[] data = (short[]) pixels;
+      final byte[] b = buffer;
       for (final int v : data) {
-        buffer[0] = (byte) (v >>> 8);
-        buffer[1] = (byte) (v >>> 0);
-        pixelsDigest.update(buffer);
+        b[0] = (byte) (v >>> 8);
+        b[1] = (byte) (v);
+        pixelsDigest.update(b);
       }
     }
   }
@@ -95,7 +96,7 @@ public class ImageJDigest {
    * A digester for {@code int} pixels.
    */
   private class IntegerPixelsDigester extends PixelsDigester {
-    byte[] buffer = new byte[4];
+    final byte[] buffer = new byte[4];
 
     IntegerPixelsDigester(MessageDigest digest) {
       super(digest);
@@ -104,12 +105,13 @@ public class ImageJDigest {
     @Override
     void update(Object pixels) {
       final int[] data = (int[]) pixels;
+      final byte[] b = buffer;
       for (final int v : data) {
-        buffer[0] = (byte) (v >>> 24);
-        buffer[1] = (byte) (v >>> 16);
-        buffer[2] = (byte) (v >>> 8);
-        buffer[3] = (byte) (v >>> 0);
-        pixelsDigest.update(buffer);
+        b[0] = (byte) (v >>> 24);
+        b[1] = (byte) (v >>> 16);
+        b[2] = (byte) (v >>> 8);
+        b[3] = (byte) (v);
+        pixelsDigest.update(b);
       }
     }
   }
@@ -118,7 +120,7 @@ public class ImageJDigest {
    * A digester for {@code float} pixels.
    */
   private class FloatPixelsDigester extends PixelsDigester {
-    byte[] buffer = new byte[4];
+    final byte[] buffer = new byte[4];
 
     FloatPixelsDigester(MessageDigest digest) {
       super(digest);
@@ -127,13 +129,14 @@ public class ImageJDigest {
     @Override
     void update(Object pixels) {
       final float[] data = (float[]) pixels;
+      final byte[] b = buffer;
       for (final float value : data) {
         final int v = Float.floatToRawIntBits(value);
-        buffer[0] = (byte) (v >>> 24);
-        buffer[1] = (byte) (v >>> 16);
-        buffer[2] = (byte) (v >>> 8);
-        buffer[3] = (byte) (v >>> 0);
-        pixelsDigest.update(buffer);
+        b[0] = (byte) (v >>> 24);
+        b[1] = (byte) (v >>> 16);
+        b[2] = (byte) (v >>> 8);
+        b[3] = (byte) (v);
+        pixelsDigest.update(b);
       }
     }
   }
@@ -147,8 +150,11 @@ public class ImageJDigest {
 
   /**
    * Instantiates a new IJ digest.
+   * 
+   * <p>The algorithm should be a suitable named algorithm for a {@link MessageDigest}.
    *
    * @param algorithm the algorithm
+   * @see MessageDigest#getInstance(String)
    */
   public ImageJDigest(String algorithm) {
     messageDigest = DigestUtils.getDigest(algorithm);
