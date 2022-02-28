@@ -214,6 +214,24 @@ class MixersTest {
     assertMixer(Mixers::stafford13, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
   }
 
+  @Test
+  void testLea64Output() {
+    // Code generated using the reference java code provided by Blackman and Vigna:
+    // https://dl.acm.org/doi/10.1145/3460772
+    final long[] values =
+        {0x45b8512f9ff46f10L, 0xd6ce3db0dd63efc3L, 0x47bf6058710f2a88L, 0x85b8c74e40981596L,
+            0xd77442e45944235eL, 0x3ea4255636bfb1c3L, 0x296ec3c9d3e0addcL, 0x6c285eb9694f6eb2L,
+            0x8121aeca2ba15b66L, 0x2b6d5c2848c4fdc4L, 0xcc99bc57f5e3e024L, 0xc00f59a3ad3666cbL,
+            0x74e5285467c20ae7L, 0xf4d51701e3ea9555L, 0x3aeb92e31a9b1a0eL, 0x5a1a0ce875c7dcaL,
+            0xb9a561fb7d82d0f3L, 0x97095f0ab633bf2fL, 0xfe74b5290c07c1d1L, 0x9dfd354727d45838L,
+            0xf6279a8801201eddL, 0x2db471b1d42860eeL, 0x4ee66ceb27bd34ecL, 0x2005875ad25bd11aL,
+            0x92eac4d1446a0204L, 0xa46087d5dd5fa38eL, 0x7967530c43faabe1L, 0xc53e1dd74fd9bd15L,
+            0x259001ab97cca8bcL, 0x5edf024ee6cb1d8bL, 0x3fc021bba7d0d7e6L, 0xf82cae56e00245dbL,
+            0xf1dc30974b524d02L, 0xe1f2f1db0af7ace9L, 0x853d5892ebccb9f6L, 0xe266f36a3121da55L,
+            0x3b034a81bad01622L, 0x852b53c14569ada2L, 0xee902ddc658c86c9L, 0xd9e926b766013254L,};
+    assertMixer(Mixers::lea64, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
   private static void assertMixer(IntUnaryOperator mix, int[] expected, int state, int increment) {
     for (int i = 0; i < expected.length; i++) {
       Assertions.assertEquals(expected[i], mix.applyAsInt(state += increment));
