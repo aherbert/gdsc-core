@@ -632,8 +632,8 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     if (s == elements.length) {
       elements = increaseCapacity();
     }
-    size = s + 1;
     elements[s] = element;
+    size = s + 1;
     return true;
   }
 
