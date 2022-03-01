@@ -52,7 +52,7 @@ public final class LocalCollectors {
    *         encounter order
    */
   public static <T> Collector<T, ?, LocalList<T>> toLocalList() {
-    return new LocalListCollector<>();
+    return LocalListCollector.instance();
   }
 
   /**
@@ -63,6 +63,8 @@ public final class LocalCollectors {
   private static class LocalListCollector<T> implements Collector<T, LocalList<T>, LocalList<T>> {
     private static final Set<Collector.Characteristics> CHARACTERISTICS =
         Collections.unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
+    @SuppressWarnings("rawtypes")
+    private static final LocalListCollector INSTANCE = new LocalListCollector();
 
     @Override
     public Supplier<LocalList<T>> supplier() {
@@ -77,9 +79,15 @@ public final class LocalCollectors {
     @Override
     public BinaryOperator<LocalList<T>> combiner() {
       return (a, b) -> {
-        // Use specialised method for combining two local lists
-        a.addAll(b);
-        return a;
+        // Use specialised method for combining two local lists.
+        // Use the list with enough capacity if possible.
+        if (a.getCapacity() - a.size() >= b.size()) {
+          a.addAll(b);
+          return a;
+        }
+        // Possible new memory allocation
+        b.addAll(a);
+        return b;
       };
     }
 
@@ -92,6 +100,16 @@ public final class LocalCollectors {
     @Override
     public Set<Characteristics> characteristics() {
       return CHARACTERISTICS;
+    }
+
+    /**
+     * Obtain an instance.
+     *
+     * @param <T> the generic type
+     * @return the collector
+     */
+    static <T> LocalListCollector<T> instance() {
+      return INSTANCE;
     }
   }
 }
