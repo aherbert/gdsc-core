@@ -826,8 +826,10 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @throws IndexOutOfBoundsException if {@code index > size} or {@code index < 0}
    */
   private void checkRangeForInsert(int index) {
-    // Insert allowed as the end
-    if (index < 0 || index > size) {
+    // Insert allowed at the end.
+    // if (index < 0 || index > size)
+    // Performed using an unsigned integer compare.
+    if (index + Integer.MIN_VALUE > size + Integer.MIN_VALUE) {
       throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
     }
   }
@@ -1632,14 +1634,18 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     // a negative index so also check if index is negative.
 
     private void checkRange(int index) {
-      if (index < 0 || index >= size) {
+      // if (index < 0 || index >= size)
+      // Performed using an unsigned integer compare.
+      if (index + Integer.MIN_VALUE >= size + Integer.MIN_VALUE) {
         throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
       }
     }
 
     private void checkRangeForInsert(int index) {
-      // Insert allowed as the end
-      if (index < 0 || index > size) {
+      // Insert allowed at the end.
+      // if (index < 0 || index > size)
+      // Performed using an unsigned integer compare.
+      if (index + Integer.MIN_VALUE > size + Integer.MIN_VALUE) {
         throw new IndexOutOfBoundsException(indexOutOfBoundsMessage(index));
       }
     }
