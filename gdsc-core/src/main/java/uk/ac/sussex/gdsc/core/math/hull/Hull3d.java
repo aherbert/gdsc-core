@@ -177,9 +177,7 @@ public final class Hull3d implements Hull {
 
     @Override
     public int hashCode(double[] object) {
-      if (object == null) {
-        return 0;
-      }
+      // No requirement to hash null
       return 31 * (31 * (31 + hash(object[0])) + hash(object[1])) + hash(object[2]);
     }
 
@@ -197,10 +195,7 @@ public final class Hull3d implements Hull {
 
     @Override
     public boolean equals(double[] o1, double[] o2) {
-      if (o1 == null) {
-        return o2 == null;
-      }
-      // Numerical equivalence (-0.0 == 0.0)
+      // No requirement to test o1 is null
       return o2 != null && o1[0] == o2[0] && o1[1] == o2[1] && o1[2] == o2[2];
     }
   }
@@ -215,17 +210,13 @@ public final class Hull3d implements Hull {
 
     @Override
     public int hashCode(Edge e) {
-      if (e == null) {
-        return 0;
-      }
+      // No requirement to hash null
       return 31 * (31 + e.from) + e.to;
     }
 
     @Override
     public boolean equals(Edge o1, Edge o2) {
-      if (o1 == null) {
-        return o2 == null;
-      }
+      // No requirement to test o1 is null
       return o2 != null && o1.from == o2.from && o1.to == o2.to;
     }
   }
@@ -519,38 +510,6 @@ public final class Hull3d implements Hull {
       final double x1 = vertices[v2][0];
       final double y1 = vertices[v2][1];
       final double z1 = vertices[v2][2];
-      a += (y - y1) * (z + z1);
-      b += (z - z1) * (x + x1);
-      c += (x - x1) * (y + y1);
-    }
-    normal[0] = a;
-    normal[1] = b;
-    normal[2] = c;
-  }
-
-  /**
-   * Gets the plane normal for the specified face into the given result arrays.
-   *
-   * <p>The plane normal is raw and should be normalised to unit length if required.
-   *
-   * @param vertices the vertices
-   * @param normal the result
-   */
-  @SuppressWarnings("unused")
-  private static void getPlane(List<double[]> vertices, double[] normal) {
-    // Use Newell's method to compute the normal N of the best fit plane of all the vertices.
-    double a = 0;
-    double b = 0;
-    double c = 0;
-    for (int i = vertices.size(), i1 = 0; i-- > 0; i1 = i) {
-      final double[] p = vertices.get(i);
-      final double[] p1 = vertices.get(i1);
-      final double x = p[0];
-      final double y = p[1];
-      final double z = p[2];
-      final double x1 = p1[0];
-      final double y1 = p1[1];
-      final double z1 = p1[2];
       a += (y - y1) * (z + z1);
       b += (z - z1) * (x + x1);
       c += (x - x1) * (y + y1);

@@ -85,7 +85,11 @@ public class TextWindow2 extends TextWindow {
     constructed = true;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   *
+   * @deprecated As of JDK version 1.5, replaced by {@link #setVisible(boolean)}.
+   */
   @Override
   @Deprecated
   public void show() {
@@ -98,9 +102,6 @@ public class TextWindow2 extends TextWindow {
   @Override
   public void setVisible(boolean value) {
     // Do not show upon construction
-    if (value && !constructed) {
-      return;
-    }
-    super.setVisible(value);
+    super.setVisible(constructed && value);
   }
 }

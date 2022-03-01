@@ -89,7 +89,6 @@ import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculeBina
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculePriorityQueue;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculePriorityQueueIdOrdered;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsMoleculePriorityQueueReverseIdOrdered;
-import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.OpticsPriorityQueue;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.Option;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
@@ -702,7 +701,7 @@ class OpticsManagerTest {
 
   @Test
   void testOpticsMoleculePriorityQueue() {
-    final OpticsPriorityQueue q = new OpticsMoleculePriorityQueue(10);
+    final OpticsMoleculePriorityQueue q = new OpticsMoleculePriorityQueue(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
     final Molecule m3 = createMolecule(3, 3);
@@ -711,17 +710,27 @@ class OpticsManagerTest {
     q.push(m2);
     q.push(m3);
     q.push(m4);
-    Assertions.assertSame(m2, q.next());
-    Assertions.assertSame(m3, q.next());
-    Assertions.assertSame(m4, q.next());
-    Assertions.assertSame(m1, q.next());
+    final List<Molecule> m = Arrays.asList(q.next(), q.next(), q.next(), q.next());
+    Assertions.assertSame(m2, m.get(0));
+    Assertions.assertSame(m3, m.get(1));
+    Assertions.assertSame(m4, m.get(2));
+    Assertions.assertSame(m1, m.get(3));
     Assertions.assertFalse(q.hasNext());
     q.clear();
+    // Comparator check
+    for (int i = 0; i < m.size(); i++) {
+      Molecule a = m.get(i);
+      for (int j = i + 1; j < m.size(); j++) {
+        Molecule b = m.get(j);
+        Assertions.assertTrue(q.lower(a, b));
+        Assertions.assertFalse(q.lower(b, a));
+      }
+    }
   }
 
   @Test
   void testOpticsMoleculePriorityQueueIdOrdered() {
-    final OpticsPriorityQueue q = new OpticsMoleculePriorityQueueIdOrdered(10);
+    final OpticsMoleculePriorityQueue q = new OpticsMoleculePriorityQueueIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
     final Molecule m3 = createMolecule(3, 2);
@@ -730,17 +739,27 @@ class OpticsManagerTest {
     q.push(m3);
     q.push(m2);
     q.push(m4);
-    Assertions.assertSame(m2, q.next());
-    Assertions.assertSame(m3, q.next());
-    Assertions.assertSame(m4, q.next());
-    Assertions.assertSame(m1, q.next());
+    final List<Molecule> m = Arrays.asList(q.next(), q.next(), q.next(), q.next());
+    Assertions.assertSame(m2, m.get(0));
+    Assertions.assertSame(m3, m.get(1));
+    Assertions.assertSame(m4, m.get(2));
+    Assertions.assertSame(m1, m.get(3));
     Assertions.assertFalse(q.hasNext());
     q.clear();
+    // Comparator check
+    for (int i = 0; i < m.size(); i++) {
+      Molecule a = m.get(i);
+      for (int j = i + 1; j < m.size(); j++) {
+        Molecule b = m.get(j);
+        Assertions.assertTrue(q.lower(a, b));
+        Assertions.assertFalse(q.lower(b, a));
+      }
+    }
   }
 
   @Test
   void testOpticsMoleculePriorityQueueReverseIdOrdered() {
-    final OpticsPriorityQueue q = new OpticsMoleculePriorityQueueReverseIdOrdered(10);
+    final OpticsMoleculePriorityQueue q = new OpticsMoleculePriorityQueueReverseIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
     final Molecule m3 = createMolecule(3, 2);
@@ -749,17 +768,27 @@ class OpticsManagerTest {
     q.push(m2);
     q.push(m3);
     q.push(m4);
-    Assertions.assertSame(m3, q.next());
-    Assertions.assertSame(m2, q.next());
-    Assertions.assertSame(m4, q.next());
-    Assertions.assertSame(m1, q.next());
+    final List<Molecule> m = Arrays.asList(q.next(), q.next(), q.next(), q.next());
+    Assertions.assertSame(m3, m.get(0));
+    Assertions.assertSame(m2, m.get(1));
+    Assertions.assertSame(m4, m.get(2));
+    Assertions.assertSame(m1, m.get(3));
     Assertions.assertFalse(q.hasNext());
     q.clear();
+    // Comparator check
+    for (int i = 0; i < m.size(); i++) {
+      Molecule a = m.get(i);
+      for (int j = i + 1; j < m.size(); j++) {
+        Molecule b = m.get(j);
+        Assertions.assertTrue(q.lower(a, b));
+        Assertions.assertFalse(q.lower(b, a));
+      }
+    }
   }
 
   @Test
   void testOpticsMoleculeBinaryHeap() {
-    final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeap(10);
+    final OpticsMoleculeBinaryHeap q = new OpticsMoleculeBinaryHeap(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
     final Molecule m3 = createMolecule(3, 3);
@@ -768,17 +797,29 @@ class OpticsManagerTest {
     q.push(m2);
     q.push(m3);
     q.push(m4);
-    Assertions.assertSame(m2, q.next());
-    Assertions.assertSame(m3, q.next());
-    Assertions.assertSame(m4, q.next());
-    Assertions.assertSame(m1, q.next());
+    final List<Molecule> m = Arrays.asList(q.next(), q.next(), q.next(), q.next());
+    Assertions.assertSame(m2, m.get(0));
+    Assertions.assertSame(m3, m.get(1));
+    Assertions.assertSame(m4, m.get(2));
+    Assertions.assertSame(m1, m.get(3));
     Assertions.assertFalse(q.hasNext());
     q.clear();
+    // Comparator check
+    for (int i = 0; i < m.size(); i++) {
+      Molecule a = m.get(i);
+      for (int j = i + 1; j < m.size(); j++) {
+        Molecule b = m.get(j);
+        Assertions.assertTrue(q.lower(a, b));
+        Assertions.assertFalse(q.higher(a, b));
+        Assertions.assertTrue(q.higher(b, a));
+        Assertions.assertFalse(q.lower(b, a));
+      }
+    }
   }
 
   @Test
   void testOpticsMoleculeBinaryHeapIdOrdered() {
-    final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeapIdOrdered(10);
+    final OpticsMoleculeBinaryHeap q = new OpticsMoleculeBinaryHeapIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
     final Molecule m3 = createMolecule(3, 2);
@@ -787,31 +828,55 @@ class OpticsManagerTest {
     q.push(m3);
     q.push(m2);
     q.push(m4);
-    Assertions.assertSame(m2, q.next());
-    Assertions.assertSame(m3, q.next());
-    Assertions.assertSame(m4, q.next());
-    Assertions.assertSame(m1, q.next());
+    final List<Molecule> m = Arrays.asList(q.next(), q.next(), q.next(), q.next());
+    Assertions.assertSame(m2, m.get(0));
+    Assertions.assertSame(m3, m.get(1));
+    Assertions.assertSame(m4, m.get(2));
+    Assertions.assertSame(m1, m.get(3));
     Assertions.assertFalse(q.hasNext());
     q.clear();
+    // Comparator check
+    for (int i = 0; i < m.size(); i++) {
+      Molecule a = m.get(i);
+      for (int j = i + 1; j < m.size(); j++) {
+        Molecule b = m.get(j);
+        Assertions.assertTrue(q.lower(a, b));
+        Assertions.assertFalse(q.higher(a, b));
+        Assertions.assertTrue(q.higher(b, a));
+        Assertions.assertFalse(q.lower(b, a));
+      }
+    }
   }
 
   @Test
   void testOpticsMoleculeBinaryHeapReverseIdOrdered() {
-    final OpticsPriorityQueue q = new OpticsMoleculeBinaryHeapReverseIdOrdered(10);
+    final OpticsMoleculeBinaryHeap q = new OpticsMoleculeBinaryHeapReverseIdOrdered(10);
     final Molecule m1 = createMolecule(1, 5);
     final Molecule m2 = createMolecule(2, 2);
     final Molecule m3 = createMolecule(3, 2);
     final Molecule m4 = createMolecule(4, 4);
     q.push(m1);
-    q.push(m2);
     q.push(m3);
+    q.push(m2);
     q.push(m4);
-    Assertions.assertSame(m3, q.next());
-    Assertions.assertSame(m2, q.next());
-    Assertions.assertSame(m4, q.next());
-    Assertions.assertSame(m1, q.next());
+    final List<Molecule> m = Arrays.asList(q.next(), q.next(), q.next(), q.next());
+    Assertions.assertSame(m3, m.get(0));
+    Assertions.assertSame(m2, m.get(1));
+    Assertions.assertSame(m4, m.get(2));
+    Assertions.assertSame(m1, m.get(3));
     Assertions.assertFalse(q.hasNext());
     q.clear();
+    // Comparator check
+    for (int i = 0; i < m.size(); i++) {
+      Molecule a = m.get(i);
+      for (int j = i + 1; j < m.size(); j++) {
+        Molecule b = m.get(j);
+        Assertions.assertTrue(q.lower(a, b));
+        Assertions.assertFalse(q.higher(a, b));
+        Assertions.assertTrue(q.higher(b, a));
+        Assertions.assertFalse(q.lower(b, a));
+      }
+    }
   }
 
   private static Molecule createMolecule(int id, float reachabilityDistance) {

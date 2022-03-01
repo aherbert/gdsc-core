@@ -730,7 +730,7 @@ public class OpticsManager extends CoordinateStore {
      * @param size the size
      */
     FloatHeap(int size) {
-      ValidationUtils.checkArgument(size > 0, "N must be strictly positive");
+      ValidationUtils.checkStrictlyPositive(size, "size");
       this.queue = new float[size];
       this.size = size;
     }
