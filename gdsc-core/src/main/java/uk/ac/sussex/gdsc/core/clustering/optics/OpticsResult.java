@@ -28,10 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -301,9 +302,9 @@ public class OpticsResult implements ClusteringResult {
     final int nLevels = getNumberOfLevels();
 
     // Build the clusters Id at each level
-    final TIntArrayList[] clusterIds = new TIntArrayList[nLevels];
+    final IntArrayList[] clusterIds = new IntArrayList[nLevels];
     for (int l = 0; l < nLevels; l++) {
-      clusterIds[l] = new TIntArrayList();
+      clusterIds[l] = new IntArrayList();
     }
     final List<OpticsCluster> list = getAllClusters();
     for (final OpticsCluster c : list) {
@@ -314,7 +315,7 @@ public class OpticsResult implements ClusteringResult {
     int id = 1;
     final int[] map = new int[max + 1];
     for (int l = 0; l < nLevels; l++) {
-      final int[] set = clusterIds[l].toArray();
+      final int[] set = clusterIds[l].toIntArray();
       RandomUtils.shuffle(set, rng);
       for (final int clusterId : set) {
         map[clusterId] = id++;
@@ -603,7 +604,7 @@ public class OpticsResult implements ClusteringResult {
     final int rangeStart = Math.max(0, start - 1);
     rangeEnd = Math.min(size() - 1, rangeEnd - 1);
 
-    final TIntArrayList clusters = new TIntArrayList();
+    final IntArrayList clusters = new IntArrayList();
 
     final boolean single = rangeStart == rangeEnd;
 
@@ -620,7 +621,7 @@ public class OpticsResult implements ClusteringResult {
       }
     }
 
-    return clusters.toArray();
+    return clusters.toIntArray();
   }
 
   private static boolean overlap(int start, int end, int start2, int end2) {
@@ -638,7 +639,7 @@ public class OpticsResult implements ClusteringResult {
    * @param rangeEnd the range start
    * @param rangeStart the range end
    */
-  private static void addClusterHierarchy(List<OpticsCluster> hierarchy, TIntArrayList clusters,
+  private static void addClusterHierarchy(List<OpticsCluster> hierarchy, IntArrayList clusters,
       int rangeStart, int rangeEnd) {
     if (hierarchy == null) {
       return;
@@ -652,13 +653,13 @@ public class OpticsResult implements ClusteringResult {
     }
   }
 
-  private void addClusterHierarchy(List<OpticsCluster> hierarchy, TIntIntHashMap ids,
-      TIntArrayList parents, TIntArrayList parentsRank) {
+  private void addClusterHierarchy(List<OpticsCluster> hierarchy, Int2IntOpenHashMap ids,
+      IntArrayList parents, IntArrayList parentsRank) {
     if (hierarchy == null) {
       return;
     }
     for (final OpticsCluster cluster : hierarchy) {
-      if (ids.contains(cluster.clusterId)) {
+      if (ids.containsKey(cluster.clusterId)) {
         // Include all
         final int rank = ids.get(cluster.clusterId);
         for (int i = cluster.start; i <= cluster.end; i++) {
@@ -666,7 +667,9 @@ public class OpticsResult implements ClusteringResult {
         }
         final int fromIndex = parentsRank.size();
         final int toIndex = parents.size();
-        parentsRank.fill(fromIndex, toIndex, rank);
+        // Expand and fill
+        parentsRank.size(toIndex);
+        Arrays.fill(parentsRank.elements(), fromIndex, toIndex, rank);
 
         if (ids.size() == 1) {
           // Fast exit - nothing more to do
@@ -690,7 +693,7 @@ public class OpticsResult implements ClusteringResult {
       return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
-    final TIntArrayList parents = new TIntArrayList();
+    final IntArrayList parents = new IntArrayList();
 
     // Detect if clustering was the result of a DBSCAN-like clustering
 
@@ -710,7 +713,7 @@ public class OpticsResult implements ClusteringResult {
         // Multiple clusters selected. Prevent double counting by
         // using a hash set to store each cluster we have processed
         final int nClusters = getNumberOfClusters();
-        final TIntHashSet ids = new TIntHashSet(clusterIds.length);
+        final IntOpenHashSet ids = new IntOpenHashSet(clusterIds.length);
 
         for (final int clusterId : clusterIds) {
           if (clusterId > 0 && clusterId <= nClusters && ids.add(clusterId)) {
@@ -723,13 +726,13 @@ public class OpticsResult implements ClusteringResult {
         }
       }
 
-      return parents.toArray();
+      return parents.toIntArray();
     }
     // Use a map so we know the order for each cluster.
     // Add all the ids we have yet to process
     final int nClusters = getNumberOfClusters();
 
-    final TIntIntHashMap ids = new TIntIntHashMap(clusterIds.length);
+    final Int2IntOpenHashMap ids = new Int2IntOpenHashMap(clusterIds.length);
 
     for (int i = 0; i < clusterIds.length; i++) {
       if (clusterIds[i] > 0 && clusterIds[i] <= nClusters) {
@@ -739,14 +742,14 @@ public class OpticsResult implements ClusteringResult {
 
     // Used to maintain the order of the input clusters.
     // This is not strictly necessary for the interface.
-    final TIntArrayList parentsRank = new TIntArrayList();
+    final IntArrayList parentsRank = new IntArrayList();
 
     // Use the hierarchy
     addClusterHierarchy(clustering, ids, parents, parentsRank);
 
     // Sort
-    final int[] parentIds = parents.toArray();
-    final int[] rank = parentsRank.toArray();
+    final int[] parentIds = parents.toIntArray();
+    final int[] rank = parentsRank.toIntArray();
     SortUtils.sortData(parentIds, rank, false, false);
     return parentIds;
   }
@@ -757,7 +760,7 @@ public class OpticsResult implements ClusteringResult {
    * @param cluster the cluster
    * @param ids the ids
    */
-  private static void removeIds(OpticsCluster cluster, TIntIntHashMap ids) {
+  private static void removeIds(OpticsCluster cluster, Int2IntOpenHashMap ids) {
     ids.remove(cluster.clusterId);
     if (cluster.children != null) {
       for (final OpticsCluster child : cluster.children) {

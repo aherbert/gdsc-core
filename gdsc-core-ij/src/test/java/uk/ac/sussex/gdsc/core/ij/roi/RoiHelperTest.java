@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.ij.roi;
 
-import gnu.trove.set.hash.TIntHashSet;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Line;
@@ -36,6 +35,7 @@ import ij.gui.OvalRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.ByteProcessor;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.awt.Rectangle;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -93,7 +93,7 @@ class RoiHelperTest {
     }
     final ByteProcessor ip = new ByteProcessor(size, size, pixels);
     // No ROI
-    final TIntHashSet set = new TIntHashSet(pixels.length);
+    final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
     RoiHelper.forEach(null, ip, (FValueProcedure) value -> {
       Assertions.assertTrue(set.add((int) value));
     });
@@ -137,7 +137,7 @@ class RoiHelperTest {
     final ImageStack stack = new ImageStack(size, size);
     stack.addSlice(null, pixels);
     // No ROI
-    final TIntHashSet set = new TIntHashSet(pixels.length);
+    final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
     RoiHelper.forEach(null, stack, (FValueProcedure) value -> {
       Assertions.assertTrue(set.add((int) value));
     });
@@ -180,7 +180,7 @@ class RoiHelperTest {
     }
     final ByteProcessor ip = new ByteProcessor(size, size, pixels);
     // No ROI
-    final TIntHashSet set = new TIntHashSet(pixels.length);
+    final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
     RoiHelper.forEach(null, ip, (IValueProcedure) value -> {
       Assertions.assertTrue(set.add(value));
     });
@@ -222,7 +222,7 @@ class RoiHelperTest {
     final ImageStack stack = new ImageStack(size, size);
     stack.addSlice(null, pixels);
     // No ROI
-    final TIntHashSet set = new TIntHashSet(pixels.length);
+    final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
     RoiHelper.forEach(null, stack, (IValueProcedure) value -> {
       Assertions.assertTrue(set.add(value));
     });

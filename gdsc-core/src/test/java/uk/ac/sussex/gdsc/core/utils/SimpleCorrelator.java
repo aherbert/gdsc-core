@@ -28,8 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import gnu.trove.list.array.TDoubleArrayList;
-import java.util.Arrays;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 /**
@@ -38,10 +37,10 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 class SimpleCorrelator {
 
   /** The x data. */
-  private final TDoubleArrayList x = new TDoubleArrayList();
+  private final DoubleArrayList x = new DoubleArrayList();
 
   /** The y data. */
-  private final TDoubleArrayList y = new TDoubleArrayList();
+  private final DoubleArrayList y = new DoubleArrayList();
 
   /**
    * Adds the values.
@@ -60,7 +59,7 @@ class SimpleCorrelator {
    * @return the x
    */
   int[] getX() {
-    return Arrays.stream(x.toArray()).mapToInt(v -> (int) v).toArray();
+    return x.doubleStream().mapToInt(v -> (int) v).toArray();
   }
 
   /**
@@ -69,7 +68,7 @@ class SimpleCorrelator {
    * @return the y
    */
   int[] getY() {
-    return Arrays.stream(y.toArray()).mapToInt(v -> (int) v).toArray();
+    return y.doubleStream().mapToInt(v -> (int) v).toArray();
   }
 
   /**
@@ -78,7 +77,7 @@ class SimpleCorrelator {
    * @return the sum X
    */
   long getSumX() {
-    return (long) x.sum();
+    return (long) x.doubleStream().sum();
   }
 
   /**
@@ -87,7 +86,7 @@ class SimpleCorrelator {
    * @return the sum Y
    */
   long getSumY() {
-    return (long) y.sum();
+    return (long) y.doubleStream().sum();
   }
 
   /**
@@ -117,10 +116,11 @@ class SimpleCorrelator {
     return sumSquare(y);
   }
 
-  private static long sumSquare(TDoubleArrayList data) {
+  private static long sumSquare(DoubleArrayList data) {
     long sum = 0;
+    final double[] e = data.elements();
     for (int i = 0; i < data.size(); i++) {
-      final long v = (long) data.getQuick(i);
+      final long v = (long) e[i];
       sum += v * v;
     }
     return sum;
@@ -133,9 +133,11 @@ class SimpleCorrelator {
    */
   long getSumXY() {
     long sum = 0;
+    final double[] ex = x.elements();
+    final double[] ey = y.elements();
     for (int i = 0; i < x.size(); i++) {
-      final long v1 = (long) x.getQuick(i);
-      final long v2 = (long) y.getQuick(i);
+      final long v1 = (long) ex[i];
+      final long v2 = (long) ey[i];
       sum += v1 * v2;
     }
     return sum;
@@ -152,6 +154,6 @@ class SimpleCorrelator {
       return x.isEmpty() ? Double.NaN : 0.0;
     }
     final PearsonsCorrelation c = new PearsonsCorrelation();
-    return c.correlation(x.toArray(), y.toArray());
+    return c.correlation(x.toDoubleArray(), y.toDoubleArray());
   }
 }

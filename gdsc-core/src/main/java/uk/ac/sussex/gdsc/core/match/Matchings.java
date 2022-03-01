@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -480,7 +480,7 @@ public final class Matchings {
     // A pair of the matching and the cost stored as two lists
     final ArrayList<int[]> pairV = new ArrayList<>(sizeA);
     final ArrayList<double[]> pairD = new ArrayList<>(sizeA);
-    final TIntArrayList mapA = new TIntArrayList(sizeA);
+    final IntArrayList mapA = new IntArrayList(sizeA);
     // Mark all those in B that match something
     final boolean[] matchedB = new boolean[sizeB];
 
@@ -494,7 +494,7 @@ public final class Matchings {
     }
 
     // Map any B that were observed
-    final TIntArrayList mapB = new TIntArrayList(sizeB);
+    final IntArrayList mapB = new IntArrayList(sizeB);
     IntStream.range(0, sizeB).filter(v -> matchedB[v]).forEachOrdered(mapB::add);
 
     // There may be non-connected sub-graphs within the entire set of connections.
@@ -503,13 +503,15 @@ public final class Matchings {
     // each sub-graph (if a sub-graph has a different [min:max] range to the global range).
     // It will also increase speed for processing large input data.
 
+    final int[] aa = mapA.elements();
+    final int[] bb = mapB.elements();
     final List<Pair<int[], int[]>> subGraphs =
         BiPartiteGraphs.extractSubGraphs(mapA.size(), mapB.size(),
             // The list of indices for a is the sorted original index value of all B closer
             // than the distance threshold. Binary search will work. It may be prohibitively
             // slow if each a has many connections. The alternative is to materialise the all-vs-all
             // connections as a matrix for fast look-up.
-            (a, b) -> Arrays.binarySearch(pairV.get(a), mapB.getQuick(b)) >= 0);
+            (a, b) -> Arrays.binarySearch(pairV.get(a), bb[b]) >= 0);
 
     // The final assignments. These are for the reduced indices for vertices that are close.
     final int[] assignments = SimpleArrayUtils.newIntArray(mapA.size(), -1);
@@ -529,7 +531,7 @@ public final class Matchings {
       // The cost matrix is compacted again from the already reduced indices. We have to map
       // the original index B to a value in [0, setB.length).
       for (int i = 0; i < setB.length; i++) {
-        originalToReduced[mapB.getQuick(setB[i])] = i;
+        originalToReduced[bb[setB[i]]] = i;
       }
       final int[] mappedAssignments =
           computeMappedAssignments(setA, pairV, pairD, setB.length, originalToReduced);
@@ -550,15 +552,15 @@ public final class Matchings {
         // Check this was a valid connection.
         // This is a precaution against bad assignments that minimise
         // the sum of distances by including a pair above the maximum cost.
-        final int index = Arrays.binarySearch(pairV.get(u), mapB.getQuick(v));
+        final int index = Arrays.binarySearch(pairV.get(u), bb[v]);
         if (index >= 0) {
           max++;
-          matchedA[mapA.getQuick(u)] = true;
-          matchedB[mapB.getQuick(v)] = true;
+          matchedA[aa[u]] = true;
+          matchedB[bb[v]] = true;
           // Feed consumer
           if (matched != null) {
-            final T itemA = verticesA.get(mapA.getQuick(u));
-            final U itemB = verticesB.get(mapB.getQuick(v));
+            final T itemA = verticesA.get(aa[u]);
+            final U itemB = verticesB.get(bb[v]);
             matched.accept(itemA, itemB);
           }
         }
@@ -588,7 +590,7 @@ public final class Matchings {
    */
   private static <T, U> void findCosts(List<T> verticesA, List<U> verticesB,
       ToDoubleBiFunction<T, U> edges, double threshold, final ArrayList<int[]> pairV,
-      final ArrayList<double[]> pairD, TIntArrayList mapA, boolean[] matchedB) {
+      final ArrayList<double[]> pairD, IntArrayList mapA, boolean[] matchedB) {
     final int sizeA = verticesA.size();
     final int sizeB = verticesB.size();
     // Working space

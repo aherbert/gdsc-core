@@ -28,10 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.custom_hash.TObjectIntCustomHashMap;
-import gnu.trove.set.hash.TIntHashSet;
-import gnu.trove.strategy.HashingStrategy;
+import it.unimi.dsi.fastutil.Hash.Strategy;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -170,15 +170,16 @@ public final class Hull3d implements Hull {
    * A hashing strategy for numerically equivalent 3D points.
    */
   @VisibleForTesting
-  static class PointHashingStrategy implements HashingStrategy<double[]> {
+  static class PointHashingStrategy implements Strategy<double[]> {
     /** An instance. */
     static final PointHashingStrategy INSTANCE = new PointHashingStrategy();
 
-    /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = 1L;
 
     @Override
-    public int computeHashCode(double[] object) {
+    public int hashCode(double[] object) {
+      if (object == null) {
+        return 0;
+      }
       return 31 * (31 * (31 + hash(object[0])) + hash(object[1])) + hash(object[2]);
     }
 
@@ -196,8 +197,11 @@ public final class Hull3d implements Hull {
 
     @Override
     public boolean equals(double[] o1, double[] o2) {
+      if (o1 == null) {
+        return o2 == null;
+      }
       // Numerical equivalence (-0.0 == 0.0)
-      return o1[0] == o2[0] && o1[1] == o2[1] && o1[2] == o2[2];
+      return o2 != null && o1[0] == o2[0] && o1[1] == o2[1] && o1[2] == o2[2];
     }
   }
 
@@ -205,21 +209,24 @@ public final class Hull3d implements Hull {
    * A hashing strategy for edges.
    */
   @VisibleForTesting
-  static class EdgeHashingStrategy implements HashingStrategy<Edge> {
+  static class EdgeHashingStrategy implements Strategy<Edge> {
     /** An instance. */
     static final EdgeHashingStrategy INSTANCE = new EdgeHashingStrategy();
 
-    /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = 1L;
-
     @Override
-    public int computeHashCode(Edge e) {
+    public int hashCode(Edge e) {
+      if (e == null) {
+        return 0;
+      }
       return 31 * (31 + e.from) + e.to;
     }
 
     @Override
     public boolean equals(Edge o1, Edge o2) {
-      return o1.from == o2.from && o1.to == o2.to;
+      if (o1 == null) {
+        return o2 == null;
+      }
+      return o2 != null && o1.from == o2.from && o1.to == o2.to;
     }
   }
 
@@ -895,9 +902,12 @@ public final class Hull3d implements Hull {
 
     // Use a set to store all unique intersection points encountered.
     // The intersections and lines are then defined using only indices to the unique points.
-    final TObjectIntCustomHashMap<double[]> points =
-        new TObjectIntCustomHashMap<>(PointHashingStrategy.INSTANCE);
+    // final Object2IntOpenCustomHashMap<double[]> points =
+    // new Object2IntOpenCustomHashMap<>(PointHashingStrategy.INSTANCE);
+    final Object2IntOpenCustomHashMap<double[]> points =
+        new Object2IntOpenCustomHashMap<>(PointHashingStrategy.INSTANCE);
     final TreeMap<Edge, Integer> edges = new TreeMap<>(Edge::compare);
+
 
     // Note: Convex or concave hulls
     //
@@ -992,8 +1002,8 @@ public final class Hull3d implements Hull {
 
     // Lines through faces. These may not be unique. Lines are marked as part of a polygon
     // if a face in the plane adds all its edges.
-    final TObjectIntCustomHashMap<MarkedEdge> markedLines =
-        new TObjectIntCustomHashMap<>(EdgeHashingStrategy.INSTANCE);
+    final Object2IntOpenCustomHashMap<MarkedEdge> markedLines =
+        new Object2IntOpenCustomHashMap<>(EdgeHashingStrategy.INSTANCE);
 
     // If a plane cuts a face it creates a line. The cross product of the normals
     // denotes the direction of the line with respect to the face (inside/outside the hull).
@@ -1037,26 +1047,26 @@ public final class Hull3d implements Hull {
         getPlane(face, n2);
         final int direction = dot(plane, n2) < 0 ? BACKWARD : FORWARD;
 
-        int to = points.get(vertices[face[face.length - 1]]);
+        int to = points.getInt(vertices[face[face.length - 1]]);
         for (final int i : face) {
           final int from = to;
-          to = points.get(vertices[i]);
+          to = points.getInt(vertices[i]);
           // Store the unique edge direction correctly as the edge may be flipped
           if (from < to) {
-            markedLines.adjustOrPutValue(new MarkedEdge(from, to), direction, direction);
+            markedLines.addTo(new MarkedEdge(from, to), direction);
           } else {
-            markedLines.adjustOrPutValue(new MarkedEdge(to, from), -direction, -direction);
+            markedLines.addTo(new MarkedEdge(to, from), -direction);
           }
         }
       }
     }
 
     // 3: allocate lines for each face not in the plane.
-    final TIntHashSet facePoints = new TIntHashSet(8);
+    final IntOpenHashSet facePoints = new IntOpenHashSet(8);
 
     // Required to map point index back to coordinates.
-    final int[] indices = points.values();
-    final double[][] coordinates = points.keys(new double[points.size()][]);
+    final int[] indices = points.values().toIntArray();
+    final double[][] coordinates = points.keySet().toArray(new double[0][0]);
     SortUtils.sortData(coordinates, indices, false, false);
 
     for (int f = 0; f < faces.length; f++) {
@@ -1076,11 +1086,11 @@ public final class Hull3d implements Hull {
         final double d2 = distances[to];
         if (d1 >= d && d2 <= d || d2 >= d && d1 <= d) {
           final Edge e = Edge.create(from, to);
-          final Integer intersection = edges.get(e);
+          final int intersection = edges.get(e);
           // If no intersection then both points have been put in the plane.
           if (intersection == NO_INDEX) {
-            facePoints.add(points.get(vertices[from]));
-            facePoints.add(points.get(vertices[to]));
+            facePoints.add(points.getInt(vertices[from]));
+            facePoints.add(points.getInt(vertices[to]));
           } else {
             facePoints.add(intersection);
           }
@@ -1090,7 +1100,7 @@ public final class Hull3d implements Hull {
       // If 1 then a single vertex must touch the plane. This is ignored.
       // If 2 then create a line.
       if (facePoints.size() == 2) {
-        final int[] line = facePoints.toArray();
+        final int[] line = facePoints.toIntArray();
         final MarkedEdge e = MarkedEdge.create(line[0], line[1]);
         // Compute direction
         // Using n1 (plane normal) and n2 (face normal) the cross product (n1 x n2) points
@@ -1101,7 +1111,7 @@ public final class Hull3d implements Hull {
         cross(plane, n2, cross);
         vector(coordinates[e.from], coordinates[e.to], v1);
         final int direction = dot(cross, v1) < 0 ? BACKWARD : FORWARD;
-        markedLines.adjustOrPutValue(e, direction, direction);
+        markedLines.addTo(e, direction);
       } else if (facePoints.size() > 2) {
         // If 3+ then the face is not convex.
         // Currently we do not support concave faces in the hull properties method.
@@ -1122,13 +1132,14 @@ public final class Hull3d implements Hull {
 
     // Extract the lines with a direction. Ignore those that have cancelled.
     final LocalList<MarkedEdge> lines = new LocalList<>(markedLines.size());
-    markedLines.forEachEntry((k, v) -> {
+    markedLines.object2IntEntrySet().fastForEach(e -> {
+      final MarkedEdge k = e.getKey();
+      final int v = e.getIntValue();
       if (v >= FORWARD) {
         lines.push(k);
       } else if (v <= BACKWARD) {
         lines.push(new MarkedEdge(k.to, k.from));
       }
-      return true;
     });
 
     // Output closed polygons. A polygon references stored points by index.
@@ -1183,8 +1194,8 @@ public final class Hull3d implements Hull {
    * @param points the points
    * @return the id
    */
-  private static int addPoint(double[] point, TObjectIntCustomHashMap<double[]> points) {
-    return points.adjustOrPutValue(point, 0, points.size());
+  private static int addPoint(double[] point, Object2IntOpenCustomHashMap<double[]> points) {
+    return points.computeIfAbsent(point, x -> points.size());
   }
 
   /**
@@ -1256,11 +1267,11 @@ public final class Hull3d implements Hull {
     final double[] v2 = new double[3];
     final double[] normal = new double[3];
     // Initialise polygon
-    final TIntArrayList polygon = new TIntArrayList();
+    final IntArrayList polygon = new IntArrayList();
 
     polygon.add(edge.from);
     polygon.add(edge.to);
-    final int origin = polygon.getQuick(0);
+    final int origin = edge.from;
 
     while (findCandidates(edge.to, lines, candidates)) {
       // If multiple candidates then select the one with the smallest angle
@@ -1293,11 +1304,11 @@ public final class Hull3d implements Hull {
 
     // Should not reach here with an empty list.
     // Check if closed, otherwise this is an open line and not from a correctly cut hull.
-    if (polygon.getQuick(0) != polygon.getQuick(polygon.size() - 1)) {
+    if (origin != polygon.elements()[polygon.size() - 1]) {
       throw new IllegalStateException("Error connecting face lines to polygons");
     }
 
-    return polygon.toArray();
+    return polygon.toIntArray();
   }
 
   /**

@@ -28,7 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import java.util.function.IntConsumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -47,21 +48,21 @@ class CircularListTest {
     Assertions.assertEquals(value, list.peek(2));
     Assertions.assertEquals(value, list.next());
     Assertions.assertEquals(value, list.previous());
-    final TIntArrayList data = new TIntArrayList(1);
-    list.forEach(data::add);
-    Assertions.assertArrayEquals(new int[] {value}, data.toArray());
+    final IntArrayList data = new IntArrayList(1);
+    list.forEach((IntConsumer) data::add);
+    Assertions.assertArrayEquals(new int[] {value}, data.toIntArray());
     Assertions.assertFalse(list.advanceTo(value + 1));
     Assertions.assertEquals(value, list.current());
     Assertions.assertTrue(list.advanceTo(value));
     Assertions.assertEquals(value, list.current());
     data.clear();
-    final TIntArrayList data2 = new TIntArrayList(1);
+    final IntArrayList data2 = new IntArrayList(1);
     list.forEach((i, j) -> {
       data.add(i);
       data2.add(j);
     });
-    Assertions.assertArrayEquals(new int[] {value}, data.toArray());
-    Assertions.assertArrayEquals(new int[] {value}, data2.toArray());
+    Assertions.assertArrayEquals(new int[] {value}, data.toIntArray());
+    Assertions.assertArrayEquals(new int[] {value}, data2.toIntArray());
 
     list.reset();
     Assertions.assertEquals(value, list.current());
@@ -87,24 +88,24 @@ class CircularListTest {
     Assertions.assertEquals(value2, list.next());
     Assertions.assertEquals(value1, list.previous());
     Assertions.assertEquals(value2, list.previous());
-    final TIntArrayList data = new TIntArrayList(2);
-    list.forEach(data::add);
-    Assertions.assertArrayEquals(new int[] {value2, value1}, data.toArray());
+    final IntArrayList data = new IntArrayList(2);
+    list.forEach((IntConsumer) data::add);
+    Assertions.assertArrayEquals(new int[] {value2, value1}, data.toIntArray());
     Assertions.assertFalse(list.advanceTo(value1 + 1));
     Assertions.assertEquals(value2, list.current());
     Assertions.assertTrue(list.advanceTo(value1));
     Assertions.assertEquals(value1, list.current());
     data.clear();
-    list.forEach(data::add);
-    Assertions.assertArrayEquals(new int[] {value1, value2}, data.toArray());
+    list.forEach((IntConsumer) data::add);
+    Assertions.assertArrayEquals(new int[] {value1, value2}, data.toIntArray());
     data.clear();
-    final TIntArrayList data2 = new TIntArrayList(2);
+    final IntArrayList data2 = new IntArrayList(2);
     list.forEach((i, j) -> {
       data.add(i);
       data2.add(j);
     });
-    Assertions.assertArrayEquals(new int[] {value1, value2}, data.toArray());
-    Assertions.assertArrayEquals(new int[] {value2, value1}, data2.toArray());
+    Assertions.assertArrayEquals(new int[] {value1, value2}, data.toIntArray());
+    Assertions.assertArrayEquals(new int[] {value2, value1}, data2.toIntArray());
 
     list.reset();
     Assertions.assertEquals(value1, list.current());
@@ -142,24 +143,24 @@ class CircularListTest {
     Assertions.assertEquals(value2, list.previous());
     Assertions.assertEquals(value1, list.previous());
     Assertions.assertEquals(value3, list.previous());
-    final TIntArrayList data = new TIntArrayList(3);
-    list.forEach(data::add);
-    Assertions.assertArrayEquals(new int[] {value3, value1, value2}, data.toArray());
+    final IntArrayList data = new IntArrayList(3);
+    list.forEach((IntConsumer) data::add);
+    Assertions.assertArrayEquals(new int[] {value3, value1, value2}, data.toIntArray());
     Assertions.assertFalse(list.advanceTo(value1 + 1));
     Assertions.assertEquals(value3, list.current());
     Assertions.assertTrue(list.advanceTo(value1));
     Assertions.assertEquals(value1, list.current());
     data.clear();
-    list.forEach(data::add);
-    Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toArray());
+    list.forEach((IntConsumer) data::add);
+    Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toIntArray());
     data.clear();
-    final TIntArrayList data2 = new TIntArrayList(3);
+    final IntArrayList data2 = new IntArrayList(3);
     list.forEach((i, j) -> {
       data.add(i);
       data2.add(j);
     });
-    Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toArray());
-    Assertions.assertArrayEquals(new int[] {value2, value3, value1}, data2.toArray());
+    Assertions.assertArrayEquals(new int[] {value1, value2, value3}, data.toIntArray());
+    Assertions.assertArrayEquals(new int[] {value2, value3, value1}, data2.toIntArray());
 
     list.reset();
     Assertions.assertEquals(value1, list.current());

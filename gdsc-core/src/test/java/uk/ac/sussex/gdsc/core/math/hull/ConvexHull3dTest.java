@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -51,20 +51,22 @@ import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 class ConvexHull3dTest {
   @Test
   void cannotComputeConvexHullFromLessThanFourCoords() {
-    final TDoubleArrayList x = new TDoubleArrayList();
-    final TDoubleArrayList y = new TDoubleArrayList();
-    final TDoubleArrayList z = new TDoubleArrayList();
-    Assertions.assertNull(ConvexHull3d.create(x.toArray(), y.toArray(), z.toArray()));
+    final DoubleArrayList x = new DoubleArrayList();
+    final DoubleArrayList y = new DoubleArrayList();
+    final DoubleArrayList z = new DoubleArrayList();
+    Assertions
+        .assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     // @formatter:off
     x.add(0); y.add(0); z.add(0);
-    Assertions.assertNull(ConvexHull3d.create(x.toArray(), y.toArray(), z.toArray()));
+    Assertions.assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     x.add(1); y.add(0); z.add(0);
-    Assertions.assertNull(ConvexHull3d.create(x.toArray(), y.toArray(), z.toArray()));
+    Assertions.assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     x.add(0); y.add(1); z.add(0);
-    Assertions.assertNull(ConvexHull3d.create(x.toArray(), y.toArray(), z.toArray()));
+    Assertions.assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     x.add(0); y.add(0); z.add(1);
     // @formatter:on
-    Assertions.assertNotNull(ConvexHull3d.create(x.toArray(), y.toArray(), z.toArray()));
+    Assertions.assertNotNull(
+        ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
   }
 
   @SeededTest

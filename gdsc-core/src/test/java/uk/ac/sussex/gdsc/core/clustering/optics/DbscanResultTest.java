@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
@@ -52,7 +52,7 @@ class DbscanResultTest {
     Assertions.assertEquals(minPoints, result.getMinPoints());
 
     final int[] order = result.getOrder();
-    final TIntHashSet set = new TIntHashSet(order);
+    final IntOpenHashSet set = new IntOpenHashSet(order);
     Assertions.assertEquals(x.length, set.size());
     Assertions.assertNull(result.getClusters());
     Assertions.assertFalse(result.hasHulls());

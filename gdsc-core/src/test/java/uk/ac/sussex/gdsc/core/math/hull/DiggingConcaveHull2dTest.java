@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -203,15 +203,16 @@ class DiggingConcaveHull2dTest {
   void canCreateWithMultiplePointsCircular() {
     final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 2);
     final int n = 500;
-    final TDoubleArrayList xx = new TDoubleArrayList(n);
-    final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final DoubleArrayList xx = new DoubleArrayList(n);
+    final DoubleArrayList yy = new DoubleArrayList(n);
     for (int i = 0; i < n; i++) {
       final double[] p = sampler.sample();
       xx.add(p[0]);
       yy.add(p[1]);
     }
     // Require a high threshold to prevent digging in to the circle.
-    final Hull2d hull = DiggingConcaveHull2d.create(10.0, xx.toArray(), yy.toArray(), xx.size());
+    final Hull2d hull =
+        DiggingConcaveHull2d.create(10.0, xx.toDoubleArray(), yy.toDoubleArray(), xx.size());
     Assertions.assertNotNull(hull);
     // Deltas are high as the concave hull may be much smaller than the enclosing circle
     // with a longer perimeter
@@ -226,8 +227,8 @@ class DiggingConcaveHull2dTest {
   void canCreateWithMultiplePointsCircularMinusWedge() {
     final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 2);
     final int n = 500;
-    final TDoubleArrayList xx = new TDoubleArrayList(n);
-    final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final DoubleArrayList xx = new DoubleArrayList(n);
+    final DoubleArrayList yy = new DoubleArrayList(n);
     while (xx.size() < n) {
       final double[] p = sampler.sample();
       // Cut out an entire sector of the circle
@@ -238,7 +239,8 @@ class DiggingConcaveHull2dTest {
       yy.add(p[1]);
     }
     // Require a high threshold to prevent digging in to the circle.
-    final Hull2d hull = DiggingConcaveHull2d.create(2.0, xx.toArray(), yy.toArray(), xx.size());
+    final Hull2d hull =
+        DiggingConcaveHull2d.create(2.0, xx.toDoubleArray(), yy.toDoubleArray(), xx.size());
     Assertions.assertNotNull(hull);
     // Deltas are high as the concave hull may be much smaller than the enclosing circle
     // with a longer perimeter

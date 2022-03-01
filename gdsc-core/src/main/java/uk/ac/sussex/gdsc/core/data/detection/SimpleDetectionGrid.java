@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.data.detection;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -76,7 +76,7 @@ public class SimpleDetectionGrid implements DetectionGrid {
 
   @Override
   public int[] find(double x, double y) {
-    final TIntArrayList list = new TIntArrayList();
+    final IntArrayList list = new IntArrayList();
     if (includeOuterEdge) {
       for (int i = 0; i < rectangles.length; i++) {
         // Because we want to know if the point is less than or equal to
@@ -95,7 +95,7 @@ public class SimpleDetectionGrid implements DetectionGrid {
         }
       }
     }
-    return list.toArray();
+    return list.toIntArray();
   }
 
   /**

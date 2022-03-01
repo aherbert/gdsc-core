@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.CompositeSamplers;
 import org.apache.commons.rng.sampling.ObjectSampler;
@@ -175,15 +175,15 @@ class ConvexHull2dTest {
     // using any seed.
     final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(12345L), 2);
     final int n = 500;
-    final TDoubleArrayList xx = new TDoubleArrayList(n);
-    final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final DoubleArrayList xx = new DoubleArrayList(n);
+    final DoubleArrayList yy = new DoubleArrayList(n);
     final double[] centroid = {1, -2};
     for (int i = 0; i < n; i++) {
       final double[] p = sampler.sample();
       xx.add(p[0] + centroid[0]);
       yy.add(p[1] + centroid[1]);
     }
-    final Hull2d hull = ConvexHull2d.create(xx.toArray(), yy.toArray());
+    final Hull2d hull = ConvexHull2d.create(xx.toDoubleArray(), yy.toDoubleArray());
     Assertions.assertEquals(2 * Math.PI, hull.getLength(), 0.2);
     Assertions.assertEquals(Math.PI, hull.getArea(), 0.2);
     Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);
@@ -211,15 +211,15 @@ class ConvexHull2dTest {
         .add(TriangleSampler.of(rng, e, f, o), 1).add(TriangleSampler.of(rng, f, a, o), 1)
         .build(rng);
     final int n = 5000;
-    final TDoubleArrayList xx = new TDoubleArrayList(n);
-    final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final DoubleArrayList xx = new DoubleArrayList(n);
+    final DoubleArrayList yy = new DoubleArrayList(n);
     final double[] centroid = {1, -2};
     for (int i = 0; i < n; i++) {
       final double[] p = sampler.sample();
       xx.add(p[0] + centroid[0]);
       yy.add(p[1] + centroid[1]);
     }
-    final Hull2d hull = ConvexHull2d.create(xx.toArray(), yy.toArray());
+    final Hull2d hull = ConvexHull2d.create(xx.toDoubleArray(), yy.toDoubleArray());
     Assertions.assertEquals(6, hull.getLength(), 0.2);
     Assertions.assertEquals(6 * h * w, hull.getArea(), 0.2);
     Assertions.assertArrayEquals(centroid, hull.getCentroid(), 0.01);

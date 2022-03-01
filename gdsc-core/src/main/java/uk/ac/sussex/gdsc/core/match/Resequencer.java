@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import gnu.trove.map.hash.TIntIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -207,7 +207,7 @@ public class Resequencer {
    */
   private static class DynamicIntMap implements IntMap {
     /** The set of observed values. */
-    final TIntIntHashMap observed;
+    final Int2IntOpenHashMap observed;
 
     /**
      * Instantiates a new dynamic int set.
@@ -215,7 +215,8 @@ public class Resequencer {
      * @param size the size
      */
     DynamicIntMap(int size) {
-      observed = new TIntIntHashMap(size, 0.5f, 0, NO_ENTRY);
+      observed = new Int2IntOpenHashMap(size);
+      observed.defaultReturnValue(NO_ENTRY);
     }
 
     @Override
@@ -232,9 +233,8 @@ public class Resequencer {
     @Override
     public List<int[]> getMap() {
       final ArrayList<int[]> list = new ArrayList<>();
-      observed.forEachEntry((key, value) -> {
-        list.add(new int[] {key, value});
-        return true;
+      observed.int2IntEntrySet().fastForEach(e -> {
+        list.add(new int[] {e.getIntKey(), e.getIntValue()});
       });
       return list;
     }

@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.procedure.TIntObjectProcedure;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Formatter;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
@@ -126,7 +125,7 @@ class CustomTricubicInterpolatingFunctionInlineTest {
         }
       }
 
-      final TIntObjectHashMap<TIntArrayList> map = new TIntObjectHashMap<>(max + 1);
+      final Int2ObjectArrayMap<IntArrayList> map = new Int2ObjectArrayMap<>(max + 1);
 
       formatter.format("final double[] a = new double[%d];\n", sz);
 
@@ -139,9 +138,9 @@ class CustomTricubicInterpolatingFunctionInlineTest {
             final int di = (int) Math.floor(d);
             final int key = Math.abs(di);
             // Check if contains either positive or negative key
-            TIntArrayList value = map.get(key);
+            IntArrayList value = map.get(key);
             if (value == null) {
-              value = new TIntArrayList();
+              value = new IntArrayList();
               map.put(key, value);
             }
             // Store the index and the sign.
@@ -153,56 +152,54 @@ class CustomTricubicInterpolatingFunctionInlineTest {
         formatter.format("a[%d]=", i);
 
         // Collect terms
-        map.forEachEntry(new TIntObjectProcedure<TIntArrayList>() {
-          @Override
-          public boolean execute(int key, TIntArrayList value) {
-            final int[] js = value.toArray(); // Signed j
-            final int[] j = js.clone(); // Unsigned j
-            for (int i = 0; i < j.length; i++) {
-              j[i] = Math.abs(j[i]);
+        map.int2ObjectEntrySet().forEach(e -> {
+          final int key = e.getIntKey();
+          final IntArrayList value = e.getValue();
+          final int[] js = value.toIntArray(); // Signed j
+          final int[] j = js.clone(); // Unsigned j
+          for (int k = 0; k < j.length; k++) {
+            j[k] = Math.abs(j[k]);
+          }
+
+          SortUtils.sortData(js, j, true, false);
+
+          // Check if starting with negative
+          char add = '+';
+          char sub = '-';
+
+          if (js[0] < 0) {
+            // Subtract the set
+            sb.append('-');
+            if (key > 1) {
+              sb.append(key).append('*');
             }
+            // Swap signs
+            add = sub;
+            sub = '+';
+          } else {
+            // Some positive so add the set
+            sb.append('+');
+            if (key > 1) {
+              sb.append(key).append('*');
+            }
+          }
 
-            SortUtils.sortData(js, j, true, false);
-
-            // Check if starting with negative
-            char add = '+';
-            char sub = '-';
-
-            if (js[0] < 0) {
-              // Subtract the set
-              sb.append('-');
-              if (key > 1) {
-                sb.append(key).append('*');
+          if (js.length != 1) {
+            sb.append('(');
+          }
+          for (int k = 0; k < js.length; k++) {
+            if (k != 0) {
+              if (js[k] < 0) {
+                sb.append(sub);
+              } else {
+                sb.append(add);
               }
-              // Swap signs
-              add = sub;
-              sub = '+';
-            } else {
-              // Some positive so add the set
-              sb.append('+');
-              if (key > 1) {
-                sb.append(key).append('*');
-              }
             }
-
-            if (js.length != 1) {
-              sb.append('(');
-            }
-            for (int i = 0; i < js.length; i++) {
-              if (i != 0) {
-                if (js[i] < 0) {
-                  sb.append(sub);
-                } else {
-                  sb.append(add);
-                }
-              }
-              // Convert 1-based index back to 0-based
-              sb.append("beta[").append(Math.abs(js[i]) - 1).append(']');
-            }
-            if (js.length != 1) {
-              sb.append(')');
-            }
-            return true;
+            // Convert 1-based index back to 0-based
+            sb.append("beta[").append(Math.abs(js[k]) - 1).append(']');
+          }
+          if (js.length != 1) {
+            sb.append(')');
           }
         });
 

@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
@@ -96,7 +96,7 @@ class MiddleSquareWeylSequenceTest {
     final int[] increments = MiddleSquareWeylSequence.getIncrements();
     Assertions.assertEquals(1024, increments.length);
     // Check the permutations are unique.
-    final TIntHashSet set = new TIntHashSet(increments.length * 2);
+    final IntOpenHashSet set = new IntOpenHashSet(increments.length * 2);
     for (final int inc : increments) {
       if (!set.add(inc)) {
         Assertions

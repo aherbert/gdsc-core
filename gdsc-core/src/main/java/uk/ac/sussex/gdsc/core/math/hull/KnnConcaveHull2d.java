@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Arrays;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.math.GeometryUtils;
@@ -123,7 +123,7 @@ public final class KnnConcaveHull2d {
       // Ensure that k neighbours can be found
       final int kk = Math.min(numberOfNeighbours, points.length - 1);
       final ActiveList active = new ActiveList(points.length);
-      final TIntArrayList hull = new TIntArrayList();
+      final IntArrayList hull = new IntArrayList();
       return concaveHull(tree, points, active, kk, first, hull);
     }
 
@@ -165,14 +165,14 @@ public final class KnnConcaveHull2d {
      * @return the hull
      */
     private static Hull2d concaveHull(IntDoubleKdTree tree, double[][] points, ActiveList active,
-        int k, int first, TIntArrayList hull) {
+        int k, int first, IntArrayList hull) {
       if (k >= points.length) {
         // Occurs when increasing k has not found a solution
         return null;
       }
       // Initialise the hull with the first point
       active.enableAll();
-      hull.resetQuick();
+      hull.clear();
       hull.add(first);
       active.disable(first);
       // Initialise the search
@@ -214,7 +214,7 @@ public final class KnnConcaveHull2d {
         }
 
         // Set the angle for the next step
-        previousAngle = AngleList.angle(points[current], points[hull.getQuick(hull.size() - 1)]);
+        previousAngle = AngleList.angle(points[current], points[hull.getInt(hull.size() - 1)]);
         // Extend the hull
         hull.add(current);
         active.disable(current);
@@ -247,7 +247,7 @@ public final class KnnConcaveHull2d {
      * @return the index of the candidate to extend the hull (or -1)
      */
     private static int select(double[][] points, int first, int current, AngleList knn,
-        TIntArrayList hull) {
+        IntArrayList hull) {
       final double x1 = points[current][0];
       final double y1 = points[current][1];
       // Store the start point for testing lines in the current hull
@@ -266,8 +266,8 @@ public final class KnnConcaveHull2d {
         // Count down to test lines most recently added to the hull first.
         // Note: No need to test the most recent edge added to the hull for an intersect.
         for (int j = n; j > last; j--) {
-          final int p1 = hull.get(j - 1);
-          final int p2 = hull.get(j);
+          final int p1 = hull.getInt(j - 1);
+          final int p2 = hull.getInt(j);
           final double x3 = points[p1][0];
           final double y3 = points[p1][1];
           final double x4 = points[p2][0];
@@ -290,15 +290,17 @@ public final class KnnConcaveHull2d {
      * @param hull the list of hull point indexes
      * @return the hull
      */
-    private static Hull2d createHull(double[][] points, TIntArrayList hull) {
+    private static Hull2d createHull(double[][] points, IntArrayList hull) {
       // Ensure we create a self-closing polygon (no duplicate first and last point)
-      if (hull.getQuick(0) == hull.getQuick(hull.size() - 1)) {
-        hull.remove(hull.size() - 1, 1);
+      final int[] e = hull.elements();
+      int size  = hull.size();
+      if (e[0] == e[size - 1]) {
+        size--;
       }
-      final double[] x = new double[hull.size()];
-      final double[] y = new double[hull.size()];
-      for (int i = 0; i < hull.size(); i++) {
-        final double[] p = points[hull.getQuick(i)];
+      final double[] x = new double[size];
+      final double[] y = new double[size];
+      for (int i = 0; i < size; i++) {
+        final double[] p = points[e[i]];
         x[i] = p[0];
         y[i] = p[1];
       }

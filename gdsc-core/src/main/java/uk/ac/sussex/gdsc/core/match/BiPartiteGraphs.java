@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -150,8 +150,8 @@ public final class BiPartiteGraphs {
     // Extract sub-graphs.
     // Only include those with connections from A to B.
     final ArrayList<Pair<int[], int[]>> list = new ArrayList<>(id);
-    final TIntArrayList mA = new TIntArrayList(sizeA);
-    final TIntArrayList mB = new TIntArrayList(sizeB);
+    final IntArrayList mA = new IntArrayList(sizeA);
+    final IntArrayList mB = new IntArrayList(sizeB);
     int start = 0;
     for (int i = 1; i <= id; i++) {
       // Note that all indexes in A will be assigned. Some may have no connections.
@@ -159,8 +159,9 @@ public final class BiPartiteGraphs {
       extractSubGraphIndices(idB, 0, i, mB);
       if (!mB.isEmpty()) {
         extractSubGraphIndices(idA, start, i, mA);
-        start = mA.getQuick(0);
-        list.add(Pair.of(mA.toArray(), mB.toArray()));
+        final int[] a = mA.toIntArray();
+        start = a[0];
+        list.add(Pair.of(a, mB.toIntArray()));
       }
     }
     return list;
@@ -224,7 +225,7 @@ public final class BiPartiteGraphs {
    * @param id the sub-graph id
    * @param list the list
    */
-  private static void extractSubGraphIndices(int[] ids, int start, int id, TIntArrayList list) {
+  private static void extractSubGraphIndices(int[] ids, int start, int id, IntArrayList list) {
     list.clear();
     for (int i = 0; i < ids.length; i++) {
       if (ids[i] == id) {

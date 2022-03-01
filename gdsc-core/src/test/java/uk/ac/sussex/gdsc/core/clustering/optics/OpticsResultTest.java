@@ -28,9 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import gnu.trove.list.array.TFloatArrayList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -212,7 +211,7 @@ class OpticsResultTest {
     Assertions.assertEquals(minPoints, result.getMinPoints());
 
     final int[] order = result.getOrder();
-    final TIntHashSet set = new TIntHashSet(order);
+    final IntOpenHashSet set = new IntOpenHashSet(order);
     Assertions.assertEquals(x.length, set.size());
     Assertions.assertNotNull(result.getClusters(), "Optics should generated DBSCAN clustering");
     Assertions.assertEquals(1, result.getNumberOfLevels());
@@ -362,8 +361,8 @@ class OpticsResultTest {
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
     // hierarchical clusters.
-    final TFloatArrayList x = new TFloatArrayList();
-    final TFloatArrayList y = new TFloatArrayList();
+    final FloatArrayList x = new FloatArrayList();
+    final FloatArrayList y = new FloatArrayList();
     final UnitBallSampler s = UnitBallSampler.of(rng, 2);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
@@ -395,7 +394,7 @@ class OpticsResultTest {
     assertGetParents(allClusters, result, new int[] {3, 4, 5});
     assertGetParents(allClusters, result, new int[] {0, 3, 4, 5, 1000});
     // Require a top level cluster with children. Just do them all.
-    final TIntArrayList ids = new TIntArrayList();
+    final IntArrayList ids = new IntArrayList();
     final List<OpticsCluster> topLevel = result.getClusteringHierarchy();
     topLevel.stream().mapToInt(OpticsCluster::getClusterId).forEach(ids::add);
     // For the final cluster with children add some of its children.
@@ -405,12 +404,12 @@ class OpticsResultTest {
         break;
       }
     }
-    assertGetParents(allClusters, result, ids.toArray());
+    assertGetParents(allClusters, result, ids.toIntArray());
 
     // Check getTopLevelClusters
     // Assert that they are top level
     final int[] c1 = result.getTopLevelClusters();
-    final TIntHashSet top = new TIntHashSet();
+    final IntOpenHashSet top = new IntOpenHashSet();
     topLevel.stream().mapToInt(OpticsCluster::getClusterId).forEach(top::add);
     for (int i = 0; i < c1.length; i++) {
       if (c1[i] > 0) {
@@ -481,8 +480,8 @@ class OpticsResultTest {
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
     // hierarchical clusters.
-    final TFloatArrayList x = new TFloatArrayList();
-    final TFloatArrayList y = new TFloatArrayList();
+    final FloatArrayList x = new FloatArrayList();
+    final FloatArrayList y = new FloatArrayList();
     final UnitBallSampler s = UnitBallSampler.of(rng, 2);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
@@ -543,8 +542,8 @@ class OpticsResultTest {
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
     // hierarchical clusters.
-    final TFloatArrayList x = new TFloatArrayList();
-    final TFloatArrayList y = new TFloatArrayList();
+    final FloatArrayList x = new FloatArrayList();
+    final FloatArrayList y = new FloatArrayList();
     final UnitBallSampler s = UnitBallSampler.of(rng, 2);
     // Two circles, one inside the other
     addCircle(s, 10, 10, 10, 50, x, y);
@@ -574,7 +573,7 @@ class OpticsResultTest {
   }
 
   private static void addCircle(UnitBallSampler s, float cx, float cy, float r, int n,
-      TFloatArrayList x, TFloatArrayList y) {
+      FloatArrayList x, FloatArrayList y) {
     for (int i = 0; i < n; i++) {
       final double[] p = s.sample();
       x.add((float) (cx + p[0] * r));
@@ -585,12 +584,12 @@ class OpticsResultTest {
   private static void assertGetClustersFromOrder(List<OpticsCluster> allClusters,
       OpticsResult result, int start, int end, boolean includeChildren) {
     final int[] co = result.getClustersFromOrder(start, end, includeChildren);
-    final TIntHashSet set = new TIntHashSet();
+    final IntOpenHashSet set = new IntOpenHashSet();
     final Predicate<OpticsCluster> p = includeChildren ? c -> true : c -> c.getLevel() == 0;
     allClusters.stream().filter(p)
         .filter(c -> (c.start < start) ? c.end >= start - 1 : c.start < end)
         .mapToInt(OpticsCluster::getClusterId).forEach(set::add);
-    final int[] exp = set.toArray();
+    final int[] exp = set.toIntArray();
     Arrays.sort(exp);
     assertIdEquals(exp, co);
   }
@@ -598,14 +597,44 @@ class OpticsResultTest {
   private static void assertGetParents(List<OpticsCluster> allClusters, OpticsResult result,
       int[] ids) {
     final int[] co = result.getParents(ids);
-    final TIntHashSet set = new TIntHashSet();
+    final IntOpenHashSet set = new IntOpenHashSet();
     allClusters.stream().filter(c -> ArrayUtils.indexOf(ids, c.getClusterId()) >= 0).forEach(c -> {
       for (int i = c.start; i <= c.end; i++) {
         set.add(result.get(i).parent);
       }
     });
-    final int[] exp = set.toArray();
+    final int[] exp = set.toIntArray();
     Arrays.sort(exp);
     assertIdEquals(exp, co);
+  }
+
+  /**
+   * Expandable list of float values.
+   */
+  private static class FloatArrayList {
+    private int size;
+    private float[] data = new float[10];
+
+    void add(float f) {
+      final int n = size;
+      float[] a = data;
+      if (n == a.length) {
+        data = a = Arrays.copyOf(a, n << 1);
+      }
+      a[n] = f;
+      size = n + 1;
+    }
+
+    int size() {
+      return size;
+    }
+
+    double get(int i) {
+      return data[i];
+    }
+
+    float[] toArray() {
+      return Arrays.copyOf(data, size);
+    }
   }
 }

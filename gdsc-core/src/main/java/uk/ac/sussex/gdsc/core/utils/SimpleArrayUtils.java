@@ -28,8 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
@@ -80,15 +80,15 @@ public final class SimpleArrayUtils {
    * @return the merged set
    */
   public static int[] merge(int[] s1, int[] s2, boolean unique) {
-    TIntHashSet set;
+    IntOpenHashSet set;
     if (unique) {
-      set = new TIntHashSet(Math.max(s1.length, s2.length));
+      set = new IntOpenHashSet(Math.max(s1.length, s2.length));
     } else {
-      set = new TIntHashSet();
+      set = new IntOpenHashSet();
     }
-    set.addAll(s1);
-    set.addAll(s2);
-    return set.toArray();
+    set.addAll(IntArrayList.wrap(s1));
+    set.addAll(IntArrayList.wrap(s2));
+    return set.toIntArray();
   }
 
   /**
@@ -968,7 +968,7 @@ public final class SimpleArrayUtils {
     // Sort and look for continuous ranges
     Arrays.sort(indices);
 
-    final TIntArrayList list = new TIntArrayList(indices.length);
+    final IntArrayList list = new IntArrayList(indices.length);
     for (int i = 0; i < indices.length; i++) {
       final int start = indices[i];
       int end = start;
@@ -980,7 +980,7 @@ public final class SimpleArrayUtils {
       list.add(end);
     }
 
-    return list.toArray();
+    return list.toIntArray();
   }
 
   /**

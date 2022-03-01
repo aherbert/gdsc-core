@@ -81,16 +81,16 @@ class Hull3dTest {
     final double[] p2 = {6.76, 8.90, 1.11};
     final double[] p3 = {-0.0, -0.0, -0.0};
     for (final double[] p : new double[][] {p0, p1, p2}) {
-      Assertions.assertEquals(Arrays.hashCode(p),
-          Hull3d.PointHashingStrategy.INSTANCE.computeHashCode(p), () -> Arrays.toString(p));
+      Assertions.assertEquals(Arrays.hashCode(p), Hull3d.PointHashingStrategy.INSTANCE.hashCode(p),
+          () -> Arrays.toString(p));
       Assertions.assertTrue(Hull3d.PointHashingStrategy.INSTANCE.equals(p, p));
     }
     Assertions.assertFalse(Hull3d.PointHashingStrategy.INSTANCE.equals(p0, p1));
     Assertions.assertFalse(Hull3d.PointHashingStrategy.INSTANCE.equals(p1, p2));
 
     Assertions.assertTrue(Hull3d.PointHashingStrategy.INSTANCE.equals(p0, p3));
-    Assertions.assertEquals(Hull3d.PointHashingStrategy.INSTANCE.computeHashCode(p0),
-        Hull3d.PointHashingStrategy.INSTANCE.computeHashCode(p3));
+    Assertions.assertEquals(Hull3d.PointHashingStrategy.INSTANCE.hashCode(p0),
+        Hull3d.PointHashingStrategy.INSTANCE.hashCode(p3));
   }
 
   @Test
@@ -101,7 +101,7 @@ class Hull3dTest {
     final Edge p3 = Edge.create(3, 4);
     for (final Edge p : new Edge[] {p0, p1, p2, p3}) {
       Assertions.assertEquals(Arrays.hashCode(new int[] {p.from, p.to}),
-          Hull3d.EdgeHashingStrategy.INSTANCE.computeHashCode(p),
+          Hull3d.EdgeHashingStrategy.INSTANCE.hashCode(p),
           () -> Arrays.toString(new int[] {p.from, p.to}));
       Assertions.assertTrue(Hull3d.EdgeHashingStrategy.INSTANCE.equals(p, p));
     }
@@ -606,8 +606,8 @@ class Hull3dTest {
 
     // Square cross section of a face
     assertPolygons(hull, new double[] {0, 0, 1, -1},
-        Arrays.asList(Arrays.asList(new double[][] {{-1, -1, 1}, {0, -1, 1}, {1, -1, 1},
-            {1, 0, 1}, {1, 1, 1}, {0, 1, 1}, {-1, 1, 1}, {-1, 0, 1}})));
+        Arrays.asList(Arrays.asList(new double[][] {{-1, -1, 1}, {0, -1, 1}, {1, -1, 1}, {1, 0, 1},
+            {1, 1, 1}, {0, 1, 1}, {-1, 1, 1}, {-1, 0, 1}})));
 
     // Quadrant removed: L-shape
     assertPolygons(hull, new double[] {0, 0, 1, -0.5},

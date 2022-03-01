@@ -28,7 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrays;
 import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -53,7 +54,7 @@ class ObjDoubleNdTreeTest {
     Assertions.assertEquals(2, tree.dimensions());
     Assertions.assertEquals(0, tree.size());
     final LocalList<Integer> items = new LocalList<>();
-    final TDoubleArrayList distances = new TDoubleArrayList();
+    final DoubleArrayList distances = new DoubleArrayList();
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     final double[] point = new double[2];
 
@@ -135,7 +136,7 @@ class ObjDoubleNdTreeTest {
 
   private static void assertComputeKnn(double[][] data) {
     final LocalList<Integer> items = new LocalList<>();
-    final TDoubleArrayList distances = new TDoubleArrayList();
+    final DoubleArrayList distances = new DoubleArrayList();
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
     final int n = data.length;
 
@@ -165,13 +166,13 @@ class ObjDoubleNdTreeTest {
 
       // Check the closest
       items.clear();
-      distances.resetQuick();
+      distances.clear();
       final double min = tree.nearestNeighbour(searchPoint, distanceFunction, (t, dist) -> {
         items.add(t);
         distances.add(dist);
       });
       Assertions.assertEquals(min, d2[0]);
-      Assertions.assertEquals(min, distances.getQuick(0));
+      Assertions.assertEquals(min, distances.getDouble(0));
       int ii = items.unsafeGet(0);
       double e = d[i][ii];
       Assertions.assertEquals(e, min);
@@ -182,7 +183,7 @@ class ObjDoubleNdTreeTest {
 
       // Nearest neighbours ignores a bad count
       items.clear();
-      distances.resetQuick();
+      distances.clear();
       boolean result =
           tree.nearestNeighbours(searchPoint, -1, true, distanceFunction, (t, dist) -> {
             items.add(t);
@@ -214,15 +215,15 @@ class ObjDoubleNdTreeTest {
       // Get the knn
       for (final int k : KdTreeTestUtils.ks) {
         items.clear();
-        distances.resetQuick();
+        distances.clear();
         result = tree.nearestNeighbours(searchPoint, k, true, distanceFunction, (t, dist) -> {
           items.add(t);
           distances.add(dist);
         });
         Assertions.assertTrue(result);
         // Neighbours will be in reverse order
-        distances.reverse();
-        double[] observed = distances.toArray();
+        DoubleArrays.reverse(distances.elements(), 0, distances.size());
+        double[] observed = distances.toDoubleArray();
         double[] expected = Arrays.copyOf(d2, Math.min(n, k));
 
         Assertions.assertArrayEquals(expected, observed);
@@ -241,7 +242,7 @@ class ObjDoubleNdTreeTest {
         result = tree.nearestNeighbours(searchPoint, k, false, distanceFunction, (t, dist) -> {
           final int index = items.indexOf(t);
           Assertions.assertTrue(index >= 0);
-          Assertions.assertEquals(dist, distances.getQuick(index));
+          Assertions.assertEquals(dist, distances.getDouble(index));
         });
         Assertions.assertTrue(result);
 
@@ -253,7 +254,7 @@ class ObjDoubleNdTreeTest {
             return t != p1 && t != p2;
           };
           items.clear();
-          distances.resetQuick();
+          distances.clear();
           result =
               tree.nearestNeighbours(searchPoint, k, true, distanceFunction, filter, (t, dist) -> {
                 items.add(t);
@@ -261,12 +262,12 @@ class ObjDoubleNdTreeTest {
               });
           Assertions.assertTrue(result);
           // Neighbours will be in reverse order
-          distances.reverse();
-          observed = distances.toArray();
-          final TDoubleArrayList tmp = new TDoubleArrayList(Arrays.copyOf(d2, k + 2));
-          tmp.removeAt(5);
-          tmp.removeAt(3);
-          expected = tmp.toArray();
+          DoubleArrays.reverse(distances.elements(), 0, distances.size());
+          observed = distances.toDoubleArray();
+          final DoubleArrayList tmp = new DoubleArrayList(Arrays.copyOf(d2, k + 2));
+          tmp.removeDouble(5);
+          tmp.removeDouble(3);
+          expected = tmp.toDoubleArray();
 
           Assertions.assertArrayEquals(expected, observed);
 
@@ -285,7 +286,7 @@ class ObjDoubleNdTreeTest {
       // Get the neighbours within a range
       for (final double range : KdTreeTestUtils.ranges) {
         items.clear();
-        distances.resetQuick();
+        distances.clear();
         result = tree.findNeighbours(searchPoint, range, distanceFunction, (t, dist) -> {
           items.add(t);
           distances.add(dist);
@@ -302,7 +303,7 @@ class ObjDoubleNdTreeTest {
         for (int j = 0; j < distances.size(); j++) {
           ii = items.unsafeGet(j);
           e = d[i][ii];
-          Assertions.assertEquals(e, distances.getQuick(j));
+          Assertions.assertEquals(e, distances.getDouble(j));
           Assertions.assertTrue(e <= range);
         }
       }
@@ -344,7 +345,7 @@ class ObjDoubleNdTreeTest {
     final double[][] data = list.toArray(new double[0][]);
 
     final LocalList<Integer> items = new LocalList<>();
-    final TDoubleArrayList distances = new TDoubleArrayList();
+    final DoubleArrayList distances = new DoubleArrayList();
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
 
     // Create the KDtree
@@ -359,7 +360,7 @@ class ObjDoubleNdTreeTest {
     // other point data.
     final double[] p1 = {2, 4};
     items.clear();
-    distances.resetQuick();
+    distances.clear();
     boolean result = tree.findNeighbours(p1, 9, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
@@ -369,14 +370,12 @@ class ObjDoubleNdTreeTest {
     for (final int i : items) {
       Assertions.assertEquals(point2, data[i]);
     }
-    for (final double d : distances.toArray()) {
-      Assertions.assertEquals(9, d);
-    }
+    distances.forEach(d -> Assertions.assertEquals(9, d));
 
     // For nearest neighbours we use a NaN point so the distance is invalid
     final double[] p2 = {2, Double.NaN};
     items.clear();
-    distances.resetQuick();
+    distances.clear();
     result = tree.nearestNeighbours(p2, BUCKET_SIZE, false, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
@@ -408,7 +407,7 @@ class ObjDoubleNdTreeTest {
     final double[][] data = list.toArray(new double[0][]);
 
     final LocalList<Integer> items = new LocalList<>();
-    final TDoubleArrayList distances = new TDoubleArrayList();
+    final DoubleArrayList distances = new DoubleArrayList();
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
 
     // Create the KDtree
@@ -422,7 +421,7 @@ class ObjDoubleNdTreeTest {
     // Search with a point in the tree.
     final double[] p1 = {0, 4};
     items.clear();
-    distances.resetQuick();
+    distances.clear();
     boolean result = tree.findNeighbours(p1, 1, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
@@ -432,7 +431,7 @@ class ObjDoubleNdTreeTest {
 
     // For nearest neighbours we use a NaN point so the distance is invalid
     items.clear();
-    distances.resetQuick();
+    distances.clear();
     result = tree.nearestNeighbours(p1, 3, false, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
@@ -442,7 +441,7 @@ class ObjDoubleNdTreeTest {
     Assertions.assertEquals(3, distances.size());
 
     items.clear();
-    distances.resetQuick();
+    distances.clear();
     final double d = tree.nearestNeighbour(p1, distanceFunction, (t, dist) -> {
       items.add(t);
       distances.add(dist);
@@ -451,7 +450,7 @@ class ObjDoubleNdTreeTest {
     Assertions.assertEquals(1, items.size());
     Assertions.assertEquals(1, distances.size());
     Assertions.assertEquals(5, items.unsafeGet(0));
-    Assertions.assertEquals(0, distances.getQuick(0));
+    Assertions.assertEquals(0, distances.getDouble(0));
   }
 
   @Test

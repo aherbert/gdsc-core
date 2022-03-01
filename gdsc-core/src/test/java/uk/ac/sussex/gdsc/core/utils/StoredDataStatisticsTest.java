@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Arrays;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -192,9 +192,9 @@ class StoredDataStatisticsTest {
       Assertions.assertEquals(d2[i], observed.getValue(i));
       Assertions.assertEquals((float) d2[i], f2[i]);
     }
-    final TDoubleArrayList list = new TDoubleArrayList(d2.length);
+    final DoubleArrayList list = new DoubleArrayList(d2.length);
     observed.forEach(list::add);
-    Assertions.assertArrayEquals(d2, list.toArray());
+    Assertions.assertArrayEquals(d2, list.toDoubleArray());
     Arrays.sort(d1);
     Arrays.sort(d2);
     Assertions.assertArrayEquals(d1, d2);

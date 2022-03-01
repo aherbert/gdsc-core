@@ -28,7 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +45,7 @@ class SimpleArrayUtilsTest {
   void canFlatten(RandomSeed seed) {
     Assertions.assertArrayEquals(new int[0], SimpleArrayUtils.flatten(null), "Null input");
     final UniformRandomProvider rng = RngUtils.create(seed.get());
-    final TIntHashSet set = new TIntHashSet();
+    final IntOpenHashSet set = new IntOpenHashSet();
     testFlatten(set, new int[0]);
     testFlatten(set, new int[10]);
     for (int i = 0; i < 10; i++) {
@@ -54,10 +55,10 @@ class SimpleArrayUtilsTest {
     }
   }
 
-  private static void testFlatten(TIntHashSet set, int[] s1) {
+  private static void testFlatten(IntOpenHashSet set, int[] s1) {
     set.clear();
-    set.addAll(s1);
-    final int[] e = set.toArray();
+    set.addAll(IntArrayList.wrap(s1));
+    final int[] e = set.toIntArray();
     Arrays.sort(e);
 
     final int[] o = SimpleArrayUtils.flatten(s1);

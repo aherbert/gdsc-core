@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import gnu.trove.map.hash.TIntIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -88,7 +88,8 @@ class ResequencerTest {
         data[j] += i;
       }
       // Use -1 as the null entry
-      final TIntIntHashMap map = new TIntIntHashMap(data.length, 0.5f, 0, NO_ENTRY);
+      final Int2IntOpenHashMap map = new Int2IntOpenHashMap(data.length);
+      map.defaultReturnValue(NO_ENTRY);
       int value = 0;
       for (final int key : data) {
         if (map.putIfAbsent(key, value) == NO_ENTRY) {
@@ -174,7 +175,7 @@ class ResequencerTest {
           () -> "Map has wrong size : " + Arrays.toString(data));
 
       // Check
-      final TIntIntHashMap map = new TIntIntHashMap();
+      final Int2IntOpenHashMap map = new Int2IntOpenHashMap();
       for (int j = 0; j < data.length; j++) {
         map.put(data[j], outputData[j]);
       }

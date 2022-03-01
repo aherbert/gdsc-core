@@ -28,8 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.TIntHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.ArrayUtils;
@@ -290,7 +290,7 @@ public class DbscanResult implements ClusteringResult {
     if (clusterIds == null) {
       return ArrayUtils.EMPTY_INT_ARRAY;
     }
-    final TIntArrayList parents = new TIntArrayList();
+    final IntArrayList parents = new IntArrayList();
 
     if (clusterIds.length == 1) {
       getParentsFromSingleCluster(clusterIds[0], parents);
@@ -298,10 +298,10 @@ public class DbscanResult implements ClusteringResult {
       getParentsFromMultipleClusters(clusterIds, parents);
     }
 
-    return parents.toArray();
+    return parents.toIntArray();
   }
 
-  private void getParentsFromSingleCluster(int clusterId, final TIntArrayList parents) {
+  private void getParentsFromSingleCluster(int clusterId, final IntArrayList parents) {
     if (clusterId > 0) {
       for (int i = size(); i-- > 0;) {
         if (clusterId == clusters[i]) {
@@ -311,11 +311,11 @@ public class DbscanResult implements ClusteringResult {
     }
   }
 
-  private void getParentsFromMultipleClusters(int[] clusterIds, final TIntArrayList parents) {
+  private void getParentsFromMultipleClusters(int[] clusterIds, final IntArrayList parents) {
     // Multiple clusters selected. Prevent double counting by
     // using a hash set to store each cluster we have processed.
     final int nClusters = MathUtils.max(clusters);
-    final TIntHashSet ids = new TIntHashSet(clusterIds.length);
+    final IntOpenHashSet ids = new IntOpenHashSet(clusterIds.length);
 
     for (final int clusterId : clusterIds) {
       if (clusterId > 0 && clusterId <= nClusters && ids.add(clusterId)) {

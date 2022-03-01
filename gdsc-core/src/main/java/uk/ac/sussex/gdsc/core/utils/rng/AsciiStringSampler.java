@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import gnu.trove.list.array.TCharArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Objects;
 import org.apache.commons.rng.UniformRandomProvider;
 
@@ -63,7 +63,7 @@ public class AsciiStringSampler {
   private static final int START_OTHER;
 
   static {
-    final TCharArrayList list = new TCharArrayList();
+    final IntArrayList list = new IntArrayList();
     // Numbers
     for (int i = 48; i <= 57; i++) {
       list.add((char) i);
@@ -94,7 +94,12 @@ public class AsciiStringSampler {
     // Space
     list.add(' ');
     list.add((char) 126);
-    ASCII = list.toArray();
+    final char[] a = new char[list.size()];
+    final int[] e = list.elements();
+    for (int i = list.size(); i-- > 0;) {
+      a[i] = (char) e[i];
+    }
+    ASCII = a;
   }
 
   /** The generator of uniformly distributed random numbers. */

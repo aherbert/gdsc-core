@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.math.hull;
 
-import gnu.trove.list.array.TDoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -245,14 +245,15 @@ class KnnConcaveHull2dTest {
     // using any seed.
     final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(12345L), 2);
     final int n = 500;
-    final TDoubleArrayList xx = new TDoubleArrayList(n);
-    final TDoubleArrayList yy = new TDoubleArrayList(n);
+    final DoubleArrayList xx = new DoubleArrayList(n);
+    final DoubleArrayList yy = new DoubleArrayList(n);
     for (int i = 0; i < n; i++) {
       final double[] p = sampler.sample();
       xx.add(p[0]);
       yy.add(p[1]);
     }
-    final Hull2d hull = KnnConcaveHull2d.create(15, xx.toArray(), yy.toArray(), xx.size());
+    final Hull2d hull =
+        KnnConcaveHull2d.create(15, xx.toDoubleArray(), yy.toDoubleArray(), xx.size());
     Assertions.assertNotNull(hull);
     // Deltas are high as the concave hull may be much smaller than the enclosing circle
     // with a longer perimeter

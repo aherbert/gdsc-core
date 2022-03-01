@@ -28,13 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.ij.plugin;
 
-import gnu.trove.list.array.TIntArrayList;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.awt.Dimension;
 
 /**
@@ -54,7 +54,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   private static final int TITLE_BAR_HEIGHT = IJ.isMacintosh() ? 40 : 20;
 
   /** The list. */
-  private final TIntArrayList list = new TIntArrayList(10);
+  private final IntArrayList list = new IntArrayList();
 
   /** Set to true to ignore any added window. */
   private boolean ignore;
@@ -105,7 +105,6 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
     if (windowOrganiser != null) {
       windowOrganiser.list.forEach(id -> {
         add(id);
-        return true;
       });
     }
   }
@@ -186,7 +185,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * @return the window IDs
    */
   public int[] getWindowIds() {
-    return list.toArray();
+    return list.toIntArray();
   }
 
   /**

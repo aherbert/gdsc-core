@@ -28,8 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import gnu.trove.set.hash.TDoubleHashSet;
-import gnu.trove.set.hash.TFloatHashSet;
+import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -120,7 +120,7 @@ class RampedScoreTest {
   @Test
   void testFlattenDouble() {
     final int steps = 20;
-    final TDoubleHashSet set = new TDoubleHashSet(101);
+    final DoubleOpenHashSet set = new DoubleOpenHashSet(101);
     for (int i = 0; i <= 100; i++) {
       final double value = i / 100.0;
       final double score = RampedScore.flatten(value, steps);
@@ -133,12 +133,12 @@ class RampedScoreTest {
   @Test
   void testFlattenFloat() {
     final int steps = 20;
-    final TFloatHashSet set = new TFloatHashSet(101);
+    final IntOpenHashSet set = new IntOpenHashSet(101);
     for (int i = 0; i <= 100; i++) {
       final float value = i / 100.0f;
       final float score = RampedScore.flatten(value, steps);
       Assertions.assertEquals(value, score, 0.025f);
-      set.add(score);
+      set.add(Float.floatToRawIntBits(score));
     }
     Assertions.assertEquals(steps + 1, set.size());
   }
