@@ -34,6 +34,8 @@ import java.util.function.Predicate;
 
 /**
  * A KD-tree that stores an item with each {@code double}-valued location.
+ *
+ * @param <T> the element type
  */
 public interface ObjDoubleKdTree<T> {
   /**

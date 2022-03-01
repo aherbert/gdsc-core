@@ -31,6 +31,8 @@ import uk.ac.sussex.gdsc.core.trees.heaps.ObjDoubleMinHeap;
  *
  * <p>The search methods are safe for concurrent use under the assumption that the tree does not
  * have any structural modification during the search (i.e. concurrent additions).
+ *
+ * @param <T> the element type
  */
 final class ObjDoubleNdTree<T> implements ObjDoubleKdTree<T> {
   /** The bucket size. */
