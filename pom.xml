@@ -143,10 +143,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <artifactId>commons-rng-sampling</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sf.trove4j</groupId>
-      <artifactId>trove4j</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
