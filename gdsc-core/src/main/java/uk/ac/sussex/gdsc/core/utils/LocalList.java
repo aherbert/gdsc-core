@@ -135,6 +135,9 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   /** An empty array. Used as a placeholder for empty lists. */
   private static final Object[] EMPTY_ARRAY = {};
 
+  /** An empty array. Used as a placeholder for empty lists with the default capacity. */
+  private static final Object[] EMPTY_ARRAY_DEFAULT_CAPACITY = {};
+
   /** The data. Package scope so it may be directly accessed by inner classes. */
   Object[] data;
 
@@ -145,12 +148,10 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * Create an instance with the default capacity.
    */
   public LocalList() {
-    // Note: This will allocate a new array.
-    // The alternative is to use a dummy empty array as a signal for the default capacity.
+    // Note: Use a dummy empty array as a signal for the default capacity.
     // This requires an additional check that the data is not the dummy empty array
-    // each time the current capacity is computed. Here we put up with memory allocation
-    // for an empty list.
-    this(DEFAULT_CAPACITY);
+    // each time the current capacity is computed.
+    data = EMPTY_ARRAY_DEFAULT_CAPACITY;
   }
 
   /**
@@ -242,13 +243,18 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @return the capacity
    */
   public int getCapacity() {
-    return data.length;
+    return data == EMPTY_ARRAY_DEFAULT_CAPACITY ? DEFAULT_CAPACITY : data.length;
   }
 
   /**
    * Trims the capacity to be the list's current size.
    *
+   * <p>Note: This will not change the capacity if the list is a newly created empty list
+   * with the default capacity. In this case the list is storing no elements and has no
+   * backing array. An array is created of the default capacity when the first element is added.
+   *
    * @see java.util.ArrayList#trimToSize()
+   * @see #getCapacity()
    */
   public void trimToSize() {
     if (size < data.length) {
@@ -299,7 +305,9 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @see java.util.ArrayList#ensureCapacity(int)
    */
   public void ensureCapacity(int minCapacity) {
-    if (minCapacity > data.length) {
+    if (minCapacity > data.length
+        // Do not grow if the list is using the default capacity and it is enough
+        && (data != EMPTY_ARRAY_DEFAULT_CAPACITY || minCapacity > DEFAULT_CAPACITY)) {
       increaseCapacity(minCapacity);
     }
   }
@@ -312,7 +320,12 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @return the new data array
    */
   private Object[] increaseCapacity() {
-    return data = Arrays.copyOf(data, createNewCapacity(data.length + 1, data.length));
+    final Object[] elements = data;
+    if (elements == EMPTY_ARRAY_DEFAULT_CAPACITY) {
+      // First addition to a default empty list
+      return data = new Object[DEFAULT_CAPACITY];
+    }
+    return data = Arrays.copyOf(elements, createNewCapacity(elements.length + 1, elements.length));
   }
 
   /**
@@ -324,6 +337,11 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * @return the new data array
    */
   private Object[] increaseCapacity(final int minCapacity) {
+    final Object[] elements = data;
+    if (elements == EMPTY_ARRAY_DEFAULT_CAPACITY) {
+      // First addition to a default empty list
+      return data = new Object[Math.max(minCapacity, DEFAULT_CAPACITY)];
+    }
     return data = Arrays.copyOf(data, createNewCapacity(minCapacity, data.length));
   }
 
@@ -343,7 +361,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
     // Overflow-conscious code treats the min and new capacity as unsigned.
 
     // Increase by 50%
-    int newCapacity = oldCapacity + oldCapacity / 2;
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
 
     // Check if large enough for the min capacity.
     // Equivalent to Integer.compareUnsigned(newCapacity, minCapacity) < 0.

@@ -225,10 +225,22 @@ class LocalListTest {
   @Test
   void testTrimToSize() {
     LocalList<Integer> list = new LocalList<>();
-    Assertions.assertTrue(list.getCapacity() > 1);
+
+    // Default capacity
+    final int defaultCapacity = list.getCapacity();
+    Assertions.assertTrue(defaultCapacity > 1);
+    list.trimToSize();
+    Assertions.assertEquals(defaultCapacity, list.getCapacity(),
+        "Empty list with default capacity should not be trimmed");
+    list.add(1);
+    Assertions.assertEquals(defaultCapacity, list.getCapacity());
+    list.trimToSize();
+    Assertions.assertEquals(1, list.getCapacity());
+    list.clear();
     list.trimToSize();
     Assertions.assertEquals(0, list.getCapacity());
 
+    // Explicit capacity
     list = new LocalList<>(5);
     Assertions.assertEquals(5, list.getCapacity());
     list.add(1);
@@ -275,6 +287,8 @@ class LocalListTest {
   void testEnsureCapacity() {
     final LocalList<Integer> list = new LocalList<>();
     final int capacity = list.getCapacity();
+    list.ensureCapacity(capacity / 2);
+    Assertions.assertEquals(capacity, list.getCapacity());
     list.ensureCapacity(capacity * 2);
     Assertions.assertEquals(capacity * 2, list.getCapacity());
     list.ensureCapacity(capacity * 10);
