@@ -39,8 +39,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.awt.Rectangle;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.core.data.procedures.FValueProcedure;
-import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
 
 @SuppressWarnings({"javadoc"})
 class RoiHelperTest {
@@ -94,24 +92,24 @@ class RoiHelperTest {
     final ByteProcessor ip = new ByteProcessor(size, size, pixels);
     // No ROI
     final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
-    RoiHelper.forEach(null, ip, (FValueProcedure) value -> {
+    RoiHelper.forEach(null, ip, (float value) -> {
       Assertions.assertTrue(set.add((int) value));
     });
     // ROI outside image
-    RoiHelper.forEach(new Roi(size, size, 1, 2), ip, (FValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(size, size, 1, 2), ip, (float value) -> {
       Assertions.fail();
     });
     // No width
-    RoiHelper.forEach(new Roi(-1, 0, 1, 2), ip, (FValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(-1, 0, 1, 2), ip, (float value) -> {
       Assertions.fail();
     });
     // No height
-    RoiHelper.forEach(new Roi(0, -2, 1, 2), ip, (FValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(0, -2, 1, 2), ip, (float value) -> {
       Assertions.fail();
     });
     // Square ROI
     final Roi roi = new Roi(3, 4, 2, 1);
-    RoiHelper.forEach(roi, ip, (FValueProcedure) value -> {
+    RoiHelper.forEach(roi, ip, (float value) -> {
       final int index = (int) value;
       final int x = index % size;
       final int y = index / size;
@@ -119,7 +117,7 @@ class RoiHelperTest {
     });
     // Masked ROI
     final OvalRoi oval = new OvalRoi(1, 2, 3, 4);
-    RoiHelper.forEach(oval, ip, (FValueProcedure) value -> {
+    RoiHelper.forEach(oval, ip, (float value) -> {
       final int index = (int) value;
       final int x = index % size;
       final int y = index / size;
@@ -138,24 +136,24 @@ class RoiHelperTest {
     stack.addSlice(null, pixels);
     // No ROI
     final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
-    RoiHelper.forEach(null, stack, (FValueProcedure) value -> {
+    RoiHelper.forEach(null, stack, (float value) -> {
       Assertions.assertTrue(set.add((int) value));
     });
     // ROI outside image
-    RoiHelper.forEach(new Roi(size, size, 1, 2), stack, (FValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(size, size, 1, 2), stack, (float value) -> {
       Assertions.fail();
     });
     // No width
-    RoiHelper.forEach(new Roi(-1, 0, 1, 2), stack, (FValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(-1, 0, 1, 2), stack, (float value) -> {
       Assertions.fail();
     });
     // No height
-    RoiHelper.forEach(new Roi(0, -2, 1, 2), stack, (FValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(0, -2, 1, 2), stack, (float value) -> {
       Assertions.fail();
     });
     // Square ROI
     final Roi roi = new Roi(3, 4, 2, 1);
-    RoiHelper.forEach(roi, stack, (FValueProcedure) value -> {
+    RoiHelper.forEach(roi, stack, (float value) -> {
       final int index = (int) value;
       final int x = index % size;
       final int y = index / size;
@@ -163,7 +161,7 @@ class RoiHelperTest {
     });
     // Masked ROI
     final OvalRoi oval = new OvalRoi(1, 2, 3, 4);
-    RoiHelper.forEach(oval, stack, (FValueProcedure) value -> {
+    RoiHelper.forEach(oval, stack, (float value) -> {
       final int index = (int) value;
       final int x = index % size;
       final int y = index / size;
@@ -181,31 +179,31 @@ class RoiHelperTest {
     final ByteProcessor ip = new ByteProcessor(size, size, pixels);
     // No ROI
     final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
-    RoiHelper.forEach(null, ip, (IValueProcedure) value -> {
+    RoiHelper.forEach(null, ip, (int value) -> {
       Assertions.assertTrue(set.add(value));
     });
     // ROI outside image
-    RoiHelper.forEach(new Roi(size, size, 1, 2), ip, (IValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(size, size, 1, 2), ip, (int value) -> {
       Assertions.fail();
     });
     // No width
-    RoiHelper.forEach(new Roi(-1, 0, 1, 2), ip, (IValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(-1, 0, 1, 2), ip, (int value) -> {
       Assertions.fail();
     });
     // No height
-    RoiHelper.forEach(new Roi(0, -2, 1, 2), ip, (IValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(0, -2, 1, 2), ip, (int value) -> {
       Assertions.fail();
     });
     // Square ROI
     final Roi roi = new Roi(3, 4, 2, 1);
-    RoiHelper.forEach(roi, ip, (IValueProcedure) index -> {
+    RoiHelper.forEach(roi, ip, (int index) -> {
       final int x = index % size;
       final int y = index / size;
       Assertions.assertTrue(roi.contains(x, y));
     });
     // Masked ROI
     final OvalRoi oval = new OvalRoi(1, 2, 3, 4);
-    RoiHelper.forEach(oval, ip, (IValueProcedure) index -> {
+    RoiHelper.forEach(oval, ip, (int index) -> {
       final int x = index % size;
       final int y = index / size;
       Assertions.assertTrue(oval.contains(x, y));
@@ -223,31 +221,31 @@ class RoiHelperTest {
     stack.addSlice(null, pixels);
     // No ROI
     final IntOpenHashSet set = new IntOpenHashSet(pixels.length);
-    RoiHelper.forEach(null, stack, (IValueProcedure) value -> {
+    RoiHelper.forEach(null, stack, (int value) -> {
       Assertions.assertTrue(set.add(value));
     });
     // ROI outside image
-    RoiHelper.forEach(new Roi(size, size, 1, 2), stack, (IValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(size, size, 1, 2), stack, (int value) -> {
       Assertions.fail();
     });
     // No width
-    RoiHelper.forEach(new Roi(-1, 0, 1, 2), stack, (IValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(-1, 0, 1, 2), stack, (int value) -> {
       Assertions.fail();
     });
     // No height
-    RoiHelper.forEach(new Roi(0, -2, 1, 2), stack, (IValueProcedure) value -> {
+    RoiHelper.forEach(new Roi(0, -2, 1, 2), stack, (int value) -> {
       Assertions.fail();
     });
     // Square ROI
     final Roi roi = new Roi(3, 4, 2, 1);
-    RoiHelper.forEach(roi, stack, (IValueProcedure) index -> {
+    RoiHelper.forEach(roi, stack, (int index) -> {
       final int x = index % size;
       final int y = index / size;
       Assertions.assertTrue(roi.contains(x, y));
     });
     // Masked ROI
     final OvalRoi oval = new OvalRoi(1, 2, 3, 4);
-    RoiHelper.forEach(oval, stack, (IValueProcedure) index -> {
+    RoiHelper.forEach(oval, stack, (int index) -> {
       final int x = index % size;
       final int y = index / size;
       Assertions.assertTrue(oval.contains(x, y));

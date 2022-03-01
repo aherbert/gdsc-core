@@ -34,8 +34,8 @@ import ij.gui.Roi;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Rectangle;
-import uk.ac.sussex.gdsc.core.data.procedures.FValueProcedure;
-import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
+import java.util.function.IntConsumer;
+import uk.ac.sussex.gdsc.core.utils.function.FloatConsumer;
 
 /**
  * Class for working with image ROIs.
@@ -76,18 +76,18 @@ public final class RoiHelper {
   }
 
   /**
-   * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be
+   * For each pixel inside the ROI accept the procedure. If the ROI is null then all pixels will be
    * sampled.
    *
    * @param roi the roi
    * @param ip the image processor
    * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure procedure) {
+  public static void forEach(Roi roi, ImageProcessor ip, FloatConsumer procedure) {
     if (roi == null) {
       final int size = ip.getPixelCount();
       for (int i = 0; i < size; i++) {
-        procedure.execute(ip.getf(i));
+        procedure.accept(ip.getf(i));
       }
       return;
     }
@@ -108,7 +108,7 @@ public final class RoiHelper {
     if (mask == null) {
       for (int y = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-          procedure.execute(ip.getf(i));
+          procedure.accept(ip.getf(i));
         }
       }
     } else {
@@ -116,7 +116,7 @@ public final class RoiHelper {
       for (int y = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
           if (mask.get(maskIndex) != 0) {
-            procedure.execute(ip.getf(i));
+            procedure.accept(ip.getf(i));
           }
         }
       }
@@ -124,20 +124,20 @@ public final class RoiHelper {
   }
 
   /**
-   * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be
+   * For each pixel inside the ROI accept the procedure. If the ROI is null then all pixels will be
    * sampled.
    *
    * @param roi the roi
    * @param stack the stack
    * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageStack stack, FValueProcedure procedure) {
+  public static void forEach(Roi roi, ImageStack stack, FloatConsumer procedure) {
     if (roi == null) {
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
         final int size = ip.getPixelCount();
         for (int i = 0; i < size; i++) {
-          procedure.execute(ip.getf(i));
+          procedure.accept(ip.getf(i));
         }
       }
       return;
@@ -161,7 +161,7 @@ public final class RoiHelper {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int y = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-            procedure.execute(ip.getf(i));
+            procedure.accept(ip.getf(i));
           }
         }
       }
@@ -172,7 +172,7 @@ public final class RoiHelper {
         for (int y = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
             if (mask.get(maskIndex) != 0) {
-              procedure.execute(ip.getf(i));
+              procedure.accept(ip.getf(i));
             }
           }
         }
@@ -181,18 +181,18 @@ public final class RoiHelper {
   }
 
   /**
-   * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be
+   * For each pixel inside the ROI accept the procedure. If the ROI is null then all pixels will be
    * sampled.
    *
    * @param roi the roi
    * @param ip the image processor
    * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure procedure) {
+  public static void forEach(Roi roi, ImageProcessor ip, IntConsumer procedure) {
     if (roi == null) {
       final int size = ip.getPixelCount();
       for (int i = 0; i < size; i++) {
-        procedure.execute(ip.get(i));
+        procedure.accept(ip.get(i));
       }
       return;
     }
@@ -213,7 +213,7 @@ public final class RoiHelper {
     if (mask == null) {
       for (int y = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-          procedure.execute(ip.get(i));
+          procedure.accept(ip.get(i));
         }
       }
     } else {
@@ -221,7 +221,7 @@ public final class RoiHelper {
       for (int y = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
           if (mask.get(maskIndex) != 0) {
-            procedure.execute(ip.get(i));
+            procedure.accept(ip.get(i));
           }
         }
       }
@@ -229,20 +229,20 @@ public final class RoiHelper {
   }
 
   /**
-   * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be
+   * For each pixel inside the ROI accept the procedure. If the ROI is null then all pixels will be
    * sampled.
    *
    * @param roi the roi
    * @param stack the stack
    * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageStack stack, IValueProcedure procedure) {
+  public static void forEach(Roi roi, ImageStack stack, IntConsumer procedure) {
     if (roi == null) {
       final int size = stack.getHeight() * stack.getWidth();
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int i = 0; i < size; i++) {
-          procedure.execute(ip.get(i));
+          procedure.accept(ip.get(i));
         }
       }
       return;
@@ -266,7 +266,7 @@ public final class RoiHelper {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int y = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-            procedure.execute(ip.get(i));
+            procedure.accept(ip.get(i));
           }
         }
       }
@@ -277,7 +277,7 @@ public final class RoiHelper {
         for (int y = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
             if (mask.get(maskIndex) != 0) {
-              procedure.execute(ip.get(i));
+              procedure.accept(ip.get(i));
             }
           }
         }
