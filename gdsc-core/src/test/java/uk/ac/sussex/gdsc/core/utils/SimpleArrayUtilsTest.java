@@ -916,7 +916,7 @@ class SimpleArrayUtilsTest {
     final int[] data = {1, 2, 3};
     final int[] expected = {2, 4, 6};
     SimpleArrayUtils.apply(data, v -> v * 2);
-    Assertions.assertArrayEquals(expected, data);
+    Assertions.assertArrayEquals(new int[] {2, 4, 6}, data);
   }
 
   @Test
@@ -941,6 +941,86 @@ class SimpleArrayUtilsTest {
     final double[] expected = {2, 4, 6};
     SimpleArrayUtils.apply(data, v -> v * 2);
     Assertions.assertArrayEquals(expected, data);
+  }
+
+  @Test
+  void canApplyIntOperatorWithRange() {
+    final int[] data = {1, 2, 3};
+    java.util.function.IntUnaryOperator fun = v -> v * 2;
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, -1, data.length, fun));
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, 0, data.length + 1, fun));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> SimpleArrayUtils.apply(data, 2, 1, fun));
+    SimpleArrayUtils.apply(data, 0, 0, fun);
+    Assertions.assertArrayEquals(data, data);
+    SimpleArrayUtils.apply(data, 0, 1, fun);
+    Assertions.assertArrayEquals(new int[] {2, 2, 3}, data);
+    SimpleArrayUtils.apply(data, 1, 3, fun);
+    Assertions.assertArrayEquals(new int[] {2, 4, 6}, data);
+    SimpleArrayUtils.apply(data, 0, 3, fun);
+    Assertions.assertArrayEquals(new int[] {4, 8, 12}, data);
+  }
+
+  @Test
+  void canApplyLongOperatorWithRange() {
+    final long[] data = {1, 2, 3};
+    java.util.function.LongUnaryOperator fun = v -> v * 2;
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, -1, data.length, fun));
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, 0, data.length + 1, fun));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> SimpleArrayUtils.apply(data, 2, 1, fun));
+    SimpleArrayUtils.apply(data, 0, 0, fun);
+    Assertions.assertArrayEquals(data, data);
+    SimpleArrayUtils.apply(data, 0, 1, fun);
+    Assertions.assertArrayEquals(new long[] {2, 2, 3}, data);
+    SimpleArrayUtils.apply(data, 1, 3, fun);
+    Assertions.assertArrayEquals(new long[] {2, 4, 6}, data);
+    SimpleArrayUtils.apply(data, 0, 3, fun);
+    Assertions.assertArrayEquals(new long[] {4, 8, 12}, data);
+  }
+
+  @Test
+  void canApplyFloatOperatorWithRange() {
+    final float[] data = {1, 2, 3};
+    uk.ac.sussex.gdsc.core.utils.function.FloatUnaryOperator fun = v -> v * 2;
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, -1, data.length, fun));
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, 0, data.length + 1, fun));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> SimpleArrayUtils.apply(data, 2, 1, fun));
+    SimpleArrayUtils.apply(data, 0, 0, fun);
+    Assertions.assertArrayEquals(data, data);
+    SimpleArrayUtils.apply(data, 0, 1, fun);
+    Assertions.assertArrayEquals(new float[] {2, 2, 3}, data);
+    SimpleArrayUtils.apply(data, 1, 3, fun);
+    Assertions.assertArrayEquals(new float[] {2, 4, 6}, data);
+    SimpleArrayUtils.apply(data, 0, 3, fun);
+    Assertions.assertArrayEquals(new float[] {4, 8, 12}, data);
+  }
+
+  @Test
+  void canApplyDoubleOperatorWithRange() {
+    final double[] data = {1, 2, 3};
+    java.util.function.DoubleUnaryOperator fun = v -> v * 2;
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, -1, data.length, fun));
+    Assertions.assertThrows(IndexOutOfBoundsException.class,
+        () -> SimpleArrayUtils.apply(data, 0, data.length + 1, fun));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> SimpleArrayUtils.apply(data, 2, 1, fun));
+    SimpleArrayUtils.apply(data, 0, 0, fun);
+    Assertions.assertArrayEquals(data, data);
+    SimpleArrayUtils.apply(data, 0, 1, fun);
+    Assertions.assertArrayEquals(new double[] {2, 2, 3}, data);
+    SimpleArrayUtils.apply(data, 1, 3, fun);
+    Assertions.assertArrayEquals(new double[] {2, 4, 6}, data);
+    SimpleArrayUtils.apply(data, 0, 3, fun);
+    Assertions.assertArrayEquals(new double[] {4, 8, 12}, data);
   }
 
   @Test

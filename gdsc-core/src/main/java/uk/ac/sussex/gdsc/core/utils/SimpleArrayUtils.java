@@ -1506,6 +1506,89 @@ public final class SimpleArrayUtils {
     }
   }
 
+
+  /**
+   * Apply the operator to each value in the array interval.
+   *
+   * @param array the array
+   * @param from low point (inclusive) of the array
+   * @param to high point (exclusive) of the array
+   * @param operator the operator
+   */
+  public static void apply(int[] array, int from, int to, IntUnaryOperator operator) {
+    checkRangeForSubList(from, to, array.length);
+    for (int i = from; i < to; i++) {
+      array[i] = operator.applyAsInt(array[i]);
+    }
+  }
+
+  /**
+   * Apply the operator to each value in the array interval.
+   *
+   * @param array the array
+   * @param from low point (inclusive) of the array
+   * @param to high point (exclusive) of the array
+   * @param operator the operator
+   */
+  public static void apply(long[] array, int from, int to, LongUnaryOperator operator) {
+    checkRangeForSubList(from, to, array.length);
+    for (int i = from; i < to; i++) {
+      array[i] = operator.applyAsLong(array[i]);
+    }
+  }
+
+  /**
+   * Apply the operator to each value in the array interval.
+   *
+   * @param array the array
+   * @param from low point (inclusive) of the array
+   * @param to high point (exclusive) of the array
+   * @param operator the operator
+   */
+  public static void apply(float[] array, int from, int to, FloatUnaryOperator operator) {
+    checkRangeForSubList(from, to, array.length);
+    for (int i = from; i < to; i++) {
+      array[i] = operator.applyAsFloat(array[i]);
+    }
+  }
+
+  /**
+   * Apply the operator to each value in the array interval.
+   *
+   * @param array the array
+   * @param from low point (inclusive) of the array
+   * @param to high point (exclusive) of the array
+   * @param operator the operator
+   */
+  public static void apply(double[] array, int from, int to, DoubleUnaryOperator operator) {
+    checkRangeForSubList(from, to, array.length);
+    for (int i = from; i < to; i++) {
+      array[i] = operator.applyAsDouble(array[i]);
+    }
+  }
+
+  /**
+   * Check the interval [fromIndex, toIndex) is within the range [0, size), thus it is a valid range
+   * for a sub-list within the list of the specified size.
+   *
+   * @param fromIndex low point (inclusive) of the sub-list
+   * @param toIndex high point (exclusive) of the sub-list
+   * @param size the size
+   * @throws IndexOutOfBoundsException if {@code fromIndex < 0} or {@code toIndex > size}
+   * @throws IllegalArgumentException if {@code toIndex < fromIndex}
+   */
+  private static void checkRangeForSubList(int fromIndex, int toIndex, int size) {
+    if (fromIndex < 0) {
+      throw new IndexOutOfBoundsException("From index " + fromIndex);
+    }
+    if (toIndex > size) {
+      throw new IndexOutOfBoundsException("To index " + toIndex + " not valid for size " + size);
+    }
+    if (toIndex < fromIndex) {
+      throw new IllegalArgumentException("Invalid range, to " + toIndex + " < from " + fromIndex);
+    }
+  }
+
   /**
    * Fill an array using the provided generator.
    *
