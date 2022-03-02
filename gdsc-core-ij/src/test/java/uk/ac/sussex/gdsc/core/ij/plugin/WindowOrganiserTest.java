@@ -70,7 +70,7 @@ class WindowOrganiserTest {
     wo.add(imp);
     Assertions.assertFalse(wo.isEmpty());
     Assertions.assertTrue(wo.isNotEmpty());
-    Assertions.assertEquals(3, wo.size());
+    Assertions.assertEquals(2, wo.size());
     Assertions.assertArrayEquals(new int[] {-10, imp.getID()}, wo.getWindowIds());
 
     final WindowOrganiser wo2 = new WindowOrganiser();
