@@ -149,8 +149,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil-core</artifactId>
-      <!-- temp -->
-      <version>8.5.6</version>
     </dependency>
 
     <!-- TESTING -->
