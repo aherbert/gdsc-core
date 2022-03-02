@@ -678,10 +678,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min index.
+   * Find the index of minimum element. The minimum is identified using the {@code <} operator.
+   * Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero.
+   *
+   * <li>If multiple equal elements are the minimum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the min index
+   * @return the minimum index
    */
   public static int findMinIndex(int[] data) {
     int min = 0;
@@ -694,10 +703,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min index.
+   * Find the index of minimum element. The minimum is identified using the {@code <} operator.
+   * Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero.
+   *
+   * <li>If multiple equal elements are the minimum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the min index
+   * @return the minimum index
    */
   public static int findMinIndex(float[] data) {
     int min = 0;
@@ -710,10 +728,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min index.
+   * Find the index of minimum element. The minimum is identified using the {@code <} operator.
+   * Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero.
+   *
+   * <li>If multiple equal elements are the minimum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the min index
+   * @return the minimum index
    */
   public static int findMinIndex(double[] data) {
     int min = 0;
@@ -727,10 +754,19 @@ public final class SimpleArrayUtils {
 
 
   /**
-   * Find max index.
+   * Find the index of maximum element. The maximum is identified using the {@code >} operator.
+   * Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero.
+   *
+   * <li>If multiple equal elements are the maximum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the max index
+   * @return the maximum index
    */
   public static int findMaxIndex(int[] data) {
     int max = 0;
@@ -743,10 +779,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find max index.
+   * Find the index of maximum element. The maximum is identified using the {@code >} operator.
+   * Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero.
+   *
+   * <li>If multiple equal elements are the maximum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the max index
+   * @return the maximum index
    */
   public static int findMaxIndex(float[] data) {
     int max = 0;
@@ -759,10 +804,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find max index.
+   * Find the index of maximum element. The maximum is identified using the {@code >} operator.
+   * Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero.
+   *
+   * <li>If multiple equal elements are the maximum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the max index
+   * @return the maximum index
    */
   public static int findMaxIndex(double[] data) {
     int max = 0;
@@ -775,10 +829,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min and max index.
+   * Find the index of minimum and maximum elements. The minimum or maximum are identified using the
+   * {@code <} and {@code >} operators. Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero for both indices: [0, 0].
+   *
+   * <li>If multiple equal elements are the minimum or maximum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the min/max index
+   * @return the minimum and maximum index
    */
   public static int[] findMinMaxIndex(int[] data) {
     int min = 0;
@@ -794,10 +857,19 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min and max index.
+   * Find the index of minimum and maximum elements. The minimum or maximum are identified using the
+   * {@code <} and {@code >} operators. Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero for both indices: [0, 0].
+   *
+   * <li>If multiple equal elements are the minimum or maximum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the min/max index
+   * @return the minimum and maximum index
    */
   public static int[] findMinMaxIndex(float[] data) {
     int min = 0;
@@ -814,10 +886,19 @@ public final class SimpleArrayUtils {
 
 
   /**
-   * Find min and max index.
+   * Find the index of minimum and maximum elements. The minimum or maximum are identified using the
+   * {@code <} and {@code >} operators. Special cases:
+   *
+   * <ul>
+   *
+   * <li>If the array is empty this returns zero for both indices: [0, 0].
+   *
+   * <li>If multiple equal elements are the minimum or maximum this returns the lowest index.
+   *
+   * </ul>
    *
    * @param data the data
-   * @return the min/max index
+   * @return the minimum and maximum index
    */
   public static int[] findMinMaxIndex(double[] data) {
     int min = 0;
