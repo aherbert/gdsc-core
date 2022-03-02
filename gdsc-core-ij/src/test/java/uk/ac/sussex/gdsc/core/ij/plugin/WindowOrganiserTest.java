@@ -34,6 +34,7 @@ import ij.gui.PlotWindow;
 import ij.process.ByteProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.junit5.DisabledIfHeadless;
 
 @SuppressWarnings({"javadoc"})
 class WindowOrganiserTest {
@@ -58,29 +59,49 @@ class WindowOrganiserTest {
     Assertions.assertTrue(wo.isEmpty());
     Assertions.assertFalse(wo.isNotEmpty());
     final ImagePlus imp = new ImagePlus(null, new ByteProcessor(3, 4));
-    final PlotWindow pw = new Plot("dummy", "x", "y").show();
     wo.setIgnore(true);
     wo.add(42);
     wo.add(imp);
-    wo.add(pw);
     Assertions.assertTrue(wo.isEmpty());
     Assertions.assertFalse(wo.isNotEmpty());
     wo.setIgnore(false);
     wo.add(-10);
     wo.add((ImagePlus) null);
     wo.add(imp);
-    wo.add(pw);
     Assertions.assertFalse(wo.isEmpty());
     Assertions.assertTrue(wo.isNotEmpty());
     Assertions.assertEquals(3, wo.size());
-    Assertions.assertArrayEquals(new int[] {-10, imp.getID(), pw.getImagePlus().getID()},
-        wo.getWindowIds());
+    Assertions.assertArrayEquals(new int[] {-10, imp.getID()}, wo.getWindowIds());
 
     final WindowOrganiser wo2 = new WindowOrganiser();
     wo2.add(-13);
     wo2.add(wo);
-    Assertions.assertArrayEquals(new int[] {-13, -10, imp.getID(), pw.getImagePlus().getID()},
-        wo2.getWindowIds());
+    Assertions.assertArrayEquals(new int[] {-13, -10, imp.getID()}, wo2.getWindowIds());
+
+    wo.clear();
+    Assertions.assertEquals(0, wo.size());
+  }
+
+  @Test
+  @DisabledIfHeadless
+  void testAdd2() {
+    final WindowOrganiser wo = new WindowOrganiser();
+    final PlotWindow pw = new Plot("dummy", "x", "y").show();
+    wo.setIgnore(true);
+    wo.add(pw);
+    Assertions.assertTrue(wo.isEmpty());
+    Assertions.assertFalse(wo.isNotEmpty());
+    wo.setIgnore(false);
+    wo.add(pw);
+    Assertions.assertFalse(wo.isEmpty());
+    Assertions.assertTrue(wo.isNotEmpty());
+    Assertions.assertEquals(1, wo.size());
+    Assertions.assertArrayEquals(new int[] {pw.getImagePlus().getID()}, wo.getWindowIds());
+
+    final WindowOrganiser wo2 = new WindowOrganiser();
+    wo2.add(-13);
+    wo2.add(wo);
+    Assertions.assertArrayEquals(new int[] {-13, pw.getImagePlus().getID()}, wo2.getWindowIds());
 
     wo.clear();
     Assertions.assertEquals(0, wo.size());

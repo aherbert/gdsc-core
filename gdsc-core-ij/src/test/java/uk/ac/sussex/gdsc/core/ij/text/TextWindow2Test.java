@@ -33,10 +33,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.junit5.DisabledIfHeadless;
 
 @SuppressWarnings({"javadoc"})
 class TextWindow2Test {
   @Test
+  @DisabledIfHeadless
   void testConstructor() {
     String title = "title";
     String text = "hello";
@@ -62,6 +64,7 @@ class TextWindow2Test {
   }
 
   @Test
+  @DisabledIfHeadless
   void testListConstructor() {
     String title = "title";
     String headings = "c1";
