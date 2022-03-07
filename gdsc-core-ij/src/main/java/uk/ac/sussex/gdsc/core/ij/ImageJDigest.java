@@ -150,7 +150,7 @@ public class ImageJDigest {
 
   /**
    * Instantiates a new IJ digest.
-   * 
+   *
    * <p>The algorithm should be a suitable named algorithm for a {@link MessageDigest}.
    *
    * @param algorithm the algorithm

@@ -33,7 +33,7 @@ package uk.ac.sussex.gdsc.core.utils.function;
  * and returns no result. This is the {@code (int, reference)} specialization of
  * {@link java.util.function.BiConsumer BiConsumer}. Unlike most other functional interfaces,
  * {@code IntObjConsumer} is expected to operate via side-effects.
- * 
+ *
  * @param <T> the type of the object argument to the operation
  */
 @FunctionalInterface

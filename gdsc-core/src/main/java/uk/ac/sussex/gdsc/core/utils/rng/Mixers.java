@@ -346,7 +346,7 @@ public final class Mixers {
 
   /**
    * Perform Doug Lea's 64-bit mixing function. This is based on the original 64-bit mix function of
-   * Austin Appleby's MurmurHash3 modified to use Doug Lea's single 64-bit mix constant and 32-bit 
+   * Austin Appleby's MurmurHash3 modified to use Doug Lea's single 64-bit mix constant and 32-bit
    * shifts. The mix function is used in the random generators in JDK 17.
    *
    * @param x the input value
