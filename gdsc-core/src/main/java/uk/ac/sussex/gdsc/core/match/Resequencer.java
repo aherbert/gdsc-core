@@ -28,14 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.IntUnaryOperator;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+import uk.ac.sussex.gdsc.core.utils.function.IntIntConsumer;
 
 /**
  * Provide methods to re-number a sequence of identifiers.
@@ -64,10 +62,6 @@ public class Resequencer {
    * Simple interface for a map of integers.
    */
   private interface IntMap {
-    // TODO:
-    // Update to computeIfAbsent(int, IntUnaryOperator)
-    // forEach(IntIntConsumer)
-
     /**
      * Compute the value if absent.
      *
@@ -87,11 +81,11 @@ public class Resequencer {
     boolean resetForRange(int min, long range);
 
     /**
-     * Gets the mapped key-value pairs.
+     * Gets the mapped key-value pairs
      *
-     * @return the map
+     * @param action the action
      */
-    List<int[]> getMap();
+    void forEach(IntIntConsumer action);
   }
 
   /**
@@ -139,15 +133,13 @@ public class Resequencer {
     }
 
     @Override
-    public List<int[]> getMap() {
-      final ArrayList<int[]> list = new ArrayList<>();
+    public void forEach(IntIntConsumer action) {
       final int offset = getOffset();
       for (int i = 0; i < size; i++) {
         if (observed[i] != NO_ENTRY) {
-          list.add(new int[] {i + offset, observed[i]});
+          action.accept(i + offset, observed[i]);
         }
       }
-      return list;
     }
 
     /**
@@ -235,12 +227,8 @@ public class Resequencer {
     }
 
     @Override
-    public List<int[]> getMap() {
-      final ArrayList<int[]> list = new ArrayList<>();
-      observed.forEach((int key, int value) -> {
-        list.add(new int[] {key, value});
-      });
-      return list;
+    public void forEach(IntIntConsumer action) {
+      observed.forEach(action);
     }
   }
 
@@ -297,7 +285,7 @@ public class Resequencer {
    * @throws IllegalArgumentException If input and output set are not the same length
    * @see #setSwitchPoint(int)
    * @see #setCacheMap(boolean)
-   * @see #getRenumberMap()
+   * @see #forEach(IntIntConsumer)
    */
   public int renumber(int[] set, int[] outputSet) {
     ValidationUtils.checkArgument(set.length == outputSet.length,
@@ -414,47 +402,22 @@ public class Resequencer {
   }
 
   /**
-   * Gets the mapped key-value pairs from the last call to {@link #renumber(int[], int[])}.
+   * Apply the given action to the mapped key-value pairs from the last call to
+   * {@link #renumber(int[], int[])}.
    *
    * <p>{@code key} is the original identifier. {@code value} is the new identifier.
    *
    * <p>This requires that the map has been cached (which is disabled by default).
+   * If the map is not available then the method returns immediately and the action is not
+   * used.
    *
-   * @return the map (or null)
+   * @param action the action
    * @see #setCacheMap(boolean)
    */
-  public List<int[]> getRenumberMap() {
-    // This is documented to return null when no map is available
-    return (intMap == null) ? null : intMap.getMap();
-  }
-
-  /**
-   * Gets the mapped value-key pairs from the last call to {@link #renumber(int[], int[])}.
-   *
-   * <p>{@code value} is the new identifier. {@code key} is the original identifier. Since the
-   * values are ascending from zero the map is returned using a single array where the index
-   * corresponds to {@code value}.
-   *
-   * <p>This requires that the map has been cached (which is disabled by default).
-   *
-   * @return the map (or null)
-   * @see #setCacheMap(boolean)
-   */
-  public int[] getRenumberInverseMap() {
-    final List<int[]> pairs = getRenumberMap();
-    if (pairs != null) {
-      // Sort by the values
-      Collections.sort(pairs, (p1, p2) -> Integer.compare(p1[1], p2[1]));
-      // Extract keys
-      final int[] inverseMap = new int[pairs.size()];
-      for (int j = 0; j < inverseMap.length; j++) {
-        final int[] pair = pairs.get(j);
-        inverseMap[pair[1]] = pair[0];
-      }
-      return inverseMap;
+  void forEach(IntIntConsumer action) {
+    if (intMap != null) {
+      intMap.forEach(action);
     }
-    // This is documented to return null when no map is available
-    return null;
   }
 
   /**
@@ -491,7 +454,7 @@ public class Resequencer {
    * Set if the map of the identifiers will be cached. The default is false.
    *
    * <p>The map can be reused to improve efficiency at the expense of memory overhead. It is also
-   * required to allow the map to be retrieved from the method {@link #getRenumberMap()}.
+   * required to allow the map to be retrieved from the method {@link #forEach(IntIntConsumer)}.
    *
    * @param cacheMap the new cache map flag
    */

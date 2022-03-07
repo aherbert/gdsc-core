@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.match;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -125,13 +124,10 @@ class ResequencerTest {
       resequencer.setSwitchPoint(0);
     }
     Assertions.assertFalse(resequencer.isCacheMap(), "Default setting should not cache the map");
-    Assertions.assertNull(resequencer.getRenumberMap(), "Default renumber map");
-    Assertions.assertNull(resequencer.getRenumberInverseMap(), "Default renumber inverse map");
+    resequencer.forEach((k, v) -> Assertions.fail("Default renumber map"));
 
     resequencer.renumber(new int[10]);
-    Assertions.assertNull(resequencer.getRenumberMap(), "Renumber map should not be cached");
-    Assertions.assertNull(resequencer.getRenumberInverseMap(),
-        "Renumber inverse map should not be cached");
+    resequencer.forEach((k, v) -> Assertions.fail("Renumber map should not be cached"));
 
     resequencer.setCacheMap(true);
     Assertions.assertTrue(resequencer.isCacheMap(), "CacheMap setter failed");
@@ -151,9 +147,11 @@ class ResequencerTest {
     canCacheRenumberMap(new int[] {0, 0, 0, 1}, resequencer);
 
     // Finally clear the cache
-    Assertions.assertNotNull(resequencer.getRenumberMap(), "Renumber map should be cached");
+    int[] count = {0};
+    resequencer.forEach((k, v) -> count[0]++);
+    Assertions.assertNotEquals(0, count[0], "Renumber map should be cached");
     resequencer.setCacheMap(false);
-    Assertions.assertNull(resequencer.getRenumberMap(), "Renumber map cached should be cleared");
+    resequencer.forEach((k, v) -> Assertions.fail("Renumber map cached should be cleared"));
   }
 
   private static void canCacheRenumberMap(int[] inputData, Resequencer resequencer) {
@@ -168,31 +166,19 @@ class ResequencerTest {
 
       final int n = resequencer.renumber(data, outputData);
 
-      final List<int[]> pairs = resequencer.getRenumberMap();
-      Assertions.assertNotNull(pairs, "getNumberMap should be cached");
-
-      Assertions.assertEquals(n, pairs.size(),
-          () -> "Map has wrong size : " + Arrays.toString(data));
 
       // Check
       final Int2IntOpenHashMap map = new Int2IntOpenHashMap();
       for (int j = 0; j < data.length; j++) {
         map.put(data[j], outputData[j]);
       }
-      for (final int[] pair : pairs) {
-        Assertions.assertEquals(map.get(pair[0]), pair[1],
+      int[] count = {0};
+      resequencer.forEach((k, v) -> {
+        Assertions.assertEquals(map.get(k), v,
             () -> "Map has key doesn't map to value : " + Arrays.toString(data));
-      }
-
-      // Extract keys
-      final int[] inverseMap = resequencer.getRenumberInverseMap();
-      Assertions.assertEquals(n, inverseMap.length,
-          () -> "Inverse map has wrong size : " + Arrays.toString(data));
-
-      for (int j = 0; j < data.length; j++) {
-        Assertions.assertEquals(data[j], inverseMap[outputData[j]],
-            () -> "Key doesn't map to value : " + Arrays.toString(data));
-      }
+        count[0]++;
+      });
+      Assertions.assertEquals(n, count[0], () -> "Map has wrong size : " + Arrays.toString(data));
     }
   }
 }
