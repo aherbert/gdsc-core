@@ -29,18 +29,20 @@
 package uk.ac.sussex.gdsc.core.utils.function;
 
 /**
- * Represents an operation that accepts an {@code int}-valued and a {@code double}-valued argument,
- * and returns no result. This is the {@code (int, double)} specialization of
+ * Represents an operation that accepts an {@code int}-valued and an {@code object}-valued argument,
+ * and returns no result. This is the {@code (int, reference)} specialization of
  * {@link java.util.function.BiConsumer BiConsumer}. Unlike most other functional interfaces,
- * {@code IntDoubleConsumer} is expected to operate via side-effects.
+ * {@code IntObjConsumer} is expected to operate via side-effects.
+ * 
+ * @param <T> the type of the object argument to the operation
  */
 @FunctionalInterface
-public interface IntDoubleConsumer {
+public interface IntObjConsumer<T> {
   /**
    * Performs this operation on the given arguments.
    *
    * @param a the first input argument
    * @param b the second input argument
    */
-  void accept(int a, double b);
+  void accept(int a, T b);
 }
