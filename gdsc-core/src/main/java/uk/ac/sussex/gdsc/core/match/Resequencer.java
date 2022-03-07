@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.IntUnaryOperator;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
@@ -63,14 +64,18 @@ public class Resequencer {
    * Simple interface for a map of integers.
    */
   private interface IntMap {
+    // TODO:
+    // Update to computeIfAbsent(int, IntUnaryOperator)
+    // forEach(IntIntConsumer)
+
     /**
-     * Put the value into the map if absent.
+     * Compute the value if absent.
      *
      * @param key the key
-     * @param value the value
-     * @return The previous value associated with key, or -1 if none was found
+     * @param mappingFunction the mapping function
+     * @return the current (existing or computed) value
      */
-    int putIfAbsent(int key, int value);
+    int computeIfAbsent(int key, IntUnaryOperator mappingFunction);
 
     /**
      * Checks if the map has the capacity to handle the given range.
@@ -113,13 +118,12 @@ public class Resequencer {
     }
 
     @Override
-    public int putIfAbsent(int key, int value) {
+    public int computeIfAbsent(int key, IntUnaryOperator mappingFunction) {
       // This deliberately does not use the offset from getOffset()
       // for efficiency. The method is overridden in the subclass.
-      final int current = observed[key];
+      int current = observed[key];
       if (current == NO_ENTRY) {
-        observed[key] = value;
-        return NO_ENTRY;
+        observed[key] = current = mappingFunction.applyAsInt(key);
       }
       return current;
     }
@@ -187,8 +191,8 @@ public class Resequencer {
     }
 
     @Override
-    public int putIfAbsent(int key, int value) {
-      return super.putIfAbsent(key - offset, value);
+    public int computeIfAbsent(int key, IntUnaryOperator mappingFunction) {
+      return super.computeIfAbsent(key - offset, mappingFunction);
     }
 
     @Override
@@ -220,8 +224,8 @@ public class Resequencer {
     }
 
     @Override
-    public int putIfAbsent(int key, int value) {
-      return observed.putIfAbsent(key, value);
+    public int computeIfAbsent(int key, IntUnaryOperator mappingFunction) {
+      return observed.computeIfAbsent(key, mappingFunction);
     }
 
     @Override
@@ -312,24 +316,16 @@ public class Resequencer {
 
     final IntMap observed = createMap(set);
 
-    int nextId = 0;
+    int[] nextId = {0};
     for (int i = 0; i < set.length; i++) {
-      final int id = observed.putIfAbsent(set[i], nextId);
-      if (id == NO_ENTRY) {
-        // Was unmapped so consume the id
-        outputSet[i] = nextId;
-        // Can't overflow as the array can only go up to size Integer.MAX_VALUE
-        nextId++;
-      } else {
-        outputSet[i] = id;
-      }
+      outputSet[i] = observed.computeIfAbsent(set[i], j -> nextId[0]++);
     }
 
     if (isCacheMap()) {
       intMap = observed;
     }
 
-    return nextId;
+    return nextId[0];
   }
 
   /**
@@ -355,7 +351,7 @@ public class Resequencer {
     if (isCacheMap()) {
       final int min = set[0];
       intMap = createMap(min, 1);
-      intMap.putIfAbsent(min, 0);
+      intMap.computeIfAbsent(min, i -> 0);
     }
     outputSet[0] = 0;
     return 1;
@@ -374,8 +370,8 @@ public class Resequencer {
     if (isCacheMap()) {
       final int min = Math.min(set[0], set[1]);
       intMap = createMap(min, 2);
-      intMap.putIfAbsent(set[0], 0);
-      intMap.putIfAbsent(set[1], id1);
+      intMap.computeIfAbsent(set[0], i -> 0);
+      intMap.computeIfAbsent(set[1], i -> id1);
     }
     outputSet[0] = 0;
     outputSet[1] = id1;
@@ -435,7 +431,7 @@ public class Resequencer {
   /**
    * Gets the mapped value-key pairs from the last call to {@link #renumber(int[], int[])}.
    *
-   * <p>{@code value} is the new identifier. {@code key} is the original identifier. Since the the
+   * <p>{@code value} is the new identifier. {@code key} is the original identifier. Since the
    * values are ascending from zero the map is returned using a single array where the index
    * corresponds to {@code value}.
    *
