@@ -28,12 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -92,7 +92,7 @@ public class Resequencer {
   /**
    * A fixed size map of values.
    *
-   * <p>This is intended to be extended with an offset and methods exist for
+   * <p>This is intended to be extended with an offset.
    */
   private static class FixedIntMap implements IntMap {
     /** The map of observed values. */
@@ -162,7 +162,7 @@ public class Resequencer {
      */
     protected int getOffset() {
       // This method is intended to be overridden.
-      // It is a convenience method for the outputting the key-value pairs from the map.
+      // It is a convenience method for outputting the key-value pairs from the map.
       return 0;
     }
   }
@@ -207,7 +207,7 @@ public class Resequencer {
    */
   private static class DynamicIntMap implements IntMap {
     /** The set of observed values. */
-    final Int2IntOpenHashMap observed;
+    final CustomInt2IntOpenHashMap observed;
 
     /**
      * Instantiates a new dynamic int set.
@@ -215,7 +215,7 @@ public class Resequencer {
      * @param size the size
      */
     DynamicIntMap(int size) {
-      observed = new Int2IntOpenHashMap(size);
+      observed = new CustomInt2IntOpenHashMap(size);
       observed.defaultReturnValue(NO_ENTRY);
     }
 
@@ -233,8 +233,8 @@ public class Resequencer {
     @Override
     public List<int[]> getMap() {
       final ArrayList<int[]> list = new ArrayList<>();
-      observed.int2IntEntrySet().fastForEach(e -> {
-        list.add(new int[] {e.getIntKey(), e.getIntValue()});
+      observed.forEach((int key, int value) -> {
+        list.add(new int[] {key, value});
       });
       return list;
     }
