@@ -58,11 +58,14 @@ class ConvexHull3dTest {
         .assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     // @formatter:off
     x.add(0); y.add(0); z.add(0);
-    Assertions.assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
+    Assertions.assertNull(
+        ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     x.add(1); y.add(0); z.add(0);
-    Assertions.assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
+    Assertions.assertNull(
+        ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     x.add(0); y.add(1); z.add(0);
-    Assertions.assertNull(ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
+    Assertions.assertNull(
+        ConvexHull3d.create(x.toDoubleArray(), y.toDoubleArray(), z.toDoubleArray()));
     x.add(0); y.add(0); z.add(1);
     // @formatter:on
     Assertions.assertNotNull(

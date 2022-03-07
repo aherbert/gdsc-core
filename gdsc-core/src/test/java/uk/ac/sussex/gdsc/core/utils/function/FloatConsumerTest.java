@@ -39,11 +39,11 @@ class FloatConsumerTest {
   void canAccept() {
     final float[] values = {1, 2, 3};
     final FloatConsumer fun = new FloatConsumer() {
-      int i;
+      int index;
 
       @Override
       public void accept(float value) {
-        Assertions.assertEquals(values[i++], value);
+        Assertions.assertEquals(values[index++], value);
       }
     };
     for (final float value : values) {

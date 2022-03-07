@@ -81,7 +81,7 @@ public class Resequencer {
     boolean resetForRange(int min, long range);
 
     /**
-     * Gets the mapped key-value pairs
+     * Gets the mapped key-value pairs.
      *
      * @param action the action
      */
