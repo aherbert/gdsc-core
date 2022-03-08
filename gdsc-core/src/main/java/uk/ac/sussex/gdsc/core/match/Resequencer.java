@@ -63,6 +63,13 @@ public class Resequencer {
    */
   private interface IntMap {
     /**
+     * Get the number of elements in the map.
+     *
+     * @return the size
+     */
+    int size();
+
+    /**
      * Compute the value if absent.
      *
      * @param key the key
@@ -98,7 +105,7 @@ public class Resequencer {
     final int[] observed;
 
     /** The size. */
-    int size;
+    private int size;
 
     /**
      * Instantiates a new fixed int map.
@@ -107,8 +114,12 @@ public class Resequencer {
      */
     FixedIntMap(int size) {
       observed = new int[size];
-      this.size = size;
       Arrays.fill(observed, NO_ENTRY);
+    }
+
+    @Override
+    public int size() {
+      return size;
     }
 
     @Override
@@ -118,6 +129,7 @@ public class Resequencer {
       int current = observed[key];
       if (current == NO_ENTRY) {
         observed[key] = current = mappingFunction.applyAsInt(key);
+        size++;
       }
       return current;
     }
@@ -125,9 +137,9 @@ public class Resequencer {
     @Override
     public boolean resetForRange(int min, long range) {
       if (observed.length >= range) {
-        this.size = (int) range;
+        size = 0;
         setOffset(min);
-        Arrays.fill(observed, 0, size, NO_ENTRY);
+        Arrays.fill(observed, 0, (int) range, NO_ENTRY);
       }
       return false;
     }
@@ -135,7 +147,7 @@ public class Resequencer {
     @Override
     public void forEach(IntIntConsumer action) {
       final int offset = getOffset();
-      for (int i = 0; i < size; i++) {
+      for (int i = 0, n = size; n != 0; i++, n--) {
         if (observed[i] != NO_ENTRY) {
           action.accept(i + offset, observed[i]);
         }
@@ -213,6 +225,11 @@ public class Resequencer {
     DynamicIntMap(int size) {
       observed = new CustomInt2IntOpenHashMap(size);
       observed.defaultReturnValue(NO_ENTRY);
+    }
+
+    @Override
+    public int size() {
+      return observed.size();
     }
 
     @Override
@@ -407,9 +424,8 @@ public class Resequencer {
    *
    * <p>{@code key} is the original identifier. {@code value} is the new identifier.
    *
-   * <p>This requires that the map has been cached (which is disabled by default).
-   * If the map is not available then the method returns immediately and the action is not
-   * used.
+   * <p>This requires that the map has been cached (which is disabled by default). If the map is not
+   * available then the method returns immediately and the action is not used.
    *
    * @param action the action
    * @see #setCacheMap(boolean)
@@ -418,6 +434,28 @@ public class Resequencer {
     if (intMap != null) {
       intMap.forEach(action);
     }
+  }
+
+  /**
+   * Gets the mapped value-key pairs from the last call to {@link #renumber(int[], int[])}.
+   *
+   * <p>{@code value} is the new identifier. {@code key} is the original identifier. Since the
+   * values are ascending from zero the map is returned using a single array where the index
+   * corresponds to {@code value}.
+   *
+   * <p>This requires that the map has been cached (which is disabled by default).
+   *
+   * @return the map (or null)
+   * @see #setCacheMap(boolean)
+   */
+  public int[] getRenumberInverseMap() {
+    if (intMap != null) {
+      final int[] inverseMap = new int[intMap.size()];
+      intMap.forEach((int k, int v) -> inverseMap[v] = k);
+      return inverseMap;
+    }
+    // This is documented to return null when no map is available
+    return null;
   }
 
   /**

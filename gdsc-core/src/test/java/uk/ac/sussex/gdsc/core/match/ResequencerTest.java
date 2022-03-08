@@ -125,9 +125,12 @@ class ResequencerTest {
     }
     Assertions.assertFalse(resequencer.isCacheMap(), "Default setting should not cache the map");
     resequencer.forEach((k, v) -> Assertions.fail("Default renumber map"));
+    Assertions.assertNull(resequencer.getRenumberInverseMap(), "Default renumber inverse map");
 
     resequencer.renumber(new int[10]);
     resequencer.forEach((k, v) -> Assertions.fail("Renumber map should not be cached"));
+    Assertions.assertNull(resequencer.getRenumberInverseMap(),
+        "Renumber inverse map should not be cached");
 
     resequencer.setCacheMap(true);
     Assertions.assertTrue(resequencer.isCacheMap(), "CacheMap setter failed");
@@ -179,6 +182,16 @@ class ResequencerTest {
         count[0]++;
       });
       Assertions.assertEquals(n, count[0], () -> "Map has wrong size : " + Arrays.toString(data));
+
+      // Extract keys
+      final int[] inverseMap = resequencer.getRenumberInverseMap();
+      Assertions.assertEquals(n, inverseMap.length,
+          () -> "Inverse map has wrong size : " + Arrays.toString(data));
+
+      for (int j = 0; j < data.length; j++) {
+        Assertions.assertEquals(data[j], inverseMap[outputData[j]],
+            () -> "Key doesn't map to value : " + Arrays.toString(data));
+      }
     }
   }
 }
