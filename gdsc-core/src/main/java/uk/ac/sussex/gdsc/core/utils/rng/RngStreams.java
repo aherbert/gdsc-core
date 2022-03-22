@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
@@ -36,6 +37,8 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
+import org.apache.commons.rng.sampling.distribution.DiscreteUniformSampler;
+import org.apache.commons.rng.sampling.distribution.UniformLongSampler;
 
 /**
  * Support for using random number generators in streams.
@@ -50,404 +53,22 @@ public final class RngStreams {
   private static final int CHARACTERISTICS =
       Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.NONNULL | Spliterator.IMMUTABLE;
 
-  // Spliterators have been adapted from the JDK 8 API which contains examples
-  // for splitting different types of RNG to make a second thread-safe instance:
-  //
-  // - SplittableRandom::split
-  // - ThreadLocalRandom::current
-  // - Random (same instance as it is synchronized)
-  //
-  // This class requires that the input generator is a SplittableUniformRandomProvider.
-  // Thread-safe specialisations of RNGs are expected to be slower without the custom
-  // support within the Thread class as used by ThreadLocalRandom.
-  //
-  // Here the range methods for integers delegate to the UniformRandomProvider implementation
-  // if possible and provide a separate large range algorithm.
-
-  // @formatter:off
-  /**
-   * Spliterator for int streams. Supports 4 versions:
-   *
-   * <ul>
-   * <li>Fixed stream length; unbounded sample output
-   * <li>Fixed stream length; bounded sample output
-   * <li>Infinite stream length; unbounded sample output
-   * <li>Infinite stream length; bounded sample output
-   * </ul>
-   *
-   * <p>An infinite stream is created using a end of Long.MAX_VALUE. Splitting is done
-   * by dividing in half until this is not possible.
-   *
-   * <p>The long and double versions of this class are identical except for types.
-   */
-  // @formatter:on
-  static final class RngIntSpliterator implements Spliterator.OfInt {
-    /** The random generator. */
-    final SplittableUniformRandomProvider rng;
-    /** The current position in the range. */
-    long position;
-    /** The upper limit of the range. */
-    final long end;
-    /** The lower upper (inclusive) of the random number range to produce. */
-    final int lower;
-    /** The upper upper (exclusive) of the random number range to produce. */
-    final int upper;
-
-    /**
-     * Create a new instance.
-     *
-     * @param rng the random generator
-     * @param start the start position of the stream (inclusive)
-     * @param end the upper limit of the stream (exclusive)
-     * @param lower the lower bound (inclusive) of the random number range to produce.
-     * @param upper the upper bound (exclusive) of the random number range to produce.
-     */
-    RngIntSpliterator(SplittableUniformRandomProvider rng, long start, long end, int lower,
-        int upper) {
-      this.rng = rng;
-      this.position = start;
-      this.end = end;
-      this.lower = lower;
-      this.upper = upper;
-    }
-
-    @Override
-    public RngIntSpliterator trySplit() {
-      final long start = position;
-      final long middle = (start + end) >>> 1;
-      if (middle <= start) {
-        return null;
-      }
-      position = middle;
-      return new RngIntSpliterator(rng.split(), start, middle, lower, upper);
-    }
-
-    @Override
-    public long estimateSize() {
-      return end - position;
-    }
-
-    @Override
-    public int characteristics() {
-      return CHARACTERISTICS;
-    }
-
-    @Override
-    public boolean tryAdvance(IntConsumer consumer) {
-      if (consumer == null) {
-        throw new NullPointerException();
-      }
-      final long pos = position;
-      if (pos < end) {
-        consumer.accept(nextInt(rng, lower, upper));
-        position = pos + 1;
-        return true;
-      }
-      return false;
-    }
-
-    @Override
-    public void forEachRemaining(IntConsumer consumer) {
-      if (consumer == null) {
-        throw new NullPointerException();
-      }
-      long pos = position;
-      final long last = end;
-      if (pos < last) {
-        position = last;
-        final SplittableUniformRandomProvider g = rng;
-        final int o = lower;
-        final int b = upper;
-        if (o < b) {
-          do {
-            consumer.accept(nextInt(g, o, b));
-          } while (++pos < last);
-        } else {
-          do {
-            consumer.accept(g.nextInt());
-          } while (++pos < last);
-        }
-      }
-    }
-
-    /**
-     * Compute the next value in the specified range.
-     *
-     * @param rng the random generator
-     * @param lower the lower bound (inclusive) of the random number range to produce.
-     * @param upper the upper bound (exclusive) of the random number range to produce.
-     * @return the value
-     */
-    private static int nextInt(SplittableUniformRandomProvider rng, int lower, int upper) {
-      if (lower < upper) {
-        final int n = upper - lower;
-        if (n > 0) {
-          // Small range
-          return rng.nextInt(n) + lower;
-        }
-        // Large range
-        int result;
-        do {
-          result = rng.nextInt();
-        } while (result < lower || result >= upper);
-        return result;
-      }
-      return rng.nextInt();
-    }
-  }
-
-  /**
-   * Spliterator for long streams. Supports 4 versions as per {@link RngIntSpliterator}.
-   */
-  static final class RngLongSpliterator implements Spliterator.OfLong {
-    /** The random generator. */
-    final SplittableUniformRandomProvider rng;
-    /** The current position in the stream range. */
-    long position;
-    /** The upper limit of the stream range. */
-    final long end;
-    /** The lower upper (inclusive) of the random number range to produce. */
-    final long lower;
-    /** The upper upper (exclusive) of the random number range to produce. */
-    final long upper;
-
-    /**
-     * Create a new instance.
-     *
-     * @param rng the random generator
-     * @param start the start position of the stream
-     * @param end the upper limit of the stream
-     * @param lower the lower upper (inclusive) of the random number range to produce.
-     * @param upper the upper upper (exclusive) of the random number range to produce.
-     */
-    RngLongSpliterator(SplittableUniformRandomProvider rng, long start, long end, long lower,
-        long upper) {
-      this.rng = rng;
-      this.position = start;
-      this.end = end;
-      this.lower = lower;
-      this.upper = upper;
-    }
-
-    @Override
-    public RngLongSpliterator trySplit() {
-      final long start = position;
-      final long middle = (start + end) >>> 1;
-      if (middle <= start) {
-        return null;
-      }
-      position = middle;
-      return new RngLongSpliterator(rng.split(), start, middle, lower, upper);
-    }
-
-    @Override
-    public long estimateSize() {
-      return end - position;
-    }
-
-    @Override
-    public int characteristics() {
-      return CHARACTERISTICS;
-    }
-
-    @Override
-    public boolean tryAdvance(LongConsumer consumer) {
-      if (consumer == null) {
-        throw new NullPointerException();
-      }
-      final long pos = position;
-      if (pos < end) {
-        consumer.accept(nextLong(rng, lower, upper));
-        position = pos + 1;
-        return true;
-      }
-      return false;
-    }
-
-    @Override
-    public void forEachRemaining(LongConsumer consumer) {
-      if (consumer == null) {
-        throw new NullPointerException();
-      }
-      long pos = position;
-      final long last = end;
-      if (pos < last) {
-        position = last;
-        final SplittableUniformRandomProvider g = rng;
-        final long o = lower;
-        final long b = upper;
-        if (o < b) {
-          do {
-            consumer.accept(nextLong(g, o, b));
-          } while (++pos < last);
-        } else {
-          do {
-            consumer.accept(g.nextLong());
-          } while (++pos < last);
-        }
-      }
-    }
-
-    /**
-     * Compute the next value in the specified range.
-     *
-     * @param rng the random generator
-     * @param lower the lower bound (inclusive) of the random number range to produce.
-     * @param upper the upper bound (exclusive) of the random number range to produce.
-     * @return the value
-     */
-    private static long nextLong(SplittableUniformRandomProvider rng, long lower, long upper) {
-      if (lower < upper) {
-        final long n = upper - lower;
-        if (n > 0L) {
-          // Small range
-          return rng.nextLong(n) + lower;
-        }
-        // Large range
-        long result;
-        do {
-          result = rng.nextLong();
-        } while (result < lower || result >= upper);
-        return result;
-      }
-      return rng.nextLong();
-    }
-  }
-
-  /**
-   * Spliterator for long streams. Supports 4 versions as per {@link RngIntSpliterator}.
-   */
-  static final class RngDoubleSpliterator implements Spliterator.OfDouble {
-    /** The random generator. */
-    final SplittableUniformRandomProvider rng;
-    /** The current position in the stream range. */
-    long position;
-    /** The upper limit of the stream range. */
-    final long end;
-    /** The lower upper (inclusive) of the random number range to produce. */
-    final double lower;
-    /** The upper upper (exclusive) of the random number range to produce. */
-    final double upper;
-
-    /**
-     * Create a new instance.
-     *
-     * @param rng the random generator
-     * @param start the start position of the stream
-     * @param end the upper limit of the stream
-     * @param lower the lower bound (inclusive) of the random number range to produce.
-     * @param upper the upper bound (exclusive) of the random number range to produce.
-     */
-    RngDoubleSpliterator(SplittableUniformRandomProvider rng, long start, long end, double lower,
-        double upper) {
-      this.rng = rng;
-      this.position = start;
-      this.end = end;
-      this.lower = lower;
-      this.upper = upper;
-    }
-
-    @Override
-    public RngDoubleSpliterator trySplit() {
-      final long start = position;
-      final long middle = (start + end) >>> 1;
-      if (middle <= start) {
-        return null;
-      }
-      position = middle;
-      return new RngDoubleSpliterator(rng.split(), start, middle, lower, upper);
-    }
-
-    @Override
-    public long estimateSize() {
-      return end - position;
-    }
-
-    @Override
-    public int characteristics() {
-      return CHARACTERISTICS;
-    }
-
-    @Override
-    public boolean tryAdvance(DoubleConsumer consumer) {
-      if (consumer == null) {
-        throw new NullPointerException();
-      }
-      final long pos = position;
-      if (pos < end) {
-        consumer.accept(nextDouble(rng, lower, upper));
-        position = pos + 1;
-        return true;
-      }
-      return false;
-    }
-
-    @Override
-    public void forEachRemaining(DoubleConsumer consumer) {
-      if (consumer == null) {
-        throw new NullPointerException();
-      }
-      long pos = position;
-      final long last = end;
-      if (pos < last) {
-        position = last;
-        final SplittableUniformRandomProvider g = rng;
-        final double o = lower;
-        final double b = upper;
-        if (o < b) {
-          do {
-            consumer.accept(nextDouble(g, o, b));
-          } while (++pos < last);
-        } else {
-          do {
-            consumer.accept(g.nextDouble());
-          } while (++pos < last);
-        }
-      }
-    }
-
-    /**
-     * Compute the next value in the specified range.
-     *
-     * @param rng the random generator
-     * @param lower the lower bound (inclusive) of the random number range to produce.
-     * @param upper the upper bound (exclusive) of the random number range to produce.
-     * @return the value
-     */
-    private static double nextDouble(SplittableUniformRandomProvider rng, double lower,
-        double upper) {
-      double result = rng.nextDouble();
-      if (lower < upper) {
-        // 2 multiplies; 2 additions
-        // result = lower * result + upper * (1 - result)
-
-        // JDK method: 1 multiply; 2 additions; bounds check
-        result = result * (upper - lower) + lower;
-        if (result >= upper) {
-          // Correct for rounding.
-          // Equivalent to Math.nextDown(upper) without the edge-case checks.
-          result = Double.longBitsToDouble(Double.doubleToLongBits(upper) - 1);
-        }
-      }
-      return result;
-    }
-  }
-
-  // @formatter:off
   /**
    * Spliterator for int streams. Supports 2 versions:
    *
    * <ul>
+   *
    * <li>Fixed stream length; unbounded sample output
+   *
    * <li>Infinite stream length; unbounded sample output
+   *
    * </ul>
    *
-   * <p>An infinite stream is created using a end of Long.MAX_VALUE. Splitting is done
-   * by dividing in half until this is not possible.
+   * <p>An infinite stream is created using a end of Long.MAX_VALUE. Splitting is done by dividing
+   * in half until this is not possible.
    *
-   * <p>The double version of this class is identical except for types.
+   * <p>The long and double versions of this class are identical except for types.
    */
-  // @formatter:on
   static final class SupplierIntSpliterator implements Spliterator.OfInt {
     /** The generator. */
     final SplittableIntSupplier generator;
@@ -673,6 +294,145 @@ public final class RngStreams {
     }
   }
 
+  /**
+   * Wrap a splittable RNG to implement the SplittableIntSupplier.
+   */
+  static final class RngSplittableIntSupplier implements SplittableIntSupplier {
+    /** The generator. */
+    private final SplittableUniformRandomProvider rng;
+
+    /**
+     * Create an instance.
+     *
+     * @param rng the generator
+     */
+    RngSplittableIntSupplier(SplittableUniformRandomProvider rng) {
+      this.rng = rng;
+    }
+
+    @Override
+    public int getAsInt() {
+      return rng.nextInt();
+    }
+
+    @Override
+    public SplittableIntSupplier split() {
+      return new RngSplittableIntSupplier(rng.split());
+    }
+  }
+
+  /**
+   * Wrap a splittable RNG to implement the SplittableLongSupplier.
+   */
+  static final class RngSplittableLongSupplier implements SplittableLongSupplier {
+    /** The generator. */
+    private final SplittableUniformRandomProvider rng;
+
+    /**
+     * Create an instance.
+     *
+     * @param rng the generator
+     */
+    RngSplittableLongSupplier(SplittableUniformRandomProvider rng) {
+      this.rng = rng;
+    }
+
+    @Override
+    public long getAsLong() {
+      return rng.nextLong();
+    }
+
+    @Override
+    public SplittableLongSupplier split() {
+      return new RngSplittableLongSupplier(rng.split());
+    }
+  }
+
+  /**
+   * Wrap a splittable RNG to implement the SplittableDoubleSupplier.
+   */
+  static final class RngSplittableDoubleSupplier implements SplittableDoubleSupplier {
+    /** The generator. */
+    private final SplittableUniformRandomProvider rng;
+
+    /**
+     * Create an instance.
+     *
+     * @param rng the generator
+     */
+    RngSplittableDoubleSupplier(SplittableUniformRandomProvider rng) {
+      this.rng = rng;
+    }
+
+    @Override
+    public double getAsDouble() {
+      return rng.nextDouble();
+    }
+
+    @Override
+    public SplittableDoubleSupplier split() {
+      return new RngSplittableDoubleSupplier(rng.split());
+    }
+  }
+
+  /**
+   * Wrap a splittable RNG to implement the SplittableDoubleSupplier with a range. Note: This does
+   * not use {@link org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler
+   * ContinuousUniformSampler} to support the exclusive upper bound.
+   */
+  static final class RangeSplittableDoubleSupplier implements SplittableDoubleSupplier {
+    /** The generator. */
+    private final SplittableUniformRandomProvider rng;
+    /** The low bound (includive). */
+    private final double lo;
+    /** The high bound (exclusive). */
+    private final double hi;
+    /** The range. */
+    private final double range;
+    /** The upper limit (inclusive). */
+    private final double upper;
+
+    /**
+     * Create an instance.
+     *
+     * @param rng the generator
+     * @param lo the low bound (inclusive)
+     * @param hi the high bound (exclusive)
+     */
+    RangeSplittableDoubleSupplier(SplittableUniformRandomProvider rng, double lo, double hi) {
+      this.rng = rng;
+      this.lo = lo;
+      this.hi = hi;
+      range = hi - lo;
+      upper = Math.nextDown(hi);
+    }
+
+    /**
+     * Create a copy instance.
+     *
+     * @param source the source
+     */
+    private RangeSplittableDoubleSupplier(RangeSplittableDoubleSupplier source) {
+      this.rng = source.rng.split();
+      lo = source.lo;
+      hi = source.hi;
+      range = source.range;
+      upper = source.upper;
+    }
+
+    @Override
+    public double getAsDouble() {
+      final double u = rng.nextDouble() * range + lo;
+      // Correct for rounding.
+      return u >= hi ? upper : u;
+    }
+
+    @Override
+    public SplittableDoubleSupplier split() {
+      return new RangeSplittableDoubleSupplier(this);
+    }
+  }
+
   /** No construction. */
   private RngStreams() {}
 
@@ -689,8 +449,8 @@ public final class RngStreams {
     if (streamSize < 0L) {
       throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
     }
-    return StreamSupport.intStream(new RngIntSpliterator(rng, 0L, streamSize, Integer.MAX_VALUE, 0),
-        false);
+    Objects.requireNonNull(rng, "rng");
+    return ints(new RngSplittableIntSupplier(rng), streamSize);
   }
 
   /**
@@ -706,8 +466,8 @@ public final class RngStreams {
    * @return a stream of pseudorandom {@code int} values
    */
   public static IntStream ints(SplittableUniformRandomProvider rng) {
-    return StreamSupport
-        .intStream(new RngIntSpliterator(rng, 0L, Long.MAX_VALUE, Integer.MAX_VALUE, 0), false);
+    Objects.requireNonNull(rng, "rng");
+    return ints(new RngSplittableIntSupplier(rng));
   }
 
   /**
@@ -732,8 +492,9 @@ public final class RngStreams {
     if (randomNumberOrigin >= randomNumberBound) {
       throw new IllegalArgumentException(BOUND_MUST_BE_ABOVE_ORIGIN);
     }
-    return StreamSupport.intStream(
-        new RngIntSpliterator(rng, 0L, streamSize, randomNumberOrigin, randomNumberBound), false);
+    Objects.requireNonNull(rng, "rng");
+    return ints(Splittables.ofInt(rng,
+        DiscreteUniformSampler.of(rng, randomNumberOrigin, randomNumberBound - 1)), streamSize);
   }
 
   /**
@@ -760,9 +521,9 @@ public final class RngStreams {
     if (randomNumberOrigin >= randomNumberBound) {
       throw new IllegalArgumentException(BOUND_MUST_BE_ABOVE_ORIGIN);
     }
-    return StreamSupport.intStream(
-        new RngIntSpliterator(rng, 0L, Long.MAX_VALUE, randomNumberOrigin, randomNumberBound),
-        false);
+    Objects.requireNonNull(rng, "rng");
+    return ints(Splittables.ofInt(rng,
+        DiscreteUniformSampler.of(rng, randomNumberOrigin, randomNumberBound - 1)));
   }
 
   /**
@@ -811,8 +572,8 @@ public final class RngStreams {
     if (streamSize < 0L) {
       throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
     }
-    return StreamSupport.longStream(new RngLongSpliterator(rng, 0L, streamSize, Long.MAX_VALUE, 0L),
-        false);
+    Objects.requireNonNull(rng, "rng");
+    return longs(new RngSplittableLongSupplier(rng), streamSize);
   }
 
   /**
@@ -828,8 +589,8 @@ public final class RngStreams {
    * @return a stream of pseudorandom {@code long} values
    */
   public static LongStream longs(SplittableUniformRandomProvider rng) {
-    return StreamSupport
-        .longStream(new RngLongSpliterator(rng, 0L, Long.MAX_VALUE, Long.MAX_VALUE, 0L), false);
+    Objects.requireNonNull(rng, "rng");
+    return longs(new RngSplittableLongSupplier(rng));
   }
 
   /**
@@ -854,8 +615,9 @@ public final class RngStreams {
     if (randomNumberOrigin >= randomNumberBound) {
       throw new IllegalArgumentException(BOUND_MUST_BE_ABOVE_ORIGIN);
     }
-    return StreamSupport.longStream(
-        new RngLongSpliterator(rng, 0L, streamSize, randomNumberOrigin, randomNumberBound), false);
+    Objects.requireNonNull(rng, "rng");
+    return longs(Splittables.ofLong(rng,
+        UniformLongSampler.of(rng, randomNumberOrigin, randomNumberBound - 1)), streamSize);
   }
 
   /**
@@ -882,9 +644,9 @@ public final class RngStreams {
     if (randomNumberOrigin >= randomNumberBound) {
       throw new IllegalArgumentException(BOUND_MUST_BE_ABOVE_ORIGIN);
     }
-    return StreamSupport.longStream(
-        new RngLongSpliterator(rng, 0L, Long.MAX_VALUE, randomNumberOrigin, randomNumberBound),
-        false);
+    Objects.requireNonNull(rng, "rng");
+    return longs(Splittables.ofLong(rng,
+        UniformLongSampler.of(rng, randomNumberOrigin, randomNumberBound - 1)));
   }
 
   /**
@@ -934,8 +696,8 @@ public final class RngStreams {
     if (streamSize < 0L) {
       throw new IllegalArgumentException(SIZE_MUST_BE_POSITIVE);
     }
-    return StreamSupport
-        .doubleStream(new RngDoubleSpliterator(rng, 0L, streamSize, Double.MAX_VALUE, 0.0), false);
+    Objects.requireNonNull(rng, "rng");
+    return doubles(new RngSplittableDoubleSupplier(rng), streamSize);
   }
 
   /**
@@ -952,8 +714,8 @@ public final class RngStreams {
    * @return a stream of pseudorandom {@code double} values
    */
   public static DoubleStream doubles(SplittableUniformRandomProvider rng) {
-    return StreamSupport.doubleStream(
-        new RngDoubleSpliterator(rng, 0L, Long.MAX_VALUE, Double.MAX_VALUE, 0.0), false);
+    Objects.requireNonNull(rng, "rng");
+    return doubles(new RngSplittableDoubleSupplier(rng));
   }
 
   /**
@@ -979,9 +741,9 @@ public final class RngStreams {
     if (!(randomNumberOrigin < randomNumberBound)) {
       throw new IllegalArgumentException(BOUND_MUST_BE_ABOVE_ORIGIN);
     }
-    return StreamSupport.doubleStream(
-        new RngDoubleSpliterator(rng, 0L, streamSize, randomNumberOrigin, randomNumberBound),
-        false);
+    Objects.requireNonNull(rng, "rng");
+    return doubles(new RangeSplittableDoubleSupplier(rng, randomNumberOrigin, randomNumberBound),
+        streamSize);
   }
 
   /**
@@ -1009,9 +771,8 @@ public final class RngStreams {
     if (!(randomNumberOrigin < randomNumberBound)) {
       throw new IllegalArgumentException(BOUND_MUST_BE_ABOVE_ORIGIN);
     }
-    return StreamSupport.doubleStream(
-        new RngDoubleSpliterator(rng, 0L, Long.MAX_VALUE, randomNumberOrigin, randomNumberBound),
-        false);
+    Objects.requireNonNull(rng, "rng");
+    return doubles(new RangeSplittableDoubleSupplier(rng, randomNumberOrigin, randomNumberBound));
   }
 
   /**
