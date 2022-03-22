@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.trees.DoubleDistanceFunctions;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
@@ -221,7 +221,7 @@ class RmsmdCalculatorTest {
   }
 
   private static void assertRmsmdNdWithKdTree(RandomSeed seed, int dimensions) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     // Create enough data to trigger use of the tree
     final double[][] p0 = createData(dimensions, rg, 4);
     final double[][] p1 = createData(dimensions, rg, 64);

@@ -44,11 +44,11 @@ import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -203,7 +203,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -217,7 +217,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -308,7 +308,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindInternalAndMaxFindInternalReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -324,7 +324,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindInternalReturnSameResultWithNeighbourCheck(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -472,7 +472,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatFindBlockMaxima(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -485,7 +485,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatFindBlockMaximaCandidates(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -498,7 +498,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFind(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -511,7 +511,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindInternal(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -524,7 +524,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFind3x3InternalWithNoBorder(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 5;
@@ -535,7 +535,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -573,7 +573,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -612,7 +612,7 @@ class NonMaximumSuppressionTest {
   @SeededTest
   void floatFindBlockMaximaCandidatesNxNAndFindBlockMaximaCandidates2x2ReturnSameResult(
       RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -643,7 +643,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFindIsFasterThanMaxFind(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -697,14 +697,14 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal,
+      logger.log(TestLogging.getTimingRecord("float maxFind" + boxSize, boxTotal,
           "float blockFind", blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLogUtils.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
+    logger.log(TestLogging.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
   }
 
   @SpeedTag
@@ -712,7 +712,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     nms.setNeighbourCheck(true);
@@ -768,14 +768,14 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal,
+      logger.log(TestLogging.getTimingRecord("float maxFind" + boxSize, boxTotal,
           "float blockFindWithCheck", blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLogUtils.getTimingRecord("float maxFind", total, "float blockFindWithCheck",
+    logger.log(TestLogging.getTimingRecord("float maxFind", total, "float blockFindWithCheck",
         blockTotal));
   }
 
@@ -804,7 +804,7 @@ class NonMaximumSuppressionTest {
 
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -865,7 +865,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float blockFind" + boxSize, boxTotal,
+      logger.log(TestLogging.getTimingRecord("float blockFind" + boxSize, boxTotal,
           "float blockFindInternal", internalBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
@@ -874,7 +874,7 @@ class NonMaximumSuppressionTest {
     logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx", total,
             internalTotal, (1.0 * total) / internalTotal));
-    logger.log(TestLogUtils.getTimingRecord("float blockFind (border >= 5)", bigTotal,
+    logger.log(TestLogging.getTimingRecord("float blockFind (border >= 5)", bigTotal,
         "float blockFindInternal (border >= 5)", bigInternalTotal));
   }
 
@@ -883,7 +883,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -946,7 +946,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check" + boxSize,
+      logger.log(TestLogging.getTimingRecord("float blockFindInternal check" + boxSize,
           checkBoxTotal, "float blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -957,7 +957,7 @@ class NonMaximumSuppressionTest {
         FunctionUtils.getSupplier(
             "float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
             noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check (border >= 5)",
+    logger.log(TestLogging.getTimingRecord("float blockFindInternal check (border >= 5)",
         bigCheckTotal, "float blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
 
@@ -966,7 +966,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1030,7 +1030,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal,
+      logger.log(TestLogging.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal,
           "float blockFind", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -1040,7 +1040,7 @@ class NonMaximumSuppressionTest {
     logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("float blockFind check %d => blockFind %d = %.2fx", checkTotal,
             noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
+    logger.log(TestLogging.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
         "float blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
         bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
   }
@@ -1050,7 +1050,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1097,7 +1097,7 @@ class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogUtils.getTimingRecord("float blockFindNxN", total, "float blockFind3x3",
+    logger.log(TestLogging.getTimingRecord("float blockFindNxN", total, "float blockFind3x3",
         blockTotal));
   }
 
@@ -1106,7 +1106,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     nms.setDataBuffer(true);
@@ -1158,7 +1158,7 @@ class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogUtils.getTimingRecord("float blockFind3x3", total,
+    logger.log(TestLogging.getTimingRecord("float blockFind3x3", total,
         "float blockFind3x3 (buffer)", blockTotal));
   }
 
@@ -1167,7 +1167,7 @@ class NonMaximumSuppressionTest {
   void floatBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1214,7 +1214,7 @@ class NonMaximumSuppressionTest {
       }
     }
     logger.log(
-        TestLogUtils.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
+        TestLogging.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
   }
 
   /**
@@ -1222,7 +1222,7 @@ class NonMaximumSuppressionTest {
    */
   @SeededTest
   void floatAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     for (final int width : primes) {
@@ -1321,7 +1321,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -1335,7 +1335,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -1426,7 +1426,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindInternalAndMaxFindInternalReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -1442,7 +1442,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindInternalReturnSameResultWithNeighbourCheck(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
     for (final int width : primes) {
@@ -1589,7 +1589,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intFindBlockMaxima(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -1602,7 +1602,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intFindBlockMaximaCandidates(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -1615,7 +1615,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFind(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -1628,7 +1628,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindInternal(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 15;
@@ -1641,7 +1641,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFind3x3InternalWithNoBorder(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     final int width = 10;
     final int height = 5;
@@ -1652,7 +1652,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1690,7 +1690,7 @@ class NonMaximumSuppressionTest {
 
   @SeededTest
   void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1729,7 +1729,7 @@ class NonMaximumSuppressionTest {
   @SeededTest
   void intFindBlockMaximaCandidatesNxNAndFindBlockMaximaCandidates2x2ReturnSameResult(
       RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1760,7 +1760,7 @@ class NonMaximumSuppressionTest {
   void intBlockFindIsFasterThanMaxFind(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1814,14 +1814,14 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind",
+      logger.log(TestLogging.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind",
           blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLogUtils.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
+    logger.log(TestLogging.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
   }
 
   @SpeedTag
@@ -1829,7 +1829,7 @@ class NonMaximumSuppressionTest {
   void intBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     nms.setNeighbourCheck(true);
@@ -1885,7 +1885,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("int maxFind" + boxSize, boxTotal,
+      logger.log(TestLogging.getTimingRecord("int maxFind" + boxSize, boxTotal,
           "int blockFindWithCheck", blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
@@ -1893,7 +1893,7 @@ class NonMaximumSuppressionTest {
       // blockBoxTotal < boxTotal);
     }
     logger.log(
-        TestLogUtils.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
+        TestLogging.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
   }
 
   private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg) {
@@ -1921,7 +1921,7 @@ class NonMaximumSuppressionTest {
 
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1982,7 +1982,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("int blockFind" + boxSize, boxTotal,
+      logger.log(TestLogging.getTimingRecord("int blockFind" + boxSize, boxTotal,
           "int blockFindInternal", internalBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
@@ -1991,7 +1991,7 @@ class NonMaximumSuppressionTest {
     logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total,
             internalTotal, (1.0 * total) / internalTotal));
-    logger.log(TestLogUtils.getTimingRecord("int blockFind (border >= 5)", bigTotal,
+    logger.log(TestLogging.getTimingRecord("int blockFind (border >= 5)", bigTotal,
         "int blockFindInternal (border >= 5)", bigInternalTotal));
   }
 
@@ -2000,7 +2000,7 @@ class NonMaximumSuppressionTest {
   void intBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -2064,7 +2064,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check" + boxSize,
+      logger.log(TestLogging.getTimingRecord("int blockFindInternal check" + boxSize,
           checkBoxTotal, "int blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -2074,7 +2074,7 @@ class NonMaximumSuppressionTest {
     logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx",
             checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check (border >= 5)",
+    logger.log(TestLogging.getTimingRecord("int blockFindInternal check (border >= 5)",
         bigCheckTotal, "int blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
 
@@ -2083,7 +2083,7 @@ class NonMaximumSuppressionTest {
   void intBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -2147,7 +2147,7 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal,
+      logger.log(TestLogging.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal,
           "int blockFind", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -2157,7 +2157,7 @@ class NonMaximumSuppressionTest {
     logger.log(TestLevel.TEST_INFO,
         FunctionUtils.getSupplier("int blockFind check %d => blockFind %d = %.2fx", checkTotal,
             noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
+    logger.log(TestLogging.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
         "int blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
         bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
   }
@@ -2167,7 +2167,7 @@ class NonMaximumSuppressionTest {
   void intBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -2214,7 +2214,7 @@ class NonMaximumSuppressionTest {
       }
     }
     logger.log(
-        TestLogUtils.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
+        TestLogging.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
   }
 
   @SpeedTag
@@ -2222,7 +2222,7 @@ class NonMaximumSuppressionTest {
   void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     nms.setDataBuffer(true);
@@ -2274,7 +2274,7 @@ class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogUtils.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)",
+    logger.log(TestLogging.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)",
         blockTotal));
   }
 
@@ -2283,7 +2283,7 @@ class NonMaximumSuppressionTest {
   void intBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -2330,7 +2330,7 @@ class NonMaximumSuppressionTest {
       }
     }
     logger
-        .log(TestLogUtils.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
+        .log(TestLogging.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
   }
 
   /**
@@ -2338,7 +2338,7 @@ class NonMaximumSuppressionTest {
    */
   @SeededTest
   void intAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
 
     final NonMaximumSuppression nms = new NonMaximumSuppression();
     for (final int width : primes) {

@@ -54,14 +54,14 @@ import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.AssertionErrorCounter;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 /**
@@ -86,7 +86,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canConstructInterpolatingFunction(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
 
     final int x = 4;
     final int y = 5;
@@ -257,7 +257,7 @@ class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolate(RandomSeed seed, boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -273,7 +273,7 @@ class CustomTricubicInterpolatorTest {
     double[] face2;
     double obs;
     double exp;
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-8, 0);
     for (int i = 0; i < 3; i++) {
       final double[][][] fval = createData(x, y, z, (i == 0) ? null : r);
 
@@ -398,7 +398,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canInterpolateUsingPrecomputedPoints(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -411,7 +411,7 @@ class CustomTricubicInterpolatorTest {
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-8, 0);
     for (int i = 0; i < 3; i++) {
       double xx = r.nextDouble();
       double yy = r.nextDouble();
@@ -648,7 +648,7 @@ class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolateWithGradients(RandomSeed seed, boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -676,7 +676,7 @@ class CustomTricubicInterpolatorTest {
     // For single precision sometimes there are gradient failures
     final int size = testx.length * testy.length * testz.length;
     final int failLimit = AssertionErrorCounter.computeFailureLimit(size, 0.1);
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-8, 0);
 
     for (int i = 0; i < 3; i++) {
       final double[][][] fval = createData(x, y, z, (i == 0) ? null : r);
@@ -801,7 +801,7 @@ class CustomTricubicInterpolatorTest {
 
   private void canInterpolateWithGradientsUsingPrecomputedPoints(RandomSeed seed,
       boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -825,7 +825,7 @@ class CustomTricubicInterpolatorTest {
 
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolator in = new CustomTricubicInterpolator();
-    final DoubleDoubleBiPredicate dtableEquality = TestHelper.doublesAreClose(1e-8, 0);
+    final DoubleDoubleBiPredicate dtableEquality = Predicates.doublesAreClose(1e-8, 0);
     for (final boolean singlePrecision : new boolean[] {false, true}) {
       in.setSinglePrecision(singlePrecision);
       final CustomTricubicInterpolatingFunction f1 = in.interpolate(xval, yval, zval, fval);
@@ -919,7 +919,7 @@ class CustomTricubicInterpolatorTest {
 
   private void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed,
       boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -941,10 +941,10 @@ class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
-    final DoubleDoubleBiPredicate valueTolerance = TestHelper.doublesAreClose(1e-5, 0);
+    final DoubleDoubleBiPredicate valueTolerance = Predicates.doublesAreClose(1e-5, 0);
     // The gradients are computed using float and the tolerance is low
-    final DoubleDoubleBiPredicate gradientTolerance = TestHelper.doublesAreClose(5e-3, 0);
-    final DoubleDoubleBiPredicate gradientTolerance2 = TestHelper.doublesAreClose(1e-2, 0);
+    final DoubleDoubleBiPredicate gradientTolerance = Predicates.doublesAreClose(5e-3, 0);
+    final DoubleDoubleBiPredicate gradientTolerance2 = Predicates.doublesAreClose(1e-2, 0);
 
     // Extract nodes for testing
     final CustomTricubicFunction[] nodes = new CustomTricubicFunction[2 * 2 * 2];
@@ -1149,7 +1149,7 @@ class CustomTricubicInterpolatorTest {
     Assertions.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n),
         p.getZAxis(), 1e-6);
 
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-8, 0);
 
     for (int i = 0; i < p.getXAxis().length; i++) {
       for (int j = 0; j < p.getYAxis().length; j++) {
@@ -1292,7 +1292,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1302,7 +1302,7 @@ class CustomTricubicInterpolatorTest {
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
     final double[] df_daA = new double[3];
     final double[] df_daB = new double[3];
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-8, 0);
     for (int ii = 0; ii < 3; ii++) {
       final double[][][] fval = createData(x, y, z, (ii == 0) ? null : r);
       final CustomTricubicInterpolatingFunction f1 =
@@ -1343,7 +1343,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1414,7 +1414,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void searchSplineImprovesFunctionValue(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
     final int y = 10;
@@ -1461,7 +1461,7 @@ class CustomTricubicInterpolatorTest {
 
   @SeededTest
   void canFindOptimum(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
     final int y = 10;
@@ -1469,7 +1469,7 @@ class CustomTricubicInterpolatorTest {
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(5e-2, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(5e-2, 0);
     for (int ii = 0; ii < 10; ii++) {
       final double cx = (x - 1) / 2.0 + r.nextDouble() / 2;
       final double cy = (y - 1) / 2.0 + r.nextDouble() / 2;

@@ -45,7 +45,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import uk.ac.sussex.gdsc.core.utils.IndexSets.BitSetIndexSet;
 import uk.ac.sussex.gdsc.core.utils.IndexSets.HashIndexSet;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeedSource;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -88,7 +88,7 @@ class IndexSetTest {
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> actual.add(-1));
     Assertions.assertThrows(IndexOutOfBoundsException.class, () -> actual.contains(-1));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final IntOpenHashSet expected = new IntOpenHashSet();
     for (int i = k; i-- > 0;) {
       final int value = rng.nextInt(n);

@@ -44,8 +44,8 @@ import uk.ac.sussex.gdsc.core.data.ValueProvider;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicInterpolatingFunction.Size;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 
 /**
@@ -178,7 +178,7 @@ class CustomTricubicInterpolatingFunctionTest {
   void testComputeCoefficients() {
     final UniformRandomProvider rng = RandomSource.SPLIT_MIX_64.create();
     final double[] beta = new double[64];
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-10, 0);
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < beta.length; j++) {
         beta[j] = rng.nextDouble();

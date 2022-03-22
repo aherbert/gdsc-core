@@ -36,14 +36,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 /**
@@ -215,7 +215,7 @@ class RandIndexTest {
 
   @SeededTest
   void canComputeRandIndexWithSimpleData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final int size = 100;
     for (final int n1 : new int[] {1, 2, 3, 4, 5}) {
       for (final int n2 : new int[] {1, 2, 3, 4, 5}) {
@@ -227,7 +227,7 @@ class RandIndexTest {
   @SeededTest
   void canComputeRandIndexWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final int size = 10000;
     for (final int i : new int[] {3, 5, 10}) {
       final int n1 = size / i;
@@ -269,21 +269,21 @@ class RandIndexTest {
     final long table1 = t3 - t2;
     final long matrix = t4 - t3;
 
-    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG,
+    logger.log(TestLogging.getRecord(TestLevel.TEST_DEBUG,
         "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f", n, n1, n2, simple, e, table1, o1,
         simple / (double) table1));
-    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG,
+    logger.log(TestLogging.getRecord(TestLevel.TEST_DEBUG,
         "[%d,%d,%d] simple=%d (%f), matrix=%d (%f), %f", n, n1, n2, simple, e, matrix, o2,
         simple / (double) matrix));
 
-    TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0),
+    TestAssertions.assertTest(e, o1, Predicates.doublesAreClose(1e-10, 0),
         "simpleRandIndex and randIndex");
     Assertions.assertEquals(o1, o2, "randIndex and randIndex using matrix");
   }
 
   @SeededTest
   void adjustedRandIndexIsZeroForRandomData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final int size = 100;
     for (final int n1 : new int[] {2, 5, 10}) {
       for (final int n2 : new int[] {2, 5}) {
@@ -311,7 +311,7 @@ class RandIndexTest {
 
     sum /= loops;
     logger.log(
-        TestLogUtils.getRecord(TestLevel.TEST_DEBUG, "[%d,%d,%d,%d] %f", n, n1, n2, loops, sum));
+        TestLogging.getRecord(TestLevel.TEST_DEBUG, "[%d,%d,%d,%d] %f", n, n1, n2, loops, sum));
 
     final double delta = 0.1;
     Assertions.assertTrue(sum < delta && sum > -delta);
@@ -357,7 +357,7 @@ class RandIndexTest {
       c1[size] = size % n1;
       c2[size] = size % n2;
     }
-    final UniformRandomProvider rand = RngUtils.create(seed.get());
+    final UniformRandomProvider rand = RngFactory.create(seed.get());
     PermutationSampler.shuffle(rand, c1);
 
     final long t1 = System.nanoTime();
@@ -369,7 +369,7 @@ class RandIndexTest {
     final long table1 = t2 - t1;
     final long table2 = t3 - t2;
 
-    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG,
+    logger.log(TestLogging.getRecord(TestLevel.TEST_DEBUG,
         () -> String.format("[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f", n, n1, n2, table1,
             o1, RandIndex.randIndex(c1, c2), table2, o2, table1 / (double) table2)));
 

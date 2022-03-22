@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 
 @SuppressWarnings({"javadoc"})
 class FhtTest {
@@ -153,7 +153,7 @@ class FhtTest {
     // using double*double + double*double rather than float*float + float*float,
     // i.e. the float are converted to double before multiplication.
     if (mode == 2) {
-      TestAssertions.assertArrayTest(exp, oobs, TestHelper.floatsAreClose(1e-5, 0));
+      TestAssertions.assertArrayTest(exp, oobs, Predicates.floatsAreClose(1e-5, 0));
     } else {
       Assertions.assertArrayEquals(exp, oobs);
     }

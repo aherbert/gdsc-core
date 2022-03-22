@@ -36,11 +36,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -51,7 +51,7 @@ class FloatAreaStatisticsTest {
   int maxx = 97;
   int maxy = 101;
 
-  DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6);
+  DoubleDoubleBiPredicate equality = Predicates.doublesAreRelativelyClose(1e-6);
 
   @Test
   void canComputeNoAreaResult() {
@@ -107,7 +107,7 @@ class FloatAreaStatisticsTest {
 
   @SeededTest
   void canComputeGlobalStatistics(RandomSeed seed) {
-    final float[] data = createData(RngUtils.create(seed.get()));
+    final float[] data = createData(RngFactory.create(seed.get()));
     final Statistics s = Statistics.create(data);
     final FloatAreaStatistics a = FloatAreaStatistics.wrap(data, maxx, maxy);
     for (final boolean rolling : rollingSums) {
@@ -127,7 +127,7 @@ class FloatAreaStatisticsTest {
 
   @SeededTest
   void canComputeNxNRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -163,7 +163,7 @@ class FloatAreaStatisticsTest {
 
   @SeededTest
   void canComputeNxMRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -201,7 +201,7 @@ class FloatAreaStatisticsTest {
 
   @SeededTest
   void canComputeRectangleRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = FloatAreaStatistics.wrap(data, maxx, maxy);
     a1.setRollingSums(true);

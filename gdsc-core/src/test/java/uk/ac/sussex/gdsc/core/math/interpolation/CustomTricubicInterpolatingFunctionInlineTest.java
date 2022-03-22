@@ -40,14 +40,14 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 /**
@@ -248,8 +248,8 @@ class CustomTricubicInterpolatingFunctionInlineTest {
   private static void canComputeCoefficients(RandomSeed seed, UnaryOperator<double[]> fun) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.get());
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
+    final UniformRandomProvider r = RngFactory.create(seed.get());
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-6, 0);
 
     final int N = 3000;
     for (int i = 0; i < N; i++) {

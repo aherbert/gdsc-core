@@ -32,14 +32,14 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
 class StatusStackTest {
   @ParameterizedTest
   @ValueSource(ints = {1, 2, 3, 5, 10, 15, 32, 33, 50})
   void testStack(int capacity) {
-    final UniformRandomProvider rng = RngUtils.createWithFixedSeed();
+    final UniformRandomProvider rng = RngFactory.createWithFixedSeed();
     final byte[] choice =
         {Status.RIGHTVISITED, Status.NONE, Status.LEFTVISITED, Status.ALLVISITED,};
     for (int i = 0; i < 10; i++) {

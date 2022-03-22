@@ -32,11 +32,11 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.DataException;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
@@ -50,8 +50,8 @@ class QuadraticUtilsTest {
 
   @SeededTest
   void canGetDeterminant3x3(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
-    final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
+    final UniformRandomProvider r = RngFactory.create(seed.get());
+    final DoubleDoubleBiPredicate areClose = Predicates.doublesAreClose(1e-6, 0);
     for (int i = 0; i < 5; i++) {
       final double[] m = new double[9];
       for (int j = 0; j < 9; j++) {
@@ -74,7 +74,7 @@ class QuadraticUtilsTest {
     final double c = -4;
     final double[] exp = new double[] {a, b, c};
 
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     for (int i = 0; i < 5; i++) {
       // Avoid identical points
       final double x1 = -5 + r.nextDouble() * 10;
@@ -88,7 +88,7 @@ class QuadraticUtilsTest {
       }
 
       // Order invariant
-      final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
+      final DoubleDoubleBiPredicate areClose = Predicates.doublesAreClose(1e-6, 0);
       canSolveQuadratic(a, b, c, exp, x1, x2, x3, areClose);
       canSolveQuadratic(a, b, c, exp, x1, x3, x2, areClose);
       canSolveQuadratic(a, b, c, exp, x2, x1, x3, areClose);
@@ -125,7 +125,7 @@ class QuadraticUtilsTest {
 
   @Test
   void canFindMinMaxQuadratic() {
-    final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
+    final DoubleDoubleBiPredicate areClose = Predicates.doublesAreClose(1e-6, 0);
     TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1), areClose);
     TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1), areClose);
     TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1), areClose);

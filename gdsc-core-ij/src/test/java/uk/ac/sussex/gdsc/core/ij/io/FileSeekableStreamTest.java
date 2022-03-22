@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -77,7 +77,7 @@ class FileSeekableStreamTest {
 
   @SeededTest
   void canReadSingleByte(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 2);
     try (SeekableStream ss = create(bytes)) {
       for (int i = 0; i < bytes.length; i++) {
@@ -91,7 +91,7 @@ class FileSeekableStreamTest {
 
   @SeededTest
   void canReadMultiByte(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 2);
     try (SeekableStream ss = create(bytes)) {
       final byte[] buffer = new byte[bytes.length];
@@ -107,7 +107,7 @@ class FileSeekableStreamTest {
 
   @SeededTest
   void canSeek(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 20);
     try (SeekableStream ss = create(bytes)) {
       Assertions.assertThrows(IOException.class, () -> ss.seek(-1L));
@@ -128,7 +128,7 @@ class FileSeekableStreamTest {
 
   @SeededTest
   void canSkip(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 20);
     try (SeekableStream ss = create(bytes, true)) {
 

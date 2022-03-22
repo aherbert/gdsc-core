@@ -42,7 +42,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 /**
  * Test for a Linear Assignment Problem (LAP) algorithm.
@@ -505,7 +505,7 @@ class LinearAssignmentProblemTest {
     // Test random cost matrices
     final int trials = 20;
     final int limit = costLimit == 0 ? tasks : costLimit;
-    final UniformRandomProvider rng = RngUtils.create(67681623912L);
+    final UniformRandomProvider rng = RngFactory.create(67681623912L);
     final int[][] cost = new int[agents][tasks];
     for (int trial = 0; trial < trials; trial++) {
       for (int i = 0; i < agents; i++) {
@@ -574,7 +574,7 @@ class LinearAssignmentProblemTest {
 
   private static void testIntAssignment(int agents, int tasks) {
     final int limit = 1000;
-    final UniformRandomProvider rng = RngUtils.create(67681623912L);
+    final UniformRandomProvider rng = RngFactory.create(67681623912L);
     final int[][] cost = new int[agents][tasks];
     for (int i = 0; i < agents; i++) {
       for (int j = 0; j < tasks; j++) {
@@ -603,7 +603,7 @@ class LinearAssignmentProblemTest {
 
   private static void testDoubleAssignment(int agents, int tasks) {
     final int limit = 1000;
-    final UniformRandomProvider rng = RngUtils.create(67681623912L);
+    final UniformRandomProvider rng = RngFactory.create(67681623912L);
     final double[][] cost = new double[agents][tasks];
     for (int i = 0; i < agents; i++) {
       for (int j = 0; j < tasks; j++) {

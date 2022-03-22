@@ -38,7 +38,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
 
 @SuppressWarnings("javadoc")
 class RadixStringSamplerTest {
@@ -193,7 +193,7 @@ class RadixStringSamplerTest {
     Arrays.fill(expected, 1.0 / radix);
     final double p = chi.chiSquareTest(expected, h);
     final boolean reject = p < 0.001;
-    logger.log(TestLogUtils.getResultRecord(!reject,
+    logger.log(TestLogging.getResultRecord(!reject,
         () -> String.format("Radix %d, chiSq p = %s  (reject=%b)", radix, p, reject)));
     // This will sometimes fail due to randomness so do not assert
     // Assertions.assertFalse(reject);

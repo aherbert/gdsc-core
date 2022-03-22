@@ -32,7 +32,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
@@ -78,7 +78,7 @@ class MeanTest {
   @SeededTest
   void canAddValues(RandomSeed seed) {
     // Test vs Apache Commons Math
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int i = 0; i < 3; i++) {
       final Mean m = new Mean();
       final org.apache.commons.math3.stat.descriptive.moment.Mean m1 =

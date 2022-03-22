@@ -35,8 +35,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
 @SuppressWarnings({"javadoc"})
@@ -77,7 +77,7 @@ class CircularKernelOffsetTest {
       final double outerArea = outer * pixelArea;
       final double innerArea = inner * pixelArea;
       final int skip = size - outer;
-      logger.log(TestLogUtils.getRecord(TestLevel.TEST_INFO,
+      logger.log(TestLogging.getRecord(TestLevel.TEST_INFO,
           "R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)", r, outer, outerArea,
           outerArea / Math.PI, skip, (double) skip / size, inner, innerArea,
           innerArea / outerArea));

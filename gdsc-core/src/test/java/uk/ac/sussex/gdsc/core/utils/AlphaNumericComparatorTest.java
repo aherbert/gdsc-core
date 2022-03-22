@@ -33,7 +33,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -94,7 +94,7 @@ class AlphaNumericComparatorTest {
     final String[] sorted = data.clone();
 
     // Shuffle
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int i = data.length - 1; i != 0; i--) {
       final int j = rng.nextInt(i + 1);
       final String tmp = data[i];

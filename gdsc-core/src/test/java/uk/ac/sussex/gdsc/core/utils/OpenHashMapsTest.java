@@ -35,14 +35,14 @@ import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2ObjectOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomLong2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomObject2IntOpenHashMap;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class OpenHashMapsTest {
   @SeededTest
   void testLong2IntForEach(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomLong2IntOpenHashMap m = new CustomLong2IntOpenHashMap();
     m.forEach((long k, int v) -> {
       Assertions.fail();
@@ -57,7 +57,7 @@ class OpenHashMapsTest {
 
   @SeededTest
   void testInt2IntForEach(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomInt2IntOpenHashMap m = new CustomInt2IntOpenHashMap();
     m.forEach((int k, int v) -> {
       Assertions.fail();
@@ -72,7 +72,7 @@ class OpenHashMapsTest {
 
   @SeededTest
   void testObject2IntForEach(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomObject2IntOpenHashMap<Double> m = new CustomObject2IntOpenHashMap<>();
     m.forEach((Double k, int v) -> {
       Assertions.fail();
@@ -87,7 +87,7 @@ class OpenHashMapsTest {
 
   @SeededTest
   void testInt2ObjectForEach(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomInt2ObjectOpenHashMap<Double> m = new CustomInt2ObjectOpenHashMap<>();
     m.forEach((int k, Double v) -> {
       Assertions.fail();

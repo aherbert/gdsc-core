@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -41,11 +40,11 @@ import org.junit.jupiter.api.BeforeAll;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -87,7 +86,7 @@ class MedianWindowTest {
 
   @SeededTest
   void testClassCanComputeActualMedian(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final UpdateableSupplier msg = new UpdateableSupplier();
 
     double[] data = createRandomDataDouble(rg, dataSize);
@@ -122,7 +121,7 @@ class MedianWindowTest {
   }
 
   private void isFasterThanLocalSort(RandomSeed seed, int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     for (int i = 0; i < iterations; i++) {
@@ -204,7 +203,7 @@ class MedianWindowTest {
   }
 
   private void floatVersionIsFasterThanDoubleVersion(RandomSeed seed, int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.get());
+    final UniformRandomProvider rg = RngFactory.create(seed.get());
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     final float[][] data2 = new float[iterations][];
@@ -292,7 +291,7 @@ class MedianWindowTest {
       // Allow a margin of error
       // Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1
       // * 1.1);
-      logger.log(TestLogUtils.getResultRecord(t2 < t1,
+      logger.log(TestLogging.getResultRecord(t2 < t1,
           "Radius %d, Increment %d : double %d : float %d = %fx faster", radius, increment, t1, t2,
           (double) t1 / t2));
     } else {

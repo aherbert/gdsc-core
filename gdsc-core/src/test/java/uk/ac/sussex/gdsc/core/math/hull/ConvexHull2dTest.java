@@ -36,7 +36,7 @@ import org.apache.commons.rng.sampling.shape.TriangleSampler;
 import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
 class ConvexHull2dTest {
@@ -173,7 +173,7 @@ class ConvexHull2dTest {
   void canCreateWithManyPoints() {
     // This test depends on the output from the UnitDiskSampler and is not robust to
     // using any seed.
-    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(12345L), 2);
+    final UnitBallSampler sampler = UnitBallSampler.of(RngFactory.create(12345L), 2);
     final int n = 500;
     final DoubleArrayList xx = new DoubleArrayList(n);
     final DoubleArrayList yy = new DoubleArrayList(n);
@@ -193,7 +193,7 @@ class ConvexHull2dTest {
   void canCreateWithManyPointsHexagon() {
     // This test depends on the output from the sampler and is not robust to
     // using any seed.
-    final UniformRandomProvider rng = RngUtils.create(12345L);
+    final UniformRandomProvider rng = RngFactory.create(12345L);
     // Height and width of half an equilateral triangle with edge length 1
     final double h = Math.sqrt(0.75);
     final double w = 0.5;

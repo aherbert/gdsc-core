@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.NoiseEstimator.Method;
 import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
 class NoiseEstimatorTest {
@@ -87,7 +87,7 @@ class NoiseEstimatorTest {
     final double mean = 4.56;
     final double standardDeviation = 3.45;
     final SharedStateContinuousSampler sampler =
-        SamplerUtils.createGaussianSampler(RngUtils.create(12345L), mean, standardDeviation);
+        SamplerUtils.createGaussianSampler(RngFactory.create(12345L), mean, standardDeviation);
     for (int i = 0; i < data.length; i++) {
       data[i] = (float) sampler.sample();
     }

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -166,7 +166,7 @@ class DetectionGridTest {
   @SeededTest
   void canDetectTheSameCollisions(RandomSeed seed) {
     final int size = 512;
-    final UniformRandomProvider rdg = RngUtils.create(seed.get());
+    final UniformRandomProvider rdg = RngFactory.create(seed.get());
     final Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
     final SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);

@@ -46,7 +46,7 @@ public final class RngStreams {
   /** Error message when the stream size is negative. */
   private static final String SIZE_MUST_BE_POSITIVE = "size must be positive";
 
-  // Spliterators have been adapted from the JDK source code which contains examples
+  // Spliterators have been adapted from the JDK 8 API which contains examples
   // for splitting different types of RNG to make a second thread-safe instance:
   //
   // - SplittableRandom::split

@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
 class DbscanResultTest {
@@ -120,7 +120,7 @@ class DbscanResultTest {
     final int[] c = result.getClusters();
     Assertions.assertEquals(1.0, RandIndex.randIndex(expected, c));
 
-    final UniformRandomProvider rng = RngUtils.create(56871256342L);
+    final UniformRandomProvider rng = RngFactory.create(56871256342L);
     boolean changed = false;
     for (int i = 0; i < 5; i++) {
       result.scrambleClusters(rng);

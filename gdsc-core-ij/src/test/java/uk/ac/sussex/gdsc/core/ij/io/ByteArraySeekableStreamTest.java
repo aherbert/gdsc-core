@@ -33,7 +33,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -46,7 +46,7 @@ class ByteArraySeekableStreamTest {
 
   @SeededTest
   void canReadSingleByte(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 2);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
       for (int i = 0; i < bytes.length; i++) {
@@ -60,7 +60,7 @@ class ByteArraySeekableStreamTest {
 
   @SeededTest
   void canReadMultiByte(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 2);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
       final byte[] buffer = new byte[bytes.length];
@@ -76,7 +76,7 @@ class ByteArraySeekableStreamTest {
 
   @SeededTest
   void canSeek(RandomSeed seed) throws IOException {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 20);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
       Assertions.assertThrows(IOException.class, () -> ss.seek(-1L));
@@ -94,7 +94,7 @@ class ByteArraySeekableStreamTest {
 
   @SeededTest
   void canSkip(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 20);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
 
@@ -111,7 +111,7 @@ class ByteArraySeekableStreamTest {
 
   @SeededTest
   void canCopy(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final byte[] bytes = randomBytes(rng, 20);
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
       Assertions.assertTrue(ss.canCopy());

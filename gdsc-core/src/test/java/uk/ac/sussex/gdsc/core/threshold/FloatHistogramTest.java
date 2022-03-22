@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
 class FloatHistogramTest {
@@ -106,7 +106,7 @@ class FloatHistogramTest {
     if (data != null) {
       input = data.clone();
       if (doSort) {
-        RandomUtils.shuffle(input, RngUtils.create(456L));
+        RandomUtils.shuffle(input, RngFactory.create(456L));
       }
       originalInput = input.clone();
     } else {

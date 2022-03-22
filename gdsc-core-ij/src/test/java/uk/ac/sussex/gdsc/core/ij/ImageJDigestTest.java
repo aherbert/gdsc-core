@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -61,7 +61,7 @@ class ImageJDigestTest {
 
   @SeededTest
   void canDigestByteProcessor(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final byte[] data = new byte[size];
     r.nextBytes(data);
 
@@ -72,7 +72,7 @@ class ImageJDigestTest {
 
   @SeededTest
   void canDigestShortProcessor(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final short[] data = new short[size];
     for (int i = 0; i < size; i++) {
       data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
@@ -90,7 +90,7 @@ class ImageJDigestTest {
 
   @SeededTest
   void canDigestFloatProcessor(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final float[] data = new float[size];
     for (int i = 0; i < size; i++) {
       data[i] = (r.nextFloat() - 0.5f) * 2f;
@@ -108,7 +108,7 @@ class ImageJDigestTest {
 
   @SeededTest
   void canDigestColorProcessor(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final int[] data = new int[size];
     for (int i = 0; i < size; i++) {
       data[i] = r.nextInt();
@@ -126,7 +126,7 @@ class ImageJDigestTest {
 
   @SeededTest
   void canDigestStack(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final byte[] data1 = new byte[size];
     final byte[] data2 = new byte[size];
     r.nextBytes(data1);

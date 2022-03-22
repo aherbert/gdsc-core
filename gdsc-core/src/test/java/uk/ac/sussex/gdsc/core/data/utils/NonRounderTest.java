@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.data.utils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -39,7 +39,7 @@ class NonRounderTest {
 
   @SeededTest
   void testNonRounder(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     final Rounder r = NonRounder.INSTANCE;
     for (int i = 0; i < 10; i++) {
       final double d = rng.nextDouble();

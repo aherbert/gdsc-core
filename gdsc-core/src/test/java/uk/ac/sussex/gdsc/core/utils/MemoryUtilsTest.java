@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
 
 @SuppressWarnings({"javadoc"})
 class MemoryUtilsTest {
@@ -57,7 +57,7 @@ class MemoryUtilsTest {
     final double expected = Integer.BYTES * arraySize;
     // Allow a margin for error
     final double error = DoubleEquality.relativeError(size, expected);
-    Logger.getLogger(getClass().getName()).log(TestLogUtils.getResultRecord(error < 0.2,
+    Logger.getLogger(getClass().getName()).log(TestLogging.getResultRecord(error < 0.2,
         "Memory expected=%s : measured=%d : error=%f", expected, size, error));
     // This is flaky so do not assert the test
     // Assertions.assertEquals(expected, size, expected * 0.1);

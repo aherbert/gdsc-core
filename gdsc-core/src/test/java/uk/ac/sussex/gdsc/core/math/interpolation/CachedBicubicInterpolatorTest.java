@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.api.Predicates;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 
 /**
@@ -67,7 +67,7 @@ class CachedBicubicInterpolatorTest {
       x3[i] = x[i] * x[i] * x[i];
     }
 
-    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-5, 0);
+    final DoubleDoubleBiPredicate equality = Predicates.doublesAreClose(1e-5, 0);
 
     for (int i = 0; i < x.length; i++) {
       for (int j = 0; j < x.length; j++) {

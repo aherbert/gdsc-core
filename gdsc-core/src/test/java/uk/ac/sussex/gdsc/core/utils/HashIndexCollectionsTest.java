@@ -58,7 +58,7 @@ import com.koloboke.collect.set.hash.HashIntSets;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
@@ -82,7 +82,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntSetFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntSetFactory f = HashIndexCollections.getHashIntSetFactory();
     final HashIntSet actual = f.newUpdatableSet();
     final HashIntSet expected = HashIntSets.newUpdatableSet();
@@ -114,7 +114,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntByteMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntByteMapFactory f = HashIndexCollections.getHashIntByteMapFactory();
     final HashIntByteMap actual = f.newUpdatableMap();
     final HashIntByteMap expected = HashIntByteMaps.newUpdatableMap();
@@ -136,7 +136,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntCharMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntCharMapFactory f = HashIndexCollections.getHashIntCharMapFactory();
     final HashIntCharMap actual = f.newUpdatableMap();
     final HashIntCharMap expected = HashIntCharMaps.newUpdatableMap();
@@ -158,7 +158,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntDoubleMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntDoubleMapFactory f = HashIndexCollections.getHashIntDoubleMapFactory();
     final HashIntDoubleMap actual = f.newUpdatableMap();
     final HashIntDoubleMap expected = HashIntDoubleMaps.newUpdatableMap();
@@ -180,7 +180,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntFloatMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntFloatMapFactory f = HashIndexCollections.getHashIntFloatMapFactory();
     final HashIntFloatMap actual = f.newUpdatableMap();
     final HashIntFloatMap expected = HashIntFloatMaps.newUpdatableMap();
@@ -202,7 +202,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntIntMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntIntMapFactory f = HashIndexCollections.getHashIntIntMapFactory();
     final HashIntIntMap actual = f.newUpdatableMap();
     final HashIntIntMap expected = HashIntIntMaps.newUpdatableMap();
@@ -224,7 +224,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntLongMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntLongMapFactory f = HashIndexCollections.getHashIntLongMapFactory();
     final HashIntLongMap actual = f.newUpdatableMap();
     final HashIntLongMap expected = HashIntLongMaps.newUpdatableMap();
@@ -246,7 +246,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntObjMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntObjMapFactory<Integer> f = HashIndexCollections.getHashIntObjMapFactory();
     final HashIntObjMap<Integer> actual = f.newUpdatableMap();
     final HashIntObjMap<Integer> expected = HashIntObjMaps.newUpdatableMap();
@@ -268,7 +268,7 @@ class HashIndexCollectionsTest {
 
   @SeededTest
   void canGetHashIntShortMapFactory(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     final HashIntShortMapFactory f = HashIndexCollections.getHashIntShortMapFactory();
     final HashIntShortMap actual = f.newUpdatableMap();
     final HashIntShortMap expected = HashIntShortMaps.newUpdatableMap();

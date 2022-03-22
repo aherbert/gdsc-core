@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold;
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
@@ -84,7 +84,7 @@ class ThresholdUtilsTest {
 
   @Test
   void canCreateMask() {
-    final UniformRandomProvider rng = RngUtils.create(1234L);
+    final UniformRandomProvider rng = RngFactory.create(1234L);
     final int width = 30;
     final int height = 40;
     final ImageStack stack = new ImageStack(width, height, 2);
@@ -111,7 +111,7 @@ class ThresholdUtilsTest {
 
   @Test
   void canCreateMaskWithRectangleRoi() {
-    final UniformRandomProvider rng = RngUtils.create(1234L);
+    final UniformRandomProvider rng = RngFactory.create(1234L);
     final int width = 30;
     final int height = 40;
     final ImageStack stack = new ImageStack(width, height, 2);

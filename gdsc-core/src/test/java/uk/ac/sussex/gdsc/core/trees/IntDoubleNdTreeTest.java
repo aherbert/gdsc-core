@@ -42,7 +42,7 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
@@ -128,7 +128,7 @@ class IntDoubleNdTreeTest {
   }
 
   private static void assertComputeKnn(RandomSeed seed, boolean allowDuplicates) {
-    final UniformRandomProvider r = RngUtils.create(seed.get());
+    final UniformRandomProvider r = RngFactory.create(seed.get());
     for (final int n : KdTreeTestUtils.ns) {
       final double[][] data =
           KdTreeTestUtils.createData(r, KdTreeTestUtils.size, n, allowDuplicates);

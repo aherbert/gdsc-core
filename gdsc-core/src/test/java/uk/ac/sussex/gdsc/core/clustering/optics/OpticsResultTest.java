@@ -46,7 +46,7 @@ import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
 import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.math.hull.Hull2d;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
 class OpticsResultTest {
@@ -290,7 +290,7 @@ class OpticsResultTest {
     final int[] c = result.getClusters();
     Assertions.assertEquals(1.0, RandIndex.randIndex(expected, c));
 
-    final UniformRandomProvider rng = RngUtils.create(263874682L);
+    final UniformRandomProvider rng = RngFactory.create(263874682L);
     boolean changed = false;
     for (int i = 0; i < 5; i++) {
       result.scrambleClusters(rng);
@@ -356,7 +356,7 @@ class OpticsResultTest {
   void testHierarchicalResults() {
     // This test depends on the output from the UnitDiskSampler and is not robust to
     // using any seed.
-    final UniformRandomProvider rng = RngUtils.create(1234L);
+    final UniformRandomProvider rng = RngFactory.create(1234L);
 
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
@@ -476,7 +476,7 @@ class OpticsResultTest {
 
   @Test
   void testReachabilityLimits() {
-    final UniformRandomProvider rng = RngUtils.create(123L);
+    final UniformRandomProvider rng = RngFactory.create(123L);
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
     // hierarchical clusters.
@@ -538,7 +538,7 @@ class OpticsResultTest {
 
   @Test
   void testOpticsXiOptions() {
-    final UniformRandomProvider rng = RngUtils.create(123L);
+    final UniformRandomProvider rng = RngFactory.create(123L);
     // Create blobs on an image using uniform random circles.
     // Put some circles inside others. This should trigger Optics Xi to create
     // hierarchical clusters.

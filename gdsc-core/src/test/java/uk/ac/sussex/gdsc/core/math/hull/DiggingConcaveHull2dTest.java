@@ -33,7 +33,7 @@ import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.math.GeometryUtils;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 @SuppressWarnings({"javadoc"})
@@ -201,7 +201,7 @@ class DiggingConcaveHull2dTest {
 
   @Test
   void canCreateWithMultiplePointsCircular() {
-    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 2);
+    final UnitBallSampler sampler = UnitBallSampler.of(RngFactory.create(126487618L), 2);
     final int n = 500;
     final DoubleArrayList xx = new DoubleArrayList(n);
     final DoubleArrayList yy = new DoubleArrayList(n);
@@ -225,7 +225,7 @@ class DiggingConcaveHull2dTest {
 
   @Test
   void canCreateWithMultiplePointsCircularMinusWedge() {
-    final UnitBallSampler sampler = UnitBallSampler.of(RngUtils.create(126487618L), 2);
+    final UnitBallSampler sampler = UnitBallSampler.of(RngFactory.create(126487618L), 2);
     final int n = 500;
     final DoubleArrayList xx = new DoubleArrayList(n);
     final DoubleArrayList yy = new DoubleArrayList(n);

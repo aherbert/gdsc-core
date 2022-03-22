@@ -34,14 +34,14 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
 class MixersTest {
   @SeededTest
   void testXor(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int i = 0; i < 500; i++) {
       final int x = rng.nextInt();
       final int y = rng.nextInt();
@@ -53,7 +53,7 @@ class MixersTest {
 
   @SeededTest
   void testReverseXorRightShift(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
       for (int i = 0; i < 500; i++) {
@@ -67,7 +67,7 @@ class MixersTest {
 
   @SeededTest
   void testReverseXorLeftShift(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
       for (int i = 0; i < 500; i++) {
@@ -102,7 +102,7 @@ class MixersTest {
       final long x2 = unmix.applyAsLong(y);
       Assertions.assertEquals(x, x2);
     }
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int i = 0; i < 500; i++) {
       final long x = rng.nextLong();
       final long y = mix.applyAsLong(x);

@@ -35,7 +35,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.functions.ObjectArrayFormatSupplier;
 
@@ -49,7 +49,7 @@ class PartialSortTest {
 
   @SeededTest
   void bottomNofMIsCorrectDouble(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (final int size : testN) {
       for (final int total : testM) {
         bottomComputeDouble(rng, 100, size, total);
@@ -139,7 +139,7 @@ class PartialSortTest {
 
   @SeededTest
   void topNofMIsCorrectDouble(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (final int size : testN) {
       for (final int total : testM) {
         topComputeDouble(rng, 100, size, total);
@@ -232,7 +232,7 @@ class PartialSortTest {
 
   @SeededTest
   void bottomNofMIsCorrectFloat(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (final int size : testN) {
       for (final int total : testM) {
         bottomComputeFloat(rng, 100, size, total);
@@ -322,7 +322,7 @@ class PartialSortTest {
 
   @SeededTest
   void topNofMIsCorrectFloat(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.get());
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (final int size : testN) {
       for (final int total : testM) {
         topComputeFloat(rng, 100, size, total);

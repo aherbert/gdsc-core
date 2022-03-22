@@ -34,8 +34,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
-import uk.ac.sussex.gdsc.test.utils.TestLogUtils.TestLevel;
+import uk.ac.sussex.gdsc.test.utils.TestLogging;
+import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 
 @SuppressWarnings({"javadoc"})
 class SiPrefixTest {
@@ -204,7 +204,7 @@ class SiPrefixTest {
   private static void canGetPrefix(int sign, double value, SiPrefix expectedPrefix) {
     value *= sign;
     final SiPrefix o = SiPrefix.getSiPrefix(value);
-    logger.log(TestLogUtils.getRecord(TestLevel.TEST_DEBUG, "Value %s = %s %s (%s)", value,
+    logger.log(TestLogging.getRecord(TestLevel.TEST_DEBUG, "Value %s = %s %s (%s)", value,
         o.convert(value), o.getPrefix(), o.getSymbol()));
     Assertions.assertEquals(expectedPrefix, o);
   }
