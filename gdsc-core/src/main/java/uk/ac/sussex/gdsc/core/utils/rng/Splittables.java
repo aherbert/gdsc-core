@@ -33,6 +33,7 @@ import java.util.function.Function;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
+import org.apache.commons.rng.sampling.distribution.SharedStateLongSampler;
 
 /**
  * Supply splittable instances.
@@ -75,6 +76,39 @@ public final class Splittables {
     public SplittableIntSupplier split() {
       final SplittableUniformRandomProvider rng2 = rng.split();
       return new SplittableDiscreteSampler(rng2, sampler.withUniformRandomProvider(rng2));
+    }
+  }
+
+  /**
+   * A splittable SharedStateDiscreteSampler using a SplittableUniformRandomProvider to provide
+   * split functionality.
+   */
+  private static class SplittableLongSampler implements SplittableLongSupplier {
+    /** The random generator. */
+    final SplittableUniformRandomProvider rng;
+    /** The sampler. */
+    final SharedStateLongSampler sampler;
+
+    /**
+     * Create an instance.
+     *
+     * @param rng the random generator
+     * @param sampler the sampler
+     */
+    SplittableLongSampler(SplittableUniformRandomProvider rng, SharedStateLongSampler sampler) {
+      this.rng = rng;
+      this.sampler = sampler;
+    }
+
+    @Override
+    public long getAsLong() {
+      return sampler.sample();
+    }
+
+    @Override
+    public SplittableLongSupplier split() {
+      final SplittableUniformRandomProvider rng2 = rng.split();
+      return new SplittableLongSampler(rng2, sampler.withUniformRandomProvider(rng2));
     }
   }
 
@@ -138,6 +172,34 @@ public final class Splittables {
     Objects.requireNonNull(rng, "rng");
     Objects.requireNonNull(samplerFactory, "samplerFactory");
     return new SplittableDiscreteSampler(rng, samplerFactory.apply(rng));
+  }
+
+  /**
+   * Create a splittable supplier of {@code long} values.
+   *
+   * @param rng the random generator
+   * @param sampler the sampler
+   * @return the splittable supplier
+   */
+  public static SplittableLongSupplier ofLong(SplittableUniformRandomProvider rng,
+      SharedStateLongSampler sampler) {
+    Objects.requireNonNull(rng, "rng");
+    Objects.requireNonNull(sampler, "sampler");
+    return new SplittableLongSampler(rng, sampler);
+  }
+
+  /**
+   * Create a splittable supplier of {@code long} values.
+   *
+   * @param rng the random generator
+   * @param samplerFactory the sampler factory
+   * @return the splittable supplier
+   */
+  public static SplittableLongSupplier ofLong(SplittableUniformRandomProvider rng,
+      Function<UniformRandomProvider, SharedStateLongSampler> samplerFactory) {
+    Objects.requireNonNull(rng, "rng");
+    Objects.requireNonNull(samplerFactory, "samplerFactory");
+    return new SplittableLongSampler(rng, samplerFactory.apply(rng));
   }
 
   /**
