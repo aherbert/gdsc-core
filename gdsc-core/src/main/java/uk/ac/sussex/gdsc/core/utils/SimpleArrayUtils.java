@@ -495,7 +495,7 @@ public final class SimpleArrayUtils {
    * is monotonic and evenly sampled within the tolerance.
    *
    * <p>Note that the tolerance is absolute. You can create this from a relative tolerance using:
-   * <code>(x[1]-x[0])*relativeTolerance</code>.
+   * {@code (x[1]-x[0])*relativeTolerance}.
    *
    * @param x the x
    * @param uniformTolerance the uniform tolerance

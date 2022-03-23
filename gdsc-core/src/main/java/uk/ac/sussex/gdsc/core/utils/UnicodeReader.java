@@ -56,7 +56,7 @@ public class UnicodeReader extends Reader {
    * Construct UnicodeReader.
    *
    * @param in Input stream.
-   * @param defaultEncoding Default encoding to be used if BOM is not found, or <code>null</code> to
+   * @param defaultEncoding Default encoding to be used if BOM is not found, or {@code null} to
    *        use system default encoding.
    * @throws IOException If an I/O error occurs.
    */

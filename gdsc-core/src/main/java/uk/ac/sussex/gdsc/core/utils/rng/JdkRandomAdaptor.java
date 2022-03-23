@@ -37,7 +37,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
 /**
- * Extension of <code>java.util.Random</code> wrapping a {@link UniformRandomProvider}.
+ * Extension of {@code java.util.Random} wrapping a {@link UniformRandomProvider}.
  *
  * <p>The seed cannot be set and the adaptor is not serializable.
  */
@@ -47,7 +47,7 @@ public class JdkRandomAdaptor extends Random {
   private final UniformRandomProvider rng;
 
   /**
-   * Creates a <code>java.util.Random</code> using the provided random generatoras the source of
+   * Creates a {@code java.util.Random} using the provided random generatoras the source of
    * randomness.
    *
    * <p>The sampling works using the {@code UniformRandomProvider#nextInt(int)} method so a native

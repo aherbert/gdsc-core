@@ -62,7 +62,7 @@ public final class TextUtils {
   // -----------------------------------------------------------------------
 
   /**
-   * Wraps a single line of text, identifying words by <code>' '</code>.
+   * Wraps a single line of text, identifying words by {@code ' '}.
    *
    * <p>New lines will be separated by the system property line separator. Very long words, such as
    * URLs will <i>not</i> be wrapped.
@@ -76,14 +76,14 @@ public final class TextUtils {
    *
    * @param str the String to be word wrapped, may be null
    * @param wrapLength the column to wrap the words at, less than 1 is treated as 1
-   * @return a line with newlines inserted, <code>null</code> if null input
+   * @return a line with newlines inserted, {@code null} if null input
    */
   public static String wrap(String str, int wrapLength) {
     return wrap(str, wrapLength, null, false);
   }
 
   /**
-   * Wraps a single line of text, identifying words by <code>' '</code>.
+   * Wraps a single line of text, identifying words by {@code ' '}.
    *
    * <p>Leading spaces on a new line are stripped. Trailing spaces are not stripped.
    *
@@ -94,10 +94,10 @@ public final class TextUtils {
    *
    * @param str the String to be word wrapped, may be null
    * @param wrapLength the column to wrap the words at, less than 1 is treated as 1
-   * @param newLineStr the string to insert for a new line, <code>null</code> uses the system
+   * @param newLineStr the string to insert for a new line, {@code null} uses the system
    *        property line separator
    * @param wrapLongWords true if long words (such as URLs) should be wrapped
-   * @return a line with newlines inserted, <code>null</code> if null input
+   * @return a line with newlines inserted, {@code null} if null input
    */
   @SuppressWarnings("deprecation")
   public static String wrap(String str, int wrapLength, String newLineStr, boolean wrapLongWords) {

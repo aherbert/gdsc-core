@@ -853,7 +853,7 @@ public class ExtendedGenericDialog extends GenericDialog {
    * The listener interface for receiving optionCollected events. The class that is interested in
    * processing a optionCollected event implements this interface, and the object created with that
    * class is registered with a component using the component's
-   * <code>addOptionCollectedListener</code> method. When the optionCollected event occurs, that
+   * {@code addOptionCollectedListener} method. When the optionCollected event occurs, that
    * object's appropriate method is invoked.
    *
    * @see OptionCollectedEvent

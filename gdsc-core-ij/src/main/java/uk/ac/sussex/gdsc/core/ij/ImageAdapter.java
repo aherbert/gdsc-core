@@ -35,8 +35,8 @@ import ij.ImagePlus;
  * An abstract adapter class for receiving image events. The methods in this class are empty. This
  * class exists as a convenience for creating listener objects.
  *
- * <p>Extend this class to create an <code>ImagePlus</code> listener and override the methods for
- * the events of interest. (If you implement the <code>ImageListener</code> interface, you have to
+ * <p>Extend this class to create an {@code ImagePlus} listener and override the methods for
+ * the events of interest. (If you implement the {@code ImageListener} interface, you have to
  * define all of the methods in it. This abstract class defines null methods for them all, so you
  * only have to define methods for events you care about.)
  *
