@@ -1125,7 +1125,8 @@ class OpticsManagerTest {
 
           Assertions.assertEquals(expId, obsId, FormatSupplier.getSupplier("Id %d", index));
           Assertions.assertEquals(expPre, obsPre, FormatSupplier.getSupplier("Pre %d", index));
-          TestAssertions.assertTest(expR, obsR, equality, FormatSupplier.getSupplier("R %d", index));
+          TestAssertions.assertTest(expR, obsR, equality,
+              FormatSupplier.getSupplier("R %d", index));
         }
       }
     }
@@ -1628,7 +1629,8 @@ class OpticsManagerTest {
       final double expR = r1.get(i).getReachabilityDistance();
       final double obsR = r2.get(i).getReachabilityDistance();
 
-      // logger.fine(FormatSupplier.getSupplier("[%d] %d %d : %f (%f) = %f (%f) : %s = %d", i, expId,
+      // logger.fine(FormatSupplier.getSupplier("[%d] %d %d : %f (%f) = %f (%f) : %s = %d", i,
+      // expId,
       // obsId, expR, expC, obsR, obsC, expPre, obsPre));
 
       TestAssertions.assertTest(expC, obsC, equality,
@@ -1968,7 +1970,8 @@ class OpticsManagerTest {
     final int[] c2 = r2.getClusters(true);
 
     // for (int i = 0; i < c1.length; i++) {
-    // logger.log(TestLevel.TEST_INFO, FormatSupplier.getSupplier("[%d] %d == %d", i, c1[i], c2[i]));
+    // logger.log(TestLevel.TEST_INFO, FormatSupplier.getSupplier("[%d] %d == %d", i, c1[i],
+    // c2[i]));
     // }
 
     Assertions.assertArrayEquals(c1, c2);

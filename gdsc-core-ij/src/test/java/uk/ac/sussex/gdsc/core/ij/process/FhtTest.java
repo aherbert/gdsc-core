@@ -37,8 +37,8 @@ import ij.process.ImageProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.Predicates;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
 
 @SuppressWarnings({"javadoc"})
 class FhtTest {

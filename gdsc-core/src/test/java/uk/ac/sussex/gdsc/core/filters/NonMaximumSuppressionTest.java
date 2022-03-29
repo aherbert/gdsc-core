@@ -688,8 +688,9 @@ class NonMaximumSuppressionTest {
           blockBoxTotal += blockTime;
           if (debug) {
             logger.log(TestLevel.TEST_DEBUG,
-                FormatSupplier.getSupplier("float maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx",
-                    width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
+                FormatSupplier.getSupplier(
+                    "float maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx", width, height,
+                    boxSize, time, blockTime, (1.0 * time) / blockTime));
             // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
             // height, boxSize,
             // blockTime, time), blockTime < time);
@@ -697,8 +698,8 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogging.getTimingRecord("float maxFind" + boxSize, boxTotal,
-          "float blockFind", blockBoxTotal));
+      logger.log(TestLogging.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFind",
+          blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
@@ -1097,8 +1098,8 @@ class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogging.getTimingRecord("float blockFindNxN", total, "float blockFind3x3",
-        blockTotal));
+    logger.log(
+        TestLogging.getTimingRecord("float blockFindNxN", total, "float blockFind3x3", blockTotal));
   }
 
   @SpeedTag
@@ -2064,8 +2065,8 @@ class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogging.getTimingRecord("int blockFindInternal check" + boxSize,
-          checkBoxTotal, "int blockFindInternal", noCheckBoxTotal));
+      logger.log(TestLogging.getTimingRecord("int blockFindInternal check" + boxSize, checkBoxTotal,
+          "int blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
       // %d", boxSize,
