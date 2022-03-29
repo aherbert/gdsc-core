@@ -45,7 +45,7 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogging;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.FormatSupplier;
 
 @SuppressWarnings({"javadoc"})
 class DoubleLinkedMedianWindowTest {
@@ -460,7 +460,7 @@ class DoubleLinkedMedianWindowTest {
     }
 
     Assertions.assertArrayEquals(m1, m2, 1e-6,
-        FunctionUtils.getSupplier("Radius %d, Increment %d", radius, increment));
+        FormatSupplier.getSupplier("Radius %d, Increment %d", radius, increment));
 
     // Only test when the increment is small.
     // When the increment is large then the linked list is doing too many operations
@@ -471,7 +471,7 @@ class DoubleLinkedMedianWindowTest {
           (double) t1 / t2));
     } else {
       logger.log(TestLevel.TEST_INFO,
-          FunctionUtils.getSupplier("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster",
+          FormatSupplier.getSupplier("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster",
               radius, increment, t1, t2, (double) t1 / t2));
     }
   }

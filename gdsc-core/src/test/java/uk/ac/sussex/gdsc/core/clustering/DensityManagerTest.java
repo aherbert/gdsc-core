@@ -46,7 +46,7 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogging;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.FormatSupplier;
 
 @SuppressWarnings({"javadoc"})
 class DensityManagerTest {
@@ -225,7 +225,7 @@ class DensityManagerTest {
         }
         final long t2 = System.nanoTime() - start;
 
-        final Supplier<String> msg = FunctionUtils
+        final Supplier<String> msg = FormatSupplier
             .getSupplier("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
         logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
@@ -253,7 +253,7 @@ class DensityManagerTest {
         }
         final long t2 = System.nanoTime() - start;
 
-        final Supplier<String> msg = FunctionUtils
+        final Supplier<String> msg = FormatSupplier
             .getSupplier("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
         logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
@@ -296,7 +296,7 @@ class DensityManagerTest {
         }
         final long t2 = System.nanoTime() - start;
 
-        final Supplier<String> msg = FunctionUtils.getSupplier(
+        final Supplier<String> msg = FormatSupplier.getSupplier(
             "Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
         logger.log(TestLevel.TEST_INFO, msg);
         Assertions.assertTrue(t2 < t1, msg);
@@ -355,7 +355,7 @@ class DensityManagerTest {
         }
         final long t2 = System.nanoTime() - start;
 
-        final Supplier<String> msg = FunctionUtils.getSupplier(
+        final Supplier<String> msg = FormatSupplier.getSupplier(
             "calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
             (double) t1 / t2);
         logger.log(TestLevel.TEST_INFO, msg);
@@ -385,7 +385,7 @@ class DensityManagerTest {
         }
         final long t2 = System.nanoTime() - start;
 
-        final Supplier<String> msg = FunctionUtils.getSupplier(
+        final Supplier<String> msg = FormatSupplier.getSupplier(
             "calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster", n, radius,
             (double) t1 / t2);
         // This is not always faster

@@ -53,7 +53,7 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogging;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.FormatSupplier;
 
 @SuppressWarnings({"javadoc"})
 class ClusteringEngineTest {
@@ -741,11 +741,11 @@ class ClusteringEngineTest {
 
   private static void print(String name, List<Cluster> clusters) {
     logger.log(TestLevel.TEST_INFO,
-        FunctionUtils.getSupplier(name + " : size=%d", clusters.size()));
+        FormatSupplier.getSupplier(name + " : size=%d", clusters.size()));
     for (int i = 0; i < clusters.size(); i++) {
       final Cluster c = clusters.get(i);
       logger.log(TestLevel.TEST_INFO,
-          FunctionUtils.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i,
+          FormatSupplier.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i,
               c.getHeadClusterPoint().getId(), c.getSize(), c.getX(), c.getY()));
     }
   }

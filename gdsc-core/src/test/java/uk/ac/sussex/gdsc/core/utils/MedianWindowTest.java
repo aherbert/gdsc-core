@@ -46,7 +46,7 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogging;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.FormatSupplier;
 
 @SuppressWarnings({"javadoc"})
 class MedianWindowTest {
@@ -179,13 +179,13 @@ class MedianWindowTest {
 
     Assertions.assertArrayEquals(m1, m2, 1e-6);
     logger.log(TestLevel.TEST_INFO,
-        FunctionUtils.getSupplier("Radius %d, Increment %d : window %d : standard %d = %fx faster",
+        FormatSupplier.getSupplier("Radius %d, Increment %d : window %d : standard %d = %fx faster",
             radius, increment, t1, t2, (double) t2 / t1));
 
     // Only test the largest radii
     if (radius == testSpeedRadius) {
       Assertions.assertTrue(t1 < t2,
-          FunctionUtils.getSupplier("Radius %d, Increment %d", radius, increment));
+          FormatSupplier.getSupplier("Radius %d, Increment %d", radius, increment));
     }
   }
 
@@ -296,7 +296,7 @@ class MedianWindowTest {
           (double) t1 / t2));
     } else {
       logger.log(TestLevel.TEST_INFO,
-          FunctionUtils.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster",
+          FormatSupplier.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster",
               radius, increment, t1, t2, (double) t1 / t2));
     }
   }

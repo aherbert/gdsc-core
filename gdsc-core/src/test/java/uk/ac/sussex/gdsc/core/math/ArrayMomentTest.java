@@ -52,7 +52,7 @@ import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.FormatSupplier;
 
 /**
  * Test for {@link ArrayMoment}.
@@ -1059,7 +1059,7 @@ class ArrayMomentTest {
       r2.add(data);
     }
     logger.log(TestLevel.TEST_INFO,
-        FunctionUtils.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getMean()[0]),
+        FormatSupplier.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getMean()[0]),
             Double.toString(r2.getMean()[0]), Double.toString(m1.getStandardDeviation()[0]),
             Double.toString(r2.getStandardDeviation()[0])));
     TestAssertions.assertTest(m1.getMean()[0], r2.getMean()[0], equality, "Mean");

@@ -62,7 +62,7 @@ import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.AssertionErrorCounter;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import uk.ac.sussex.gdsc.test.utils.functions.FormatSupplier;
 
 /**
  * Test for {@link CustomTricubicInterpolator}.
@@ -1449,7 +1449,7 @@ class CustomTricubicInterpolatorTest {
           final double d =
               MathUtils.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
           logger.log(TestLevel.TEST_DEBUG,
-              FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx,
+              FormatSupplier.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx,
                   cy, cz, i, Arrays.toString(optimum), d,
                   DoubleEquality.relativeError(last[3], optimum[3])));
           Assertions.assertTrue(optimum[3] >= last[3]);
