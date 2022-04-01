@@ -59,7 +59,7 @@ public final class VersionUtils {
     final Manifest manifest = loadManifest(VersionUtils.class);
     if (manifest != null) {
       final Attributes attributes = manifest.getMainAttributes();
-      versionNumber = attributes.getValue("Specification-Version");
+      versionNumber = attributes.getValue("Implementation-Version");
       buildDate = attributes.getValue("Implementation-Date");
       buildNumber = attributes.getValue("Implementation-Build");
     }
@@ -90,6 +90,9 @@ public final class VersionUtils {
 
   /**
    * Get the GDSC Core version.
+   *
+   * <p>This uses the 'Implementation-Version' entry in the manifest. It will have the full project
+   * version including any suffix, for example SNAPSHOT, RC1, etc.
    *
    * @return The uk.ac.sussex.gdsc.core package version
    */
