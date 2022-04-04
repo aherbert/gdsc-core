@@ -244,4 +244,43 @@ class MixersTest {
       Assertions.assertEquals(expected[i], mix.applyAsLong(state += increment));
     }
   }
+
+  /**
+   * This is an example test to demonstrate that the MurmurHash3-style mix functions are bijections
+   * that can be reversed.
+   */
+  @Test
+  void canUnmixStafford13() {
+    final long u1 = NumberUtils.computeInverse(0xbf58476d1ce4e5b9L);
+    final long u2 = NumberUtils.computeInverse(0x94d049bb133111ebL);
+    System.out.println(u1);
+    System.out.println(u2);
+    final UniformRandomProvider rng = RngFactory.createWithFixedSeed();
+    for (int i = 0; i < 200; i++) {
+      final long x = rng.nextLong();
+      final long y = Mixers.stafford13(x);
+      long z = Mixers.reverseXorRightShift(y, 31);
+      z *= u2;
+      z = Mixers.reverseXorRightShift(z, 27);
+      z *= u1;
+      z = Mixers.reverseXorRightShift(z, 30);
+      Assertions.assertEquals(x, z);
+      Assertions.assertEquals(x, unmixStafford13(y));
+    }
+  }
+
+  private static long unmixStafford13(long x) {
+    // Hard-coded inverse constants
+    final long u1 = -7575587736534282103L;
+    final long u2 = 3573116690164977347L;
+    x = x ^ (x >>> 31);
+    x ^= (x >>> 62);
+    x *= u2;
+    x = x ^ (x >>> 27);
+    x ^= (x >>> 54);
+    x *= u1;
+    x = x ^ (x >>> 30);
+    x ^= (x >>> 60);
+    return x;
+  }
 }
