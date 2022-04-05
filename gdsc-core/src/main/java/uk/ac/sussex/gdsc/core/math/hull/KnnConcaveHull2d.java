@@ -293,7 +293,7 @@ public final class KnnConcaveHull2d {
     private static Hull2d createHull(double[][] points, IntArrayList hull) {
       // Ensure we create a self-closing polygon (no duplicate first and last point)
       final int[] e = hull.elements();
-      int size  = hull.size();
+      int size = hull.size();
       if (e[0] == e[size - 1]) {
         size--;
       }

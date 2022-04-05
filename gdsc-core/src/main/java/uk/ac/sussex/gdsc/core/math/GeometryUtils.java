@@ -37,8 +37,7 @@ public final class GeometryUtils {
   private static final int MIN_VERTICES = 3;
 
   /** No public construction. */
-  private GeometryUtils() {
-  }
+  private GeometryUtils() {}
 
   /**
    * Gets the area of the triangle from its vertices.

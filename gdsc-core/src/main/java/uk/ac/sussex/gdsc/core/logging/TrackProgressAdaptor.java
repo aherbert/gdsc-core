@@ -32,12 +32,11 @@ package uk.ac.sussex.gdsc.core.logging;
  * An abstract adapter class for tracking progress. The methods in this class are empty. This class
  * exists as a convenience for creating tracking objects.
  *
- * <p>Extend this class to create a {@code TrackProgress} and override the methods for the
- * progress events of interest. (If you implement the {@code TrackProgress} interface, you have
- * to define all of the methods in it. This abstract class defines null methods for them all, so you
- * only have to define methods for progress events you care about. Note: The
- * {@link TrackProgress#isEnded()} returns {@code false} and the other properties return
- * {@code true}).
+ * <p>Extend this class to create a {@code TrackProgress} and override the methods for the progress
+ * events of interest. (If you implement the {@code TrackProgress} interface, you have to define all
+ * of the methods in it. This abstract class defines null methods for them all, so you only have to
+ * define methods for progress events you care about. Note: The {@link TrackProgress#isEnded()}
+ * returns {@code false} and the other properties return {@code true}).
  */
 public abstract class TrackProgressAdaptor implements TrackProgress {
   @Override

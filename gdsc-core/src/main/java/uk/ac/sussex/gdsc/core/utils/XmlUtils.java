@@ -254,8 +254,8 @@ public final class XmlUtils {
   /**
    * Append the substring to the string builder. Performs a right trim before the append.
    *
-   * <p>Warning: This assumes that {@code start < end} and the character at the start position
-   * is not whitespace.
+   * <p>Warning: This assumes that {@code start < end} and the character at the start position is
+   * not whitespace.
    *
    * @param sb the string builder
    * @param text the text

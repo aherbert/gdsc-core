@@ -630,7 +630,7 @@ public class ClusteringEngine {
     for (ClusterPoint p = cluster.getHeadClusterPoint(); p != null;) {
       // Adding a point to a cluster resets the next pointer
       final ClusterPoint next = p.getNext();
-      TimeCluster c = new TimeCluster(p);
+      final TimeCluster c = new TimeCluster(p);
       if (checkPulseInterval) {
         c.setPulseTime(getPulse(c.getStartTime()));
       }
@@ -1155,10 +1155,8 @@ public class ClusteringEngine {
     if (useRange) {
       final int lastT = candidates.get(0).getHeadClusterPoint().getEndTime();
       for (final Cluster c : candidates) {
-        if (firstT != c.getHeadClusterPoint().getStartTime()) {
-          return false;
-        }
-        if (lastT != c.getHeadClusterPoint().getEndTime()) {
+        if ((firstT != c.getHeadClusterPoint().getStartTime())
+            || (lastT != c.getHeadClusterPoint().getEndTime())) {
           return false;
         }
       }
@@ -2349,10 +2347,8 @@ public class ClusteringEngine {
 
           for (int c = 0; c < cells; c++) {
             for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.getNext()) {
-              if (cluster1 && c2.getSize() > 1) {
-                continue;
-              }
-              if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
+              if ((cluster1 && c2.getSize() > 1)
+                  || (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime())) {
                 continue;
               }
 
@@ -2667,10 +2663,8 @@ public class ClusteringEngine {
 
           for (int c = 0; c < cells; c++) {
             for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.getNext()) {
-              if (cluster1 && c2.getSize() > 1) {
-                continue;
-              }
-              if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
+              if ((cluster1 && c2.getSize() > 1)
+                  || (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime())) {
                 continue;
               }
 

@@ -472,8 +472,8 @@ public class RandIndex {
    * classifications are exactly the same.
    *
    * <p>Since the denominator is the total number of pairs, the Rand index represents the frequency
-   * of occurrence of agreements over the total pairs, or the probability that {@code X}
-   * and {@code Y} will agree on a randomly chosen pair.
+   * of occurrence of agreements over the total pairs, or the probability that {@code X} and
+   * {@code Y} will agree on a randomly chosen pair.
    *
    * <p>Uses the pre-computed contingency table.
    *

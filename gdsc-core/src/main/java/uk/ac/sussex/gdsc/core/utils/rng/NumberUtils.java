@@ -192,11 +192,11 @@ public final class NumberUtils {
     //
     // The carry is a composed intermediate which will never overflow:
     //
-    //             byby byby
-    // +           bxbx 0000
-    // +      ayay ayay 0000
+    // byby byby
+    // + bxbx 0000
+    // + ayay ayay 0000
     //
-    // +      bxbx 0000 0000
+    // + bxbx 0000 0000
     // + axax axax 0000 0000
 
     final long by = b * y;

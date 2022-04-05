@@ -451,8 +451,7 @@ public final class SortUtils {
    * @param sortValues set to true to also sort the values
    * @param descending set to true to sort in descending order
    */
-  public static <T> void sortData(T[] data, int[] values, boolean sortValues,
-      boolean descending) {
+  public static <T> void sortData(T[] data, int[] values, boolean sortValues, boolean descending) {
     // Convert data for sorting
     final LocalList<TInt<T>> list = new LocalList<>(data.length);
     for (int i = data.length; i-- > 0;) {

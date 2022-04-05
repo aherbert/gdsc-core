@@ -124,11 +124,7 @@ public class MarsagliaTsangGammaSampler implements ContinuousSampler {
       final double u = rng.nextDouble();
 
       // Squeeze.
-      if (u < 1 - 0.0331 * x2 * x2) {
-        return theta * dd * v;
-      }
-
-      if (Math.log(u) < 0.5 * x2 + dd * (1 - v + Math.log(v))) {
+      if ((u < 1 - 0.0331 * x2 * x2) || (Math.log(u) < 0.5 * x2 + dd * (1 - v + Math.log(v)))) {
         return theta * dd * v;
       }
     }

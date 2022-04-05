@@ -118,7 +118,7 @@ public class Correlator {
     final int oldCapacity = x.length;
     // Overflow safe
     if (minCapacity - oldCapacity > 0) {
-      int newCapacity = MemoryUtils.createNewCapacity(minCapacity, oldCapacity);
+      final int newCapacity = MemoryUtils.createNewCapacity(minCapacity, oldCapacity);
       int[] newValues = new int[newCapacity];
       System.arraycopy(x, 0, newValues, 0, count);
       x = newValues;

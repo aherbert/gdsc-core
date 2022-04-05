@@ -1048,13 +1048,9 @@ public class OpticsResult implements ClusteringResult {
       // Test if this is a steep down area
       if (steepDown(index, reachability, ixi)) {
         // The first reachable point must have a reachability equal or below the upper limit
-        if (useUpperLimit && reachability[index + 1] > ul) {
-          // Not allowed so move on
-          index++;
-          continue;
-        }
         // The first reachable point must have a reachability equal or above the lower limit
-        if (useLowerLimit && reachability[index + 1] < ll) {
+        if ((useUpperLimit && reachability[index + 1] > ul)
+            || (useLowerLimit && reachability[index + 1] < ll)) {
           // Not allowed so move on
           index++;
           continue;
@@ -1083,13 +1079,9 @@ public class OpticsResult implements ClusteringResult {
       }
       if (steepUp(index, reachability, ixi)) {
         // The last reachable point must have a reachability equal or below the upper limit
-        if (useUpperLimit && reachability[index] > ul) {
-          // Not allowed so move on
-          index++;
-          continue;
-        }
         // The last reachable point must have a reachability equal or above the lower limit
-        if (useLowerLimit && reachability[index] < ll) {
+        if ((useUpperLimit && reachability[index] > ul)
+            || (useLowerLimit && reachability[index] < ll)) {
           // Not allowed so move on
           index++;
           continue;

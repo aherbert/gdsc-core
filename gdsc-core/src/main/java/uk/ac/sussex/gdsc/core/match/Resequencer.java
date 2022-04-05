@@ -321,7 +321,7 @@ public class Resequencer {
 
     final IntMap observed = createMap(set);
 
-    int[] nextId = {0};
+    final int[] nextId = {0};
     for (int i = 0; i < set.length; i++) {
       outputSet[i] = observed.computeIfAbsent(set[i], j -> nextId[0]++);
     }

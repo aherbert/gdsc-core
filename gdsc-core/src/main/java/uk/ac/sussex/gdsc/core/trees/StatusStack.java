@@ -75,8 +75,8 @@ abstract class StatusStack {
   /**
    * Contains the status stack as long.
    *
-   * <p>This assumes the stack entries are 2-bits of the stored byte.
-   * It has a maximum capacity of 32 2-bit values.
+   * <p>This assumes the stack entries are 2-bits of the stored byte. It has a maximum capacity of
+   * 32 2-bit values.
    */
   private static class LongStatusStack extends StatusStack {
     /**
@@ -110,8 +110,8 @@ abstract class StatusStack {
   /**
    * Pops an element from the top of the stack.
    *
-   * <p>Note: This must return 0 on the first call when empty,
-   * otherwise the method may throw an exception.
+   * <p>Note: This must return 0 on the first call when empty, otherwise the method may throw an
+   * exception.
    *
    * @return the element (or 0 on the first call when empty)
    */

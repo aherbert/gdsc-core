@@ -154,9 +154,9 @@ public class FloatEquality {
   }
 
   /**
-   * Get the relative error epsilon in terms of the number of significant bits that will be
-   * compared between two real values, e.g. the relative error to use for equality testing at
-   * approximately n significant binary digits.
+   * Get the relative error epsilon in terms of the number of significant bits that will be compared
+   * between two real values, e.g. the relative error to use for equality testing at approximately n
+   * significant binary digits.
    *
    * <p>Note that the relative error epsilon is 2^-bits.
    *

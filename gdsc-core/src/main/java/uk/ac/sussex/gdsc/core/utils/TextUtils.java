@@ -94,8 +94,8 @@ public final class TextUtils {
    *
    * @param str the String to be word wrapped, may be null
    * @param wrapLength the column to wrap the words at, less than 1 is treated as 1
-   * @param newLineStr the string to insert for a new line, {@code null} uses the system
-   *        property line separator
+   * @param newLineStr the string to insert for a new line, {@code null} uses the system property
+   *        line separator
    * @param wrapLongWords true if long words (such as URLs) should be wrapped
    * @return a line with newlines inserted, {@code null} if null input
    */

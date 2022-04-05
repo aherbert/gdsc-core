@@ -249,9 +249,9 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   /**
    * Trims the capacity to be the list's current size.
    *
-   * <p>Note: This will not change the capacity if the list is a newly created empty list
-   * with the default capacity. In this case the list is storing no elements and has no
-   * backing array. An array is created of the default capacity when the first element is added.
+   * <p>Note: This will not change the capacity if the list is a newly created empty list with the
+   * default capacity. In this case the list is storing no elements and has no backing array. An
+   * array is created of the default capacity when the first element is added.
    *
    * @see java.util.ArrayList#trimToSize()
    * @see #getCapacity()
