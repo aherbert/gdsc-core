@@ -29,9 +29,9 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * Provide space for storing cluster coordinates.
+ * Track the limits of 3D coordinates.
  */
-class MinMax3d {
+final class MinMax3d {
   private float minX;
   private float minY;
   private float maxX;
