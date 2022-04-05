@@ -91,6 +91,7 @@
     <exclude name="ExcessiveClassLength" />
     <exclude name="ExcessivePublicCount" />
     <exclude name="GodClass" />
+    <exclude name="AvoidThrowingNullPointerException" />
   </rule>
   <rule ref="category/java/documentation.xml">
     <exclude name="CommentSize" />
