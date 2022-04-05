@@ -121,7 +121,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
    * @param z z-coordinate powers of the interpolation point.
    * @return the interpolated value.
    */
-  protected abstract double value0(final CubicSplinePosition x, CubicSplinePosition y,
+  protected abstract double value0(CubicSplinePosition x, CubicSplinePosition y,
       CubicSplinePosition z);
 
   /**
@@ -133,8 +133,8 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  protected abstract double value1(final CubicSplinePosition x, CubicSplinePosition y,
-      CubicSplinePosition z, final double[] derivative1);
+  protected abstract double value1(CubicSplinePosition x, CubicSplinePosition y,
+      CubicSplinePosition z, double[] derivative1);
 
   /**
    * Compute the value and partial first-order and second-order derivatives.
@@ -146,8 +146,8 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
    * @param derivative2 the partial second order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  protected abstract double value2(final CubicSplinePosition x, CubicSplinePosition y,
-      CubicSplinePosition z, final double[] derivative1, double[] derivative2);
+  protected abstract double value2(CubicSplinePosition x, CubicSplinePosition y,
+      CubicSplinePosition z, double[] derivative1, double[] derivative2);
 
   /**
    * Checks if the points is at the boundary of the interpolation range, that is it has the value 0
