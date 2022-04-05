@@ -44,9 +44,6 @@ public final class MemoryUtils {
    */
   private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;
 
-  /** The runtime for the currrent Java application. */
-  private static final Runtime runtime = Runtime.getRuntime();
-
   /**
    * No public construction.
    */
@@ -84,8 +81,8 @@ public final class MemoryUtils {
    * @see Runtime#gc()
    */
   public static void runGarbageCollectorOnce() {
-    runtime.runFinalization();
-    runtime.gc();
+    Runtime.getRuntime().runFinalization();
+    Runtime.getRuntime().gc();
   }
 
   /**
@@ -108,7 +105,7 @@ public final class MemoryUtils {
    * @see Runtime#totalMemory()
    */
   public static long getTotalMemory() {
-    return runtime.totalMemory();
+    return Runtime.getRuntime().totalMemory();
   }
 
   /**
@@ -118,7 +115,7 @@ public final class MemoryUtils {
    * @see Runtime#freeMemory()
    */
   public static long getFreeMemory() {
-    return runtime.freeMemory();
+    return Runtime.getRuntime().freeMemory();
   }
 
   /**
