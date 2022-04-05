@@ -38,7 +38,7 @@ public final class Mixers {
   private static final long RXSMXS_UNMULTIPLIER = Long.parseUnsignedLong("15009553638781119849");
 
   /** The rotation inversion table for rrmxmx. */
-  private static final int[] rots = {4, 8, 9, 11, 15, 16, 18, 20, 24, 25, 26, 29, 30, 32, 40, 41,
+  private static final int[] ROTS = {4, 8, 9, 11, 15, 16, 18, 20, 24, 25, 26, 29, 30, 32, 40, 41,
       43, 44, 45, 48, 50, 54, 56, 57, 58, 60};
 
   /**
@@ -265,7 +265,7 @@ public final class Mixers {
    */
   private static long invertRor2449(long value) {
     long acc = 0;
-    for (final int r : rots) {
+    for (final int r : ROTS) {
       acc ^= Long.rotateRight(value, r);
     }
     return acc ^ value;

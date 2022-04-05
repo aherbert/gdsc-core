@@ -42,7 +42,7 @@ public final class PoissonSamplerUtils {
    *
    * <p>This is thread safe.
    */
-  private static final PoissonSamplerCache poissonCache = new PoissonSamplerCache(0, 1000);
+  private static final PoissonSamplerCache CACHE = new PoissonSamplerCache(0, 1000);
 
   /** A sampler to return zero for the sample() method. */
   private static final SharedStateDiscreteSampler ZERO = new SharedStateDiscreteSampler() {
@@ -75,7 +75,7 @@ public final class PoissonSamplerUtils {
     if (mean == 0) {
       return ZERO;
     }
-    return poissonCache.createSharedStateSampler(rng, mean);
+    return CACHE.createSharedStateSampler(rng, mean);
   }
 
   /**
@@ -92,6 +92,6 @@ public final class PoissonSamplerUtils {
     if (mean == 0) {
       return 0;
     }
-    return poissonCache.createSharedStateSampler(rng, mean).sample();
+    return CACHE.createSharedStateSampler(rng, mean).sample();
   }
 }

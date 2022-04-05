@@ -51,7 +51,7 @@ public final class MiddleSquareWeylSequence
    * permutation of 8 hex characters. All increments and their byte reversed versions are unique.
    * This results in 2048 example permutations.
    */
-  private static final int[] increments = {0x8b5ad4ce, 0x64d098b5, 0x45973acb, 0x6e9c5db1,
+  private static final int[] INCREMENTS = {0x8b5ad4ce, 0x64d098b5, 0x45973acb, 0x6e9c5db1,
       0x4fa75198, 0x3d4c562e, 0xd8b57104, 0x2bdfe60a, 0x86ced140, 0x7c981fa6, 0xe5f68a3c,
       0x8e46fc02, 0x02c34bf7, 0xcebf7a1d, 0x4bf18673, 0xcb5970f8, 0x5bf739ad, 0x68cae093,
       0xf1d465a8, 0xf713c8ed, 0x47890a62, 0x86342a07, 0xf01527dc, 0x762c03e1, 0x0578be16,
@@ -253,8 +253,8 @@ public final class MiddleSquareWeylSequence
     // Use the input seed to compose an increment from example hex permutations.
     // The number of possible raw increments is (1024*2)^2 = 2^22.
     // The lowest bit is then set (to make it odd) leaving approximately 2^21 = 2,097,152.
-    int inc1 = increments[seed & 0x3ff];
-    int inc2 = increments[(seed >>> 10) & 0x3ff];
+    int inc1 = INCREMENTS[seed & 0x3ff];
+    int inc2 = INCREMENTS[(seed >>> 10) & 0x3ff];
     // Reverse increments to double the possible number.
     // Use the unused parts of the seed bits.
     if (((seed >>> 20) & 1) == 1) {
@@ -273,7 +273,7 @@ public final class MiddleSquareWeylSequence
    */
   @VisibleForTesting
   static int[] getIncrements() {
-    return increments.clone();
+    return INCREMENTS.clone();
   }
 
   @Override
