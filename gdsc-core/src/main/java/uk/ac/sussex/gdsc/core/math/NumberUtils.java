@@ -37,11 +37,11 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 public final class NumberUtils {
 
   /** The list of primes below 200 excluding 2. */
-  private static final int[] primes = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59,
+  private static final int[] PRIMES = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59,
       61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157,
       163, 167, 173, 179, 181, 191, 193, 197, 199};
   /** The final prime before 200. */
-  private static final int FINAL_PRIME = primes[primes.length - 1];
+  private static final int FINAL_PRIME = PRIMES[PRIMES.length - 1];
   /** The next prime after 200. */
   private static final int NEXT_PRIME = 211;
 
@@ -343,10 +343,10 @@ public final class NumberUtils {
     }
     // Test against known primes
     if (n <= FINAL_PRIME) {
-      return Arrays.binarySearch(primes, (int) n) >= 0;
+      return Arrays.binarySearch(PRIMES, (int) n) >= 0;
     }
     // n must be above the tabulated set of primes so test for divisors
-    for (final long prime : primes) {
+    for (final long prime : PRIMES) {
       if (n % prime == 0) {
         return false;
       }
