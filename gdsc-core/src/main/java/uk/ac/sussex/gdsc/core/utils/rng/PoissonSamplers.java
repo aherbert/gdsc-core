@@ -36,7 +36,7 @@ import org.apache.commons.rng.sampling.distribution.SharedStateDiscreteSampler;
  * Class for computing Poisson samples handling the edge case where the mean is zero. In that case
  * the sample return is zero.
  */
-public final class PoissonSamplerUtils {
+public final class PoissonSamplers {
   /**
    * Cache to use for Poisson samplers.
    *
@@ -58,7 +58,7 @@ public final class PoissonSamplerUtils {
   };
 
   /** No construction. */
-  private PoissonSamplerUtils() {}
+  private PoissonSamplers() {}
 
   /**
    * Creates a new sampler from the Poisson distribution.

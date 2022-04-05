@@ -36,11 +36,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
-class PoissonSamplerUtilsTest {
+class PoissonSamplersTest {
   @Test
   void testCreatePoissonSamplerWithMeanZero() {
     final UniformRandomProvider rng = SplitMix.new64(0);
-    final SharedStateDiscreteSampler sampler = PoissonSamplerUtils.createPoissonSampler(rng, 0);
+    final SharedStateDiscreteSampler sampler = PoissonSamplers.createPoissonSampler(rng, 0);
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(0, sampler.sample());
     }
@@ -50,7 +50,7 @@ class PoissonSamplerUtilsTest {
   @Test
   void testNextPoissonSampleWithMeanZero() {
     final UniformRandomProvider rng = SplitMix.new64(0);
-    Assertions.assertEquals(0, PoissonSamplerUtils.nextPoissonSample(rng, 0));
+    Assertions.assertEquals(0, PoissonSamplers.nextPoissonSample(rng, 0));
   }
 
   @Test
@@ -59,7 +59,7 @@ class PoissonSamplerUtilsTest {
     final UniformRandomProvider rng2 = SplitMix.new64(0);
     final double mean = 3.456;
     final DiscreteSampler sampler1 = new PoissonSampler(rng1, mean);
-    final DiscreteSampler sampler2 = PoissonSamplerUtils.createPoissonSampler(rng2, mean);
+    final DiscreteSampler sampler2 = PoissonSamplers.createPoissonSampler(rng2, mean);
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(sampler1.sample(), sampler2.sample());
     }
@@ -72,7 +72,7 @@ class PoissonSamplerUtilsTest {
     final double mean = 3.456;
     final DiscreteSampler sampler1 = new PoissonSampler(rng1, mean);
     for (int i = 0; i < 10; i++) {
-      Assertions.assertEquals(sampler1.sample(), PoissonSamplerUtils.nextPoissonSample(rng2, mean));
+      Assertions.assertEquals(sampler1.sample(), PoissonSamplers.nextPoissonSample(rng2, mean));
     }
   }
 }
