@@ -132,18 +132,18 @@ public class AutoThreshold {
     }
   }
 
-  private static final Method[] methodValues;
-  private static final String[] methodNames;
-  private static final String[] methodNamesWithoutNone;
+  private static final Method[] METHOD_VALUES;
+  private static final String[] METHOD_NAMES;
+  private static final String[] METHOD_NAMES_WITHOUT_NONE;
 
   static {
-    methodValues = Method.values();
-    methodNames = new String[methodValues.length];
-    methodNamesWithoutNone = new String[methodValues.length - 1];
-    for (int i = 0; i < methodValues.length; i++) {
-      methodNames[i] = methodValues[i].toString();
+    METHOD_VALUES = Method.values();
+    METHOD_NAMES = new String[METHOD_VALUES.length];
+    METHOD_NAMES_WITHOUT_NONE = new String[METHOD_VALUES.length - 1];
+    for (int i = 0; i < METHOD_VALUES.length; i++) {
+      METHOD_NAMES[i] = METHOD_VALUES[i].toString();
       if (i != 0) {
-        methodNamesWithoutNone[i - 1] = methodValues[i].toString();
+        METHOD_NAMES_WITHOUT_NONE[i - 1] = METHOD_VALUES[i].toString();
       }
     }
   }
@@ -154,7 +154,7 @@ public class AutoThreshold {
    * @return the methods
    */
   public static String[] getMethods() {
-    return methodNames.clone();
+    return METHOD_NAMES.clone();
   }
 
   /**
@@ -165,9 +165,9 @@ public class AutoThreshold {
    */
   public static String[] getMethods(boolean ignoreNone) {
     if (ignoreNone) {
-      return methodNamesWithoutNone.clone();
+      return METHOD_NAMES_WITHOUT_NONE.clone();
     }
-    return methodNames.clone();
+    return METHOD_NAMES.clone();
   }
 
   /**
@@ -179,9 +179,9 @@ public class AutoThreshold {
    * @return the method
    */
   public static Method getMethod(String name) {
-    for (int i = 0; i < methodNames.length; i++) {
-      if (methodNames[i].equals(name)) {
-        return methodValues[i];
+    for (int i = 0; i < METHOD_NAMES.length; i++) {
+      if (METHOD_NAMES[i].equals(name)) {
+        return METHOD_VALUES[i];
       }
     }
     return Method.NONE;
@@ -198,8 +198,8 @@ public class AutoThreshold {
    */
   public static Method getMethod(int index, boolean ignoreNone) {
     final int target = (ignoreNone) ? index + 1 : index;
-    if (target >= 0 && target < methodValues.length) {
-      return methodValues[target];
+    if (target >= 0 && target < METHOD_VALUES.length) {
+      return METHOD_VALUES[target];
     }
     return Method.NONE;
   }
