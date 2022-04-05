@@ -54,7 +54,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *      Communications of the ACM Volume 14, Issue 12, 802-804.</a>
  * @see KuhnMunkresAssignment
  */
-public class DoubleKuhnMunkresAssignment {
+public final class DoubleKuhnMunkresAssignment {
   /** The constant for no assignment. */
   private static final int NO_ASSIGNMENT = -1;
   /** The constant for a normal zero. */

@@ -46,7 +46,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *      semi-assignment problems: A core oriented approach. Computers &amp; Operations Research 23,
  *      917-932.</a>
  */
-public class JonkerVolgenantAssignment {
+public final class JonkerVolgenantAssignment {
   /** A suitably large number. */
   private static final int INF = Integer.MAX_VALUE;
 

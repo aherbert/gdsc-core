@@ -50,7 +50,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  *      325-340.</a>
  * @see JonkerVolgenantAssignment
  */
-public class DoubleJonkerVolgenantAssignment {
+public final class DoubleJonkerVolgenantAssignment {
   /** A suitably large number. */
   private static final double INF = Double.MAX_VALUE;
   /** The default relative error. */
