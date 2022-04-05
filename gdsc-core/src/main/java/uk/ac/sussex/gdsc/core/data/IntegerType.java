@@ -287,8 +287,8 @@ public enum IntegerType {
   /** An unsigned 63-bit integer. */
   UNSIGNED_63("Unsigned 63-bit integer", 0L, 9223372036854775807L, false, 63);
 
-  /** The values. */
-  private static final IntegerType[] values = IntegerType.values();
+  /** The VALUES. */
+  private static final IntegerType[] VALUES = IntegerType.values();
 
   /** The type name. */
   final String typeName;
@@ -380,10 +380,10 @@ public enum IntegerType {
     if (ordinal < 0) {
       throw new IllegalArgumentException("Negative ordinal");
     }
-    if (ordinal >= values.length) {
+    if (ordinal >= VALUES.length) {
       throw new IllegalArgumentException("Ordinal too high");
     }
-    return values[ordinal];
+    return VALUES[ordinal];
   }
 
   /**
@@ -395,10 +395,10 @@ public enum IntegerType {
    * @return the integer type
    */
   public static IntegerType forOrdinal(int ordinal, IntegerType defaultValue) {
-    if (ordinal < 0 || ordinal >= values.length) {
-      return (defaultValue == null) ? values[0] : defaultValue;
+    if (ordinal < 0 || ordinal >= VALUES.length) {
+      return (defaultValue == null) ? VALUES[0] : defaultValue;
     }
-    return values[ordinal];
+    return VALUES[ordinal];
   }
 
   /**
