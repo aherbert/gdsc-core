@@ -30,14 +30,13 @@
  * Provides classes for constructing and searching tree-like data structures such as a <a
  * href="https://en.wikipedia.org/wiki/K-d_tree">KD-Tree</a>.
  *
- * <p>The tree functionality is defined using {@code <type>KdTree} interfaces.
- * Trees should be constructed using the {@link uk.ac.sussex.gdsc.core.trees.KdTrees KdTrees}
- * utility class.
+ * <p>The tree functionality is defined using {@code <type>KdTree} interfaces. Trees should be
+ * constructed using the {@link uk.ac.sussex.gdsc.core.trees.KdTrees KdTrees} utility class.
  *
  * <p>The underlying KD-Tree implementation has been adapted from <a
- * href="http://robowiki.net/wiki/User:Rednaxela/kD-Tree">Rednaxela's KD-tree</a>.
- * Modifications to the original code have been made to support the required tree interfaces
- * including different primitive-type specialisations and to allow thread-safe concurrent search.
+ * href="http://robowiki.net/wiki/User:Rednaxela/kD-Tree">Rednaxela's KD-tree</a>. Modifications to
+ * the original code have been made to support the required tree interfaces including different
+ * primitive-type specialisations and to allow thread-safe concurrent search.
  *
  * @since 2.0
  */

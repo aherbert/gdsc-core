@@ -81,9 +81,13 @@ class DoubleArrayPredicatesTest {
 
   @Test
   void testCreateSquareEuclideanDistanceFunction() {
-    Assertions.assertSame(DoubleArrayPredicates.EQUALS_ND, DoubleArrayPredicates.equals(1));
-    Assertions.assertSame(DoubleArrayPredicates.EQUALS_2D, DoubleArrayPredicates.equals(2));
-    Assertions.assertSame(DoubleArrayPredicates.EQUALS_3D, DoubleArrayPredicates.equals(3));
-    Assertions.assertSame(DoubleArrayPredicates.EQUALS_ND, DoubleArrayPredicates.equals(4));
+    Assertions.assertSame(DoubleArrayPredicates.EQUALS_ND,
+        DoubleArrayPredicates.equalsForLength(1));
+    Assertions.assertSame(DoubleArrayPredicates.EQUALS_2D,
+        DoubleArrayPredicates.equalsForLength(2));
+    Assertions.assertSame(DoubleArrayPredicates.EQUALS_3D,
+        DoubleArrayPredicates.equalsForLength(3));
+    Assertions.assertSame(DoubleArrayPredicates.EQUALS_ND,
+        DoubleArrayPredicates.equalsForLength(4));
   }
 }

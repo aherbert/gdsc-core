@@ -1,6 +1,5 @@
 /*
- * Copyright 2009 Rednaxela
- * Copyright 2019-2022 Alex Herbert
+ * Copyright 2009 Rednaxela Copyright 2019-2022 Alex Herbert
  *
  * This software is provided 'as-is', without any express or implied warranty. In no event will the
  * authors be held liable for any damages arising from the use of this software.
@@ -159,7 +158,8 @@ class DoubleNdTree implements DoubleKdTree {
    */
   @Override
   public boolean addIfAbsent(double[] location) {
-    final BiPredicate<double[], double[]> equality = DoubleArrayPredicates.equals(dimensions);
+    final BiPredicate<double[], double[]> equality =
+        DoubleArrayPredicates.equalsForLength(dimensions);
     return addPoint(location, (cursor, p) -> {
       for (int i = 0; i < cursor.locationCount; i++) {
         if (equality.test(location, cursor.locations[i])) {

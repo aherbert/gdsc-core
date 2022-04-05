@@ -78,7 +78,7 @@ public enum DoubleArrayPredicates implements BiPredicate<double[], double[]> {
    * @param dimensions the dimensions
    * @return the distance function
    */
-  public static BiPredicate<double[], double[]> equals(int dimensions) {
+  public static BiPredicate<double[], double[]> equalsForLength(int dimensions) {
     if (dimensions == 2) {
       return EQUALS_2D;
     }

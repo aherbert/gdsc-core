@@ -1,6 +1,5 @@
 /*
- * Copyright 2009 Rednaxela
- * Copyright 2019-2022 Alex Herbert
+ * Copyright 2009 Rednaxela Copyright 2019-2022 Alex Herbert
  *
  * This software is provided 'as-is', without any express or implied warranty. In no event will the
  * authors be held liable for any damages arising from the use of this software.
@@ -166,7 +165,7 @@ class IntFloatNdTree implements IntFloatKdTree {
    */
   @Override
   public boolean addIfAbsent(float[] location, int value) {
-    final BiPredicate<float[], float[]> equality = FloatArrayPredicates.equals(dimensions);
+    final BiPredicate<float[], float[]> equality = FloatArrayPredicates.equalsForLength(dimensions);
     return addPoint(location, value, (cursor, p) -> {
       for (int i = 0; i < cursor.locationCount; i++) {
         if (equality.test(location, cursor.locations[i])) {

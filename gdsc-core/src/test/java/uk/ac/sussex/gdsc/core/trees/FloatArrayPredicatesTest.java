@@ -81,9 +81,9 @@ class FloatArrayPredicatesTest {
 
   @Test
   void testCreateSquareEuclideanDistanceFunction() {
-    Assertions.assertSame(FloatArrayPredicates.EQUALS_ND, FloatArrayPredicates.equals(1));
-    Assertions.assertSame(FloatArrayPredicates.EQUALS_2D, FloatArrayPredicates.equals(2));
-    Assertions.assertSame(FloatArrayPredicates.EQUALS_3D, FloatArrayPredicates.equals(3));
-    Assertions.assertSame(FloatArrayPredicates.EQUALS_ND, FloatArrayPredicates.equals(4));
+    Assertions.assertSame(FloatArrayPredicates.EQUALS_ND, FloatArrayPredicates.equalsForLength(1));
+    Assertions.assertSame(FloatArrayPredicates.EQUALS_2D, FloatArrayPredicates.equalsForLength(2));
+    Assertions.assertSame(FloatArrayPredicates.EQUALS_3D, FloatArrayPredicates.equalsForLength(3));
+    Assertions.assertSame(FloatArrayPredicates.EQUALS_ND, FloatArrayPredicates.equalsForLength(4));
   }
 }
