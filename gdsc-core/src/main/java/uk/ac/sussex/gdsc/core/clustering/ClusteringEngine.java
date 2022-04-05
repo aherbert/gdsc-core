@@ -854,9 +854,9 @@ public class ClusteringEngine {
     final int failed = currentClusters.size() - originalSize;
     tracker.log("Failed to assign %d candidates", failed);
 
-    for (int i = 0; i < clusters.length; i++) {
-      if (clusters[i] != null) {
-        currentClusters.add(clusters[i]);
+    for (final Cluster c : clusters) {
+      if (c != null) {
+        currentClusters.add(c);
       }
     }
     return currentClusters;
