@@ -371,6 +371,6 @@ public class LoOp {
     if (service != null && service.isShutdown()) {
       service = executorService = null;
     }
-    return executorService;
+    return service;
   }
 }
