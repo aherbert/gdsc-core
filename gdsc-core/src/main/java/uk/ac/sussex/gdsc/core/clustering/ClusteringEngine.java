@@ -599,7 +599,7 @@ public class ClusteringEngine {
    * @param clusters the clusters
    * @param time the time gap
    */
-  private void splitClustersUsingTimeGap(ArrayList<Cluster> clusters, int time) {
+  private void splitClustersUsingTimeGap(List<Cluster> clusters, int time) {
     // For each cluster with multiple points:
     // Find the closest gap and join them if <= time, otherwise stop.
     final Cluster[] source = clusters.toArray(new Cluster[0]);
