@@ -69,8 +69,8 @@ public class CoordinateStore {
    * the larger of the input area and the product of the lengths defined by the maximum minus the
    * minimum in each dimension.
    *
-   * @param xcoord the x coordinates
-   * @param ycoord the y coordinates
+   * @param xcoord the x coordinates (stored by reference)
+   * @param ycoord the y coordinates (stored by reference)
    * @param area the volume of the coordinates (width by height)
    * @throws IllegalArgumentException if results are null or empty
    */

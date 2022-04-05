@@ -2795,7 +2795,7 @@ public class ClusteringEngine {
   }
 
   /**
-   * Gets the intra id distances.
+   * Gets the intra id distances. The array is returned by reference.
    *
    * @return the intra-Id distances from joins in the particle linkage algorithm
    */
@@ -2804,7 +2804,7 @@ public class ClusteringEngine {
   }
 
   /**
-   * Gets the inter id distances.
+   * Gets the inter id distances. The array is returned by reference.
    *
    * @return the inter-Id distances from joins in the particle linkage algorithm
    */
