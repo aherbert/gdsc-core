@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.data.utils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Objects;
 
 /**
  * Class for rounding.
@@ -45,10 +46,7 @@ public class MathContextRounder implements Rounder {
    * @throws NullPointerException if the mathContext is null
    */
   public MathContextRounder(MathContext mathContext) {
-    if (mathContext == null) {
-      throw new NullPointerException("MathContext must not be null");
-    }
-    this.mathContext = mathContext;
+    this.mathContext = Objects.requireNonNull(mathContext, "mathContext");
   }
 
   /**
