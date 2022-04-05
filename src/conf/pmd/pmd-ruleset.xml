@@ -102,6 +102,7 @@
     <exclude name="DataflowAnomalyAnalysis" />
     <!-- Assigning objects to null to reset the state is allowed. -->
     <exclude name="NullAssignment" />
+    <exclude name="ReturnEmptyCollectionRatherThanNull" />
   </rule>
   <rule ref="category/java/multithreading.xml">
     <exclude name="DoNotUseThreads" />
