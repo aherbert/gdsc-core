@@ -76,7 +76,7 @@ public final class OpenHashMaps {
         action.accept(key[n], value[n]);
       }
       for (int pos = n; pos-- != 0;) {
-        if (!((key[pos]) == (0))) {
+        if (key[pos] != 0) {
           action.accept(key[pos], value[pos]);
         }
       }
@@ -115,7 +115,7 @@ public final class OpenHashMaps {
         action.accept(key[n], value[n]);
       }
       for (int pos = n; pos-- != 0;) {
-        if (!((key[pos]) == (0))) {
+        if (key[pos] != 0) {
           action.accept(key[pos], value[pos]);
         }
       }
@@ -156,7 +156,7 @@ public final class OpenHashMaps {
         action.accept(key[n], value[n]);
       }
       for (int pos = n; pos-- != 0;) {
-        if (!((key[pos]) == (0))) {
+        if (key[pos] != 0) {
           action.accept(key[pos], value[pos]);
         }
       }
@@ -197,7 +197,7 @@ public final class OpenHashMaps {
         action.accept(key[n], value[n]);
       }
       for (int pos = n; pos-- != 0;) {
-        if (!((key[pos]) == null)) {
+        if (key[pos] != null) {
           action.accept(key[pos], value[pos]);
         }
       }
