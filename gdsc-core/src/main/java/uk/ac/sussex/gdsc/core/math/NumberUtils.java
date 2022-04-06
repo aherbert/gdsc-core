@@ -385,7 +385,7 @@ public final class NumberUtils {
         // Handle nan/nan here
         return Double.isNaN(a) && Double.isNaN(b) ? 0 : Long.MAX_VALUE;
       }
-      if ((x ^ y) < 0L) {
+      if ((x ^ y) < 0) {
         // Opposite signs. Measure the combined distance to zero.
         // If positive the distance to zero is the number: x
         // If negative the distance to zero is: (x - 0x8000000000000000L)
