@@ -54,6 +54,9 @@ public class RampedScore {
   /** The range between edge0 and edge1. */
   private final double range;
 
+  /**
+   * Specialisation for no range to score any value below edge0 as 1.
+   */
   private static class Low1ThresholdScore extends RampedScore {
     Low1ThresholdScore(double threshold) {
       super(threshold, threshold);
@@ -65,6 +68,9 @@ public class RampedScore {
     }
   }
 
+  /**
+   * Specialisation for no range to score any value below edge0 as 0.
+   */
   private static class Low0ThresholdScore extends RampedScore {
     Low0ThresholdScore(double threshold) {
       super(threshold, threshold);
