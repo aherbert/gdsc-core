@@ -669,7 +669,7 @@ public final class ClosestPairCalculator {
    */
   @VisibleForTesting
   static int getSize(Collection<?> collection) {
-    return collection != null ? collection.size() : 0;
+    return collection == null ? 0 : collection.size();
   }
 
   /**
