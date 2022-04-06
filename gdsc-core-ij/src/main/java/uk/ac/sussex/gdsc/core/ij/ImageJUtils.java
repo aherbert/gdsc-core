@@ -531,13 +531,10 @@ public final class ImageJUtils {
         IJ.handleException(thrown);
 
         // Get the location and close the error plot window
-        Point location = null;
-        Dimension dimension = null;
-        double[] limits = null;
-        location = plotWindow.getLocation();
+        final Point location = plotWindow.getLocation();
         final Plot oldPlot = plotWindow.getPlot();
-        dimension = oldPlot.getSize();
-        limits = oldPlot.getLimits();
+        final Dimension dimension = oldPlot.getSize();
+        final double[] limits = oldPlot.getLimits();
         try {
           plotWindow.close();
         } catch (final Exception innerThrown) {
@@ -1235,10 +1232,7 @@ public final class ImageJUtils {
    */
   @SuppressWarnings("null")
   public static void rearrangeColumns(GenericDialog gd, int... rowsPerColumn) {
-    if (!isShowGenericDialog()) {
-      return;
-    }
-    if (rowsPerColumn.length < 1) {
+    if (!isShowGenericDialog() || (rowsPerColumn.length < 1)) {
       return;
     }
 
