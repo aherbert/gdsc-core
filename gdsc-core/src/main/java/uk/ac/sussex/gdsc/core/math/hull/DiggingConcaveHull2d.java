@@ -489,11 +489,10 @@ public final class DiggingConcaveHull2d {
       final double y1 = p1[1];
       final double x2 = p2[0];
       final double y2 = p2[1];
-      int e1 = hull.current();
-      int e2 = advance.applyAsInt(hull);
+      final int e1 = hull.current();
       double x4 = points[e1].getX();
       double y4 = points[e1].getY();
-      while (e2 != end) {
+      for (int e2 = advance.applyAsInt(hull); e2 != end; e2 = advance.applyAsInt(hull)) {
         final double x3 = x4;
         final double y3 = y4;
         x4 = points[e2].getX();
@@ -501,9 +500,6 @@ public final class DiggingConcaveHull2d {
         if (GeometryUtils.testIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
           return true;
         }
-        // Advance
-        e1 = e2;
-        e2 = advance.applyAsInt(hull);
       }
       return false;
     }
