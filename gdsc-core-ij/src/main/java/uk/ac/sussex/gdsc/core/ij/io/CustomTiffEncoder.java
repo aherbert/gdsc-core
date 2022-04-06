@@ -48,9 +48,9 @@ public class CustomTiffEncoder {
   private static final int SCALE_DATA_SIZE = 16;
 
   private final FileInfo fi;
-  private int bitsPerSample;
-  private int photoInterp;
-  private int samplesPerPixel;
+  private final int bitsPerSample;
+  private final int photoInterp;
+  private final int samplesPerPixel;
   private int entries;
   private final int ifdSize;
   private long imageOffset;
@@ -65,7 +65,7 @@ public class CustomTiffEncoder {
   private final int scaleSize;
   private final boolean littleEndian;
   private final byte[] buffer = new byte[8];
-  private int colorMapSize = 0;
+  private int colorMapSize;
 
   /**
    * Create a new instance.
@@ -76,20 +76,21 @@ public class CustomTiffEncoder {
     this.fi = fi;
     // Respect the byte order of the FileInfo object
     littleEndian = fi.intelByteOrder;
-    bitsPerSample = 8;
-    samplesPerPixel = 1;
     entries = 9;
     int bytesPerPixel = 1;
     int bpsSize = 0;
 
+    int bps = 8;
+    int spp = 1;
+    int interp = 0;
     switch (fi.fileType) {
       case FileInfo.GRAY8:
-        photoInterp = fi.whiteIsZero ? 0 : 1;
+        interp = fi.whiteIsZero ? 0 : 1;
         break;
       case FileInfo.GRAY16_UNSIGNED:
       case FileInfo.GRAY16_SIGNED:
-        bitsPerSample = 16;
-        photoInterp = fi.whiteIsZero ? 0 : 1;
+        bps = 16;
+        interp = fi.whiteIsZero ? 0 : 1;
         if (fi.lutSize > 0) {
           entries = 10;
           colorMapSize = MAP_SIZE * 2;
@@ -97,8 +98,8 @@ public class CustomTiffEncoder {
         bytesPerPixel = 2;
         break;
       case FileInfo.GRAY32_FLOAT:
-        bitsPerSample = 32;
-        photoInterp = fi.whiteIsZero ? 0 : 1;
+        bps = 32;
+        interp = fi.whiteIsZero ? 0 : 1;
         if (fi.lutSize > 0) {
           entries = 10;
           colorMapSize = MAP_SIZE * 2;
@@ -106,27 +107,31 @@ public class CustomTiffEncoder {
         bytesPerPixel = 4;
         break;
       case FileInfo.RGB:
-        photoInterp = 2;
-        samplesPerPixel = 3;
+        interp = 2;
+        spp = 3;
         bytesPerPixel = 3;
         bpsSize = BPS_DATA_SIZE;
         break;
       case FileInfo.RGB48:
-        bitsPerSample = 16;
-        photoInterp = 2;
-        samplesPerPixel = 3;
+        bps = 16;
+        interp = 2;
+        spp = 3;
         bytesPerPixel = 6;
         fi.nImages /= 3;
         bpsSize = BPS_DATA_SIZE;
         break;
       case FileInfo.COLOR8:
-        photoInterp = 3;
+        interp = 3;
         entries = 10;
         colorMapSize = MAP_SIZE * 2;
         break;
       default:
         // Leave at zero
     }
+    bitsPerSample = bps;
+    samplesPerPixel = spp;
+    photoInterp = interp;
+
     if (fi.unit != null && fi.pixelWidth != 0 && fi.pixelHeight != 0) {
       entries += 3; // XResolution, YResolution and ResolutionUnit
     }
