@@ -79,12 +79,12 @@ public final class SimpleImageJTrackProgress implements TrackProgress {
 
   @Override
   public void log(String format, Object... args) {
-    IJ.log(String.format(format, args));
+    ImageJUtils.log(format, args);
   }
 
   @Override
   public void status(String format, Object... args) {
-    IJ.showStatus(String.format(format, args));
+    ImageJUtils.showStatus(() -> String.format(format, args));
   }
 
   @Override

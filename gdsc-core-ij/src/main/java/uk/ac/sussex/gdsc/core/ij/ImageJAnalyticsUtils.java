@@ -526,7 +526,7 @@ public final class ImageJAnalyticsUtils {
     loggedPreferrences = true;
     final String onOrOff = (isDisabled()) ? "Off" : "On";
     // Get the preferences
-    IJ.log(String.format("%s - Google Analytics: %s", APPLICATION_NAME, onOrOff));
-    IJ.log("You can change these at any time by running the Usage Tracker plugin");
+    ImageJUtils.log("%s - Google Analytics: %s", APPLICATION_NAME, onOrOff);
+    ImageJUtils.log("You can change these at any time by running the Usage Tracker plugin");
   }
 }
