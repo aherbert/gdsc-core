@@ -486,23 +486,21 @@ public final class ImageJUtils {
    */
   public static PlotWindow display(String title, Plot plot, int flags,
       WindowOrganiser windowOrganiser) {
-    Frame plotWindowFrame = null;
+    PlotWindow plotWindow = null;
     for (final int i : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(i);
       if (imp != null && imp.getWindow() instanceof PlotWindow && imp.getTitle().equals(title)) {
-        plotWindowFrame = imp.getWindow();
+        plotWindow = (PlotWindow) imp.getWindow();
         break;
       }
     }
-    PlotWindow plotWindow = null;
-    if (plotWindowFrame == null) {
+    if (plotWindow == null) {
       plotWindow = plot.show();
       addPlot(windowOrganiser, plotWindow);
     } else {
       // Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
       int displayFlags = flags;
       try {
-        plotWindow = (PlotWindow) plotWindowFrame;
         final Plot oldPlot = plotWindow.getPlot();
         final Dimension d = oldPlot.getSize();
         final double[] limits = oldPlot.getLimits();
@@ -520,13 +518,13 @@ public final class ImageJUtils {
         }
         plotWindow.drawPlot(plot);
         preserveLimits(plot, displayFlags, limits);
-        if (plotWindowFrame.isVisible()) {
+        if (plotWindow.isVisible()) {
           // Already visible
           if ((displayFlags & NO_TO_FRONT) == 0) {
             plotWindow.toFront();
           }
         } else {
-          plotWindowFrame.setVisible(true);
+          plotWindow.setVisible(true);
         }
       } catch (final Throwable thrown) {
         // Allow debugging by logging the error
@@ -536,16 +534,14 @@ public final class ImageJUtils {
         Point location = null;
         Dimension dimension = null;
         double[] limits = null;
-        if (plotWindow != null) {
-          location = plotWindow.getLocation();
-          final Plot oldPlot = plotWindow.getPlot();
-          dimension = oldPlot.getSize();
-          limits = oldPlot.getLimits();
-          try {
-            plotWindow.close();
-          } catch (final Throwable innerThrown) {
-            // Ignore
-          }
+        location = plotWindow.getLocation();
+        final Plot oldPlot = plotWindow.getPlot();
+        dimension = oldPlot.getSize();
+        limits = oldPlot.getLimits();
+        try {
+          plotWindow.close();
+        } catch (final Throwable innerThrown) {
+          // Ignore
         }
 
         // Show a new window
