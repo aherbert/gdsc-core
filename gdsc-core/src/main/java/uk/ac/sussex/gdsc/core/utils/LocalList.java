@@ -698,7 +698,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
       elements = increaseCapacity(s + len);
     }
     // Append
-    System.arraycopy(all, 0, data, s, len);
+    System.arraycopy(all, 0, elements, s, len);
     size = s + len;
     return true;
   }
@@ -1220,7 +1220,8 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * Reverse the list contents.
    */
   public void reverse() {
-    for (int left = 0, mid = size >> 1, right = size - 1; left < mid; left++, right--) {
+    final int mid = size >> 1;
+    for (int left = 0, right = size - 1; left < mid; left++, right--) {
       // swap the values at the left and right indices
       final Object temp = data[left];
       data[left] = data[right];
@@ -1380,14 +1381,14 @@ public final class LocalList<E> implements List<E>, RandomAccess {
 
     @Override
     public boolean hasNext() {
-      return cursor < size;
+      return cursor < LocalList.this.size();
     }
 
     @Override
     public E next() {
       // Local index for the next position
       final int i = cursor;
-      if (i < LocalList.this.size) {
+      if (i < LocalList.this.size()) {
         cursor = i + 1;
         lastElement = i;
         // Assumes the list size and data are synchronized, i.e. no concurrent modification.

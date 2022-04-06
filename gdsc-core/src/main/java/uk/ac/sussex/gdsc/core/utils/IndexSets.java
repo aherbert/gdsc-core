@@ -136,9 +136,9 @@ public final class IndexSets {
     private static final int PHI = 0x9e3779b9;
 
     /** The set. */
-    private int[] set;
+    int[] set;
     /** The size. */
-    private int size;
+    int size;
 
     /**
      * Create an instance with initial size to store up to the specified capacity.
@@ -228,13 +228,13 @@ public final class IndexSets {
         throw new IndexOutOfBoundsException("Invalid index: " + index);
       }
       final int[] keys = set;
-      final int key = ~index;
       final int mask = keys.length - 1;
       int pos = mix(index) & mask;
       int curr = keys[pos];
       if (curr == 0) {
         return false;
       }
+      final int key = ~index;
       if (curr == key) {
         return true;
       }
