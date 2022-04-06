@@ -40,6 +40,7 @@
          reassignment, i.e. small functions where compiled byte size must be minimised to
          allow inlining. -->
     <exclude name="AvoidReassigningParameters" />
+    <exclude name="ArrayIsStoredDirectly" />
   </rule>
   <rule ref="category/java/codestyle.xml/FieldNamingConventions">
     <properties>
