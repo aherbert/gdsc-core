@@ -36,6 +36,8 @@ import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 
 /**
  * Provide digest functionality for ImageJ images to digest the pixels array.
+ *
+ * <p>This class is not thread-safe.
  */
 public class ImageJDigest {
 
