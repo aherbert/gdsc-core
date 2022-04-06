@@ -333,7 +333,7 @@ public final class Matchings {
     // Determine neighbours
     final int sizeA = verticesA.size();
     final int sizeB = verticesB.size();
-    final ArrayList<ImmutableAssignment> neighbours =
+    final List<ImmutableAssignment> neighbours =
         findNeighbours(verticesA, verticesB, edges, threshold, sizeA, sizeB);
 
     AssignmentComparator.sort(neighbours);
@@ -380,7 +380,7 @@ public final class Matchings {
    * @param sizeB the size B
    * @return the neighbours
    */
-  private static <T, U> ArrayList<ImmutableAssignment> findNeighbours(List<T> verticesA,
+  private static <T, U> List<ImmutableAssignment> findNeighbours(List<T> verticesA,
       List<U> verticesB, ToDoubleBiFunction<T, U> edges, double threshold, final int sizeA,
       final int sizeB) {
     final ArrayList<ImmutableAssignment> neighbours = new ArrayList<>(sizeA);
@@ -589,8 +589,8 @@ public final class Matchings {
    * @param matchedB the array to set to true for each matched B
    */
   private static <T, U> void findCosts(List<T> verticesA, List<U> verticesB,
-      ToDoubleBiFunction<T, U> edges, double threshold, final ArrayList<int[]> pairV,
-      final ArrayList<double[]> pairD, IntArrayList mapA, boolean[] matchedB) {
+      ToDoubleBiFunction<T, U> edges, double threshold, final List<int[]> pairV,
+      final List<double[]> pairD, IntArrayList mapA, boolean[] matchedB) {
     final int sizeA = verticesA.size();
     final int sizeB = verticesB.size();
     // Working space
@@ -634,8 +634,8 @@ public final class Matchings {
    * @param originalToReduced the mapping from original B index to the reduced index
    * @return the assignments
    */
-  private static int[] computeMappedAssignments(int[] verticesA, ArrayList<int[]> pairV,
-      ArrayList<double[]> pairD, int sizeB, int[] originalToReduced) {
+  private static int[] computeMappedAssignments(int[] verticesA, List<int[]> pairV,
+      List<double[]> pairD, int sizeB, int[] originalToReduced) {
     // Create a cost matrix.
     // The matrix is re-mapped to integers to avoid float-point cumulative errors in
     // the Munkres algorithm which uses additions and subtractions.
