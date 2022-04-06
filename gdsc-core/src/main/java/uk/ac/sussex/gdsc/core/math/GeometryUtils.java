@@ -287,34 +287,33 @@ public final class GeometryUtils {
     final double numA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3));
     final double numB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3));
 
-    if (denom == 0) {
-      // Parallel. Check if coincident.
-      if (numA == 0 && numB == 0) {
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-        final double invNorm = 1.0 / Math.hypot(dx, dy);
-        dx *= invNorm;
-        dy *= invNorm;
+    if (denom == 0
+        // Parallel. Check if coincident.
+        && numA == 0 && numB == 0) {
+      double dx = x2 - x1;
+      double dy = y2 - y1;
+      final double invNorm = 1.0 / Math.hypot(dx, dy);
+      dx *= invNorm;
+      dy *= invNorm;
 
-        double d1 = x1 * dx + y1 * dy;
-        double d2 = x2 * dx + y2 * dy;
-        double d3 = x3 * dx + y3 * dy;
-        double d4 = x4 * dx + y4 * dy;
+      double d1 = x1 * dx + y1 * dy;
+      double d2 = x2 * dx + y2 * dy;
+      double d3 = x3 * dx + y3 * dy;
+      double d4 = x4 * dx + y4 * dy;
 
-        // Sort
-        if (d2 < d1) {
-          final double tmp = d1;
-          d1 = d2;
-          d2 = tmp;
-        }
-        if (d4 < d3) {
-          final double tmp = d3;
-          d3 = d4;
-          d4 = tmp;
-        }
-
-        return overlap(d1, d2, d3, d4);
+      // Sort
+      if (d2 < d1) {
+        final double tmp = d1;
+        d1 = d2;
+        d2 = tmp;
       }
+      if (d4 < d3) {
+        final double tmp = d3;
+        d3 = d4;
+        d4 = tmp;
+      }
+
+      return overlap(d1, d2, d3, d4);
     }
 
     // Check if intersection is within the line segments.
