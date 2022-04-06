@@ -526,7 +526,7 @@ public final class ImageJUtils {
         } else {
           plotWindow.setVisible(true);
         }
-      } catch (final Throwable thrown) {
+      } catch (final Exception thrown) {
         // Allow debugging by logging the error
         IJ.handleException(thrown);
 
@@ -540,7 +540,7 @@ public final class ImageJUtils {
         limits = oldPlot.getLimits();
         try {
           plotWindow.close();
-        } catch (final Throwable innerThrown) {
+        } catch (final Exception innerThrown) {
           // Ignore
         }
 
