@@ -63,8 +63,9 @@
   </Match>
 
   <Match>
-    <Class name="~.*\.gen2\.Simple.*KdTree2D\$Entry" />
-    <!-- EI: The Entry class deliberately exposes the internal array. -->
+    <!-- EI: The Entry class deliberately exposes the internal array.
+       This has been disabled as many classes deliberately expose their internal representation. -->
+    <!-- <Class name="~.*\.gen2\.Simple.*KdTree2D\$Entry" /> -->
     <Or>
       <Bug pattern="EI_EXPOSE_REP" />
       <Bug pattern="EI_EXPOSE_REP2" />
