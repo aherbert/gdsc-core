@@ -42,6 +42,9 @@
     <exclude name="AvoidReassigningParameters" />
     <exclude name="ArrayIsStoredDirectly" />
     <exclude name="MethodReturnsInternalArray" />
+    <!-- Allow advanced for loop control -->
+    <exclude name="ForLoopVariableCount" />
+    <exclude name="AvoidReassigningLoopVariables" />
   </rule>
   <rule ref="category/java/codestyle.xml/FieldNamingConventions">
     <properties>
