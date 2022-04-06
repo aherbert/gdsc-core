@@ -64,7 +64,7 @@ public class RampedScore {
 
     @Override
     public double score(double value) {
-      return value <= edge0 ? 1.0 : 0.0;
+      return value <= edge0 ? 1 : 0;
     }
   }
 
@@ -78,7 +78,7 @@ public class RampedScore {
 
     @Override
     public double score(double value) {
-      return value <= edge0 ? 0.0 : 1.0;
+      return value <= edge0 ? 0 : 1;
     }
   }
 
@@ -162,10 +162,10 @@ public class RampedScore {
     // Smoother step
     // Scale to interval 0..1
     final double x = (value - edge0) / range;
-    if (x <= 0.0) {
-      return 0.0;
+    if (x <= 0) {
+      return 0;
     } else if (x >= 1) {
-      return 1.0;
+      return 1;
     }
     // Evaluate polynomial
     return x * x * x * (x * (x * 6 - 15) + 10);
