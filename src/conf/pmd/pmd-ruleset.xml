@@ -137,6 +137,12 @@
         value="./ancestor::ClassOrInterfaceDeclaration[@SimpleName = 'LoggerUtils']"/>
     </properties>
   </rule>
+  <rule ref="category/java/errorprone.xml/AvoidBranchingStatementAsLastInLoop">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor::ClassOrInterfaceDeclaration[@SimpleName = 'KnnConcaveHull2d']"/>
+    </properties>
+  </rule>
   <rule ref="category/java/errorprone.xml/DoNotCallGarbageCollectionExplicitly">
     <properties>
       <property name="violationSuppressXPath"
