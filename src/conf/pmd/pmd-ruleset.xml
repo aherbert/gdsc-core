@@ -137,6 +137,12 @@
         value="./ancestor::ClassOrInterfaceDeclaration[matches(@SimpleName, 'Adaptor')]"/>
     </properties>
   </rule>
+  <rule ref="category/java/codestyle.xml/ShortMethodName">
+    <properties>
+      <!-- Allow samplers to have factory constructor method 'of' -->
+      <property name="violationSuppressXPath" value="./ancestor-or-self::MethodDeclaration[@Name = 'of']"/>
+    </properties>
+  </rule>
   <rule ref="category/java/errorprone.xml/MoreThanOneLogger">
     <properties>
       <property name="violationSuppressXPath"
