@@ -174,7 +174,7 @@ public final class TextUtils {
    * @return the length
    */
   public static int getLength(String string) {
-    return (string != null) ? string.length() : 0;
+    return string == null ? 0 : string.length();
   }
 
   /**
