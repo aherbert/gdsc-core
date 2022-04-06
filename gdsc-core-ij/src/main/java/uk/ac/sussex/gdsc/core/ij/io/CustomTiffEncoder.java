@@ -365,9 +365,9 @@ public class CustomTiffEncoder {
       writeEntry(out, FastTiffDecoder.Y_RESOLUTION, 5, 1, tagDataOffset + 8);
       tagDataOffset += SCALE_DATA_SIZE;
       int unit = 1;
-      if (fi.unit.equals("inch")) {
+      if ("inch".equals(fi.unit)) {
         unit = 2;
-      } else if (fi.unit.equals("cm")) {
+      } else if ("cm".equals(fi.unit)) {
         unit = 3;
       }
       writeEntry(out, FastTiffDecoder.RESOLUTION_UNIT, 3, 1, unit);
