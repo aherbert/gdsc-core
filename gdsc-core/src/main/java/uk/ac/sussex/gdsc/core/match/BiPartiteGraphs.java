@@ -227,7 +227,7 @@ public final class BiPartiteGraphs {
    */
   private static void extractSubGraphIndices(int[] ids, int start, int id, IntArrayList list) {
     list.clear();
-    for (int i = 0; i < ids.length; i++) {
+    for (int i = start; i < ids.length; i++) {
       if (ids[i] == id) {
         list.add(i);
       }
