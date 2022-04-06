@@ -79,6 +79,13 @@ public class AutoThreshold {
   private static final Logger logger = Logger.getLogger(AutoThreshold.class.getName());
 
   /**
+   * The multiplier used within the MeanPlusStdDev calculation.
+   */
+  private static double stdDevMultiplier = 3;
+  /** The epsilon for the minimum double value in the maxEntropy method. */
+  private static double EPSILON = 0x1.0p-52;
+
+  /**
    * The auto-threshold method.
    */
   public enum Method {
@@ -353,18 +360,16 @@ public class AutoThreshold {
   public static int intermodes(int[] data) {
     final double[] iHisto = new double[data.length];
     int iter = 0;
-    int threshold = -1;
     for (int i = 0; i < data.length; i++) {
       iHisto[i] = data[i];
     }
 
     while (!bimodalTest(iHisto)) {
       // smooth with a 3 point running mean filter
-      double previous = 0;
       double current = 0;
       double next = iHisto[0];
       for (int i = 0; i < data.length - 1; i++) {
-        previous = current;
+        final double previous = current;
         current = next;
         next = iHisto[i + 1];
         iHisto[i] = (previous + current + next) / 3;
@@ -372,9 +377,8 @@ public class AutoThreshold {
       iHisto[data.length - 1] = (current + next) / 3;
       iter++;
       if (iter > 10000) {
-        threshold = -1;
         logger.fine("Intermodes Threshold not found after 10000 iterations.");
-        return threshold;
+        return -1;
       }
     }
 
@@ -385,8 +389,7 @@ public class AutoThreshold {
         tt += i;
       }
     }
-    threshold = (int) Math.floor(tt / 2.0);
-    return threshold;
+    return (int) Math.floor(tt / 2.0);
   }
 
   /**
@@ -468,8 +471,8 @@ public class AutoThreshold {
     // Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
 
     int numPixels = 0;
-    for (int ih = 0; ih < data.length; ih++) {
-      numPixels += data[ih];
+    for (final int i : data) {
+      numPixels += i;
     }
 
     /* Calculate the mean gray-level */
@@ -551,8 +554,8 @@ public class AutoThreshold {
     final double[] p2 = new double[data.length];
 
     int total = 0;
-    for (int ih = 0; ih < data.length; ih++) {
-      total += data[ih];
+    for (final int i : data) {
+      total += i;
     }
 
     for (int ih = 0; ih < data.length; ih++) {
@@ -569,7 +572,7 @@ public class AutoThreshold {
     /* Determine the first non-zero bin */
     int firstBin = 0;
     for (int ih = 0; ih < data.length; ih++) {
-      if (Math.abs(p1[ih]) >= 2.220446049250313E-16) {
+      if (Math.abs(p1[ih]) >= EPSILON) {
         firstBin = ih;
         break;
       }
@@ -578,7 +581,7 @@ public class AutoThreshold {
     /* Determine the last non-zero bin */
     int lastBin = data.length - 1;
     for (int ih = data.length - 1; ih >= firstBin; ih--) {
-      if (Math.abs(p2[ih]) >= 2.220446049250313E-16) {
+      if (Math.abs(p2[ih]) >= EPSILON) {
         lastBin = ih;
         break;
       }
@@ -628,7 +631,6 @@ public class AutoThreshold {
    * @return the threshold (or -1 if not found)
    */
   public static int mean(int[] data) {
-    int threshold = -1;
     long tot = 0;
     long sum = 0;
     for (int i = 0; i < data.length; i++) {
@@ -638,14 +640,8 @@ public class AutoThreshold {
     if (tot == 0) {
       return 0;
     }
-    threshold = (int) Math.floor(sum / tot);
-    return threshold;
+    return (int) Math.floor(sum / tot);
   }
-
-  /**
-   * The multiplier used within the MeanPlusStdDev calculation.
-   */
-  private static double stdDevMultiplier = 3;
 
   /**
    * Sets the multiplier used within the MeanPlusStdDev calculation.
@@ -888,8 +884,8 @@ public class AutoThreshold {
   public static int moments(int[] data) {
     double total = 0;
 
-    for (int i = 0; i < data.length; i++) {
-      total += data[i];
+    for (final int i : data) {
+      total += i;
     }
 
     if (total == 0) {
@@ -1104,8 +1100,8 @@ public class AutoThreshold {
   public static int renyiEntropy(int[] data) {
 
     int total = 0;
-    for (int ih = 0; ih < data.length; ih++) {
-      total += data[ih];
+    for (final int i : data) {
+      total += i;
     }
 
     if (total == 0) {
@@ -1305,8 +1301,8 @@ public class AutoThreshold {
   public static int shanbhag(int[] data) {
 
     int total = 0;
-    for (int ih = 0; ih < data.length; ih++) {
-      total += data[ih];
+    for (final int i : data) {
+      total += i;
     }
     if (total == 0) {
       return 0;
@@ -1508,8 +1504,8 @@ public class AutoThreshold {
     final double[] p2Sq = new double[data.length];
 
     int total = 0;
-    for (int ih = 0; ih < data.length; ih++) {
-      total += data[ih];
+    for (final int i : data) {
+      total += i;
     }
 
     for (int ih = 0; ih < data.length; ih++) {
@@ -1608,9 +1604,7 @@ public class AutoThreshold {
     int[] data2;
     if (size < data.length) {
       data2 = new int[size];
-      for (int i = minbin, j = 0; i <= maxbin; i++, j++) {
-        data2[j] = data[i];
-      }
+      System.arraycopy(data, minbin, data2, 0, size);
     } else {
       data2 = data;
     }
