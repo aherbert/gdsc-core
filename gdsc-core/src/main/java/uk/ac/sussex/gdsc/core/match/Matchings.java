@@ -102,8 +102,8 @@ public final class Matchings {
      */
     static <T, U> MatchConsumer create(List<T> verticesA, List<U> verticesB,
         BiConsumer<T, U> matched) {
-      return matched != null ? new IntersectionMatchConsumer<>(verticesA, verticesB, matched)
-          : null;
+      return matched == null ? null
+          : new IntersectionMatchConsumer<>(verticesA, verticesB, matched);
     }
 
     @Override
@@ -153,7 +153,7 @@ public final class Matchings {
      * @return the match consumer
      */
     static <T> MatchConsumer create(List<T> vertices, boolean first, Consumer<T> unmatched) {
-      return unmatched != null ? new UnmatchedMatchConsumer<>(vertices, first, unmatched) : null;
+      return unmatched == null ? null : new UnmatchedMatchConsumer<>(vertices, first, unmatched);
     }
 
     @Override
