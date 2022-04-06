@@ -1031,7 +1031,7 @@ public final class ImageJUtils {
     if (ignoreSuffix != null) {
       filter = filter.and(createImageFilter(ignoreSuffix));
     }
-    return toArray(flags, getImages(createImageFilter(flags)));
+    return toArray(flags, getImages(filter));
   }
 
   /**
