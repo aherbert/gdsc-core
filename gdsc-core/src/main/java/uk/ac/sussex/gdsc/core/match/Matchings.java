@@ -673,7 +673,7 @@ public final class Matchings {
     // The number of assignments is the minimum of the matrix dimensions.
     // Prevent overflow when approaching the largest supported square matrix.
     final int n = Math.min(verticesA.length, sizeB);
-    final int notAllowed = (int) Math.min(1L << 30, MAX_COST * n + 1L);
+    final int notAllowed = (int) Math.min(1L << 30, (long) MAX_COST * n + 1);
     final int[][] cost = new int[verticesA.length][sizeB];
 
     // Write in the known costs to the matrix
