@@ -573,6 +573,8 @@ public final class DiggingConcaveHull2d {
 
   /**
    * Extend the Vector2D class with a associated identifier.
+   *
+   * <p>This extends Vector2D to be used to generate the ConvexHull using Commons Math 3.
    */
   private static class IntVector2D extends Vector2D {
     private static final long serialVersionUID = 1L;
