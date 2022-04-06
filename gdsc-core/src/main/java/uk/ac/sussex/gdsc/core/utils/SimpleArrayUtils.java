@@ -127,8 +127,9 @@ public final class SimpleArrayUtils {
     if (array == null) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
-    final double[] out = new double[array.length];
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    final double[] out = new double[len];
+    for (int i = 0; i < len; i++) {
       out[i] = array[i];
     }
     return out;
@@ -144,8 +145,9 @@ public final class SimpleArrayUtils {
     if (array == null) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
-    final double[] out = new double[array.length];
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    final double[] out = new double[len];
+    for (int i = 0; i < len; i++) {
       out[i] = array[i];
     }
     return out;
@@ -161,8 +163,9 @@ public final class SimpleArrayUtils {
     if (array == null) {
       return new float[0];
     }
-    final float[] out = new float[array.length];
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    final float[] out = new float[len];
+    for (int i = 0; i < len; i++) {
       out[i] = (float) array[i];
     }
     return out;
@@ -178,8 +181,9 @@ public final class SimpleArrayUtils {
     if (array == null) {
       return new float[0];
     }
-    final float[] out = new float[array.length];
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    final float[] out = new float[len];
+    for (int i = 0; i < len; i++) {
       out[i] = array[i];
     }
     return out;
@@ -694,7 +698,8 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(int[] data) {
     int min = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -719,7 +724,8 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(float[] data) {
     int min = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -744,7 +750,8 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(double[] data) {
     int min = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -770,7 +777,8 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(int[] data) {
     int max = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -795,7 +803,8 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(float[] data) {
     int max = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -820,7 +829,8 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(double[] data) {
     int max = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -846,7 +856,8 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(int[] data) {
     int min = 0;
     int max = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[max]) {
@@ -874,7 +885,8 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(float[] data) {
     int min = 0;
     int max = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[max]) {
@@ -903,7 +915,8 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(double[] data) {
     int min = 0;
     int max = 0;
-    for (int i = 1, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 1; i < len; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[max]) {
@@ -924,7 +937,8 @@ public final class SimpleArrayUtils {
    *         matching element
    */
   public static int findIndex(int[] data, IntPredicate filter) {
-    for (int i = 0, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 0; i < len; i++) {
       if (filter.test(data[i])) {
         return i;
       }
@@ -943,7 +957,8 @@ public final class SimpleArrayUtils {
    *         matching element
    */
   public static int findIndex(float[] data, FloatPredicate filter) {
-    for (int i = 0, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 0; i < len; i++) {
       if (filter.test(data[i])) {
         return i;
       }
@@ -962,7 +977,8 @@ public final class SimpleArrayUtils {
    *         matching element
    */
   public static int findIndex(double[] data, DoublePredicate filter) {
-    for (int i = 0, len = data.length; i < len; i++) {
+    final int len = data.length;
+    for (int i = 0; i < len; i++) {
       if (filter.test(data[i])) {
         return i;
       }
@@ -1546,7 +1562,8 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(int[] array, IntUnaryOperator operator) {
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    for (int i = 0; i < len; i++) {
       array[i] = operator.applyAsInt(array[i]);
     }
   }
@@ -1558,7 +1575,8 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(long[] array, LongUnaryOperator operator) {
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    for (int i = 0; i < len; i++) {
       array[i] = operator.applyAsLong(array[i]);
     }
   }
@@ -1570,7 +1588,8 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(float[] array, FloatUnaryOperator operator) {
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    for (int i = 0; i < len; i++) {
       array[i] = operator.applyAsFloat(array[i]);
     }
   }
@@ -1582,7 +1601,8 @@ public final class SimpleArrayUtils {
    * @param operator the operator
    */
   public static void apply(double[] array, DoubleUnaryOperator operator) {
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    for (int i = 0; i < len; i++) {
       array[i] = operator.applyAsDouble(array[i]);
     }
   }
@@ -1682,7 +1702,8 @@ public final class SimpleArrayUtils {
    * @see Arrays#fill(Object[], Object)
    */
   public static <T> T[] fill(T[] array, IntFunction<T> generator) {
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    for (int i = 0; i < len; i++) {
       array[i] = generator.apply(i);
     }
     return array;
@@ -1700,7 +1721,8 @@ public final class SimpleArrayUtils {
    * @see Arrays#fill(Object[], Object)
    */
   public static <T> T[] fill(T[] array, Supplier<T> supplier) {
-    for (int i = 0, len = array.length; i < len; i++) {
+    final int len = array.length;
+    for (int i = 0; i < len; i++) {
       array[i] = supplier.get();
     }
     return array;
