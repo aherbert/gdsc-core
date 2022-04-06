@@ -173,7 +173,7 @@ public final class XmlUtils {
    * @param sb the string builder
    * @param numChars the number of characters
    */
-  private static void appendWhitespace(StringBuilder sb, int numChars) {
+  static void appendWhitespace(StringBuilder sb, int numChars) {
     for (int i = 0; i < numChars; i++) {
       sb.append(' ');
     }

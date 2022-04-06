@@ -256,7 +256,7 @@ public final class Entropy {
    * @param counts the counts
    * @return the entropy (bits)
    */
-  private static double computeBits(long total, long... counts) {
+  static double computeBits(long total, long... counts) {
     double sum = 0;
     for (final long c : counts) {
       if (c > 0) {

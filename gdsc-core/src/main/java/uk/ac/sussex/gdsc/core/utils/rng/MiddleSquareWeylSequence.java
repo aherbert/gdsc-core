@@ -361,7 +361,7 @@ public final class MiddleSquareWeylSequence
       throw new IllegalArgumentException("Not positive: " + n);
     }
     final long nm1 = n - 1;
-    if ((n & nm1) == 0L) {
+    if ((n & nm1) == 0) {
       // Power of 2
       return nextLong() & nm1;
     }
@@ -430,11 +430,11 @@ public final class MiddleSquareWeylSequence
    */
   private static class MswsState implements RandomProviderState {
     /** State of the generator. */
-    private final long state;
+    final long state;
     /** State of the Weyl sequence. */
-    private final long weyl;
+    final long weyl;
     /** Increment for the Weyl sequence. */
-    private final long inc;
+    final long inc;
 
     /**
      * Create a new instance.
