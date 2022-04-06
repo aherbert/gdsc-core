@@ -158,23 +158,21 @@ public final class Hull2d implements Hull {
     for (int j = xpoints.length, i = 0; j-- > 0; i = j) {
       if (ypoints[i] <= yp) {
         // start y <= yp
-        if (ypoints[j] > yp) {
-          // an upward crossing
-          if (isLeft(xpoints[i], ypoints[i], xpoints[j], ypoints[j], xp, yp) > 0) {
-            // P left of edge
-            // have a valid up intersect
-            ++wn;
-          }
+        if (ypoints[j] > yp
+            // an upward crossing
+            && isLeft(xpoints[i], ypoints[i], xpoints[j], ypoints[j], xp, yp) > 0) {
+          // P left of edge
+          // have a valid up intersect
+          ++wn;
         }
       } else {
         // start y > yp (no test needed)
-        if (ypoints[j] <= yp) {
-          // a downward crossing
-          if (isLeft(xpoints[i], ypoints[i], xpoints[j], ypoints[j], xp, yp) < 0) {
-            // P right of edge
-            // have a valid down intersect
-            --wn;
-          }
+        if (ypoints[j] <= yp
+            // a downward crossing
+            && isLeft(xpoints[i], ypoints[i], xpoints[j], ypoints[j], xp, yp) < 0) {
+          // P right of edge
+          // have a valid down intersect
+          --wn;
         }
       }
     }
