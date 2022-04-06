@@ -863,7 +863,7 @@ public class HistogramPlot {
       return false;
     }
     if (MathUtils.isInteger(x[0])) {
-      return x.length == 1 ? true : (x[1] - x[0]) == 1;
+      return x.length == 1 || (x[1] - x[0]) == 1;
     }
     return false;
   }
