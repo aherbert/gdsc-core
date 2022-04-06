@@ -55,7 +55,7 @@ public abstract class SplitMix implements RestorableUniformRandomProvider {
   /** The state. */
   long state;
 
-  /*
+  /**
    * Implement the 64-bit SplitMix algorithm.
    */
   private static final class SplitMix64 extends SplitMix {
@@ -121,7 +121,7 @@ public abstract class SplitMix implements RestorableUniformRandomProvider {
     }
   }
 
-  /*
+  /**
    * Implement a 32-bit variant SplitMix algorithm.
    *
    * <p>This differs from {@link SplitMix64} by combining two 32-bit values to create a 64-bit
