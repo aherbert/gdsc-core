@@ -1025,7 +1025,7 @@ public class AlignImagesFft {
    * @return The peak location with sub-pixel accuracy
    */
   public static double[] performCubicFit(FloatProcessor fp, int xindex, int yindex) {
-    final double[] centre = new double[] {xindex, yindex};
+    final double[] centre = {xindex, yindex};
     // Working space
     final double[] xrange = new double[3];
     final double[] yrange = new double[3];
