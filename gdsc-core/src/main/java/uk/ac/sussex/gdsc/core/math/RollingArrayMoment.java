@@ -45,13 +45,6 @@ public final class RollingArrayMoment implements ArrayMoment {
   /** Second moment of values that have been added. */
   private double[] m2;
 
-  /**
-   * Instantiates a new array moment with data.
-   */
-  public RollingArrayMoment() {
-    // Do nothing
-  }
-
   @Override
   public void add(double[] data) {
     if (size == 0) {
