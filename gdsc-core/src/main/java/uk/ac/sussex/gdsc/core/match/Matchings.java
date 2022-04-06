@@ -57,7 +57,7 @@ public final class Matchings {
    * Define a consumer of matches between two sets.
    */
   @VisibleForTesting
-  static interface MatchConsumer extends IntBiConsumer {
+  interface MatchConsumer extends IntBiConsumer {
     /**
      * Run any finalisation steps after the matches have all been consumed.
      */
