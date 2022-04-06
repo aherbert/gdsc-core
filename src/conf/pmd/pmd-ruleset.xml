@@ -41,6 +41,7 @@
          allow inlining. -->
     <exclude name="AvoidReassigningParameters" />
     <exclude name="ArrayIsStoredDirectly" />
+    <exclude name="MethodReturnsInternalArray" />
   </rule>
   <rule ref="category/java/codestyle.xml/FieldNamingConventions">
     <properties>
@@ -118,6 +119,7 @@
   <rule ref="category/java/performance.xml">
     <!-- This is used for 16-bit images so allow it.  -->
     <exclude name="AvoidUsingShortType" />
+    <exclude name="AvoidInstantiatingObjectsInLoops" />
   </rule>
 
   <rule ref="category/java/bestpractices.xml/SystemPrintln">
