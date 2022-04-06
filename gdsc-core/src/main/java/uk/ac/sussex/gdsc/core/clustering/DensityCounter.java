@@ -668,7 +668,7 @@ public class DensityCounter {
 
       // Split the entries evenly over each thread
       // This should fairly allocate the density to all processing threads
-      final int[] process = new int[nonEmpty];
+      final int[] process = new int[gridPriority.length];
       for (int i = 0, j = 0, k = 0; i < gridPriority.length; i++) {
         process[i] = gridPriority[j];
         j += threadCount;
