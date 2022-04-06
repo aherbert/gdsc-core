@@ -36,6 +36,10 @@
     <exclude name="UseVarargs" />
     <!-- Allow builders to construct classes using private constructors -->
     <exclude name="AccessorClassGeneration" />
+    <!-- Disabled to avoid having to suppress many cases where code is improved by allowing
+         reassignment, i.e. small functions where compiled byte size must be minimised to
+         allow inlining. -->
+    <exclude name="AvoidReassigningParameters" />
   </rule>
   <rule ref="category/java/codestyle.xml/FieldNamingConventions">
     <properties>
@@ -113,6 +117,31 @@
   <rule ref="category/java/performance.xml">
     <!-- This is used for 16-bit images so allow it.  -->
     <exclude name="AvoidUsingShortType" />
+  </rule>
+
+  <rule ref="category/java/bestpractices.xml/SystemPrintln">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor::ClassOrInterfaceDeclaration[@SimpleName = 'VersionUtils']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/codestyle.xml/EmptyMethodInAbstractClassShouldBeAbstract">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor::ClassOrInterfaceDeclaration[matches(@SimpleName, 'Adaptor')]"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/errorprone.xml/MoreThanOneLogger">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor::ClassOrInterfaceDeclaration[@SimpleName = 'LoggerUtils']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/errorprone.xml/DoNotCallGarbageCollectionExplicitly">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor::ClassOrInterfaceDeclaration[@SimpleName = 'MemoryUtils']"/>
+    </properties>
   </rule>
 
 </ruleset>
