@@ -552,8 +552,10 @@ public final class Hull3d implements Hull {
    */
   public double[] getCentroid() {
     double[] c = centroid;
-    if (centroid == null) {
-      computeProperties();
+    if (c == null) {
+      synchronized (vertices) {
+        computeProperties();
+      }
       c = centroid;
     }
     return c.clone();
@@ -565,12 +567,12 @@ public final class Hull3d implements Hull {
    * @return the area
    */
   public double getArea() {
-    double a = area;
-    if (a == 0) {
-      computeProperties();
-      a = area;
+    if (centroid == null) {
+      synchronized (vertices) {
+        computeProperties();
+      }
     }
-    return a;
+    return area;
   }
 
   /**
@@ -579,18 +581,21 @@ public final class Hull3d implements Hull {
    * @return the volume
    */
   public double getVolume() {
-    double v = volume;
-    if (v == 0) {
-      computeProperties();
-      v = volume;
+    if (centroid == null) {
+      synchronized (vertices) {
+        computeProperties();
+      }
     }
-    return v;
+    return volume;
   }
 
   /**
    * Compute properties.
+   *
+   * <p>Only called from a synchronized block. Synchronization can use the vertices object
+   * which is never null.
    */
-  private synchronized void computeProperties() {
+  private void computeProperties() {
     if (centroid != null) {
       return;
     }
