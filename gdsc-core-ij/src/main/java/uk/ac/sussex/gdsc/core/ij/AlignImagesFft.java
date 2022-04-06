@@ -1261,7 +1261,6 @@ public class AlignImagesFft {
         wx = ImageWindow.tukey(maxx);
         wy = ImageWindow.tukey(maxy);
         break;
-      case NONE:
       default:
         wx = ImageWindow.createWindow(WindowMethod.NONE, maxx);
         wy = ImageWindow.createWindow(WindowMethod.NONE, maxy);
@@ -1321,7 +1320,6 @@ public class AlignImagesFft {
       case TUKEY:
         wf = Tukey.INSTANCE;
         break;
-      case NONE:
       default:
         wf = NoWindowFunction.INSTANCE;
     }
