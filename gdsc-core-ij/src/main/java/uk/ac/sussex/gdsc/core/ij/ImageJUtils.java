@@ -1398,7 +1398,7 @@ public final class ImageJUtils {
     final int threshold = stats.pixelCount / 5000;
 
     int index = -1;
-    boolean found = false;
+    boolean found;
     int count;
     do {
       index++;
