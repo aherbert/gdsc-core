@@ -317,6 +317,12 @@ public final class KnnConcaveHull2d {
     /** Used to convert an angle in radians to turns. */
     private static final double FROM_RADIANS = 1.0 / (2 * Math.PI);
 
+    /** The data. */
+    private final IndexAngle[] data;
+
+    /** The size. */
+    private int size;
+
     /**
      * Store the index, and distance and angle relative to the current hull point.
      */
@@ -343,12 +349,6 @@ public final class KnnConcaveHull2d {
         return result == 0 ? Double.compare(o2.distance, o1.distance) : result;
       }
     }
-
-    /** The data. */
-    private final IndexAngle[] data;
-
-    /** The size. */
-    private int size;
 
     /**
      * Create an instance.
