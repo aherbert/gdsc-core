@@ -51,11 +51,11 @@ public final class ImageJPluginLoggerHelper {
    * <p>This is not used but a reference is held to allow the configuration to be maintained since
    * the LogManager only holds a weak reference to the configured logger.
    */
-  private static final Logger redirectedLogger;
+  private static final Logger logger;
 
   static {
     // Ensure redirection of the top-level GDSC package
-    redirectedLogger = ImageJLoggingUtils.redirectConsoleHandler("uk.ac.sussex.gdsc");
+    logger = ImageJLoggingUtils.redirectConsoleHandler("uk.ac.sussex.gdsc");
   }
 
   /**
@@ -102,6 +102,6 @@ public final class ImageJPluginLoggerHelper {
    * @return the logger
    */
   public static Logger getDefaultLogger() {
-    return redirectedLogger;
+    return logger;
   }
 }

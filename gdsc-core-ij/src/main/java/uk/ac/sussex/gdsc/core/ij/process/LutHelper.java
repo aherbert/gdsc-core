@@ -43,7 +43,7 @@ public final class LutHelper {
   /** The size of an 8-bit look-up table. */
   private static final int LUT_TABLE_8BIT_SIZE = 256;
   /** List of the LUT names. */
-  private static final String[] luts;
+  private static final String[] LUTS;
 
   /**
    * The LUT Colour.
@@ -202,9 +202,9 @@ public final class LutHelper {
 
   static {
     final LutColour[] l = LutColour.values();
-    luts = new String[l.length];
+    LUTS = new String[l.length];
     for (int i = 0; i < l.length; i++) {
-      luts[i] = l[i].getName();
+      LUTS[i] = l[i].getName();
     }
   }
 
@@ -218,7 +218,7 @@ public final class LutHelper {
    * @return the LUT names
    */
   public static String[] getLutNames() {
-    return luts.clone();
+    return LUTS.clone();
   }
 
   /**
@@ -240,7 +240,7 @@ public final class LutHelper {
    * @see #createLut(LutColour, boolean)
    */
   public static LUT createLut(int lut) {
-    if (lut >= 0 && lut < luts.length) {
+    if (lut >= 0 && lut < LUTS.length) {
       return createLut(LutColour.forNumber(lut), false);
     }
     return null;

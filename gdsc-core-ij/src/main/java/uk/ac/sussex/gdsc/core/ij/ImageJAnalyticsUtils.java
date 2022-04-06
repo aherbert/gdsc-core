@@ -141,7 +141,7 @@ public final class ImageJAnalyticsUtils {
      * <p>Changes to the client must use methods on the builder and then the client instance can be
      * rebuilt.
      */
-    private static final GoogleAnalyticsClient.Builder builderInstance;
+    private static final GoogleAnalyticsClient.Builder BUILDER;
 
     /**
      * The single instance of the client.
@@ -163,7 +163,7 @@ public final class ImageJAnalyticsUtils {
       final Dimension screenSize = IJ.getScreenSize();
 
       //@formatter:off
-      builderInstance =
+      BUILDER =
           GoogleAnalyticsClient.newBuilder(GA_TRACKING_ID)
                                .setClientId(clientId)
                                // Always use anonymised and secure connection.
@@ -193,7 +193,7 @@ public final class ImageJAnalyticsUtils {
                                    .getParent();
       //@formatter:on
 
-      instance = builderInstance.build();
+      instance = BUILDER.build();
     }
 
     /**
@@ -240,10 +240,10 @@ public final class ImageJAnalyticsUtils {
      * @param value The dimension value
      */
     static void addCustomDimension(int index, String value) {
-      builderInstance.getOrCreatePerSessionParameters().addCustomDimension(index, value);
+      BUILDER.getOrCreatePerSessionParameters().addCustomDimension(index, value);
       // Update the instance. Avoid synchronisation. This method is likely to be called
       // before any use of the instance since it sets session parameters.
-      instance = builderInstance.build();
+      instance = BUILDER.build();
     }
   }
 
