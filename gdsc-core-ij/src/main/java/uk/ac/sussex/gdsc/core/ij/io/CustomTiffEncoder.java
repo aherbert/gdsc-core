@@ -150,8 +150,8 @@ public class CustomTiffEncoder {
       entries += 2; // MetaData & MetaDataCounts
     }
     ifdSize = 2 + entries * 12 + 4;
-    final int descriptionSize = description != null ? description.length : 0;
-    scaleSize = fi.unit != null && fi.pixelWidth != 0 && fi.pixelHeight != 0 ? SCALE_DATA_SIZE : 0;
+    final int descriptionSize = description == null ? 0 : description.length;
+    scaleSize = fi.unit == null || fi.pixelWidth == 0 || fi.pixelHeight == 0 ? 0 : SCALE_DATA_SIZE;
     imageOffset = HDR_SIZE + ifdSize + bpsSize + descriptionSize + scaleSize + colorMapSize
         + metaDataEntries * 4 + metaDataSize;
     fi.offset = (int) imageOffset;
@@ -545,14 +545,14 @@ public class CustomTiffEncoder {
    * saves the stack size so ImageJ can open the stack without decoding an IFD for each slice.
    */
   private void makeDescriptionString() {
-    if (fi.description != null) {
+    if (fi.description == null) {
+      description = null;
+    } else {
       if (fi.description.charAt(fi.description.length() - 1) != (char) 0) {
         fi.description += " ";
       }
       description = fi.description.getBytes();
       description[description.length - 1] = (byte) 0;
-    } else {
-      description = null;
     }
   }
 
