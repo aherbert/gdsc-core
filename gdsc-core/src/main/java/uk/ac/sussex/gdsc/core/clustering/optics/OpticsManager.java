@@ -2342,6 +2342,6 @@ public class OpticsManager extends CoordinateStore {
     if (service != null && service.isShutdown()) {
       service = executorService = null;
     }
-    return executorService;
+    return service;
   }
 }
