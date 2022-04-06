@@ -37,6 +37,9 @@ import uk.ac.sussex.gdsc.core.utils.LocalList;
  */
 public final class RecorderUtils {
 
+  /** The recorder. */
+  private static RecorderCommand recorder = ImageJRecorderCommand.INSTANCE;
+
   /**
    * Define methods used from the ImageJ Recorder.
    */
@@ -127,8 +130,6 @@ public final class RecorderUtils {
       Recorder.recordOption(key, value);
     }
   }
-
-  private static RecorderCommand recorder = ImageJRecorderCommand.INSTANCE;
 
   /** No construction. */
   private RecorderUtils() {}
