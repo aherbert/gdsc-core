@@ -34,10 +34,19 @@ import java.util.function.IntConsumer;
  * A class to maintain a circular list of {@code int} values. This list can never be empty.
  */
 final class CircularList {
+  /** The current node. */
+  private Node current;
+
+  /** The saved node. */
+  private Node mark;
+
+  /** The size. */
+  private int size;
+
   /**
    * A node in the circular list.
    */
-  private class Node {
+  private static class Node {
     /** The value. */
     int value;
     /** The next node. */
@@ -73,15 +82,6 @@ final class CircularList {
      */
     void accept(int value1, int value2);
   }
-
-  /** The current node. */
-  private Node current;
-
-  /** The saved node. */
-  private Node mark;
-
-  /** The size. */
-  private int size;
 
   /**
    * Create an instance.
