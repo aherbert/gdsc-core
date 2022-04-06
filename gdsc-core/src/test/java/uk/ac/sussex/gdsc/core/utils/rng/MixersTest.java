@@ -216,8 +216,8 @@ class MixersTest {
 
   @Test
   void testLea64Output() {
-    // Code generated using the reference java code provided by Blackman and Vigna:
-    // https://dl.acm.org/doi/10.1145/3460772
+    // Code generated using the reference java code provided by Steele and Vigna:
+    // https://doi.org/10.1145/3485525
     final long[] values =
         {0x45b8512f9ff46f10L, 0xd6ce3db0dd63efc3L, 0x47bf6058710f2a88L, 0x85b8c74e40981596L,
             0xd77442e45944235eL, 0x3ea4255636bfb1c3L, 0x296ec3c9d3e0addcL, 0x6c285eb9694f6eb2L,
