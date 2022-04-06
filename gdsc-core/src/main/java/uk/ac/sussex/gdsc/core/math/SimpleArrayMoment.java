@@ -45,13 +45,6 @@ public final class SimpleArrayMoment implements ArrayMoment {
   /** The sum of squared values that have been added. */
   private double[] sumSq;
 
-  /**
-   * Instantiates a new array moment with data.
-   */
-  public SimpleArrayMoment() {
-    // Do nothing
-  }
-
   @Override
   public void add(double[] data) {
     if (size == 0) {
