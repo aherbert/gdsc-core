@@ -38,7 +38,7 @@ package uk.ac.sussex.gdsc.core.logging;
  * define methods for progress events you care about. Note: The {@link TrackProgress#isEnded()}
  * returns {@code false} and the other properties return {@code true}).
  */
-public abstract class TrackProgressAdaptor implements TrackProgress {
+public abstract class TrackProgressAdapter implements TrackProgress {
   @Override
   public void progress(double fraction) {
     // Do nothing

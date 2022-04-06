@@ -134,7 +134,7 @@
   <rule ref="category/java/codestyle.xml/EmptyMethodInAbstractClassShouldBeAbstract">
     <properties>
       <property name="violationSuppressXPath"
-        value="./ancestor::ClassOrInterfaceDeclaration[matches(@SimpleName, 'Adaptor')]"/>
+        value="./ancestor::ClassOrInterfaceDeclaration[matches(@SimpleName, 'Adapter')]"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ShortMethodName">

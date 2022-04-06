@@ -40,18 +40,18 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings("javadoc")
-class JdkRandomAdaptorTest {
+class JdkRandomAdapterTest {
   @SuppressWarnings("unused")
   @Test
   void testConstructorThrows() {
     Assertions.assertThrows(NullPointerException.class, () -> {
-      new JdkRandomAdaptor(null);
+      new JdkRandomAdapter(null);
     });
   }
 
   @Test
   void testSetSeedThrows() {
-    final JdkRandomAdaptor rng = new JdkRandomAdaptor(SplitMix.new64(0));
+    final JdkRandomAdapter rng = new JdkRandomAdapter(SplitMix.new64(0));
     Assertions.assertThrows(NotImplementedException.class, () -> {
       rng.setSeed(44);
     });
@@ -108,7 +108,7 @@ class JdkRandomAdaptorTest {
         return 0;
       }
     };
-    final JdkRandomAdaptor rng = new JdkRandomAdaptor(source);
+    final JdkRandomAdapter rng = new JdkRandomAdapter(source);
 
     Assertions.assertEquals(random1.nextInt(), rng.nextInt());
     Assertions.assertEquals(random1.nextInt(567), rng.nextInt(567));
@@ -118,7 +118,7 @@ class JdkRandomAdaptorTest {
 
   @Test
   void testSerializationThrows() throws IOException {
-    final JdkRandomAdaptor rng = new JdkRandomAdaptor(SplitMix.new64(0));
+    final JdkRandomAdapter rng = new JdkRandomAdapter(SplitMix.new64(0));
     try (ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
       Assertions.assertThrows(NotImplementedException.class, () -> {
         oos.writeObject(rng);

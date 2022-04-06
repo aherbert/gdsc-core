@@ -32,12 +32,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-class TrackProgressAdaptorTest {
+class TrackProgressAdapterTest {
 
   @Test
   void testAdaptor() {
-    final TrackProgressAdaptor progress = new TrackProgressAdaptor() {
-    };
+    final TrackProgressAdapter progress = new TrackProgressAdapter() {};
 
     // Exercise the methods for coverage
     progress.progress(0.5);

@@ -65,7 +65,7 @@ import uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder.IndexMap;
 import uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder.NumberOfImages;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper;
 import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutColour;
-import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
+import uk.ac.sussex.gdsc.core.logging.TrackProgressAdapter;
 import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -2337,7 +2337,7 @@ class FastTiffDecoderTest {
     try (ByteArraySeekableStream ss = ByteArraySeekableStream.wrap(bytes)) {
       final FastTiffDecoder decoder = FastTiffDecoder.create(ss, "test");
       final AtomicInteger calls = new AtomicInteger();
-      final TrackProgressAdaptor progress = new TrackProgressAdaptor() {
+      final TrackProgressAdapter progress = new TrackProgressAdapter() {
         @Override
         public void status(String format, Object... args) {
           calls.getAndIncrement();

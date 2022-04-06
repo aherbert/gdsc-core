@@ -39,9 +39,9 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 /**
  * Extension of {@code java.util.Random} wrapping a {@link UniformRandomProvider}.
  *
- * <p>The seed cannot be set and the adaptor is not serializable.
+ * <p>The seed cannot be set and the adapter is not serializable.
  */
-public class JdkRandomAdaptor extends Random {
+public class JdkRandomAdapter extends Random {
   private static final long serialVersionUID = 20190123L;
   /** The generator of uniformly distributed random numbers. */
   private final UniformRandomProvider rng;
@@ -56,7 +56,7 @@ public class JdkRandomAdaptor extends Random {
    * @param rng Generator of uniformly distributed random numbers.
    * @throws NullPointerException If {@code rng} is null.
    */
-  public JdkRandomAdaptor(UniformRandomProvider rng) {
+  public JdkRandomAdapter(UniformRandomProvider rng) {
     super(0L);
     this.rng = Objects.requireNonNull(rng, "Random generator must not be null");
   }
@@ -77,7 +77,7 @@ public class JdkRandomAdaptor extends Random {
 
   /**
    * Delegates the generation of 32 random bits to the {@code UniformRandomProvider} argument
-   * provided at {@link #JdkRandomAdaptor(UniformRandomProvider) construction}. The returned value
+   * provided at {@link #JdkRandomAdapter(UniformRandomProvider) construction}. The returned value
    * is such that if the source of randomness is a {@link Random}, all the generated values will be
    * identical to those produced by the same sequence of calls on the same {@link Random} instance.
    *

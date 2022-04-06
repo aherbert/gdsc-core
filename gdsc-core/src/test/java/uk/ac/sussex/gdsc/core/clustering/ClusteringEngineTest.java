@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.logging.TrackProgressAdaptor;
+import uk.ac.sussex.gdsc.core.logging.TrackProgressAdapter;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
@@ -313,7 +313,7 @@ class ClusteringEngineTest {
     points.add(ClusterPoint.newTimeClusterPoint(id++, 1, 0, 3, 3));
 
     // Test with an ended tracker
-    final TrackProgress tracker = new TrackProgressAdaptor() {
+    final TrackProgress tracker = new TrackProgressAdapter() {
       @Override
       public boolean isEnded() {
         return true;
@@ -354,7 +354,7 @@ class ClusteringEngineTest {
     final List<Cluster> singles = points.stream().map(Cluster::new).collect(Collectors.toList());
 
     // Test with a tracker to exercise code paths
-    final TrackProgress tracker = new TrackProgressAdaptor() {
+    final TrackProgress tracker = new TrackProgressAdapter() {
       @Override
       public void log(String format, Object... args) {
         // Do nothing
