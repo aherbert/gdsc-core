@@ -475,6 +475,6 @@ public class HopcroftKarpMatching {
    */
   @VisibleForTesting
   static int getSize(IntList list) {
-    return list != null ? list.size() : 0;
+    return list == null ? 0 : list.size();
   }
 }
