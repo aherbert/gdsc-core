@@ -353,8 +353,7 @@ public final class ClosestPairCalculator {
     // We can recycle indicesY for this purpose.
     left = 0;
     final double midX = list[indicesX[mid]].getX();
-    for (int i = 0; i < indicesY.length; i++) {
-      final int id = indicesY[i];
+    for (final int id : indicesY) {
       if (squaredDistance(list[id].getX(), midX) < result.getDistance()) {
         indicesY[left++] = id;
       }
