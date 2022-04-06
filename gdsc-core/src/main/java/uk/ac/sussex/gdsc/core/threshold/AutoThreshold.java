@@ -640,7 +640,7 @@ public class AutoThreshold {
     if (tot == 0) {
       return 0;
     }
-    return (int) Math.floor(sum / tot);
+    return (int) (sum / tot);
   }
 
   /**
