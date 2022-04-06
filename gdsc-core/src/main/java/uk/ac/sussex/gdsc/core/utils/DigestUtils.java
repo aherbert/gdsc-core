@@ -97,7 +97,7 @@ public final class DigestUtils {
       messageDigest.reset();
       return messageDigest;
     } catch (final java.security.NoSuchAlgorithmException ex) {
-      throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
+      throw new IllegalArgumentException("Invalid algorithm: " + algorithm, ex);
     }
   }
 
