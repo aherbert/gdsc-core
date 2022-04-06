@@ -1532,10 +1532,10 @@ public class NonMaximumSuppression {
     // .AB. aA.. ..Bb c... ...d
     // .CD. a... ...b cC.. ..Dd
     // .... .... .... ccc. .ddd
-    final int[] a = new int[] {-newx - 1, -newx, -newx + 1, -1, +newx - 1};
-    final int[] b = new int[] {-newx - 1, -newx, -newx + 1, +1, +newx + 1};
-    final int[] c = new int[] {-newx - 1, -1, +newx - 1, +newx, +newx + 1};
-    final int[] d = new int[] {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
+    final int[] a = {-newx - 1, -newx, -newx + 1, -1, +newx - 1};
+    final int[] b = {-newx - 1, -newx, -newx + 1, +1, +newx + 1};
+    final int[] c = {-newx - 1, -1, +newx - 1, +newx, +newx + 1};
+    final int[] d = {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
@@ -1676,10 +1676,10 @@ public class NonMaximumSuppression {
     // .AB. aA.. ..Bb c... ...d
     // .CD. a... ...b cC.. ..Dd
     // .... .... .... ccc. .ddd
-    final int[] a = new int[] {-maxx - 1, -maxx, -maxx + 1, -1, +maxx - 1};
-    final int[] b = new int[] {-maxx - 1, -maxx, -maxx + 1, +1, +maxx + 1};
-    final int[] c = new int[] {-maxx - 1, -1, +maxx - 1, +maxx, +maxx + 1};
-    final int[] d = new int[] {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
+    final int[] a = {-maxx - 1, -maxx, -maxx + 1, -1, +maxx - 1};
+    final int[] b = {-maxx - 1, -maxx, -maxx + 1, +1, +maxx + 1};
+    final int[] c = {-maxx - 1, -1, +maxx - 1, +maxx, +maxx + 1};
+    final int[] d = {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
@@ -2834,10 +2834,10 @@ public class NonMaximumSuppression {
     // .AB. aA.. ..Bb c... ...d
     // .CD. a... ...b cC.. ..Dd
     // .... .... .... ccc. .ddd
-    final int[] a = new int[] {-newx - 1, -newx, -newx + 1, -1, +newx - 1};
-    final int[] b = new int[] {-newx - 1, -newx, -newx + 1, +1, +newx + 1};
-    final int[] c = new int[] {-newx - 1, -1, +newx - 1, +newx, +newx + 1};
-    final int[] d = new int[] {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
+    final int[] a = {-newx - 1, -newx, -newx + 1, -1, +newx - 1};
+    final int[] b = {-newx - 1, -newx, -newx + 1, +1, +newx + 1};
+    final int[] c = {-newx - 1, -1, +newx - 1, +newx, +newx + 1};
+    final int[] d = {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
@@ -2978,10 +2978,10 @@ public class NonMaximumSuppression {
     // .AB. aA.. ..Bb c... ...d
     // .CD. a... ...b cC.. ..Dd
     // .... .... .... ccc. .ddd
-    final int[] a = new int[] {-maxx - 1, -maxx, -maxx + 1, -1, +maxx - 1};
-    final int[] b = new int[] {-maxx - 1, -maxx, -maxx + 1, +1, +maxx + 1};
-    final int[] c = new int[] {-maxx - 1, -1, +maxx - 1, +maxx, +maxx + 1};
-    final int[] d = new int[] {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
+    final int[] a = {-maxx - 1, -maxx, -maxx + 1, -1, +maxx - 1};
+    final int[] b = {-maxx - 1, -maxx, -maxx + 1, +1, +maxx + 1};
+    final int[] c = {-maxx - 1, -1, +maxx - 1, +maxx, +maxx + 1};
+    final int[] d = {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
