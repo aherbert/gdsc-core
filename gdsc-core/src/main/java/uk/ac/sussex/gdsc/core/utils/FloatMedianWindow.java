@@ -226,9 +226,7 @@ public class FloatMedianWindow {
     // is faster to recompute
     if (cache == null || position - cachePosition > radius / 2 || cache.length != newLength) {
       cache = new float[newLength];
-      for (int i = newStart, j = 0; i < newEnd; i++, j++) {
-        cache[j] = data[i];
-      }
+      System.arraycopy(data, newStart, cache, 0, newEnd - newStart);
     } else {
       // This point is only reached when we have a set of sorted numbers in the cache
       // and we want to replace N of them with N new numbers.
@@ -243,9 +241,7 @@ public class FloatMedianWindow {
 
         // Extract numbers to remove
         final float[] dataToRemove = new float[position - cachePosition];
-        for (int remove = cacheStart, i = 0; remove < newStart; remove++, i++) {
-          dataToRemove[i] = data[remove];
-        }
+        System.arraycopy(data, cacheStart, dataToRemove, 0, newStart - cacheStart);
         Arrays.sort(dataToRemove);
 
         int pos = 0;
@@ -266,9 +262,7 @@ public class FloatMedianWindow {
             // This is bad. Just recompute the entire cache.
             // Occurs when NaNs are present in the data.
             cache = new float[newLength];
-            for (int i = newStart, j = 0; i < newEnd; i++, j++) {
-              cache[j] = data[i];
-            }
+            System.arraycopy(data, newStart, cache, 0, newEnd - newStart);
             break;
           }
         }
@@ -301,9 +295,7 @@ public class FloatMedianWindow {
             // This is bad. Just recompute the entire cache.
             // Occurs when NaNs are present in the data.
             cache = new float[newLength];
-            for (int i = newStart, j = 0; i < newEnd; i++, j++) {
-              cache[j] = data[i];
-            }
+            System.arraycopy(data, newStart, cache, 0, newEnd - newStart);
             break;
           }
         }
