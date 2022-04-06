@@ -277,7 +277,7 @@ public abstract class SplitMix implements RestorableUniformRandomProvider {
       throw new IllegalArgumentException("Not positive: " + n);
     }
     final long nm1 = n - 1;
-    if ((n & nm1) == 0L) {
+    if ((n & nm1) == 0) {
       // Power of 2
       return nextLong() & nm1;
     }
