@@ -60,13 +60,6 @@ public final class IntegerArrayMoment implements ArrayMoment {
   /** The sum of squared values that have been added. */
   private long[] sumSq;
 
-  /**
-   * Instantiates a new array moment with data.
-   */
-  public IntegerArrayMoment() {
-    // Do nothing
-  }
-
   @Override
   public void add(double[] data) {
     throw new NotImplementedException();
