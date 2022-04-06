@@ -289,8 +289,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
 
     final boolean checkValue = relativeError > 0 || absoluteError > 0;
 
-    final CubicSplinePosition[] sx =
-        new CubicSplinePosition[] {new CubicSplinePosition(0), new CubicSplinePosition(1)};
+    final CubicSplinePosition[] sx = {new CubicSplinePosition(0), new CubicSplinePosition(1)};
     final CubicSplinePosition[] sy = sx.clone();
     final CubicSplinePosition[] sz = sx.clone();
     // 8 cube vertices packed as z*4 + y*2 + x
