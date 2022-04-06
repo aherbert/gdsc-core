@@ -80,8 +80,8 @@ public interface DoubleData {
 
       @Override
       public void forEach(DoubleConsumer action) {
-        for (int i = 0; i < values.length; i++) {
-          action.accept(values[i]);
+          for (final double d : values) {
+          action.accept(d);
         }
       }
     };

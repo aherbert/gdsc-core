@@ -109,8 +109,8 @@ public final class DigestUtils {
    * @return the message digest
    */
   public static MessageDigest updateDigest(MessageDigest messageDigest, byte[] data) {
-    for (int i = 0; i < data.length; i++) {
-      messageDigest.update(data[i]);
+    for (final byte b : data) {
+      messageDigest.update(b);
     }
     return messageDigest;
   }
