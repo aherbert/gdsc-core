@@ -1926,8 +1926,8 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     @Override
     public void write(DataOutput out, CustomTricubicFunction function) throws IOException {
       function.getCoefficients(data);
-      for (int i = 0; i < data.length; i++) {
-        out.writeFloat(data[i]);
+      for (final float d : data) {
+        out.writeFloat(d);
       }
     }
   }
@@ -1941,8 +1941,8 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     @Override
     public void write(DataOutput out, CustomTricubicFunction function) throws IOException {
       function.getCoefficients(data);
-      for (int i = 0; i < data.length; i++) {
-        out.writeDouble(data[i]);
+      for (final double d : data) {
+        out.writeDouble(d);
       }
     }
   }
