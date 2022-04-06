@@ -1686,14 +1686,12 @@ public final class MathUtils {
         }
       }
       // Fall through to default
-    } else if (x < 0) {
-      // x is negative.
-      // pow(x, y) only allowed if y is an integer.
-      // if y is even then we can invert non-zero finite x.
-      if (Math.rint(y * 0.5) == y * 0.5) {
-        return powm1(-x, y);
-      }
-      // Fall through to default
+    } else if (x < 0
+        // x is negative.
+        // pow(x, y) only allowed if y is an integer.
+        // if y is even then we can invert non-zero finite x.
+        && Math.rint(y * 0.5) == y * 0.5) {
+      return powm1(-x, y);
     }
     return Math.pow(x, y) - 1;
   }
