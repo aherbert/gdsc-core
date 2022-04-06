@@ -42,10 +42,9 @@ public enum DoubleArrayPredicates implements BiPredicate<double[], double[]> {
     @Override
     public boolean test(double[] p1, double[] p2) {
       for (int i = 0; i < p1.length; i++) {
-        if (p1[i] == p2[i]) {
-          continue;
+        if (p1[i] != p2[i]) {
+          return false;
         }
-        return false;
       }
       return true;
     }
