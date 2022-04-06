@@ -438,7 +438,7 @@ public final class Hull3d implements Hull {
     }
     // Normalise to unit length
     final double norm = 1.0 / Math.sqrt(a * a + b * b + c * c);
-    final double[] result = new double[] {a * norm, b * norm, c * norm, 0};
+    final double[] result = {a * norm, b * norm, c * norm, 0};
     // Solve the equation (X - P) . N = 0
     // Compute D = -P . N
     // (Note: P has not been divided by the number of points so we do it here)
