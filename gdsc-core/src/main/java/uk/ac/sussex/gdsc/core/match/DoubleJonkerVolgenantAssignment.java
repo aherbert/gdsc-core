@@ -315,10 +315,8 @@ public final class DoubleJonkerVolgenantAssignment {
           final int j1 = x[i] - 1;
           double min = INF;
           for (int j = 0; j < n; j++) {
-            if (j != j1) {
-              if (cost[i][j] - v[j] < min) {
-                min = cost[i][j] - v[j];
-              }
+            if (j != j1 && cost[i][j] - v[j] < min) {
+              min = cost[i][j] - v[j];
             }
           }
           v[j1] -= min;
