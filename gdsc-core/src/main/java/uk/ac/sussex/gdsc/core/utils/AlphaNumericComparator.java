@@ -113,7 +113,7 @@ public class AlphaNumericComparator implements Comparator<CharSequence>, Seriali
       final int end2 = nextSubSequenceEnd(seq2, pos2, length2);
 
       // If both sub-sequences contain numeric characters, sort them numerically
-      int result = 0;
+      int result;
       if (isDigit(seq1.charAt(pos1)) && isDigit(seq2.charAt(pos2))) {
         result = compareNumerically(seq1, pos1, end1, seq2, pos2, end2);
       } else {
