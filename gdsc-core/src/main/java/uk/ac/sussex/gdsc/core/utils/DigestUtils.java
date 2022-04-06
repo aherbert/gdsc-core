@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 /**
@@ -141,7 +142,7 @@ public final class DigestUtils {
    * @return the message digest
    */
   public static MessageDigest updateDigest(MessageDigest messageDigest, String data) {
-    messageDigest.update(data.getBytes(Charset.forName("UTF-8")));
+    messageDigest.update(data.getBytes(StandardCharsets.UTF_8));
     return messageDigest;
   }
 
