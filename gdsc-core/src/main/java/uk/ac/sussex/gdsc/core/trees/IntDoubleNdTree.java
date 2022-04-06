@@ -631,15 +631,15 @@ class IntDoubleNdTree implements IntDoubleKdTree {
   }
 
   private void forEach(IntDoubleNdTree cursor, ObjIntConsumer<double[]> action) {
-    if (cursor.locations != null) {
+    if (cursor.locations == null) {
+      // Stem node
+      forEach(cursor.left, action);
+      forEach(cursor.right, action);
+    } else {
       // Leaf node
       for (int i = 0; i < cursor.locationCount; i++) {
         action.accept(cursor.locations[i], cursor.data[i]);
       }
-    } else {
-      // Stem node
-      forEach(cursor.left, action);
-      forEach(cursor.right, action);
     }
   }
 }

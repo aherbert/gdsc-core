@@ -113,15 +113,15 @@ public class FloatHistogram extends Histogram {
     int size = 0;
 
     for (final float value : values) {
-      if (currentValue != value) {
+      if (currentValue == value) {
+        count++;
+      } else {
         // Re-use the array in-place
         values[size] = currentValue;
         histogram[size++] = count;
         // Reset the count of the current value
         currentValue = value;
         count = 1;
-      } else {
-        count++;
       }
     }
     // Final count
