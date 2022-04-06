@@ -126,7 +126,7 @@ abstract class StatusStack {
    * @return the status stack
    */
   static StatusStack create(int capacity) {
-    if (capacity <= 32) {
+    if (capacity <= Long.SIZE / 2) {
       return new LongStatusStack();
     }
     return new ArrayStatusStack(capacity);
