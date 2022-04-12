@@ -28,9 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import java.util.Arrays;
 import java.util.function.BiPredicate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @SuppressWarnings({"javadoc"})
 class FloatArrayPredicatesTest {
@@ -85,5 +88,20 @@ class FloatArrayPredicatesTest {
     Assertions.assertSame(FloatArrayPredicates.EQUALS_2D, FloatArrayPredicates.equalsForLength(2));
     Assertions.assertSame(FloatArrayPredicates.EQUALS_3D, FloatArrayPredicates.equalsForLength(3));
     Assertions.assertSame(FloatArrayPredicates.EQUALS_ND, FloatArrayPredicates.equalsForLength(4));
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {2, 3, 4, 5, 6})
+  void testWithNaN(int size) {
+    final float[] x = new float[size];
+    Arrays.fill(x, Float.NaN);
+    final BiPredicate<float[], float[]> nd = FloatArrayPredicates.equalsForLength(size);
+    Assertions.assertFalse(nd.test(x, x));
+
+    final float[] y = new float[size];
+    Assertions.assertFalse(nd.test(x, y));
+    Assertions.assertTrue(nd.test(y, y));
+    y[1] = Float.NaN;
+    Assertions.assertFalse(nd.test(y, y));
   }
 }
