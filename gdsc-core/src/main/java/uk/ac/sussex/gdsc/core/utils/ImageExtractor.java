@@ -151,7 +151,7 @@ public class ImageExtractor {
    *
    * <p>A value of {@code n<0} is computed using {@code n=0}.
    *
-   * <p>If there is no intersection this will return and empty rectangle.
+   * <p>If there is no intersection this will return an empty rectangle.
    *
    * @param x the x
    * @param y the y
