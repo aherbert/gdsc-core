@@ -44,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class VersionUtils {
   /** Constant for the string "unknown". */
-  public static final String UNKNOWN = "unknown";
+  private static final String UNKNOWN = "unknown";
 
   /** The version number. */
   private static String versionNumber;
