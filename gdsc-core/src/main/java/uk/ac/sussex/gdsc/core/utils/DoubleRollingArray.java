@@ -37,8 +37,8 @@ public class DoubleRollingArray {
   private final double[] data;
   private final int capacity;
   private int index;
-  private int count;
   private double sum;
+  private boolean wrapped;
 
   /**
    * Create a rolling array.
@@ -56,7 +56,8 @@ public class DoubleRollingArray {
   public void clear() {
     sum = 0;
     index = 0;
-    count = 0;
+    wrapped = false;
+    Arrays.fill(data, 0);
   }
 
   /**
@@ -65,14 +66,10 @@ public class DoubleRollingArray {
    * @param number the number
    */
   public void add(double number) {
-    // If at capacity
-    if (isFull()) {
-      // Subtract the item to be replaced
-      sum -= data[index];
-    } else {
-      // Otherwise increase the count
-      count++;
-    }
+    // Subtract the item to be replaced.
+    // If not full then this will be zero.
+    sum -= data[index];
+
     // Add to the total
     sum += number;
     // Replace the item
@@ -80,6 +77,7 @@ public class DoubleRollingArray {
     // Wrap the index
     if (index == capacity) {
       index = 0;
+      wrapped = true;
     }
   }
 
@@ -95,7 +93,7 @@ public class DoubleRollingArray {
       Arrays.fill(data, number);
       sum = capacity * number;
       index = 0;
-      count = capacity;
+      wrapped = true;
     } else {
       for (int i = repeats; i-- > 0;) {
         add(number);
@@ -109,7 +107,7 @@ public class DoubleRollingArray {
    * @return The count
    */
   public int getCount() {
-    return count;
+    return wrapped ? capacity : index;
   }
 
   /**
@@ -138,7 +136,7 @@ public class DoubleRollingArray {
   public double computeAndGetSum() {
     double newSum = 0;
     // If full 'count' will be the length of the data array
-    for (int i = 0; i < count; i++) {
+    for (int i = getCount(); i-- != 0; ) {
       newSum += data[i];
     }
 
@@ -153,7 +151,7 @@ public class DoubleRollingArray {
    * @return The average using the rolling sum of the numbers.
    */
   public double getAverage() {
-    return sum / count;
+    return sum / getCount();
   }
 
   /**
@@ -162,7 +160,7 @@ public class DoubleRollingArray {
    * @return The average using a recomputed sum of the current numbers.
    */
   public double computeAndGetAverage() {
-    return computeAndGetSum() / count;
+    return computeAndGetSum() / getCount();
   }
 
   /**
@@ -171,7 +169,7 @@ public class DoubleRollingArray {
    * @return True if full.
    */
   public boolean isFull() {
-    return count == capacity;
+    return wrapped;
   }
 
   /**
@@ -180,6 +178,7 @@ public class DoubleRollingArray {
    * @return the array
    */
   public double[] toArray() {
+    final int count = getCount();
     if (isFull()) {
       final double[] result = new double[count];
       final int size = data.length - index;

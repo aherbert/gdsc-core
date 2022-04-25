@@ -34,11 +34,11 @@ import java.util.Arrays;
  * Provide a rolling array of booleans.
  */
 public class BooleanRollingArray {
-  private final boolean[] data;
+  private final byte[] data;
   private final int capacity;
   private int index;
-  private int count;
   private int sum;
+  private boolean wrapped;
 
   /**
    * Create a rolling array.
@@ -47,7 +47,7 @@ public class BooleanRollingArray {
    */
   public BooleanRollingArray(int capacity) {
     this.capacity = capacity;
-    this.data = new boolean[capacity];
+    this.data = new byte[capacity];
   }
 
   /**
@@ -56,7 +56,8 @@ public class BooleanRollingArray {
   public void clear() {
     sum = 0;
     index = 0;
-    count = 0;
+    wrapped = false;
+    Arrays.fill(data, (byte) 0);
   }
 
   /**
@@ -65,25 +66,18 @@ public class BooleanRollingArray {
    * @param value the value
    */
   public void add(boolean value) {
-    // If at capacity
-    if (isFull()) {
-      // Subtract the item to be replaced
-      if (data[index]) {
-        sum--;
-      }
-    } else {
-      // Otherwise increase the count
-      count++;
-    }
+    // Subtract the item to be replaced.
+    // If not full then this will be zero.
+    sum -= data[index];
+
     // Add to the true count
-    if (value) {
-      sum++;
-    }
+    sum += value ? 1 : 0;
     // Replace the item
-    data[index++] = value;
+    data[index++] = (byte) (value ? 1 : 0);
     // Wrap the index
     if (index == capacity) {
       index = 0;
+      wrapped = true;
     }
   }
 
@@ -96,10 +90,10 @@ public class BooleanRollingArray {
   public void add(boolean value, int n) {
     if (n >= capacity) {
       // Saturate
-      Arrays.fill(data, value);
-      sum = (value) ? capacity : 0;
+      Arrays.fill(data, (byte) (value ? 1 : 0));
+      sum = value ? capacity : 0;
       index = 0;
-      count = capacity;
+      wrapped = true;
     } else {
       for (int i = n; i-- > 0;) {
         add(value);
@@ -113,7 +107,7 @@ public class BooleanRollingArray {
    * @return The count of items stored in the array.
    */
   public int getCount() {
-    return count;
+    return wrapped ? capacity : index;
   }
 
   /**
@@ -140,7 +134,7 @@ public class BooleanRollingArray {
    * @return The number of false items stored in the array.
    */
   public int getFalseCount() {
-    return count - sum;
+    return getCount() - sum;
   }
 
   /**
@@ -149,7 +143,7 @@ public class BooleanRollingArray {
    * @return True if full.
    */
   public boolean isFull() {
-    return count == capacity;
+    return wrapped;
   }
 
   /**
@@ -158,13 +152,11 @@ public class BooleanRollingArray {
    * @return the array
    */
   public boolean[] toArray() {
-    if (isFull()) {
-      final boolean[] result = new boolean[count];
-      final int size = data.length - index;
-      System.arraycopy(data, index, result, 0, size);
-      System.arraycopy(data, 0, result, size, data.length - size);
-      return result;
+    final boolean[] result = new boolean[getCount()];
+    for (int i = result.length, j = index - 1; i-- != 0;) {
+      j = j < 0 ? j + capacity : j;
+      result[i] = data[j--] == 1;
     }
-    return Arrays.copyOf(data, count);
+    return result;
   }
 }

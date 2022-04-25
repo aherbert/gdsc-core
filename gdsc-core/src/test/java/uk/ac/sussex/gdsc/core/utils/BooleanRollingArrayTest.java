@@ -36,47 +36,51 @@ class BooleanRollingArrayTest {
   @Test
   void canAddRollingData() {
     final BooleanRollingArray array = new BooleanRollingArray(3);
+    Assertions.assertEquals(0, array.getCount());
+    Assertions.assertEquals(0, array.getTrueCount());
+    Assertions.assertEquals(0, array.getFalseCount());
     Assertions.assertEquals(3, array.getCapacity());
-    assertArray(array, 0, 0, new boolean[0]);
+    Assertions.assertFalse(array.isFull());
+    assertArray(array, 0, 0);
     array.add(true);
-    assertArray(array, 1, 1, new boolean[] {true});
+    assertArray(array, 1, 1, true);
     array.add(false);
-    assertArray(array, 2, 1, new boolean[] {true, false});
+    assertArray(array, 2, 1, true, false);
     array.add(false);
-    assertArray(array, 3, 1, new boolean[] {true, false, false});
+    assertArray(array, 3, 1, true, false, false);
     array.add(true);
-    assertArray(array, 3, 1, new boolean[] {false, false, true});
+    assertArray(array, 3, 1, false, false, true);
     array.add(false);
-    assertArray(array, 3, 1, new boolean[] {false, true, false});
+    assertArray(array, 3, 1, false, true, false);
     array.clear();
-    assertArray(array, 0, 0, new boolean[0]);
+    assertArray(array, 0, 0);
     array.add(false);
-    assertArray(array, 1, 0, new boolean[] {false});
+    assertArray(array, 1, 0, false);
     array.add(true);
-    assertArray(array, 2, 1, new boolean[] {false, true});
+    assertArray(array, 2, 1, false, true);
     array.add(true);
-    assertArray(array, 3, 2, new boolean[] {false, true, true});
+    assertArray(array, 3, 2, false, true, true);
     array.add(false);
-    assertArray(array, 3, 2, new boolean[] {true, true, false});
+    assertArray(array, 3, 2, true, true, false);
   }
 
   @Test
   void canAddRepeats() {
     final BooleanRollingArray array = new BooleanRollingArray(3);
     array.add(true, 2);
-    assertArray(array, 2, 2, new boolean[] {true, true});
+    assertArray(array, 2, 2, true, true);
     array.add(false, 1);
-    assertArray(array, 3, 2, new boolean[] {true, true, false});
+    assertArray(array, 3, 2, true, true, false);
     array.add(true, 2);
-    assertArray(array, 3, 2, new boolean[] {false, true, true});
+    assertArray(array, 3, 2, false, true, true);
     array.add(false, 10);
-    assertArray(array, 3, 0, new boolean[] {false, false, false});
+    assertArray(array, 3, 0, false, false, false);
     array.add(true, 10);
-    assertArray(array, 3, 3, new boolean[] {true, true, true});
+    assertArray(array, 3, 3, true, true, true);
   }
 
   private static void assertArray(BooleanRollingArray array, int count, int trueCount,
-      boolean[] data) {
+      boolean... data) {
     Assertions.assertEquals(count, array.getCount());
     Assertions.assertEquals(trueCount, array.getTrueCount());
     Assertions.assertEquals(count - trueCount, array.getFalseCount());
