@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.data.detection;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -69,9 +70,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
    * @param rectangles the rectangles
    */
   public BinarySearchDetectionGrid(Rectangle2D[] rectangles) {
-    if (rectangles == null) {
-      throw new IllegalArgumentException("Rectangle2Ds must not be null");
-    }
+    Objects.requireNonNull(rectangles, "Rectangle2Ds must not be null");
 
     size = rectangles.length;
 

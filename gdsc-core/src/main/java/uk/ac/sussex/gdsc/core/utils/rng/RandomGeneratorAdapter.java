@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.Objects;
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
@@ -47,10 +48,8 @@ public class RandomGeneratorAdapter extends AbstractRandomGenerator {
    * @param uniformRandomProvider the uniform random provider
    */
   public RandomGeneratorAdapter(UniformRandomProvider uniformRandomProvider) {
-    if (uniformRandomProvider == null) {
-      throw new IllegalArgumentException("Uniform random provider must not be null");
-    }
-    this.rng = uniformRandomProvider;
+    this.rng =
+        Objects.requireNonNull(uniformRandomProvider, "Uniform random provider must not be null");
   }
 
   /**

@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.Objects;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
@@ -44,10 +45,7 @@ public class UniformRandomProviderAdapter implements UniformRandomProvider {
    * @param randomGenerator the random generator
    */
   public UniformRandomProviderAdapter(RandomGenerator randomGenerator) {
-    if (randomGenerator == null) {
-      throw new IllegalArgumentException("Random generator must not be null");
-    }
-    this.rg = randomGenerator;
+    this.rg = Objects.requireNonNull(randomGenerator, "Random generator must not be null");
   }
 
   @Override

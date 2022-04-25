@@ -62,7 +62,7 @@ class DetectionGridTest {
     bounds[2] = new Rectangle(5, 5, 5, 5);
     final BinarySearchDetectionGrid g = new BinarySearchDetectionGrid(bounds);
     Assertions.assertEquals(bounds.length, g.size());
-    Assertions.assertThrows(IllegalArgumentException.class,
+    Assertions.assertThrows(NullPointerException.class,
         () -> new BinarySearchDetectionGrid(null));
   }
 

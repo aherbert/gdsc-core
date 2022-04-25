@@ -39,7 +39,7 @@ class UniformRandomProviderAdapterTest {
 
   @Test
   void testConstructorThrows() {
-    Assertions.assertThrows(IllegalArgumentException.class,
+    Assertions.assertThrows(NullPointerException.class,
         () -> new UniformRandomProviderAdapter(null));
   }
 

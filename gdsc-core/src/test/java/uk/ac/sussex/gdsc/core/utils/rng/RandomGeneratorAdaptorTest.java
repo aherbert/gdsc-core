@@ -38,7 +38,7 @@ import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 class RandomGeneratorAdaptorTest {
   @Test
   void testConstructorThrows() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> new RandomGeneratorAdapter(null));
+    Assertions.assertThrows(NullPointerException.class, () -> new RandomGeneratorAdapter(null));
   }
 
   @Test
