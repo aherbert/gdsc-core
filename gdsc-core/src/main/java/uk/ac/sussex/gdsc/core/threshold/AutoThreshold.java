@@ -78,12 +78,12 @@ public class AutoThreshold {
   /** The Constant logger. */
   private static final Logger logger = Logger.getLogger(AutoThreshold.class.getName());
 
+  /** The epsilon for the minimum double value in the maxEntropy method. */
+  private static final double EPSILON = 0x1.0p-52;
   /**
    * The multiplier used within the MeanPlusStdDev calculation.
    */
   private static double stdDevMultiplier = 3;
-  /** The epsilon for the minimum double value in the maxEntropy method. */
-  private static double EPSILON = 0x1.0p-52;
 
   /**
    * The auto-threshold method.
