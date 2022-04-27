@@ -190,7 +190,6 @@ public class StoredData implements DoubleData {
     }
   }
 
-
   /**
    * Adds the data to this store.
    *

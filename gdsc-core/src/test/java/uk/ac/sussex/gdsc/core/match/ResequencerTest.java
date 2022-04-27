@@ -169,7 +169,6 @@ class ResequencerTest {
 
       final int n = resequencer.renumber(data, outputData);
 
-
       // Check
       final Int2IntOpenHashMap map = new Int2IntOpenHashMap();
       for (int j = 0; j < data.length; j++) {

@@ -419,7 +419,6 @@ public class ObjectOutliner {
     return traceOutline(index0);
   }
 
-
   /**
    * Find the upper-left of the pixel region.
    *

@@ -174,7 +174,6 @@ public final class Hull3d implements Hull {
     /** An instance. */
     static final PointHashingStrategy INSTANCE = new PointHashingStrategy();
 
-
     @Override
     public int hashCode(double[] object) {
       // No requirement to hash null
@@ -871,7 +870,6 @@ public final class Hull3d implements Hull {
     final Object2IntOpenCustomHashMap<double[]> points =
         new Object2IntOpenCustomHashMap<>(PointHashingStrategy.INSTANCE);
     final TreeMap<Edge, Integer> edges = new TreeMap<>(Edge::compare);
-
 
     // Note: Convex or concave hulls
     //

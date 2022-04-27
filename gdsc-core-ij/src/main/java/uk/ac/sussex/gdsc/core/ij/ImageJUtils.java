@@ -558,7 +558,6 @@ public final class ImageJUtils {
     return plotWindow;
   }
 
-
   /**
    * Adds the image to the window organiser.
    *
@@ -1429,7 +1428,6 @@ public final class ImageJUtils {
     }
     return new double[] {min, max};
   }
-
 
   /**
    * Creates a started ticker for the total number of steps. The ticker will report to the ImageJ

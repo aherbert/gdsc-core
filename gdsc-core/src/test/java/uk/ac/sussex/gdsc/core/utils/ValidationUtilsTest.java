@@ -977,7 +977,6 @@ class ValidationUtilsTest {
     Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
-
   @Test
   void canCheckPositiveWithInt() {
     Assertions.assertEquals(42, ValidationUtils.checkPositive(42));

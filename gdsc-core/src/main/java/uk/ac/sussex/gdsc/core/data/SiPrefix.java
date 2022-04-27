@@ -101,7 +101,6 @@ public enum SiPrefix {
     this.symbol = symbol;
   }
 
-
   /**
    * Gets the factor.
    *

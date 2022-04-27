@@ -797,7 +797,6 @@ public class DensityManager extends CoordinateStore {
     return sum * scale;
   }
 
-
   /**
    * Compute Ripley's K-function.
    *

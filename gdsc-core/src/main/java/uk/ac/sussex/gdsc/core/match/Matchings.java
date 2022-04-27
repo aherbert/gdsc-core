@@ -617,7 +617,6 @@ public final class Matchings {
     }
   }
 
-
   /**
    * Compute the mapped assignments.
    *

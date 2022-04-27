@@ -56,7 +56,6 @@ class GridMolecule extends Molecule {
     this.ybin = ybin;
   }
 
-
   /**
    * Gets the next molecule.
    *

@@ -299,7 +299,6 @@ class ProjectedMoleculeSpaceTest {
     }
   }
 
-
   private static double[] toArray(AtomicDoubleArray data) {
     final double[] d = new double[data.length()];
     for (int i = 0; i < d.length; i++) {

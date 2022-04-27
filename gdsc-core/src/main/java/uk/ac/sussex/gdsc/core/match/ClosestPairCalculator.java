@@ -431,7 +431,6 @@ public final class ClosestPairCalculator {
     return closestPairAtBoundary(list, getX, getY, indicesY, left, result);
   }
 
-
   /**
    * Find the closest pair of points among points 1, 2 and 3.
    *

@@ -211,7 +211,6 @@ public final class LutHelper {
   /** No public instances. */
   private LutHelper() {}
 
-
   /**
    * Gets a list of the LUT names.
    *

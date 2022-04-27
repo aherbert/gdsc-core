@@ -1609,7 +1609,6 @@ public class NonMaximumSuppression {
     return truncate(maxima, maximaCount);
   }
 
-
   /**
    * Checks if is a maxima using the offsets to scan the remaining region around the core 2x2 block.
    *
@@ -2333,7 +2332,6 @@ public class NonMaximumSuppression {
     return truncate(maxima, maximaCount);
   }
 
-
   /**
    * Search the data for the index of the maximum in each block of size (n+1)*(n+1).
    *
@@ -2910,7 +2908,6 @@ public class NonMaximumSuppression {
 
     return truncate(maxima, maximaCount);
   }
-
 
   /**
    * Checks if is a maxima using the offsets to scan the remaining region around the core 2x2 block.

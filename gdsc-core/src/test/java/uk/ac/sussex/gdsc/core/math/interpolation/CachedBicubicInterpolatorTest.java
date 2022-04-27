@@ -77,7 +77,6 @@ class CachedBicubicInterpolatorTest {
         CachedBicubicInterpolator in = new CachedBicubicInterpolator();
         in.updateCoefficients(fdata);
 
-
         TestAssertions.assertTest(e, in.getValue(x[i], x[j]), equality);
         TestAssertions.assertTest(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]), equality);
 

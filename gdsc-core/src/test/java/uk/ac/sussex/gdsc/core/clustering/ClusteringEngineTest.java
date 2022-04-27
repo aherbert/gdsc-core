@@ -417,7 +417,6 @@ class ClusteringEngineTest {
     }
   }
 
-
   @Test
   void testWithTimeInformation() {
     // No time information

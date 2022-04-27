@@ -470,7 +470,6 @@ class ArrayMomentTest {
     canComputeMomentUnsigned("Series", d, new SimpleArrayMoment());
   }
 
-
   @SeededTest
   void canComputeSimpleArrayMomentInt(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
@@ -634,7 +633,6 @@ class ArrayMomentTest {
     }
     canComputeMomentUnsigned("Series", d, new IntegerArrayMoment());
   }
-
 
   @SeededTest
   void canComputeIntegerArrayMomentInt(RandomSeed seed) {

@@ -759,7 +759,6 @@ public final class SimpleArrayUtils {
     return min;
   }
 
-
   /**
    * Find the index of maximum element. The maximum is identified using the {@code >} operator.
    * Special cases:
@@ -895,7 +894,6 @@ public final class SimpleArrayUtils {
     }
     return new int[] {min, max};
   }
-
 
   /**
    * Find the index of minimum and maximum elements. The minimum or maximum are identified using the
@@ -1606,7 +1604,6 @@ public final class SimpleArrayUtils {
       array[i] = operator.applyAsDouble(array[i]);
     }
   }
-
 
   /**
    * Apply the operator to each value in the array interval.

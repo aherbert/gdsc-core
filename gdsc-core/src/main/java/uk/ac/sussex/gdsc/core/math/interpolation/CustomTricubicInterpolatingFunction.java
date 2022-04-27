@@ -2326,7 +2326,6 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
   }
 
-
   /**
    * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have
    * function values and derivatives for each vertex of the cube [2x2x2].

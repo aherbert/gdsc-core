@@ -117,7 +117,6 @@ class CubicSplineDataInlineTest {
       }
       sb.append("  }").append(NL);
 
-
       // @formatter:off
       sb.append(NL);
       sb.append("  /**").append(NL);

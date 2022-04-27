@@ -247,7 +247,6 @@ class NumberUtilsTest {
       // Frequency each number is seen (number of samples + 1) times
       final int frequency1 = extra;
 
-
       // Output rejection rate.
       final double rejectionProbability = (double) extra / range;
       // Output bias (mean and variance of number of samples) if not rejected.
@@ -304,7 +303,6 @@ class NumberUtilsTest {
       System.out.printf("m : %2d=%2d %2d=%2d%n", min, h2[0], max, h2[1]);
     }
   }
-
 
   /**
    * This is a test of the fence computation compared with that published by Daniel Lemire.
@@ -403,7 +401,6 @@ class NumberUtilsTest {
       final long frequency = n - extra;
       // Frequency each number is seen (number of samples + 1) times
       final long frequency1 = extra;
-
 
       // Output bias (mean and variance of number of samples) if not rejected.
       final double mean = (double) range / n;

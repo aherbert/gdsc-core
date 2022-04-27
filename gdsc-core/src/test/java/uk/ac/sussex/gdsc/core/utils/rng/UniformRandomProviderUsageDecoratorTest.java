@@ -164,7 +164,6 @@ class UniformRandomProviderUsageDecoratorTest {
         rng -> rng.nextLong(133L));
   }
 
-
   @Test
   void testNextBoolean() {
     assertInvocations(UniformRandomProviderUsageDecorator::getNextBooleanCount,

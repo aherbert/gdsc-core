@@ -687,7 +687,6 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     //@formatter:on
   }
 
-
   /**
    * Compute an interpolating function for the data. Creates a single tricubic function for
    * interpolation between [1] and [2] assuming that the input value is a 4x4x4 cube of values

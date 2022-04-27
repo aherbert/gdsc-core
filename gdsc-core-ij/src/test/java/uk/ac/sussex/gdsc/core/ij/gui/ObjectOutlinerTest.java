@@ -284,7 +284,6 @@ class ObjectOutlinerTest {
         DOWN, LEFT, LEFT), false);
   }
 
-
   @Test
   void checkShape5Outline() {
     // Have lots of edges

@@ -177,7 +177,6 @@ public class ExtendedGenericDialog extends GenericDialog {
     super.addCheckbox(label, defaultValue);
   }
 
-
   /**
    * Adds the choice.
    *
@@ -1037,7 +1036,6 @@ public class ExtendedGenericDialog extends GenericDialog {
     }
     return value;
   }
-
 
   /**
    * Reset the recorder for all the named fields that have been added to the dialog. This should be
