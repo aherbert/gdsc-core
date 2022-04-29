@@ -171,6 +171,8 @@ public final class ImageJAnalyticsUtils {
                                // that is sent to Google can be used to identify a data
                                // subject (an individual).
                                .setSecure(true)
+                               .getOrCreatePerHitParameters().addAnonymizeIp(true)
+                                   .getParent()
                                .getOrCreatePerSessionParameters()
                                    .addApplicationName(APPLICATION_NAME)
                                    // Use the version of the analytics code
