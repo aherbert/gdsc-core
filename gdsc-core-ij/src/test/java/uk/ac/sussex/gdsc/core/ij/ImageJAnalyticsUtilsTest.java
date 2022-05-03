@@ -67,12 +67,6 @@ class ImageJAnalyticsUtilsTest {
   }
 
   @Test
-  void testAddCustomDimension() {
-    // No assertions
-    ImageJAnalyticsUtils.addCustomDimension(42, "The answer");
-  }
-
-  @Test
   void testBuildPluginMap() {
     final Charset charset = StandardCharsets.UTF_8;
     final String propertiesContent =
@@ -112,13 +106,18 @@ class ImageJAnalyticsUtilsTest {
 
   @Test
   void testDisabledProperty() {
+    // Note:
+    // This exercises the setDisabled logic but isDisabled is always true
+    // as no analytics provider is currently used.
+
     final boolean isDisabled = ImageJAnalyticsUtils.isDisabled();
     try {
       for (final boolean value : new boolean[] {!isDisabled, isDisabled}) {
         ImageJAnalyticsUtils.setDisabled(value);
-        Assertions.assertEquals(value, ImageJAnalyticsUtils.isDisabled());
+        Assertions.assertTrue(ImageJAnalyticsUtils.isDisabled());
+        // Repeat setting the same value
         ImageJAnalyticsUtils.setDisabled(value);
-        Assertions.assertEquals(value, ImageJAnalyticsUtils.isDisabled());
+        Assertions.assertTrue(ImageJAnalyticsUtils.isDisabled());
       }
     } finally {
       ImageJAnalyticsUtils.setDisabled(isDisabled);
@@ -130,19 +129,5 @@ class ImageJAnalyticsUtilsTest {
     // No assertions.
     // We cannot control the state flag read at initialisation.
     ImageJAnalyticsUtils.unknownStatus();
-  }
-
-  @Test
-  void testLogPreferences() {
-    final boolean isDisabled = ImageJAnalyticsUtils.isDisabled();
-    try {
-      ImageJAnalyticsUtils.logPreferences(false);
-      ImageJAnalyticsUtils.logPreferences(false);
-      ImageJAnalyticsUtils.logPreferences(true);
-      ImageJAnalyticsUtils.setDisabled(!isDisabled);
-      ImageJAnalyticsUtils.logPreferences(true);
-    } finally {
-      ImageJAnalyticsUtils.setDisabled(isDisabled);
-    }
   }
 }

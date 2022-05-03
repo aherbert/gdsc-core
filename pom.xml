@@ -123,10 +123,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 
     <!-- Managed dependencies -->
     <dependency>
-      <groupId>uk.ac.sussex.gdsc</groupId>
-      <artifactId>gdsc-analytics</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-math3</artifactId>
     </dependency>
