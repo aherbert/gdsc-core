@@ -32,7 +32,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Random;
-import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
@@ -51,7 +50,7 @@ class JdkRandomAdapterTest {
 
   @Test
   void testSetSeedThrows() {
-    final JdkRandomAdapter rng = new JdkRandomAdapter(SplitMix.new64(0));
+    final JdkRandomAdapter rng = new JdkRandomAdapter(SplitMix.new32(0)::nextInt);
     Assertions.assertThrows(NotImplementedException.class, () -> {
       rng.setSeed(44);
     });
@@ -62,53 +61,7 @@ class JdkRandomAdapterTest {
     final long seed = randomSeed.getAsLong();
     final Random random1 = new Random(seed);
     final Random random2 = new Random(seed);
-    final UniformRandomProvider source = new UniformRandomProvider() {
-      @Override
-      public void nextBytes(byte[] bytes) {
-        // Ignore
-      }
-
-      @Override
-      public void nextBytes(byte[] bytes, int start, int len) {
-        // Ignore
-      }
-
-      @Override
-      public int nextInt() {
-        return random2.nextInt();
-      }
-
-      @Override
-      public int nextInt(int n) {
-        return 0;
-      }
-
-      @Override
-      public long nextLong() {
-        return 0;
-      }
-
-      @Override
-      public long nextLong(long n) {
-        return 0;
-      }
-
-      @Override
-      public boolean nextBoolean() {
-        return false;
-      }
-
-      @Override
-      public float nextFloat() {
-        return 0;
-      }
-
-      @Override
-      public double nextDouble() {
-        return 0;
-      }
-    };
-    final JdkRandomAdapter rng = new JdkRandomAdapter(source);
+    final JdkRandomAdapter rng = new JdkRandomAdapter(random2::nextInt);
 
     Assertions.assertEquals(random1.nextInt(), rng.nextInt());
     Assertions.assertEquals(random1.nextInt(567), rng.nextInt(567));
@@ -118,7 +71,7 @@ class JdkRandomAdapterTest {
 
   @Test
   void testSerializationThrows() throws IOException {
-    final JdkRandomAdapter rng = new JdkRandomAdapter(SplitMix.new64(0));
+    final JdkRandomAdapter rng = new JdkRandomAdapter(SplitMix.new32(0)::nextInt);
     try (ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
       Assertions.assertThrows(NotImplementedException.class, () -> {
         oos.writeObject(rng);

@@ -33,32 +33,29 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.Random;
-import org.apache.commons.rng.UniformRandomProvider;
+import java.util.function.IntSupplier;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
 /**
- * Extension of {@code java.util.Random} wrapping a {@link UniformRandomProvider}.
+ * Extension of {@code java.util.Random} wrapping a {@link IntSupplier}.
  *
  * <p>The seed cannot be set and the adapter is not serializable.
  */
 public class JdkRandomAdapter extends Random {
   private static final long serialVersionUID = 20190123L;
   /** The generator of uniformly distributed random numbers. */
-  private final UniformRandomProvider rng;
+  private final IntSupplier rng;
 
   /**
-   * Creates a {@code java.util.Random} using the provided random generatoras the source of
+   * Creates a {@code java.util.Random} using the provided random generator as the source of
    * randomness.
    *
-   * <p>The sampling works using the {@code UniformRandomProvider#nextInt(int)} method so a native
-   * generator of ints is best.
-   *
-   * @param rng Generator of uniformly distributed random numbers.
+   * @param rng Source generator of uniformly distributed random numbers.
    * @throws NullPointerException If {@code rng} is null.
    */
-  public JdkRandomAdapter(UniformRandomProvider rng) {
+  public JdkRandomAdapter(IntSupplier rng) {
     super(0L);
-    this.rng = Objects.requireNonNull(rng, "Random generator must not be null");
+    this.rng = Objects.requireNonNull(rng, "Source generator must not be null");
   }
 
   /**
@@ -76,8 +73,8 @@ public class JdkRandomAdapter extends Random {
   }
 
   /**
-   * Delegates the generation of 32 random bits to the {@code UniformRandomProvider} argument
-   * provided at {@link #JdkRandomAdapter(UniformRandomProvider) construction}. The returned value
+   * Delegates the generation of up to 32 random bits to the {@code IntSupplier} argument
+   * provided at {@link #JdkRandomAdapter(IntSupplier) construction}. The returned value
    * is such that if the source of randomness is a {@link Random}, all the generated values will be
    * identical to those produced by the same sequence of calls on the same {@link Random} instance.
    *
@@ -87,7 +84,7 @@ public class JdkRandomAdapter extends Random {
    */
   @Override
   protected synchronized int next(int n) {
-    return rng.nextInt() >>> (32 - n);
+    return rng.getAsInt() >>> (32 - n);
   }
 
   /**
