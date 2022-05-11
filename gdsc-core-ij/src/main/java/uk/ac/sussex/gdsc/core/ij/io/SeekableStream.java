@@ -37,9 +37,9 @@ import java.io.InputStream;
  */
 public abstract class SeekableStream extends InputStream {
   /**
-   * Gets the file pointer.
+   * Gets the offset in this stream.
    *
-   * @return the file pointer
+   * @return the offset from the beginning of the stream (in bytes) at which the next read occurs
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public abstract long getFilePointer() throws IOException;
