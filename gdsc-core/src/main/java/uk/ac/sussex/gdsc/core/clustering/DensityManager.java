@@ -28,6 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.Ticker;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
@@ -36,6 +39,9 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
  * width.
  */
 public class DensityManager extends CoordinateStore {
+
+  /** The progress tracker. */
+  private TrackProgress tracker;
 
   /**
    * Represent a molecule in 2D space.
@@ -139,6 +145,7 @@ public class DensityManager extends CoordinateStore {
     // The area is the number of blocks used.
     final float area = MathUtils.pow2(2 * resolution + 1);
     final int[] density = new int[xcoord.length];
+    final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     for (int i = 0; i < xcoord.length; i++) {
       final int u = (int) (xcoord[i] / cellSize);
       final int v = (int) (ycoord[i] / cellSize);
@@ -202,7 +209,9 @@ public class DensityManager extends CoordinateStore {
       }
 
       density[i] = sum;
+      ticker.tick();
     }
+    ticker.stop();
 
     return density;
   }
@@ -266,6 +275,7 @@ public class DensityManager extends CoordinateStore {
 
     // For each block, compute the sum of counts within a 3x3 box radius
     final int[] density = new int[data.length];
+    final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     for (int v = maxy; v-- > 0;) {
       final int minV = v - 2;
       final int maxV = Math.min(v + 1, maxy - 1);
@@ -304,8 +314,10 @@ public class DensityManager extends CoordinateStore {
         }
 
         density[v * maxx + u] = sum;
+        ticker.tick();
       }
     }
+    ticker.stop();
 
     return density;
   }
@@ -334,6 +346,7 @@ public class DensityManager extends CoordinateStore {
     }
 
     final int[] density = new int[xbins * ybins];
+    final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     boolean withinY = false;
     for (int ybin = ybins; ybin-- > 0; withinY = true) {
       boolean withinX = false;
@@ -362,8 +375,10 @@ public class DensityManager extends CoordinateStore {
         } else if (withinX) {
           add(density, grid, xbins, i, iCount, xbin + 1, ybin);
         }
+        ticker.tick();
       }
     }
+    ticker.stop();
 
     return density;
   }
@@ -399,6 +414,7 @@ public class DensityManager extends CoordinateStore {
 
     // Simple sweep
     final int[] density = new int[xbins * ybins];
+    final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     for (int ybin = 0; ybin < ybins; ybin++) {
       for (int xbin = 0; xbin < xbins; xbin++) {
         int sum = 0;
@@ -416,8 +432,10 @@ public class DensityManager extends CoordinateStore {
           }
         }
         density[ybin * xbins + xbin] = sum;
+        ticker.tick();
       }
     }
+    ticker.stop();
 
     return density;
   }
@@ -557,6 +575,7 @@ public class DensityManager extends CoordinateStore {
   public int[] calculateDensity(float radius) {
     final float r2 = radius * radius;
     final int[] density = new int[xcoord.length];
+    final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     for (int i = 0; i < xcoord.length; i++) {
       int sum = density[i];
       final float x = xcoord[i];
@@ -573,7 +592,9 @@ public class DensityManager extends CoordinateStore {
       }
 
       density[i] = sum;
+      ticker.tick();
     }
+    ticker.stop();
     return density;
   }
 
@@ -595,6 +616,7 @@ public class DensityManager extends CoordinateStore {
   public int[] calculateDensityTriangle(float radius) {
     final float r2 = radius * radius;
     final int[] density = new int[xcoord.length];
+    final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     for (int i = 0; i < xcoord.length; i++) {
       int sum = density[i];
       final float x = xcoord[i];
@@ -609,7 +631,9 @@ public class DensityManager extends CoordinateStore {
       }
 
       density[i] = sum;
+      ticker.tick();
     }
+    ticker.stop();
     return density;
   }
 
@@ -649,10 +673,12 @@ public class DensityManager extends CoordinateStore {
       grid[xbin][ybin] = new Molecule(i, x, y, grid[xbin][ybin]);
     }
 
+    final Ticker ticker = Ticker.createStarted(tracker, (long) ybins * xbins, false);
     final Molecule[] neighbours = new Molecule[5];
     final float radius2 = radius * radius;
     for (int ybin = 0; ybin < ybins; ybin++) {
       for (int xbin = 0; xbin < xbins; xbin++) {
+        ticker.tick();
         if (grid[xbin][ybin] == null) {
           continue;
         }
@@ -694,6 +720,7 @@ public class DensityManager extends CoordinateStore {
         }
       }
     }
+    ticker.stop();
 
     return density;
   }
@@ -828,6 +855,7 @@ public class DensityManager extends CoordinateStore {
   public int calculateSum(float radius) {
     final float r2 = radius * radius;
     int sum = 0;
+    final Ticker ticker = Ticker.createStarted(tracker, xcoord.length, false);
     for (int i = 0; i < xcoord.length; i++) {
       final float x = xcoord[i];
       final float y = ycoord[i];
@@ -838,7 +866,9 @@ public class DensityManager extends CoordinateStore {
           sum++;
         }
       }
+      ticker.tick();
     }
+    ticker.stop();
 
     // Note that the sum should be computed over:
     // i<n, j<n, i!=j
@@ -877,10 +907,12 @@ public class DensityManager extends CoordinateStore {
       grid[xbin][ybin] = new Molecule(i, x, y, grid[xbin][ybin]);
     }
 
+    final Ticker ticker = Ticker.createStarted(tracker, (long) ybins * xbins, false);
     final Molecule[] neighbours = new Molecule[5];
     final float radius2 = radius * radius;
     for (int ybin = 0; ybin < ybins; ybin++) {
       for (int xbin = 0; xbin < xbins; xbin++) {
+        ticker.tick();
         if (grid[xbin][ybin] == null) {
           continue;
         }
@@ -921,6 +953,7 @@ public class DensityManager extends CoordinateStore {
         }
       }
     }
+    ticker.stop();
 
     return sum * 2;
   }
@@ -963,5 +996,23 @@ public class DensityManager extends CoordinateStore {
    */
   private static void checkRadius(double radius) {
     ValidationUtils.checkStrictlyPositive(radius, "radius");
+  }
+
+  /**
+   * Gets the tracker.
+   *
+   * @return the tracker
+   */
+  public TrackProgress getTracker() {
+    return tracker;
+  }
+
+  /**
+   * Sets the tracker.
+   *
+   * @param tracker the tracker to set
+   */
+  public void setTracker(TrackProgress tracker) {
+    this.tracker = NullTrackProgress.createIfNull(tracker);
   }
 }
