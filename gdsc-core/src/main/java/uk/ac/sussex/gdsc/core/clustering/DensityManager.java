@@ -814,7 +814,7 @@ public class DensityManager extends CoordinateStore {
     }
 
     // Count the number of points within the distance
-    int sum = 0;
+    long sum = 0;
     for (final int d : density) {
       sum += d;
     }
@@ -837,7 +837,7 @@ public class DensityManager extends CoordinateStore {
     checkRadius(radius);
 
     // Count the number of points within the distance
-    final int sum = calculateSumGrid((float) radius);
+    final long sum = calculateSumGrid((float) radius);
 
     // Normalise
     final double scale = area / ((double) xcoord.length * (double) xcoord.length);
@@ -852,9 +852,9 @@ public class DensityManager extends CoordinateStore {
    * @param radius the radius
    * @return the pairs
    */
-  public int calculateSum(float radius) {
+  public long calculateSum(float radius) {
     final float r2 = radius * radius;
-    int sum = 0;
+    long sum = 0;
     final Ticker ticker = Ticker.createStarted(tracker, xcoord.length, false);
     for (int i = 0; i < xcoord.length; i++) {
       final float x = xcoord[i];
@@ -885,8 +885,8 @@ public class DensityManager extends CoordinateStore {
    * @param radius the radius
    * @return the pairs
    */
-  public int calculateSumGrid(float radius) {
-    int sum = 0;
+  public long calculateSumGrid(float radius) {
+    long sum = 0;
 
     final float minx = minXCoord;
     final float miny = minYCoord;

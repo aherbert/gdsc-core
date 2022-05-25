@@ -268,8 +268,8 @@ class DensityManagerTest {
       final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
-        final int s1 = dm.calculateSum(radius);
-        final int s2 = dm.calculateSumGrid(radius);
+        final long s1 = dm.calculateSum(radius);
+        final long s2 = dm.calculateSumGrid(radius);
 
         Assertions.assertEquals(s1, s2, () -> String.format("N=%d, R=%f", n, radius));
       }
