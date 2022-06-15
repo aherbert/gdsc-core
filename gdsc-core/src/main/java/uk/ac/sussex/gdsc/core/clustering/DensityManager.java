@@ -469,6 +469,8 @@ public class DensityManager extends CoordinateStore {
       // Boundary
       final float upperX = maxXCoord - radius;
       final float upperY = maxYCoord - radius;
+      final double r2 = radius * radius;
+      final double circleArea = Math.PI * r2;
 
       for (int i = 0; i < xcoord.length; i++) {
         int sum = density[i];
@@ -507,7 +509,7 @@ public class DensityManager extends CoordinateStore {
         // ---- Calculate the corner section area to subtract from the overlapping slices
         // Missed = S1 + S3 + SA + SC - A1 - A3 - C1 - C3
         double s1 = 0;
-        // s3 == 0
+        double s3 = 0;
         double sa = 0;
         double sc = 0;
         double a1 = 0;
@@ -519,35 +521,35 @@ public class DensityManager extends CoordinateStore {
         // max bounds minus the radius
 
         if (x < radius) {
-          s1 = getSegmentArea(radius, radius - x);
+          s1 = getSegmentArea(radius, r2, x);
           if (y < radius) {
-            a1 = getCornerArea(radius, x, y);
+            a1 = getCornerArea(radius, r2, x, y);
           }
           if (y > upperY) {
-            c1 = getCornerArea(radius, x, maxYCoord - y);
+            c1 = getCornerArea(radius, r2, x, maxYCoord - y);
           }
         }
         if (x > upperX) {
           final float dx = maxXCoord - x;
-          s1 = getSegmentArea(radius, radius - dx);
+          s3 = getSegmentArea(radius, r2, dx);
           if (y < radius) {
-            a3 = getCornerArea(radius, dx, y);
+            a3 = getCornerArea(radius, r2, dx, y);
           }
           if (y > upperY) {
-            c3 = getCornerArea(radius, dx, maxYCoord - y);
+            c3 = getCornerArea(radius, r2, dx, maxYCoord - y);
           }
         }
         if (y < radius) {
-          sa = getSegmentArea(radius, radius - y);
+          sa = getSegmentArea(radius, r2, y);
         }
         if (y > upperY) {
           final float dy = maxYCoord - y;
-          sc = getSegmentArea(radius, radius - dy);
+          sc = getSegmentArea(radius, r2, dy);
         }
 
-        final double missed = s1 + sa + sc - a1 - a3 - c1 - c3;
+        final double missed = s1 + s3 + sa + sc - a1 - a3 - c1 - c3;
         if (missed > 0) {
-          final double adjustment = area / (area - missed);
+          final double adjustment = circleArea / (circleArea - missed);
           sum *= adjustment;
         }
 
@@ -727,28 +729,30 @@ public class DensityManager extends CoordinateStore {
 
   /**
    * Calculate the area of circular segment, a portion of a disk whose upper boundary is a
-   * (circular) arc and whose lower boundary is a chord making a central angle of theta radians.
-   *
+   * (circular) arc and whose lower boundary is a chord making a central angle of 
+   * {@code theta < pi radians} (180 degrees).
+   *  
    * @param radius the radius of the circle
-   * @param height the height of the arced portion
+   * @param radius2 the squared radius of the circle
+   * @param height the radius minus the height of the arced portion
    * @return The area
-   * @see <a href="http://mathworld.wolfram.com/CircularSegment.html">Circular Segment</a>
+   * @see <a href="https://mathworld.wolfram.com/CircularSegment.html">Circular Segment</a>
    */
-  private static double getSegmentArea(double radius, double height) {
-    return radius * radius * Math.acos((radius - height) / radius)
-        - (radius - height) * Math.sqrt(2 * radius * height - height * height);
+  private static double getSegmentArea(double radius, double radius2, double r) {
+    return radius2 * Math.acos(r / radius) - r * Math.sqrt(radius2 - r * r);
   }
 
   /**
-   * Get the area taken by a corner of a rectangle within a circle of radius radius.
+   * Get the area taken by a corner of a rectangle within a circle of the specified radius.
    *
-   * @param radius the radius of the circle
+   * @param r2 the squared radius of the circle
    * @param x The corner X position
    * @param y The corner Y position
    * @return The area
    */
-  private static double getCornerArea(double radius, double x, double y) {
-    // 1 vertex is inside the circle: The sum of the areas of a circular segment and a triangle.
+  private static double getCornerArea(double radius, double r2, double x, double y) {
+    // 1 vertex is inside the circle: The sum of the areas of a circular segment and
+    // a triangle.
 
     //@formatter:off
     //
@@ -763,35 +767,27 @@ public class DensityManager extends CoordinateStore {
     //
     //@formatter:on
 
-    // Assume: circle at origin, x & y are positive, x^2 + y^2 < radius^2
+    // Assume: circle at origin, x & y are in [0, radius]
 
-    // Get the point p1 & p2
-    final double x1 = x;
-    final double y1 = otherSide(x, radius);
-    final double x2 = otherSide(y, radius);
-    final double y2 = y;
+    // Test x^2 + y^2 < radius^2, otherwise no corner area
+    if (x * x + y * y >= r2) {
+      return 0;
+    }
+
+    // Get the point p1 (x, y2) and p2 (x2, y)
+    final double x2 = Math.sqrt(r2 - y * y);
+    final double y2 = Math.sqrt(r2 - x * x);
 
     // Calculate half the length of the chord cutting the circle between p1 & p2
-    final double dx = x2 - x1;
-    final double dy = y2 - y1;
-    final double halfChord = Math.sqrt(dx * dx + dy * dy);
+    final double dx = x2 - x;
+    final double dy = y2 - y;
+    final double halfChord = 0.5 * Math.sqrt(dx * dx + dy * dy);
 
-    // Calculate the height of the arced portion
-    final double height = radius - otherSide(halfChord, radius);
+    // Calculate the (radius - height) of the arced portion
+    final double r = Math.sqrt(r2 - halfChord * halfChord);
 
     // Get the area as the circular segment plus the triangle
-    return getSegmentArea(radius, height) + 0.5 * dx * dy;
-  }
-
-  /**
-   * Returns a from a right angle triangle where a^2 + b^2 = c^2.
-   *
-   * @param lengthB the b
-   * @param lengthC the c
-   * @return a
-   */
-  private static double otherSide(double lengthB, double lengthC) {
-    return Math.sqrt(lengthC * lengthC - lengthB * lengthB);
+    return getSegmentArea(radius, r2, r) + 0.5 * dx * dy;
   }
 
   /**
@@ -803,7 +799,7 @@ public class DensityManager extends CoordinateStore {
    * @see #calculateDensity(float, boolean)
    * @see #calculateSquareDensity(float, int, boolean)
    * @see <a
-   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      href="https://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
    *      K and L functions</a>
    */
   public double ripleysKFunction(int[] density, double radius) {
@@ -830,7 +826,7 @@ public class DensityManager extends CoordinateStore {
    * @param radius The radius
    * @return The K-function score
    * @see <a
-   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      href="https://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
    *      K and L functions</a>
    */
   public double ripleysKFunction(double radius) {
@@ -964,7 +960,7 @@ public class DensityManager extends CoordinateStore {
    * @param radius The radius
    * @return The L-function score
    * @see <a
-   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      href="https://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
    *      K and L functions</a>
    */
   public double ripleysLFunction(double radius) {
@@ -981,7 +977,7 @@ public class DensityManager extends CoordinateStore {
    * @see #calculateDensity(float, boolean)
    * @see #calculateSquareDensity(float, int, boolean)
    * @see <a
-   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      href="https://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
    *      K and L functions</a>
    */
   public double ripleysLFunction(int[] density, double radius) {

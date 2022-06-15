@@ -190,18 +190,16 @@ class DensityManagerTest {
       final int[] d2 = dm.calculateDensity(radius, true);
       final Rectangle2D.Double border =
           new Rectangle2D.Double(radius, radius, maxXCoord - 2 * radius, maxYCoord - 2 * radius);
-
+      final Supplier<String> msg = () -> String.format("N=%d, R=%f", n, radius);
       for (int i = 0; i < xcoord.length; i++) {
         // Check if at boundary
         if (border.contains(xcoord[i], ycoord[i])) {
-          Assertions.assertEquals(d1[i], d2[i]);
+          Assertions.assertEquals(d1[i], d2[i], msg);
         } else {
-          Assertions.assertTrue(d2[i] >= d1[i]);
-          Assertions.assertTrue(d2[i] <= d1[i] * 4);
+          Assertions.assertTrue(d2[i] >= d1[i], msg);
+          Assertions.assertTrue(d2[i] <= d1[i] * 4, msg);
         }
       }
-
-      Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
     }
   }
 
@@ -421,6 +419,22 @@ class DensityManagerTest {
     final double l = Math.sqrt(k1 / Math.PI);
     Assertions.assertEquals(l, dm.ripleysLFunction(radius));
     Assertions.assertEquals(l, dm.ripleysLFunction(density, radius));
+  }
+
+  @SeededTest
+  void testExpectedRipleysK(RandomSeed seed) {
+    final UniformRandomProvider rng = RngFactory.create(seed.get());
+    final int n = 2000;
+    final DensityManager dm = createDensityManager(rng, 50, n);
+    // Set at a level where the test fails if the density is not adjusted
+    final double relativeError = 0.1;
+    for (int r = 5; r <= 10; r++) {
+      final int[] density = dm.calculateDensity(r, true);
+      // In 2 dimensions, if the points are approximately homogeneous,
+      // K(r) should be approximately equal to pi r^2
+      final double k = Math.PI * r * r;
+      Assertions.assertEquals(k, dm.ripleysKFunction(density, r), k * relativeError);
+    }
   }
 
   private static DensityManager createDensityManager(UniformRandomProvider rng, int size, int n) {
