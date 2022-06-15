@@ -878,7 +878,12 @@ public final class ImageJUtils {
   public static String getFilename(String title, String filename) {
     final String[] path = ImageJUtils.decodePath(filename);
     final OpenDialog chooser = new OpenDialog(title, path[0], path[1]);
-    if (chooser.getFileName() != null) {
+    // Note: Deliberate reference comparison.
+    // path[1] is not null (it may be the empty string "").
+    // If using the AWT FileDialog the filename is null if cancelled.
+    // If using the JFileChooser the filename is a new substring if selected, otherwise if cancelled
+    // it will be the same input filename so compare by reference.
+    if (chooser.getFileName() != path[1]) {
       return chooser.getDirectory() + chooser.getFileName();
     }
     return null;

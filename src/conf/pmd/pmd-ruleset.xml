@@ -167,5 +167,19 @@
         value="./ancestor::ClassOrInterfaceDeclaration[@SimpleName = 'MemoryUtils']"/>
     </properties>
   </rule>
+  <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::MethodDeclaration[@Name='getFilename']
+               /ancestor::ClassOrInterfaceDeclaration[@SimpleName='ImageJUtils']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/errorprone.xml/CompareObjectsWithEquals">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="./ancestor-or-self::MethodDeclaration[@Name='getFilename']
+               /ancestor::ClassOrInterfaceDeclaration[@SimpleName='ImageJUtils']"/>
+    </properties>
+  </rule>
 
 </ruleset>
