@@ -973,7 +973,7 @@ public class DensityManager extends CoordinateStore {
    *
    * @param density The density score for each particle
    * @param radius The radius at which the density was computed
-   * @return The K-function score
+   * @return The L-function score
    * @see #calculateDensity(float, boolean)
    * @see #calculateSquareDensity(float, int, boolean)
    * @see <a
