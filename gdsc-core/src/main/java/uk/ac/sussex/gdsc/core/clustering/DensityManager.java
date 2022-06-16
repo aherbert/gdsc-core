@@ -143,7 +143,7 @@ public class DensityManager extends CoordinateStore {
 
     // For each localisation, compute the sum of counts within a square box radius.
     // The area is the number of blocks used.
-    final float area = MathUtils.pow2(2 * resolution + 1);
+    final double area = MathUtils.pow2(2.0 * resolution + 1);
     final int[] density = new int[xcoord.length];
     final Ticker ticker = Ticker.createStarted(tracker, density.length, false);
     for (int i = 0; i < xcoord.length; i++) {
@@ -205,7 +205,7 @@ public class DensityManager extends CoordinateStore {
 
       // Adjust for area
       if (adjustForBorder) {
-        sum = (int) (sum * (area / ((maxU - minU) * (maxV - minV))));
+        sum = (int) Math.round(sum * (area / ((maxU - minU) * (maxV - minV))));
       }
 
       density[i] = sum;
@@ -550,7 +550,7 @@ public class DensityManager extends CoordinateStore {
         final double missed = s1 + s3 + sa + sc - a1 - a3 - c1 - c3;
         if (missed > 0) {
           final double adjustment = circleArea / (circleArea - missed);
-          sum *= adjustment;
+          sum = (int) Math.round(sum * adjustment);
         }
 
         density[i] = sum;
