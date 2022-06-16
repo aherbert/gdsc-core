@@ -116,7 +116,7 @@ class DensityManagerTest {
           }
           expected[i] = sum - 1;
           // Adjust
-          expected2[i] = (int) (expected[i] * (area / blocks));
+          expected2[i] = Math.round(expected[i] * (area / blocks));
         }
 
         // Validate
