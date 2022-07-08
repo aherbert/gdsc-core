@@ -221,6 +221,7 @@ public class SeriesOpener {
     // Reset image list
     currentImage = 0;
     imageList = EMPTY_LIST;
+    ImageJUtils.clearSlowProgress();
 
     if (showDialog(imp, list)) {
       filterImageList(list, maximumNumberOfImages, start, increment, filter, isRegex, IJ::error,
