@@ -381,11 +381,13 @@ public class SeriesOpener {
       }
 
       // Apply the same filtering
-      filterImageList(list, maximumNumberOfImages, start, increment, filter, isRegex, IJ::log,
-          (filteredList, size) -> {
-            ((Label) theLabel).setText(String.format("%s (%s)", TextUtils.pleural(size, "image"),
-                TextUtils.pleural(imp.getStackSize() * size, "frame")));
-          });
+      filterImageList(list, maximumNumberOfImages, start, increment, filter, isRegex, s -> {
+        IJ.log(s);
+        ((Label) theLabel).setText(s);
+      }, (filteredList, size) -> {
+        ((Label) theLabel).setText(String.format("%s (%s)", TextUtils.pleural(size, "image"),
+            TextUtils.pleural(imp.getStackSize() * size, "frame")));
+      });
     }
 
     /**
