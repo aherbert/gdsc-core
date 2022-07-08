@@ -99,8 +99,7 @@ public class SeriesOpener {
    * @param helpUrl the help url (null to ignore)
    * @return the series opener
    */
-  public static SeriesOpener create(String path, boolean showDialog,
-      String helpUrl) {
+  public static SeriesOpener create(String path, boolean showDialog, String helpUrl) {
     final SeriesOpener opener = new SeriesOpener(path);
     opener.helpUrl = helpUrl;
     if (showDialog) {
@@ -250,7 +249,7 @@ public class SeriesOpener {
       filter = null;
     }
     if (filter != null) {
-      int filteredImages = 0;
+      int size = list.length;
       if (isRegex) {
         Pattern pattern;
         try {
@@ -259,40 +258,21 @@ public class SeriesOpener {
           errorMessageAction.accept(ex.getMessage());
           return;
         }
-        for (int i = 0; i < list.length; i++) {
-          if (pattern.matcher(list[i]).matches()) {
-            filteredImages++;
-          } else {
-            list[i] = null;
-          }
-        }
+        list = Arrays.stream(list).filter(s -> pattern.matcher(s).matches()).toArray(String[]::new);
       } else {
-        for (int i = 0; i < list.length; i++) {
-          if (list[i].indexOf(filter) >= 0) {
-            filteredImages++;
-          } else {
-            list[i] = null;
-          }
-        }
+        final String text = filter;
+        list = Arrays.stream(list).filter(s -> s.contains(text)).toArray(String[]::new);
       }
-      if (filteredImages == 0) {
+      if (list.length == 0) {
         if (isRegex) {
-          errorMessageAction.accept(
-              "0/" + TextUtils.pleural(list.length, "file") + " match the regular expression.");
+          errorMessageAction
+              .accept("0/" + TextUtils.pleural(size, "file") + " match the regular expression.");
         } else {
-          errorMessageAction.accept("0/" + TextUtils.pleural(list.length, "file") + " contain '"
-              + filter + "' in their name.");
+          errorMessageAction.accept(
+              "0/" + TextUtils.pleural(size, "file") + " contain '" + filter + "' in their name.");
         }
         return;
       }
-      final String[] list2 = new String[filteredImages];
-      int count = 0;
-      for (int i = 0; i < list.length; i++) {
-        if (list[i] != null) {
-          list2[count++] = list[i];
-        }
-      }
-      list = list2;
     }
 
     // Process only the requested number of images
@@ -303,6 +283,11 @@ public class SeriesOpener {
       start = 1;
     }
     increment = Math.max(1, increment);
+
+    if (start == 1 && increment == 1 && maximumNumberOfImages == list.length) {
+      listAction.accept(list, list.length);
+      return;
+    }
 
     final String[] imageList = new String[list.length];
     int count = 0;
