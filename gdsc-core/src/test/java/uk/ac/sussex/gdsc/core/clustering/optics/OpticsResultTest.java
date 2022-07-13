@@ -403,6 +403,11 @@ class OpticsResultTest {
         assertGetClosestClusterFromOrder(allClusters, result, start, end);
       }
     }
+    // No clusters near end
+    assertGetClosestClusterFromOrder(allClusters, result, 1, 1);
+    assertGetClosestClusterFromOrder(allClusters, result, 148, 150);
+    assertGetClosestClusterFromOrder(allClusters, result, 149, 150);
+    assertGetClosestClusterFromOrder(allClusters, result, 150, 150);
 
     // Check getParents
     assertGetParents(allClusters, result, new int[] {3});
@@ -624,8 +629,12 @@ class OpticsResultTest {
       return Integer.compare(sizes[a], sizes[b]);
     });
     final int index = indices[0];
-    Assertions.assertEquals(allClusters.get(index).clusterId, closest.getAsInt(), () -> String
-        .format("[%d, %d] %s : %s", start, end, scores[index], Arrays.toString(scores)));
+    if (scores[index] == 0) {
+      Assertions.assertFalse(closest.isPresent(), () -> String.format("[%d, %d] 0", start, end));
+    } else {
+      Assertions.assertEquals(allClusters.get(index).clusterId, closest.getAsInt(), () -> String
+          .format("[%d, %d] %s : %s", start, end, scores[index], Arrays.toString(scores)));
+    }
   }
 
   @ParameterizedTest

@@ -608,8 +608,8 @@ public class OpticsResult implements ClusteringResult {
 
     final double[] score = {0, 0, 0};
     getClosestCluster(clustering, score, rangeStart, rangeEnd);
-    assert score[0] != 0 : "No overlapping cluster";
-    return OptionalInt.of((int) score[2]);
+    // Can be no clusters within the reachability profile
+    return score[0] != 0 ? OptionalInt.of((int) score[2]) : OptionalInt.empty();
   }
 
   /**
