@@ -614,7 +614,7 @@ class OpticsResultTest {
     final OptionalInt closest = result.getClosestClusterFromOrder(start, end);
     final double[] scores = allClusters.stream()
         .mapToDouble(c -> overlapFraction(start - 1, end - 1, c.start, c.end)).toArray();
-    final int[] sizes = allClusters.stream().mapToInt(c -> c.end - c.start).toArray();
+    final int[] sizes = allClusters.stream().mapToInt(OpticsCluster::length).toArray();
     final int[] indices = SimpleArrayUtils.natural(allClusters.size());
     IntArrays.stableSort(indices, (a, b) -> {
       final int r = Double.compare(scores[b], scores[a]);
