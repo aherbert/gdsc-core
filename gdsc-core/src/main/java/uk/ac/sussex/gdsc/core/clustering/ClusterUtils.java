@@ -44,7 +44,7 @@ final class ClusterUtils {
    * @param end2 the end time of point 2
    * @return the time gap
    */
-  public static int gap(int start1, int end1, int start2, int end2) {
+  static int gap(int start1, int end1, int start2, int end2) {
     // Overlap:
     // S-----------E
     // ......... S---------E
