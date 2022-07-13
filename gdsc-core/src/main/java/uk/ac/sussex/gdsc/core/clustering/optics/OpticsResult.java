@@ -34,6 +34,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
@@ -574,6 +575,74 @@ public class OpticsResult implements ClusteringResult {
     return clusters;
   }
 
+
+  /**
+   * Gets the closest cluster using the range of order values. Order values are 1-based.
+   *
+   * <p>The closest cluster is identified using the overlap between the range of the cluster and the
+   * input range, divided by the largest range. In the event of a tie the smallest cluster is
+   * returned.
+   *
+   * <p>If no clusters exist, or none of the reachability profile is covered, then it will return an
+   * empty OptionalInt.
+   *
+   * @param start the start
+   * @param end the end
+   * @return the cluster (or empty)
+   */
+  public OptionalInt getClosestClusterFromOrder(int start, int end) {
+    if (clustering == null) {
+      return OptionalInt.empty();
+    }
+
+    // Check the range covers some of the profile
+    final int s = Math.min(start, end);
+    final int e = Math.max(start, end);
+    if (s > size() || e < 1) {
+      return OptionalInt.empty();
+    }
+
+    // Clip to the range (convert 1-based to 0-based)
+    final int rangeStart = Math.max(0, s - 1);
+    final int rangeEnd = Math.min(size(), e) - 1;
+
+    final double[] score = {0, 0, 0};
+    getClosestCluster(clustering, score, rangeStart, rangeEnd);
+    assert score[0] != 0 : "No overlapping cluster";
+    return OptionalInt.of((int) score[2]);
+  }
+
+  /**
+   * Descend the hierarchy and find the closest cluster.
+   *
+   * @param hierarchy the hierarchy
+   * @param current the current closest [overlap fraction, cluster size, cluster id]
+   * @param rangeStart the range end
+   * @param rangeEnd the range start
+   */
+  private static void getClosestCluster(List<OpticsCluster> hierarchy, double[] current,
+      int rangeStart, int rangeEnd) {
+    if (hierarchy == null) {
+      return;
+    }
+
+    for (final OpticsCluster cluster : hierarchy) {
+      final int overlap = Math.min(cluster.end, rangeEnd) - Math.max(cluster.start, rangeStart);
+      if (overlap >= 0) {
+        final int size = cluster.end - cluster.start;
+        final double overlapFraction =
+            (overlap + 1.0) / (Math.max(size, rangeEnd - rangeStart) + 1.0);
+        // Favour smallest
+        if (current[0] < overlapFraction || (current[0] == overlapFraction && current[1] > size)) {
+          current[0] = overlapFraction;
+          current[1] = size;
+          current[2] = cluster.clusterId;
+        }
+        getClosestCluster(cluster.children, current, rangeStart, rangeEnd);
+      }
+    }
+  }
+
   /**
    * Gets the clusters using the range of order values. Order values are 1-based. Calling this
    * method with start=10 and end=15 will return all the cluster Ids from the reachability profile
@@ -595,14 +664,15 @@ public class OpticsResult implements ClusteringResult {
     }
 
     // Check the range covers some of the profile
-    int rangeEnd = Math.max(start, end);
-    if (start > size() || rangeEnd < 1) {
+    final int s = Math.min(start, end);
+    final int e = Math.max(start, end);
+    if (s > size() || e < 1) {
       return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
-    // Clip to the range
-    final int rangeStart = Math.max(0, start - 1);
-    rangeEnd = Math.min(size() - 1, rangeEnd - 1);
+    // Clip to the range (convert 1-based to 0-based)
+    final int rangeStart = Math.max(0, s - 1);
+    final int rangeEnd = Math.min(size(), e) - 1;
 
     final IntArrayList clusters = new IntArrayList();
 

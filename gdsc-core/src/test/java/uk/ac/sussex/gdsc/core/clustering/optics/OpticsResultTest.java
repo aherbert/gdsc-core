@@ -29,9 +29,11 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
@@ -39,6 +41,8 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.shape.UnitBallSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsResult.SteepDownArea;
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsResult.SteepUpArea;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
@@ -46,6 +50,7 @@ import uk.ac.sussex.gdsc.core.math.hull.ConvexHull2d;
 import uk.ac.sussex.gdsc.core.math.hull.Hull;
 import uk.ac.sussex.gdsc.core.math.hull.Hull.Builder;
 import uk.ac.sussex.gdsc.core.math.hull.Hull2d;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 
 @SuppressWarnings({"javadoc"})
@@ -374,11 +379,14 @@ class OpticsResultTest {
 
     result.resetClusterIds();
     Assertions.assertArrayEquals(new int[0], result.getClustersFromOrder(10, 20, true));
+    Assertions.assertEquals(OptionalInt.empty(), result.getClosestClusterFromOrder(10, 20));
 
     result.extractClusters(0.05);
 
     Assertions.assertArrayEquals(new int[0], result.getClustersFromOrder(1000, 2000, true));
     Assertions.assertArrayEquals(new int[0], result.getClustersFromOrder(-10, -2, true));
+    Assertions.assertEquals(OptionalInt.empty(), result.getClosestClusterFromOrder(1000, 2000));
+    Assertions.assertEquals(OptionalInt.empty(), result.getClosestClusterFromOrder(-10, -2));
 
     // There should be a hierarchy of clusters to test descending the children
     Assertions.assertTrue(result.getNumberOfLevels() > 1);
@@ -388,6 +396,13 @@ class OpticsResultTest {
     assertGetClustersFromOrder(allClusters, result, 20, 30, true);
     assertGetClustersFromOrder(allClusters, result, 20, 30, false);
     assertGetClustersFromOrder(allClusters, result, 20, 20, false);
+    // Use ranges based on the known hierarchy from the fixed seed:
+    // [35, 38], [27, 40], [22, 26], [13, 47]
+    for (int start = 13; start <= 47; start++) {
+      for (int end = start; end <= 47; end++) {
+        assertGetClosestClusterFromOrder(allClusters, result, start, end);
+      }
+    }
 
     // Check getParents
     assertGetParents(allClusters, result, new int[] {3});
@@ -592,6 +607,51 @@ class OpticsResultTest {
     final int[] exp = set.toIntArray();
     Arrays.sort(exp);
     assertIdEquals(exp, co);
+  }
+
+  private static void assertGetClosestClusterFromOrder(List<OpticsCluster> allClusters,
+      OpticsResult result, int start, int end) {
+    final OptionalInt closest = result.getClosestClusterFromOrder(start, end);
+    final double[] scores = allClusters.stream()
+        .mapToDouble(c -> overlapFraction(start - 1, end - 1, c.start, c.end)).toArray();
+    final int[] sizes = allClusters.stream().mapToInt(c -> c.end - c.start).toArray();
+    final int[] indices = SimpleArrayUtils.natural(allClusters.size());
+    IntArrays.stableSort(indices, (a, b) -> {
+      final int r = Double.compare(scores[b], scores[a]);
+      if (r != 0) {
+        return r;
+      }
+      return Integer.compare(sizes[a], sizes[b]);
+    });
+    final int index = indices[0];
+    Assertions.assertEquals(allClusters.get(index).clusterId, closest.getAsInt(), () -> String
+        .format("[%d, %d] %s : %s", start, end, scores[index], Arrays.toString(scores)));
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"0, 10, 11, 20, 0", "0, 10, 10, 20, 1", "0, 10, 5, 20, 6", "0, 10, 5, 15, 6",
+      "0, 10, 5, 10, 6", "0, 10, 0, 10, 11", "0, 10, 0, 5, 6", "0, 10, 1, 3, 3",})
+  void testOverlapFraction(int s1, int e1, int s2, int e2, int overlap) {
+    final double expected = (double) overlap / Math.max(e2 - s2 + 1, e1 - s1 + 1);
+    Assertions.assertEquals(expected, overlapFraction(s1, e1, s2, e2));
+    Assertions.assertEquals(expected, overlapFraction(s2, e2, s1, e1));
+  }
+
+  /**
+   * Compute the overlap fraction between two ranges (start and end inclusive).
+   *
+   * @param start the start of range 1
+   * @param end the end of range 1
+   * @param start2 the start of range 2
+   * @param end2 the end of range 2
+   * @return the overlap fraction
+   */
+  private static double overlapFraction(int start, int end, int start2, int end2) {
+    final int overlap = Math.min(end, end2) - Math.max(start, start2);
+    if (overlap < 0) {
+      return 0;
+    }
+    return (overlap + 1.0) / (Math.max(end - start, end2 - start2) + 1.0);
   }
 
   private static void assertGetParents(List<OpticsCluster> allClusters, OpticsResult result,
