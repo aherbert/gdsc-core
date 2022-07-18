@@ -458,4 +458,10 @@ class ImageJUtilsTest {
     // No assertions
     ImageJUtils.finished();
   }
+
+  @Test
+  void testShowUrl() {
+    // No assertions
+    ImageJUtils.showUrl("https://www.google.com");
+  }
 }

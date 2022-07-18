@@ -33,7 +33,6 @@ import ij.Macro;
 import ij.WindowManager;
 import ij.gui.GUI;
 import ij.macro.Interpreter;
-import ij.macro.MacroRunner;
 import ij.plugin.frame.Recorder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.awt.BorderLayout;
@@ -62,6 +61,7 @@ import java.util.Locale;
 import java.util.function.Function;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 /**
@@ -335,7 +335,6 @@ public class MultiDialog extends Dialog {
     return buttons;
   }
 
-  @SuppressWarnings("unused")
   private void actionPerformed(ActionEvent event) {
     final Object source = event.getSource();
     if (source == okay || source == cancel) {
@@ -346,8 +345,7 @@ public class MultiDialog extends Dialog {
     } else if (source == none) {
       list.clearSelection();
     } else if (source == help) {
-      final String macro = "run('URL...', 'url=" + helpUrl + "');";
-      new MacroRunner(macro);
+      ImageJUtils.showUrl(helpUrl);
     }
   }
 

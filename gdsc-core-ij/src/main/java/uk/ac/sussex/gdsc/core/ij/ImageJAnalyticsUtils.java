@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import ij.Prefs;
-import ij.macro.MacroRunner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -296,7 +295,6 @@ public final class ImageJAnalyticsUtils {
    *        status is unknown
    * @param helpUrl the help url (null to use the default)
    */
-  @SuppressWarnings("unused")
   public static void showDialog(String title, boolean autoMessage, String helpUrl) {
     final ExtendedGenericDialog gd = new ExtendedGenericDialog(title);
     // @formatter:off
@@ -313,8 +311,7 @@ public final class ImageJAnalyticsUtils {
 
     gd.addAndGetButton(HELP_LABEL, event -> {
       final String url = TextUtils.isNotEmpty(helpUrl) ? helpUrl : TRACKING_HELP_URL;
-      final String macro = "run('URL...', 'url=" + url + "');";
-      new MacroRunner(macro);
+      ImageJUtils.showUrl(url);
     });
 
     gd.showDialog();

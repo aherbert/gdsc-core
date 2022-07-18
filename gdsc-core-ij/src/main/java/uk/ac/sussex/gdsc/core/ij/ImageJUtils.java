@@ -40,6 +40,7 @@ import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.io.DirectoryChooser;
 import ij.io.OpenDialog;
+import ij.macro.MacroRunner;
 import ij.plugin.HyperStackReducer;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
@@ -1485,5 +1486,17 @@ public final class ImageJUtils {
   public static void finished(String statusMessage) {
     IJ.showStatus(statusMessage);
     IJ.showProgress(1.0);
+  }
+
+  /**
+   * Show the specified URL in the default browser.
+   *
+   * @param url the url
+   */
+  @SuppressWarnings("unused")
+  public static void showUrl(String url) {
+    // See: ij.gui.GenericDialog.showHelp()
+    final String macro = "run('URL...', 'url=" + url + "');";
+    new MacroRunner(macro);
   }
 }
