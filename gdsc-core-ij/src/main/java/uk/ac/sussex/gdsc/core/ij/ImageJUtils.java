@@ -32,6 +32,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Macro;
+import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.ImageCanvas;
@@ -55,6 +56,7 @@ import ij.text.TextWindow;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -878,14 +880,42 @@ public final class ImageJUtils {
    */
   public static String getFilename(String title, String filename) {
     final String[] path = ImageJUtils.decodePath(filename);
-    final OpenDialog chooser = new OpenDialog(title, path[0], path[1]);
-    // Note: Deliberate reference comparison.
-    // path[1] is not null (it may be the empty string "").
-    // If using the AWT FileDialog the filename is null if cancelled.
-    // If using the JFileChooser the filename is a new substring if selected, otherwise if cancelled
-    // it will be the same input filename so compare by reference.
-    if (chooser.getFileName() != path[1]) {
-      return chooser.getDirectory() + chooser.getFileName();
+    final String[] result = {null};
+    // The filename should be null if cancelled.
+    // If using the AWT FileDialog this works.
+    // If using the JFileChooser there are two versions depending on the dispatch thread.
+    // When not on the dispatch thread the cancel is only detected if running in a macro
+    // (this bug is in IJ 1.53f). So force the dispatch thread.
+    // Note: This does not matter if:
+    // (Macro.getOptions() != null && Macro.getValue(macroOptions, title, null) != null)
+    // Presently this is not checked.
+    if (Prefs.useJFileChooser && !EventQueue.isDispatchThread()) {
+      try {
+        EventQueue.invokeAndWait(() -> {
+          result[0] = getFilenameDispatchThread(title, path[0], path[1]);
+        });
+      } catch (Exception ignored) {
+        // Just act as if the dialog was cancelled
+      }
+    } else {
+      result[0] = getFilenameDispatchThread(title, path[0], path[1]);
+    }
+    return result[0];
+  }
+
+  /**
+   * Gets the filename (assuming this is on the dispatch thread).
+   *
+   * @param title the dialog title
+   * @param dir the directory
+   * @param name the file name
+   * @return the filename (or null if cancelled)
+   */
+  private static String getFilenameDispatchThread(String title, String dir, String name) {
+    final OpenDialog chooser = new OpenDialog(title, dir, name);
+    final String newFilename = chooser.getFileName();
+    if (newFilename != null) {
+      return chooser.getDirectory() + newFilename;
     }
     return null;
   }
