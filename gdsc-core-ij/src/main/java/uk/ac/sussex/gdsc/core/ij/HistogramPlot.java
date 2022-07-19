@@ -123,6 +123,9 @@ public class HistogramPlot {
     /**
      * Instantiates a new histogram plot builder.
      *
+     * <p>The name supports ImageJ's super/subscript formatting. Enclose superscript using
+     * {@code ^^} and subscript using {@code !!}.
+     * 
      * @param title The title to prepend to the plot name
      * @param data The data
      * @param name The name of the plotted statistic
@@ -171,6 +174,9 @@ public class HistogramPlot {
 
     /**
      * Sets the name of the plotted statistic.
+     *
+     * <p>The name supports ImageJ's super/subscript formatting. Enclose superscript using
+     * {@code ^^} and subscript using {@code !!}.
      *
      * @param name The name of the plotted statistic
      * @return the histogram plot builder
@@ -635,6 +641,9 @@ public class HistogramPlot {
   /**
    * Instantiates a new histogram plot.
    *
+   * <p>The name supports ImageJ's super/subscript formatting. Enclose superscript using {@code ^^}
+   * and subscript using {@code !!}.
+   *
    * @param title The title to prepend to the plot name
    * @param data The data
    * @param name The name of the plotted statistic
@@ -643,7 +652,7 @@ public class HistogramPlot {
     Objects.requireNonNull(title, "Title must not be null");
     this.data = Objects.requireNonNull(data, "Data must not be null");
     this.name = Objects.requireNonNull(name, "Name must not be null");
-    plotTitle = title + " " + name;
+    plotTitle = title + " " + stripFormatting(name);
   }
 
   /**
@@ -1112,6 +1121,16 @@ public class HistogramPlot {
    * @return the name of the plotted statistic
    */
   public String getName() {
-    return name;
+    return stripFormatting(name);
+  }
+
+  /**
+   * Strip super/subscript formatting.
+   *
+   * @param name the name
+   * @return the name without formating characters
+   */
+  static String stripFormatting(String name) {
+    return name.replaceAll("\\^\\^([^\\^]+)\\^\\^", "^$1").replaceAll("!!([^!]+)!!", "$1");
   }
 }

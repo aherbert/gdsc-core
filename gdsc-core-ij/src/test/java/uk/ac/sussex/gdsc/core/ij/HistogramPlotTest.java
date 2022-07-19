@@ -33,6 +33,8 @@ import java.util.function.DoubleConsumer;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import uk.ac.sussex.gdsc.core.ij.HistogramPlot.BinMethod;
 import uk.ac.sussex.gdsc.core.ij.HistogramPlot.HistogramPlotBuilder;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
@@ -585,5 +587,25 @@ class HistogramPlotTest {
     Assertions.assertArrayEquals(hist[1], plot.getPlotYValues());
     Assertions.assertArrayEquals(limits, plot.getLimits());
     Assertions.assertEquals("title name", plot.getPlot().getTitle());
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+      "123, 123",
+      "a^b, a^b",
+      "a^^b, a^^b",
+      // superscript is replaced by a single '^'
+      "a^^b^^, a^b",
+      "a^^b^^c, a^bc",
+      // subscript has no replacement character
+      "a!b, a!b",
+      "a!!b, a!!b",
+      "a!!b!!, ab",
+      "a!!b!!c, abc",
+      // both
+      "a^^b^^!!c!!, a^bc",
+  })
+  void testStripFormatting(String in, String out) {
+    Assertions.assertEquals(out, HistogramPlot.stripFormatting(in));
   }
 }
