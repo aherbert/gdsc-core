@@ -251,7 +251,7 @@ public final class Mixers {
    * Invert a 28-bit right xorshift operation.
    *
    * @param value the value
-   * @return the the original value
+   * @return the original value
    */
   private static long unxorshift28(long value) {
     return value ^ (value >>> 28) ^ (value >>> 56);
@@ -261,7 +261,7 @@ public final class Mixers {
    * Invert the rotate(24) ^ rotate(49) operation.
    *
    * @param value the value
-   * @return the the original value
+   * @return the original value
    */
   private static long invertRor2449(long value) {
     long acc = 0;

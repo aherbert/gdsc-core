@@ -768,7 +768,7 @@ public class FastImageReader {
   }
 
   /**
-   * Gets the the number of channels for the RGB 48 image.
+   * Gets the number of channels for the RGB 48 image.
    *
    * @param fi the file info
    * @return the channels

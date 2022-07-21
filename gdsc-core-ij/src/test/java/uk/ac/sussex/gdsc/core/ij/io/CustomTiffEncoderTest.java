@@ -49,7 +49,7 @@ import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
- * This tests writing pixels and image metadata using the the {@link CustomTiffEncoder} matches the
+ * This tests writing pixels and image metadata using the {@link CustomTiffEncoder} matches the
  * binary data written by the ImageJ {@link TiffEncoder}.
  */
 @SuppressWarnings({"javadoc"})

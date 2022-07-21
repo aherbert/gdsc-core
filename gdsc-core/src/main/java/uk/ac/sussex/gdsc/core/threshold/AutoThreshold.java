@@ -873,7 +873,7 @@ public class AutoThreshold {
 
   /**
    * W. Tsai, "Moment-preserving thresholding: a new approach," Computer Vision, Graphics, and Image
-   * Processing, vol. 29, pp. 377-393, 1985. Ported to ImageJ plugin by G.Landini from the the open
+   * Processing, vol. 29, pp. 377-393, 1985. Ported to ImageJ plugin by G.Landini from the open
    * source project FOURIER 0.8 by M. Emre Celebi , Department of Computer Science, Louisiana State
    * University in Shreveport Shreveport, LA 71115, USA.
    * http://sourceforge.net/projects/fourier-ipal. http://www.lsus.edu/faculty/~ecelebi/fourier.htm.

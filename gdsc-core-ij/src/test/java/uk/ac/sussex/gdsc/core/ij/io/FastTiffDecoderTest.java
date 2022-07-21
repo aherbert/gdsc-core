@@ -72,7 +72,7 @@ import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
- * This tests reading image metadata using the the {@link FastTiffDecoder} matches the metadata read
+ * This tests reading image metadata using the {@link FastTiffDecoder} matches the metadata read
  * by the ImageJ {@link TiffDecoder}.
  *
  * <p>Images supported by ImageJ are created, saved and read back. The metadata must be correct.

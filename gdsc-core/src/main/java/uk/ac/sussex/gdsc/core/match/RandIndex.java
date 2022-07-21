@@ -65,7 +65,7 @@ public class RandIndex {
   private long truePositivesPlusFalseNegatives;
 
   /**
-   * Returns an exact representation of the the number of 2-element subsets that can be selected
+   * Returns an exact representation of the number of 2-element subsets that can be selected
    * from an {@code n}-element set.
    *
    * <p>If n==0 or n==1 it will return 0.

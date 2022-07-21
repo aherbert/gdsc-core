@@ -38,7 +38,7 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
  * Copy implementation of {@link ij.process.FHT} to increase the speed where possible.
  *
  * <p>Speed has been increased for: multiply/divide operations by allowing pre-computation of the
- * state for the the operation; and computation of the complex transform in a combined algorithm for
+ * state for the operation; and computation of the complex transform in a combined algorithm for
  * the real and imaginary parts.
  *
  * @see FHT
