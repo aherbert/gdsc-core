@@ -879,13 +879,21 @@ public class ExtendedGenericDialog extends GenericDialog {
     optionCollectedListeners.add(listener);
   }
 
-  private void notifyOptionCollectedListeners(String label) {
-    if (optionCollectedListeners == null) {
-      return;
+  /**
+   * Notify the option collected listeners with the specified event.
+   *
+   * @param e the event
+   */
+  public void notifyOptionCollectedListeners(OptionCollectedEvent e) {
+    if (e != null) {
+      optionCollectedListeners.forEach(l -> l.optionCollected(e));
     }
-    final OptionCollectedEvent e = new OptionCollectedEvent(label);
-    for (int i = 0; i < optionCollectedListeners.size(); i++) {
-      optionCollectedListeners.unsafeGet(i).optionCollected(e);
+  }
+
+  private void notifyOptionCollectedListeners(String label) {
+    if (label != null) {
+      final OptionCollectedEvent e = new OptionCollectedEvent(label);
+      optionCollectedListeners.forEach(l -> l.optionCollected(e));
     }
   }
 
