@@ -19,7 +19,7 @@ Maven Installation
 This package is used by other GDSC packages. It is only necessary to perform an
 install if you are building the other packages from the source code.
 
-The code depends on the gdsc-test artifact so you will have
+The code depends on the gdsc-test and gdsc-ij-parent artifacts so you will have
 to install this to your local Maven repository before building:
 
 1. Clone the required repositories
