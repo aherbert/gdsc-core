@@ -25,14 +25,16 @@ to install this to your local Maven repository before building:
 1. Clone the required repositories
 
         git clone https://github.com/aherbert/gdsc-test.git
+        git clone https://github.com/aherbert/gdsc-ij-parent.git
         git clone https://github.com/aherbert/gdsc-core.git
 
 2. Build the code and install using Maven
 
         cd gdsc-test
         mvn install
-        cd ..
-        cd gdsc-core
+        cd ../gdsc-ij-parent
+        mvn install
+        cd ../gdsc-core
         mvn install
         cd ..
 
