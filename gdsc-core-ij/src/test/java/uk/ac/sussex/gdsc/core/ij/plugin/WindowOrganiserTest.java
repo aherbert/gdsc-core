@@ -86,7 +86,8 @@ class WindowOrganiserTest {
   @DisabledIfHeadless
   void testAdd2() {
     final WindowOrganiser wo = new WindowOrganiser();
-    final PlotWindow pw = new Plot("dummy", "x", "y").show();
+    final Plot plot = new Plot("dummy", "x", "y");
+    final PlotWindow pw = new PlotWindow(plot.getImagePlus(), plot);
     wo.setIgnore(true);
     wo.add(pw);
     Assertions.assertTrue(wo.isEmpty());
