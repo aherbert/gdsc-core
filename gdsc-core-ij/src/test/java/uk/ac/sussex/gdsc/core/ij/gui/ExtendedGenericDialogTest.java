@@ -31,11 +31,13 @@ package uk.ac.sussex.gdsc.core.ij.gui;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.gui.ExtendedGenericDialog.OptionCollectedEvent;
+import uk.ac.sussex.gdsc.test.junit5.DisabledIfHeadless;
 
 @SuppressWarnings({"javadoc"})
 class ExtendedGenericDialogTest {
 
   @Test
+  @DisabledIfHeadless
   void checkNotifyOptionCollectedListeners() {
     final ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
     final OptionCollectedEvent event = new OptionCollectedEvent("field_name");
