@@ -885,13 +885,13 @@ public class ExtendedGenericDialog extends GenericDialog {
    * @param e the event
    */
   public void notifyOptionCollectedListeners(OptionCollectedEvent e) {
-    if (e != null) {
+    if (optionCollectedListeners != null && e != null) {
       optionCollectedListeners.forEach(l -> l.optionCollected(e));
     }
   }
 
   private void notifyOptionCollectedListeners(String label) {
-    if (label != null) {
+    if (optionCollectedListeners != null && label != null) {
       final OptionCollectedEvent e = new OptionCollectedEvent(label);
       optionCollectedListeners.forEach(l -> l.optionCollected(e));
     }
