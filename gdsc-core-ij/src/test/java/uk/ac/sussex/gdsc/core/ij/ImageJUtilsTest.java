@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.Plot;
 import ij.plugin.ZProjector;
@@ -54,6 +55,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
+import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.utils.TestLogging.TestLevel;
 
@@ -154,14 +156,30 @@ class ImageJUtilsTest {
 
   @Test
   void testGetIdList() {
-    Assertions.assertArrayEquals(new int[0], ImageJUtils.getIdList());
+    // The default list
+    int[] list = WindowManager.getIDList();
+    if (list == null) {
+      list = new int[0];
+    }
+    Assertions.assertArrayEquals(list, ImageJUtils.getIdList());
   }
 
   @Test
   void testGetImageList() {
-    Assertions.assertArrayEquals(new String[0], ImageJUtils.getImageList(0));
-    Assertions.assertArrayEquals(new String[0], ImageJUtils.getImageList(0, (String[]) null));
-    Assertions.assertArrayEquals(new String[] {ImageJUtils.NO_IMAGE_TITLE},
+    // The default list
+    final LocalList<String> list = new LocalList<>();
+    for (final int id : ImageJUtils.getIdList()) {
+      final ImagePlus imp = WindowManager.getImage(id);
+      list.add(imp.getTitle());
+    }
+
+    final String[] defaultList = list.toArray(new String[0]);
+    list.add(0, ImageJUtils.NO_IMAGE_TITLE);
+    final String[] defaultNoImageList = list.toArray(new String[0]);
+
+    Assertions.assertArrayEquals(defaultList, ImageJUtils.getImageList(0));
+    Assertions.assertArrayEquals(defaultList, ImageJUtils.getImageList(0, (String[]) null));
+    Assertions.assertArrayEquals(defaultNoImageList,
         ImageJUtils.getImageList(ImageJUtils.NO_IMAGE));
     Assertions.assertArrayEquals(new String[0], ImageJUtils.getImageList(0, new String[] {".txt"}));
     Assertions.assertArrayEquals(new String[] {ImageJUtils.NO_IMAGE_TITLE},
