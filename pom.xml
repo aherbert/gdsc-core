@@ -281,6 +281,18 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <plugin>
         <groupId>org.revapi</groupId>
         <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <!-- For reporting do not ignore the "intentional-api-changes" so they are included -->
+          <analysisConfigurationFiles>
+            <configurationFile>
+              <path>${gdsc.parent.dir}/src/conf/revapi/api-changes.json</path>
+              <roots>
+                <!-- Path(s) to configuration in the JSON config file -->
+                <root>2.1</root>
+              </roots>
+            </configurationFile>
+          </analysisConfigurationFiles>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -297,6 +309,27 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       </resource>
     </resources>
   </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <!-- For reporting do not ignore the "intentional-api-changes" so they are included -->
+          <analysisConfigurationFiles>
+            <configurationFile>
+              <path>${gdsc.parent.dir}/src/conf/revapi/api-changes.json</path>
+              <roots>
+                <!-- Path(s) to configuration in the JSON config file -->
+                <root>2.1</root>
+              </roots>
+            </configurationFile>
+          </analysisConfigurationFiles>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <modules>
     <module>gdsc-core</module>

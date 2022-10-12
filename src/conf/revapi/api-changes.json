@@ -1,0 +1,32 @@
+{
+  "2.1" : [ {
+    "extension" : "revapi.differences",
+    "id" : "intentional-api-changes",
+    "configuration" : {
+      "differences" : [ {
+        "ignore" : true,
+        "code" : "java.method.addedToInterface",
+        "new" : "method com.google.common.hash.PrimitiveSink com.google.common.hash.PrimitiveSink::putBytes(java.nio.ByteBuffer)",
+        "justification" : "This new method from a dependency is not used by the GDSC code."
+      }, {
+        "ignore" : true,
+        "code" : "java.field.constantValueChanged",
+        "old" : "field ij.ImageJ.BUILD",
+        "new" : "field ij.ImageJ.BUILD",
+        "justification" : "The ImageJ build value has changed due to an ImageJ version update."
+      }, {
+        "ignore" : true,
+        "code" : "java.field.constantValueChanged",
+        "old" : "field ij.ImageJ.VERSION",
+        "new" : "field ij.ImageJ.VERSION",
+        "justification" : "The ImageJ version value has changed due to an ImageJ version update."
+      }, {
+        "ignore" : true,
+        "code" : "java.class.defaultSerializationChanged",
+        "old" : "class ij.gui.Roi",
+        "new" : "class ij.gui.Roi",
+        "justification" : "Serialization of an ImageJ ROI is not used by the GDSC code to persist state. ROIs can be saved/restored using ImageJ RoiEncoder and RoiDecoder classes via a byte[]."
+      } ]
+    }
+  } ]
+}
