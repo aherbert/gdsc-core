@@ -154,9 +154,22 @@ public class InfinityMappedFloatProcessor extends AbstractMappedFloatProcessor {
     float value;
     int ivalue;
 
-    // Default min/max
-    final float min2 = (float) getMin();
-    final float max2 = (float) getMax();
+    // Get min/max using IJ 1.53f method (ignores infinites).
+    // IJ 1.53t includes infinites in the min/max so we cannot
+    // use e.g. float min2 = (float) getMin()
+    float min2 = Float.MAX_VALUE;
+    float max2 = -Float.MAX_VALUE;
+    for (int i = 0; i < pixels.length; i++) {
+      value = pixels[i];
+      if (!Float.isInfinite(value)) {
+        if (value < min2) {
+          min2 = value;
+        }
+        if (value > max2) {
+          max2 = value;
+        }
+      }
+    }
 
     final float scale = (max - 1f) / (max2 - min2);
 
