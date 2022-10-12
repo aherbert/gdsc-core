@@ -213,6 +213,9 @@ public abstract class FastTiffDecoder {
   /** TIFF ImageJ Metadata types OVERLAY. "over" (overlay) */
   static final int OVERLAY = 0x6f766572;
 
+  /** TIFF ImageJ Metadata types PROPERTIES. "prop" (properties) */
+  static final int PROPERTIES = 0x70726f70;
+
   /** The size of the IFD index standard data in bytes (short+short+int+int). */
   private static final int INDEX_SIZE = 2 + 2 + 4 + 4; //
 
@@ -1272,6 +1275,9 @@ public abstract class FastTiffDecoder {
         if (types[i] == OVERLAY) {
           id = " (overlay)";
         }
+        if (types[i] == PROPERTIES) {
+          id = "properties";
+        }
         debugInfo += "   " + i + " " + Integer.toHexString(types[i]) + " " + counts[i] + id + "\n";
       }
     }
@@ -1294,6 +1300,8 @@ public abstract class FastTiffDecoder {
         getRoi(start, fi);
       } else if (types[i] == OVERLAY) {
         getOverlay(start, start + counts[i] - 1, fi);
+      } else if (types[i] == PROPERTIES) {
+        getProperties(start, start + counts[i] - 1, fi);
       } else if (types[i] < 0xffffff) {
         for (int j = start; j < start + counts[i]; j++) {
           final int len = metaDataCounts[j];
@@ -1453,6 +1461,38 @@ public abstract class FastTiffDecoder {
       fi.overlay[index] = new byte[len];
       ss.readFully(fi.overlay[index], len);
       index++;
+    }
+  }
+
+  /**
+   * Gets the properties.
+   *
+   * @param first the first
+   * @param last the last
+   * @param fi the fi
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  void getProperties(int first, int last, FileInfo fi) throws IOException {
+    fi.properties = new String[last - first + 1];
+    int index = 0;
+    for (int i = first; i <= last; i++) {
+      int len = metaDataCounts[i];
+      if (len > 0) {
+        final byte[] byteBuffer = allocateBuffer(len);
+        ss.readFully(byteBuffer, len);
+        len /= 2;
+        final char[] chars = new char[len];
+        if (isLittleEndian()) {
+          for (int j = 0, k = 0; j < len; j++) {
+            chars[j] = (char) (byteBuffer[k++] & 255 + ((byteBuffer[k++] & 255) << 8));
+          }
+        } else {
+          for (int j = 0, k = 0; j < len; j++) {
+            chars[j] = (char) (((byteBuffer[k++] & 255) << 8) + (byteBuffer[k++] & 255));
+          }
+        }
+        fi.properties[index++] = new String(chars);
+      }
     }
   }
 

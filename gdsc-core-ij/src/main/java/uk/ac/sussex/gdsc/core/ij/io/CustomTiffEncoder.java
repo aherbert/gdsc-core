@@ -76,7 +76,7 @@ public class CustomTiffEncoder {
     this.fi = fi;
     // Respect the byte order of the FileInfo object
     littleEndian = fi.intelByteOrder;
-    entries = 9;
+    entries = 10;
     int bytesPerPixel = 1;
     int bpsSize = 0;
 
@@ -92,7 +92,7 @@ public class CustomTiffEncoder {
         bps = 16;
         interp = fi.whiteIsZero ? 0 : 1;
         if (fi.lutSize > 0) {
-          entries = 10;
+          entries++;
           colorMapSize = MAP_SIZE * 2;
         }
         bytesPerPixel = 2;
@@ -101,7 +101,7 @@ public class CustomTiffEncoder {
         bps = 32;
         interp = fi.whiteIsZero ? 0 : 1;
         if (fi.lutSize > 0) {
-          entries = 10;
+          entries++;
           colorMapSize = MAP_SIZE * 2;
         }
         bytesPerPixel = 4;
@@ -122,7 +122,7 @@ public class CustomTiffEncoder {
         break;
       case FileInfo.COLOR8:
         interp = 3;
-        entries = 10;
+        entries++;
         colorMapSize = MAP_SIZE * 2;
         break;
       default:
@@ -285,6 +285,14 @@ public class CustomTiffEncoder {
       metaDataEntries += fi.overlay.length;
     }
 
+    if (fi.properties != null) {
+      for (int i = 0; i < fi.properties.length; i++) {
+        size += fi.properties[i].length() * 2;
+      }
+      types++;
+      metaDataEntries += fi.properties.length;
+    }
+
     if (fi.metaDataTypes != null && fi.metaData != null && fi.metaData[0] != null
         && fi.metaDataTypes.length == fi.metaData.length) {
       extraMetaDataEntries = fi.metaData.length;
@@ -351,6 +359,7 @@ public class CustomTiffEncoder {
     } else {
       writeEntry(out, FastTiffDecoder.BITS_PER_SAMPLE, 3, 1, bitsPerSample);
     }
+    writeEntry(out, FastTiffDecoder.COMPRESSION, 3, 1, 1); // No Compression
     writeEntry(out, FastTiffDecoder.PHOTO_INTERP, 3, 1, photoInterp);
     if (description != null) {
       writeEntry(out, FastTiffDecoder.IMAGE_DESCRIPTION, 2, description.length, tagDataOffset);
@@ -465,6 +474,11 @@ public class CustomTiffEncoder {
         writeInt(out, fi.overlay[i].length);
       }
     }
+    if (fi.properties != null) {
+      for (int i = 0; i < fi.properties.length; i++) {
+        writeInt(out, fi.properties[i].length() * 2);
+      }
+    }
     for (int i = 0; i < extraMetaDataEntries; i++) {
       writeInt(out, fi.metaData[i].length);
     }
@@ -498,6 +512,10 @@ public class CustomTiffEncoder {
     if (fi.overlay != null) {
       writeInt(out, FastTiffDecoder.OVERLAY); // type="over"
       writeInt(out, fi.overlay.length); // count
+    }
+    if (fi.properties != null) {
+      writeInt(out, FastTiffDecoder.PROPERTIES); // type="prop"
+      writeInt(out, fi.properties.length); // count
     }
     for (int i = 0; i < extraMetaDataEntries; i++) {
       writeInt(out, fi.metaDataTypes[i]);
@@ -534,10 +552,14 @@ public class CustomTiffEncoder {
         out.write(fi.overlay[i]);
       }
     }
+    if (fi.properties != null) {
+      for (int i = 0; i < fi.properties.length; i++) {
+        writeChars(out, fi.properties[i]);
+      }
+    }
     for (int i = 0; i < extraMetaDataEntries; i++) {
       out.write(fi.metaData[i]);
     }
-
   }
 
   /**

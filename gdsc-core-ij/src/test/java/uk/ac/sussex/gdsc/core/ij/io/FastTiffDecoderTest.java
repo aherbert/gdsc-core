@@ -243,6 +243,10 @@ class FastTiffDecoderTest {
     imp.setRoi(1, 2, 3, 4);
     final Plot plot = new Plot("plot", "x data", "y data");
     imp.setProperty(Plot.PROPERTY_KEY, plot);
+    imp.setProp("prop1", "prop1.value");
+    imp.setProp("prop2", 99);
+    imp.setProp("prop3", "prop3.value");
+    imp.setProp("prop4", 1.2345);
     final Overlay overlay = new Overlay();
     final Roi roi = new Roi(0, 1, 3, 2);
     overlay.add(roi);
@@ -302,6 +306,8 @@ class FastTiffDecoderTest {
         roi2.setImage(imp);
         Assertions.assertEquals(imp.getRoi(), roi2);
         Assertions.assertArrayEquals(plot.toByteArray(), fi.plot);
+        // Persistent properties
+        Assertions.assertArrayEquals(imp.getPropertiesAsArray(), fi.properties);
         Assertions.assertEquals(1, fi.overlay.length);
         // The overlay ROI is not calibrated using the image
         Assertions.assertEquals(roi, RoiDecoder.openFromByteArray(fi.overlay[0]));
