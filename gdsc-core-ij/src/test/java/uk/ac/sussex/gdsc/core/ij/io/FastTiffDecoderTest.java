@@ -72,8 +72,8 @@ import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 /**
- * This tests reading image metadata using the {@link FastTiffDecoder} matches the metadata read
- * by the ImageJ {@link TiffDecoder}.
+ * This tests reading image metadata using the {@link FastTiffDecoder} matches the metadata read by
+ * the ImageJ {@link TiffDecoder}.
  *
  * <p>Images supported by ImageJ are created, saved and read back. The metadata must be correct.
  *
@@ -240,7 +240,6 @@ class FastTiffDecoderTest {
     final int height = 6;
     final ImagePlus imp = new ImagePlus("test", new ByteProcessor(width, height));
     imp.setProperty("Info", "something");
-    imp.setProperty("Label", "my label");
     imp.setRoi(1, 2, 3, 4);
     final Plot plot = new Plot("plot", "x data", "y data");
     imp.setProperty(Plot.PROPERTY_KEY, plot);
@@ -255,6 +254,9 @@ class FastTiffDecoderTest {
 
     final LUT lut = LutHelper.createLut(LutColour.DISTINCT);
     imp.setLut(lut);
+
+    // IJ 1.53t uses the actual slice labels. This must be set after the LUT which resets the stack.
+    imp.getImageStack().setSliceLabel("my label", 1);
 
     // Use IJ to write the image
     final String path = createTmpFile();
@@ -294,7 +296,7 @@ class FastTiffDecoderTest {
         Assertions.assertEquals(height, fi.height);
         Assertions.assertEquals(FileInfo.COLOR8, fi.fileType);
         Assertions.assertEquals(imp.getInfoProperty(), fi.info);
-        Assertions.assertEquals(imp.getProperty("Label"), fi.sliceLabels[0]);
+        Assertions.assertEquals(imp.getImageStack().getSliceLabel(1), fi.sliceLabels[0]);
         // The ROI is calibrated using the image. This effects the equals() function.
         final Roi roi2 = RoiDecoder.openFromByteArray(fi.roi);
         roi2.setImage(imp);
