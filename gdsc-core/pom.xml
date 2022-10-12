@@ -84,6 +84,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-rng-core</artifactId>
+    </dependency>
     <!-- Prevent logging from QuickHull3D -->
     <dependency>
       <groupId>org.slf4j</groupId>
