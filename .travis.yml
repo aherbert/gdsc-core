@@ -18,8 +18,8 @@ after_success:
 deploy:
   provider: script
   script:
-  - if grep --quiet '<version>.*SNAPSHOT</version>' pom.xml; then
-      mvn deploy -P snapshot-release --settings deploy/settings.xml -DskipTests=true;
+  - if mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep SNAPSHOT; then
+      mvn --no-transfer-progress -P snapshot-release --settings deploy/settings.xml -DskipTests=true deploy;
     fi
   skip_cleanup: true
   on:
