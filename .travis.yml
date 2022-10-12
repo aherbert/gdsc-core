@@ -12,7 +12,8 @@ env:
   - secure: oOjRl/uicmYzjRg/piIUAvxkppaT+0N7nXd4b7/tjbZu8TzCHoANysDTiXgW/Vr2tHdJKwnxpNXD0ir6nG/cqsk4Mgra/oZe/1llOl80Taba8WbjQ3ZPuCx/C4xbkz3e2Fz6nNiZVCAZC4FDdQ/XaY/xh0cz/z5toDYwfdhoyCBZMDzqBuGwO5cWqLv6SU3E9xKeOKZbnmc9XAZQ3TPSpB+ZTrZ5wGJZ5OaprlGvbz/kGZXwEBfOP8evTnbEvkn/Q9rajvjySXr0PshNYBoY51/3/KF6A2QPviZPiNXA4vByuna2mG2IM5oXMAunjclGuhhCBQtpQ7k4eAugJJ1qPM++jm6QxGMUo/qNTg8u5Itb8QP8lvhLnm6oJ5z/xMwG2owfDsqCCu+gQaSdO9T8G3HnPJRC6/PRXJQid0EpOZBqMRHEkMjpg/L/dmTi3HVdGPapIyfDxZEqbp9W+6VfVyIxWxstDuD7ZUFfcx+alCl4ZC7F9uXqG4Pmxp0zvwSUmO691eqlrTmJwE0119b3xRUP+CqhGag/d0J9VAP8RRUAwYdi/6C6u1lODoT6i/IXpGohoURNqnfTmoH1g502DC+n7Kxf4x+3WRsSmPhbAx+bU5achSpwIple0GYqRFJssCp9Pc6LDktg5raDB4nrlcTIi4YoY+q3x7A3FUkQlD8=
 install:
 - mvn dependency:purge-local-repository -DmanualInclude="uk.ac.sussex.gdsc:gdsc-ij-parent"
-- mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+script:
+- mvn -B --no-transfer-progress verify
 after_success:
 - mvn clean test -P coveralls,jacoco jacoco:report coveralls:report
 deploy:
