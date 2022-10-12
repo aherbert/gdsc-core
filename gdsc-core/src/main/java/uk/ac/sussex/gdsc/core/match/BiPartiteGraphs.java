@@ -98,8 +98,7 @@ public final class BiPartiteGraphs {
    * {@code int}-consuming primitive type specialization of {@link BiPredicate}.
    */
   @FunctionalInterface
-  @VisibleForTesting
-  interface IntIntBiPredicate {
+  public interface IntIntBiPredicate {
     /**
      * Evaluates this predicate on the given arguments.
      *
