@@ -244,8 +244,10 @@ class ImageJUtilsTest {
     Assertions.assertArrayEquals(SimpleArrayUtils.newFloatArray(12, 22f), (float[]) ip.getPixels());
     ip = ImageJUtils.extractTile(imp, 2, 3, ZProjector.AVG_METHOD);
     // (17+18+19+20)/4
-    // Others use input processor type
-    Assertions.assertArrayEquals(SimpleArrayUtils.newByteArray(12, (byte) 18.5f),
+    final float expected = (17f + 18f + 19f + 20f) / 4;
+    // Others use input processor type.
+    // Note: Rounding was added between 1.53f and 1.53t
+    Assertions.assertArrayEquals(SimpleArrayUtils.newByteArray(12, (byte) (expected + 0.5f)),
         (byte[]) ip.getPixels());
   }
 
