@@ -517,6 +517,19 @@ public final class NumberUtils {
   }
 
   /**
+   * Creates a {@code double} in the interval {@code (0, 1]} from a {@code long} value.
+   * The value is sampled evenly from the 2<sup>53</sup> dyadic rationals in the range.
+   *
+   * @param v Number.
+   * @return a {@code double} value in the interval {@code (0, 1]}.
+   */
+  public static double makeNonZeroDouble(long v) {
+      // Use the upper 53-bits as an integer and convert to a double.
+      // Adding 1 shifts the range from [0, 1) to (0, 1].
+      return ((v >>> 11) + 1) * 0x1.0p-53d;
+  }
+
+  /**
    * Compute the multiplicative inverse of an integer. Given {@code x} compute {@code y} such that
    * {@code x * y = y * x = 1}.
    *

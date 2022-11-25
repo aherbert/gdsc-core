@@ -704,4 +704,20 @@ class NumberUtilsTest {
     Assertions.assertEquals(Math.nextUp(1.0), NumberUtils.makeNormalDouble(0x0000000000001000L));
     Assertions.assertEquals(1.5, NumberUtils.makeNormalDouble(0x8000000000000000L));
   }
+
+  @SeededTest
+  void testMakeNonZeroDouble(RandomSeed seed) {
+    // Assume bottom 11-bits are discarded
+    final double u = 0x1.0p-53;
+    Assertions.assertEquals(u, NumberUtils.makeNonZeroDouble(0L));
+    Assertions.assertEquals(1, NumberUtils.makeNonZeroDouble(-1L));
+    Assertions.assertEquals(u + u, NumberUtils.makeNonZeroDouble(1L << 11));
+    Assertions.assertEquals(1 - u, NumberUtils.makeNonZeroDouble(-2L << 11));
+    // Test this is the same as incrementing a uniform double in [0, 1)
+    final UniformRandomProvider rng1 = RngFactory.create(seed.get());
+    final UniformRandomProvider rng2 = RngFactory.create(seed.get());
+    for (int i = 0; i < 20; i++) {
+      Assertions.assertEquals(rng1.nextDouble() + u, NumberUtils.makeNonZeroDouble(rng2.nextLong()));
+    }
+  }
 }
