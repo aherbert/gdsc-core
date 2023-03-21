@@ -886,10 +886,10 @@ public final class ImageJUtils {
     // If using the JFileChooser there are two versions depending on the dispatch thread.
     // When not on the dispatch thread the cancel is only detected if running in a macro
     // (this bug is in IJ 1.53f). So force the dispatch thread.
-    // Note: This does not matter if:
-    // (Macro.getOptions() != null && Macro.getValue(macroOptions, title, null) != null)
-    // Presently this is not checked.
-    if (Prefs.useJFileChooser && !EventQueue.isDispatchThread()) {
+    // Note: This does not matter if running as a macro:
+    final String macroOptions = Macro.getOptions();
+    final boolean macroResult = macroOptions != null && Macro.getValue(macroOptions, title, null) != null;
+    if (!macroResult && Prefs.useJFileChooser && !EventQueue.isDispatchThread()) {
       try {
         EventQueue.invokeAndWait(() -> {
           result[0] = getFilenameDispatchThread(title, path[0], path[1]);
