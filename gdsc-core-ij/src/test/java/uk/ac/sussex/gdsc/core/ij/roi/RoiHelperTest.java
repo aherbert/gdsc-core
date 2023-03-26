@@ -35,10 +35,18 @@ import ij.gui.OvalRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.ByteProcessor;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.awt.Rectangle;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @SuppressWarnings({"javadoc"})
 class RoiHelperTest {
@@ -250,5 +258,94 @@ class RoiHelperTest {
       final int y = index / size;
       Assertions.assertTrue(oval.contains(x, y));
     });
+  }
+
+  @Test
+  void testLargestBoundingRoiThrows() {
+    final ByteProcessor ip = new ByteProcessor(4, 3);
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RoiHelper.largestBoundingRoi(ip, -1, 0));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RoiHelper.largestBoundingRoi(ip, ip.getWidth(), 0));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RoiHelper.largestBoundingRoi(ip, 0, -1));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> RoiHelper.largestBoundingRoi(ip, 0, ip.getHeight()));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testLargestBoundingRoi(ImageProcessor ip, int x, int y, Roi expected) {
+    Assertions.assertEquals(expected, RoiHelper.largestBoundingRoi(ip, x, y));
+  }
+
+  static Stream<Arguments> testLargestBoundingRoi() {
+    final Stream.Builder<Arguments> builder = Stream.builder();
+    // Full size
+    final ByteProcessor ip = new ByteProcessor(4, 3);
+    final Roi roi = new Roi(0, 0, ip.getWidth(), ip.getHeight());
+    builder.add(Arguments.of(ip, 0, 0, roi));
+    builder.add(Arguments.of(ip, 1, 1, roi));
+    builder.add(Arguments.of(ip, 3, 2, roi));
+    // With spots
+    // @formatter:off
+    final ByteProcessor ip2 = createByteProcessor("01010",
+                                                  "01000",
+                                                  "10000",
+                                                  "00001",
+                                                  "01000");
+    // @formatter:on
+    builder.add(Arguments.of(ip2, 0, 1, new Roi(0, 0, 1, 2)));
+    builder.add(Arguments.of(ip2, 2, 4, new Roi(2, 1, 2, 4)));
+    builder.add(Arguments.of(ip2, 1, 3, new Roi(1, 2, 3, 2)));
+    builder.add(Arguments.of(ip2, 4, 0, new Roi(4, 0, 1, 3)));
+    builder.add(Arguments.of(ip2, 1, 0, new Roi(1, 0, 1, 2)));
+    builder.add(Arguments.of(ip2, 2, 0, new Roi(2, 0, 1, 5)));
+    builder.add(Arguments.of(ip2, 2, 2, new Roi(2, 1, 2, 4)));
+    return builder.build();
+  }
+
+  private static ByteProcessor createByteProcessor(String... bits) {
+    final int n = bits[0].length();
+    final ByteProcessor bp = new ByteProcessor(n, n);
+    int index = 0;
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        // Assume values are digits [0, 9]
+        bp.set(index++, bits[i].charAt(j) - '0');
+      }
+    }
+    return bp;
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testConvertToMask(ImageProcessor ip, int x, int y) {
+    final int w = ip.getWidth();
+    final int h = ip.getHeight();
+    final ByteProcessor bp = new ByteProcessor(w, h);
+    final double v = ip.getValue(x, y);
+    int index = 0;
+    for (int j = 0; j < h; j++) {
+      for (int i = 0; i < w; i++) {
+        bp.set(index++, ip.getValue(i, j) == v ? 0 : -1);
+      }
+    }
+    Assertions.assertArrayEquals((byte[]) bp.getPixels(), RoiHelper.convertToMask(ip, x, y));
+  }
+
+  static Stream<Arguments> testConvertToMask() {
+    final Stream.Builder<Arguments> builder = Stream.builder();
+    final ShortProcessor ip = new ShortProcessor(4, 3);
+    ip.set(1, 2, Short.MAX_VALUE);
+    ip.set(2, 1, Short.MAX_VALUE);
+    builder.add(Arguments.of(ip, 0, 0));
+    builder.add(Arguments.of(ip, 2, 1));
+    final FloatProcessor ip2 = new FloatProcessor(4, 3);
+    ip2.setf(1, 2, Float.MAX_VALUE);
+    ip2.setf(2, 1, Float.MAX_VALUE);
+    builder.add(Arguments.of(ip2, 0, 0));
+    builder.add(Arguments.of(ip2, 2, 1));
+    return builder.build();
   }
 }
