@@ -28,6 +28,22 @@
         "justification" : "Serialization of an ImageJ ROI is not used by the GDSC code to persist state. ROIs can be saved/restored using ImageJ RoiEncoder and RoiDecoder classes via a byte[]."
       }, {
         "ignore": true,
+        "code": "java.method.visibilityIncreased",
+        "old": "method java.awt.Font ij.gui.Plot::getFont(char)",
+        "new": "method java.awt.Font ij.gui.Plot::getFont(char)",
+        "oldVisibility": "package",
+        "newVisibility": "public",
+        "justification": "Latest ImageJ changes are allowed; code should be updated to be compatible."
+      }, {
+        "ignore": true,
+        "code": "java.method.visibilityIncreased",
+        "old": "method void ij.gui.Plot::setFont(char, java.awt.Font)",
+        "new": "method void ij.gui.Plot::setFont(char, java.awt.Font)",
+        "oldVisibility": "package",
+        "newVisibility": "public",
+        "justification": "Latest ImageJ changes are allowed; code should be updated to be compatible."
+      }, {
+        "ignore": true,
         "code": "java.class.removed",
         "old": "class uk.ac.sussex.gdsc.core.threshold.BesselK",
         "justification": "This class is a spurious commit and contains no functionality."
