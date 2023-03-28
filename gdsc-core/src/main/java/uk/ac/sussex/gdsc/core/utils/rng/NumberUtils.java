@@ -524,9 +524,9 @@ public final class NumberUtils {
    * @return a {@code double} value in the interval {@code (0, 1]}.
    */
   public static double makeNonZeroDouble(long v) {
-      // Use the upper 53-bits as an integer and convert to a double.
-      // Adding 1 shifts the range from [0, 1) to (0, 1].
-      return ((v >>> 11) + 1) * 0x1.0p-53d;
+    // Use the upper 53-bits as an integer and convert to a double.
+    // Adding 1 shifts the range from [0, 1) to (0, 1].
+    return ((v >>> 11) + 1) * 0x1.0p-53d;
   }
 
   /**

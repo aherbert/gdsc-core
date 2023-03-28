@@ -311,7 +311,8 @@ class CustomTiffEncoderTest {
     fi.roi = randomBytes(rng, 32);
     fi.overlay = new byte[][] {randomBytes(rng, 11), randomBytes(rng, 13)};
     fi.metaDataTypes = new int[] {3456, 7897};
-    fi.properties = new String[] {new String(randomBytes(rng, 12)), new String(randomBytes(rng, 6))};
+    fi.properties =
+        new String[] {new String(randomBytes(rng, 12)), new String(randomBytes(rng, 6))};
     fi.metaData = new byte[][] {randomBytes(rng, 7), randomBytes(rng, 15)};
 
     canWriteTiff(imp, true, fi);

@@ -639,7 +639,7 @@ class OpticsResultTest {
 
   @ParameterizedTest
   @CsvSource(value = {"0, 10, 11, 20, 0", "0, 10, 10, 20, 1", "0, 10, 5, 20, 6", "0, 10, 5, 15, 6",
-      "0, 10, 5, 10, 6", "0, 10, 0, 10, 11", "0, 10, 0, 5, 6", "0, 10, 1, 3, 3",})
+      "0, 10, 5, 10, 6", "0, 10, 0, 10, 11", "0, 10, 0, 5, 6", "0, 10, 1, 3, 3"})
   void testOverlapFraction(int s1, int e1, int s2, int e2, int overlap) {
     final double expected = (double) overlap / Math.max(e2 - s2 + 1, e1 - s1 + 1);
     Assertions.assertEquals(expected, overlapFraction(s1, e1, s2, e2));

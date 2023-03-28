@@ -41,7 +41,7 @@ class StatusStackTest {
   void testStack(int capacity) {
     final UniformRandomProvider rng = RngFactory.createWithFixedSeed();
     final byte[] choice =
-        {Status.RIGHTVISITED, Status.NONE, Status.LEFTVISITED, Status.ALLVISITED,};
+        {Status.RIGHTVISITED, Status.NONE, Status.LEFTVISITED, Status.ALLVISITED};
     for (int i = 0; i < 10; i++) {
       final StatusStack stack = StatusStack.create(capacity);
       final byte[] expected = new byte[capacity];

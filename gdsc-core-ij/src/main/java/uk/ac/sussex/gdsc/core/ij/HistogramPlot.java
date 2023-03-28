@@ -125,7 +125,7 @@ public class HistogramPlot {
      *
      * <p>The name supports ImageJ's super/subscript formatting. Enclose superscript using
      * {@code ^^} and subscript using {@code !!}.
-     * 
+     *
      * @param title The title to prepend to the plot name
      * @param data The data
      * @param name The name of the plotted statistic

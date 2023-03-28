@@ -168,7 +168,7 @@ class RandIndexTest {
     final double r = RandIndex.simpleRandIndex(clusters, classes);
 
     final int[][] maps =
-        new int[][] {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0},};
+        new int[][] {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
     final RandIndex ri = new RandIndex();
     for (final int[] map : maps) {
       final int[] c2 = new int[classes.length];

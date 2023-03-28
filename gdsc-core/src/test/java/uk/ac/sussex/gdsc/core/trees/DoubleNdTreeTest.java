@@ -71,7 +71,7 @@ class DoubleNdTreeTest {
 
   @Test
   void testComputeKnnWithSmallTree() {
-    final double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
+    final double[][] data = new double[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     assertComputeKnn(data);
   }
 

@@ -149,7 +149,7 @@ class EntropyTest {
     final long seed = ThreadLocalRandom.current().nextLong();
     for (final UniformRandomProvider rng : new UniformRandomProvider[] {SplitMix.new64(seed),
         SplitMix.new32(seed), Pcg32.xshrr(seed), Pcg32.xshrs(seed),
-        MiddleSquareWeylSequence.newInstance(seed),}) {
+        MiddleSquareWeylSequence.newInstance(seed)}) {
       System.out.println(rng);
       final EntropyDigest ent1 = Entropy.createDigest(false);
       final EntropyDigest ent2 = Entropy.createDigest(true);

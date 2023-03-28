@@ -729,9 +729,9 @@ public class DensityManager extends CoordinateStore {
 
   /**
    * Calculate the area of circular segment, a portion of a disk whose upper boundary is a
-   * (circular) arc and whose lower boundary is a chord making a central angle of 
+   * (circular) arc and whose lower boundary is a chord making a central angle of
    * {@code theta < pi radians} (180 degrees).
-   *  
+   *
    * @param radius the radius of the circle
    * @param radius2 the squared radius of the circle
    * @param height the radius minus the height of the arced portion

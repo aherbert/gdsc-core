@@ -44,9 +44,12 @@ class StreamsTest {
     Assertions.assertThrows(NullPointerException.class, () -> Streams.stream(missing, 0, 1));
     final float[] values = new float[5];
     Assertions.assertThrows(IllegalArgumentException.class, () -> Streams.stream(values, 5, 4));
-    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> Streams.stream(values, 5, 10));
-    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> Streams.stream(values, 0, 10));
-    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> Streams.stream(values, -1, 5));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> Streams.stream(values, 5, 10));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> Streams.stream(values, 0, 10));
+    Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> Streams.stream(values, -1, 5));
   }
 
   @Test

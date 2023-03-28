@@ -717,7 +717,8 @@ class NumberUtilsTest {
     final UniformRandomProvider rng1 = RngFactory.create(seed.get());
     final UniformRandomProvider rng2 = RngFactory.create(seed.get());
     for (int i = 0; i < 20; i++) {
-      Assertions.assertEquals(rng1.nextDouble() + u, NumberUtils.makeNonZeroDouble(rng2.nextLong()));
+      Assertions.assertEquals(rng1.nextDouble() + u,
+          NumberUtils.makeNonZeroDouble(rng2.nextLong()));
     }
   }
 }

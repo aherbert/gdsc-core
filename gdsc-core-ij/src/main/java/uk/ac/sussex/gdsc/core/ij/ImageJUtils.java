@@ -888,7 +888,8 @@ public final class ImageJUtils {
     // (this bug is in IJ 1.53f). So force the dispatch thread.
     // Note: This does not matter if running as a macro:
     final String macroOptions = Macro.getOptions();
-    final boolean macroResult = macroOptions != null && Macro.getValue(macroOptions, title, null) != null;
+    final boolean macroResult =
+        macroOptions != null && Macro.getValue(macroOptions, title, null) != null;
     if (!macroResult && Prefs.useJFileChooser && !EventQueue.isDispatchThread()) {
       try {
         EventQueue.invokeAndWait(() -> {

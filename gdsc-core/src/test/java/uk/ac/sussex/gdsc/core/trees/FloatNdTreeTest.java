@@ -71,7 +71,7 @@ class FloatNdTreeTest {
 
   @Test
   void testComputeKnnWithSmallTree() {
-    final float[][] data = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1},};
+    final float[][] data = new float[][] {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     assertComputeKnn(data);
   }
 

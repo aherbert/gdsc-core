@@ -62,10 +62,10 @@ class CoordinateStoreTest {
     Assertions.assertEquals(ycoord[0] - 3, store.getMinimumY());
     Assertions.assertEquals(ycoord[1] - 3, store.getMaximumY());
     Assertions.assertArrayEquals(
-        new float[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3},},
+        new float[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3}},
         store.getData());
     Assertions.assertArrayEquals(
-        new double[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3},},
+        new double[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3}},
         store.getDoubleData());
 
     for (final boolean value : new boolean[] {true, false}) {
@@ -77,10 +77,10 @@ class CoordinateStoreTest {
       Assertions.assertEquals(ycoord[0] - 3, store2.getMinimumY());
       Assertions.assertEquals(ycoord[1] - 3, store2.getMaximumY());
       Assertions.assertArrayEquals(
-          new float[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3},},
+          new float[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3}},
           store2.getData());
       Assertions.assertArrayEquals(
-          new double[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3},},
+          new double[][] {{xcoord[0] - 1, xcoord[1] - 1}, {ycoord[0] - 3, ycoord[1] - 3}},
           store2.getDoubleData());
     }
   }

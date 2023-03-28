@@ -41,7 +41,6 @@ import ij.process.ShortProcessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.awt.Rectangle;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

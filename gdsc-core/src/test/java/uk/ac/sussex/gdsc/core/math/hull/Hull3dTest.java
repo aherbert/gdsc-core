@@ -498,10 +498,10 @@ class Hull3dTest {
   @Test
   void testGetPolygonsWithNonConvexFace() {
     // Pyramid with non convex base
-    final double[][] v = {{1, 1, 1}, {-1, -1, 0}, {0, 0, 0}, {1, -1, 0}, {0, 1, 0},};
+    final double[][] v = {{1, 1, 1}, {-1, -1, 0}, {0, 0, 0}, {1, -1, 0}, {0, 1, 0}};
     final int[][] f = {{0, 1, 2}, {0, 2, 3}, {0, 3, 4}, {0, 4, 1},
         // Base is not convex
-        {1, 4, 3, 2},};
+        {1, 4, 3, 2}};
     final Hull3d hull = Hull3d.create(v, f);
 
     Assertions.assertThrows(IllegalStateException.class,
@@ -554,13 +554,13 @@ class Hull3dTest {
 
     // Through the middle vertically
     assertPolygons(hull, new double[] {1, 0, 0, 0}, Arrays.asList(Arrays.asList(new double[][] {
-        {0, -1, -1}, {0, 1, -1}, {0, 0.5, 0}, {0, 1, 1}, {0, -1, 1}, {0, -0.5, 0},})));
+        {0, -1, -1}, {0, 1, -1}, {0, 0.5, 0}, {0, 1, 1}, {0, -1, 1}, {0, -0.5, 0}})));
 
     assertPolygons(hull, new double[] {1, 0, 0, -0.75}, Arrays.asList(
         Arrays.asList(
-            new double[][] {{0.75, -1, 1}, {0.75, -0.75, 0.5}, {0.75, 0.75, 0.5}, {0.75, 1, 1},}),
+            new double[][] {{0.75, -1, 1}, {0.75, -0.75, 0.5}, {0.75, 0.75, 0.5}, {0.75, 1, 1}}),
         Arrays.asList(
-            new double[][] {{0.75, -1, -1}, {0.75, 1, -1}, {0.75, 0.75, 0.5}, {0.75, -0.75, 0.5},})
+            new double[][] {{0.75, -1, -1}, {0.75, 1, -1}, {0.75, 0.75, 0.5}, {0.75, -0.75, 0.5}})
 
     ));
   }
@@ -579,7 +579,7 @@ class Hull3dTest {
         {0, 1, 0}, {1, 1, 0},
         // Top
         {-1, -1, 1}, {0, -1, 1}, {1, -1, 1}, {-1, 0, 1}, {0, 0, 1}, {1, 0, 1}, {-1, 1, 1},
-        {0, 1, 1}, {1, 1, 1},};
+        {0, 1, 1}, {1, 1, 1}};
     // Faces must be convex. Here we create smaller square faces in the larger square faces
     // so the edges are all paired.
     final int[][] f = {
