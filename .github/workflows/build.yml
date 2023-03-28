@@ -26,7 +26,7 @@ jobs:
         java-version: ${{ matrix.java }}
         cache: 'maven'
     - name: Purge maven snapshots
-      run: mvn -B dependency:purge-local-repository -DmanualInclude="uk.ac.sussex.gdsc:gdsc-ij-parent"
+      run: mvn -B --no-transfer-progress dependency:purge-local-repository -DmanualInclude="uk.ac.sussex.gdsc:gdsc-ij-parent"
     - name: Build
       run: .github/build.sh
       env:
