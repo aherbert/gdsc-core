@@ -25,6 +25,7 @@ jobs:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: 'maven'
+        server-id: ossrh
     - name: Purge maven snapshots
       run: mvn -B dependency:purge-local-repository -DmanualInclude="uk.ac.sussex.gdsc:gdsc-ij-parent" -X -N
     - name: Build
