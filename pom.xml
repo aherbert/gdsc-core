@@ -70,6 +70,18 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <archive>https://forum.image.sc/</archive>
     </mailingList>
   </mailingLists>
+  <repositories>
+    <repository>
+      <id>snapshots-repo</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <developers>
     <developer>
