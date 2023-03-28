@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.process.ByteProcessor;
+import java.awt.HeadlessException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,8 +80,15 @@ class SeriesOpenerTest {
     Assertions.assertEquals(3, imp.getHeight());
     Assertions.assertEquals("image002.tif", imp.getTitle());
     Assertions.assertArrayEquals(data2, (byte[]) imp.getProcessor().getPixels());
-    imp = series.nextImage();
-    Assertions.assertNull(imp);
+    // Default is not for variable size
+    try {
+      imp = series.nextImage();
+      Assertions.assertNull(imp);
+    } catch (HeadlessException ignored) {
+      // Mismatched dimensions so will process all remaining images.
+      // Newer versions of IJ require a graphic environment to handle extra files
+      // and the .list file throws an exception on a headless CI build
+    }
 
     // Repeat but allow variable size
     series = SeriesOpener.create(path, false);
@@ -105,8 +113,12 @@ class SeriesOpenerTest {
     Assertions.assertEquals(4, imp.getHeight());
     Assertions.assertEquals("image4.tif", imp.getTitle());
     Assertions.assertArrayEquals(data3, (byte[]) imp.getProcessor().getPixels());
-    imp = series.nextImage();
-    Assertions.assertNull(imp);
+    try {
+      imp = series.nextImage();
+      Assertions.assertNull(imp);
+    } catch (HeadlessException ignored) {
+      // Again ignore the .list file if headless
+    }
 
     FileUtils.deleteDirectory(tmpDir.toFile());
   }
