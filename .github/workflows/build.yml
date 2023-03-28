@@ -1,0 +1,40 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 8 ]
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java }}
+        cache: 'maven'
+    - name: Purge maven snapshots
+      run: mvn -B dependency:purge-local-repository -DmanualInclude="uk.ac.sussex.gdsc:gdsc-ij-parent"
+    - name: Build
+      run: .github/build.sh
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+    - name: Build coverage
+      run: mvn -B --no-transfer-progress -P jacoco jacoco:report
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./gdsc-core/target/site/jacoco/jacoco.xml,./gdsc-core-ij/target/site/jacoco/jacoco.xml
