@@ -26,6 +26,11 @@
         "old" : "class ij.gui.Roi",
         "new" : "class ij.gui.Roi",
         "justification" : "Serialization of an ImageJ ROI is not used by the GDSC code to persist state. ROIs can be saved/restored using ImageJ RoiEncoder and RoiDecoder classes via a byte[]."
+      }, {
+        "ignore": true,
+        "code": "java.class.removed",
+        "old": "class uk.ac.sussex.gdsc.core.threshold.BesselK",
+        "justification": "This class is a spurious commit and contains no functionality."
       } ]
     }
   } ]
