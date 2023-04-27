@@ -28,6 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.ij.gui;
 
+import ij.Macro;
+import java.awt.Color;
+import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.gui.ExtendedGenericDialog.OptionCollectedEvent;
@@ -55,5 +58,36 @@ class ExtendedGenericDialogTest {
     Assertions.assertEquals(2, count[0]);
     gd.notifyOptionCollectedListeners(null);
     Assertions.assertEquals(2, count[0]);
+  }
+
+  @Test
+  void checkAddColorField() {
+    Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+      // Run without showing the dialog.
+      // This requires manipulation of the thread name and setting of macro options.
+      Thread.currentThread().setName("Run$_ test");
+      Macro.setOptions("something");
+
+      ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
+      Color c1 = Color.RED;
+      Color c2 = null;
+      gd.addColorField("Color_1", c1);
+      gd.addColorField("Color_2", c2);
+      gd.showDialog();
+      Assertions.assertEquals(c1, gd.getNextColor());
+      Assertions.assertEquals(c2, gd.getNextColor());
+
+      Color c3 = Color.MAGENTA;
+      Color c4 = Color.YELLOW;
+      Macro.setOptions(String.format("color_1=#%6x color_2=#%6x", c3.getRGB() & 0xffffff,
+          c4.getRGB() & 0xffffff));
+
+      gd = new ExtendedGenericDialog("Test");
+      gd.addColorField("Color_1", c1);
+      gd.addColorField("Color_2", c2);
+      gd.showDialog();
+      Assertions.assertEquals(c3, gd.getNextColor());
+      Assertions.assertEquals(c4, gd.getNextColor());
+    });
   }
 }

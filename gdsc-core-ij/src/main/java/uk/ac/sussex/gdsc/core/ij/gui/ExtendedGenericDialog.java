@@ -29,7 +29,9 @@
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import ij.IJ;
+import ij.gui.ColorChooser;
 import ij.gui.GenericDialog;
+import ij.plugin.Colors;
 import ij.plugin.frame.Recorder;
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -53,6 +55,8 @@ import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.TextField;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Objects;
 import java.util.Vector;
 import javax.swing.BorderFactory;
@@ -538,6 +542,88 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
+   * Adds a color field to the dialog.
+   *
+   * <p>This is added to the dialog as a non-editable String field. The color is displayed in a
+   * swatch and an option button is provided to show a dialog to choose the color.
+   *
+   * <p>Note: If the input color is null then the option is displayed as "none". This can be updated
+   * using the option button. Once a color has been selected it is not possible to reset the field
+   * to "none" from the selection dialog. The text field supports the use of the backspace and
+   * delete keys to reset the color.
+   *
+   * @param label the label
+   * @param color the color
+   */
+  public void addColorField(String label, Color color) {
+    final TextField tf = addAndGetStringField(label, Colors.colorToString(color));
+    final GridBagConstraints c = grid.getConstraints(tf);
+    remove(tf);
+    tf.setEditable(false);
+
+    final Panel colorSwatch = new Panel();
+    colorSwatch.setPreferredSize(new Dimension(15, 15));
+    colorSwatch.setBackground(color);
+
+    final JButton button = createOptionButton("Choose the color");
+
+    if (ImageJUtils.isShowGenericDialog()) {
+      // Allow the delete keys to clear the color
+      tf.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyPressed(KeyEvent e) {
+          if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            tf.setText(Colors.colorToString(null));
+            colorSwatch.setBackground(null);
+          }
+        }
+      });
+
+      button.addActionListener(event -> {
+        // Colors.decode uses a default of GRAY
+        final Color currentColor = Colors.decode(tf.getText());
+        final ColorChooser cc =
+            new ColorChooser(ExtendedGenericDialog.this.getTitle() + ": " + label.replace('_', ' '),
+                currentColor, false);
+        // Do not record from the ColorChooser
+        Color chosenColor;
+        final boolean recorderOn = Recorder.record;
+        try {
+          Recorder.record = false;
+          chosenColor = cc.getColor();
+        } finally {
+          Recorder.record = recorderOn;
+        }
+        if (chosenColor != null) {
+          tf.setText(Colors.colorToString(chosenColor));
+          colorSwatch.setBackground(chosenColor);
+        }
+      });
+    }
+
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(tf);
+    newPanel.add(colorSwatch);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
+  }
+
+  /**
+   * Returns the color of the next color field.
+   *
+   * <p>This method will decode the next String value. It will return null if the value cannot be
+   * parsed to a color.
+   *
+   * @return the next color (or null)
+   * @see #getNextString()
+   */
+  public Color getNextColor() {
+    return Colors.decode(getNextString(), null);
+  }
+
+  /**
    * Gets the last label added to the dialog.
    *
    * @return the last label
@@ -851,9 +937,8 @@ public class ExtendedGenericDialog extends GenericDialog {
   /**
    * The listener interface for receiving optionCollected events. The class that is interested in
    * processing a optionCollected event implements this interface, and the object created with that
-   * class is registered with a component using the component's
-   * {@code addOptionCollectedListener} method. When the optionCollected event occurs, that
-   * object's appropriate method is invoked.
+   * class is registered with a component using the component's {@code addOptionCollectedListener}
+   * method. When the optionCollected event occurs, that object's appropriate method is invoked.
    *
    * @see OptionCollectedEvent
    */
@@ -985,10 +1070,9 @@ public class ExtendedGenericDialog extends GenericDialog {
   /**
    * Adds the directory field.
    *
-   * <p>Note: A method of the same name was added to ImageJ v1.53.
-   * Previously this method returned a TextField. It now returns void to
-   * be a valid override of the ImageJ method. If access is required to the
-   * added text field then a new method must be created to return the field.
+   * <p>Note: A method of the same name was added to ImageJ v1.53. Previously this method returned a
+   * TextField. It now returns void to be a valid override of the ImageJ method. If access is
+   * required to the added text field then a new method must be created to return the field.
    *
    * @param label the label
    * @param defaultText the default directory
@@ -1002,10 +1086,9 @@ public class ExtendedGenericDialog extends GenericDialog {
   /**
    * Adds the directory field.
    *
-   * <p>Note: A method of the same name was added to ImageJ v1.53.
-   * Previously this method returned a TextField. It now returns void to
-   * be a valid override of the ImageJ method. If access is required to the
-   * added text field then a new method must be created to return the field.
+   * <p>Note: A method of the same name was added to ImageJ v1.53. Previously this method returned a
+   * TextField. It now returns void to be a valid override of the ImageJ method. If access is
+   * required to the added text field then a new method must be created to return the field.
    *
    * @param label the label
    * @param defaultText the default directory
