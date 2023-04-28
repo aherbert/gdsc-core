@@ -61,6 +61,7 @@ class ExtendedGenericDialogTest {
   }
 
   @Test
+  @DisabledIfHeadless
   void checkAddColorField() {
     Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
       // Run without showing the dialog.
@@ -102,6 +103,7 @@ class ExtendedGenericDialogTest {
   }
 
   @Test
+  @DisabledIfHeadless
   void checkAddHexField() {
     Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
       // Run without showing the dialog.
