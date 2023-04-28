@@ -69,16 +69,16 @@ class ExtendedGenericDialogTest {
       Macro.setOptions("something");
 
       ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
-      Color c1 = Color.RED;
-      Color c2 = null;
+      final Color c1 = Color.RED;
+      final Color c2 = null;
       gd.addColorField("Color_1", c1);
       gd.addColorField("Color_2", c2);
       gd.showDialog();
       Assertions.assertEquals(c1, gd.getNextColor());
       Assertions.assertEquals(c2, gd.getNextColor());
 
-      Color c3 = Color.MAGENTA;
-      Color c4 = Color.YELLOW;
+      final Color c3 = Color.MAGENTA;
+      final Color c4 = Color.YELLOW;
       Macro.setOptions(String.format("color_1=#%6x color_2=#%6x", c3.getRGB() & 0xffffff,
           c4.getRGB() & 0xffffff));
 
@@ -88,6 +88,41 @@ class ExtendedGenericDialogTest {
       gd.showDialog();
       Assertions.assertEquals(c3, gd.getNextColor());
       Assertions.assertEquals(c4, gd.getNextColor());
+    });
+  }
+
+  @Test
+  void checkParseHexLong() {
+    Assertions.assertEquals(0L, ExtendedGenericDialog.parseHexLong(""));
+    Assertions.assertEquals(0L, ExtendedGenericDialog.parseHexLong("0"));
+    Assertions.assertEquals(0L, ExtendedGenericDialog.parseHexLong("wrong"));
+    Assertions.assertEquals(-1L, ExtendedGenericDialog.parseHexLong("ffffffffffffffff"));
+    Assertions.assertEquals(-1L, ExtendedGenericDialog.parseHexLong("ffffffffffffffffff"));
+    Assertions.assertEquals(-16L, ExtendedGenericDialog.parseHexLong("ffffffffffffffff0"));
+  }
+
+  @Test
+  void checkAddHexField() {
+    Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+      // Run without showing the dialog.
+      // This requires manipulation of the thread name and setting of macro options.
+      Thread.currentThread().setName("Run$_ test");
+      Macro.setOptions("something");
+
+      final ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
+      final long l1 = 26378462834L;
+      final long l2 = 13L;
+      final byte[] b1 = {1, 3, -42};
+      final byte[] b2 = {};
+      gd.addHexField("Hex_1", l1);
+      gd.addHexField("Hex_2", l2);
+      gd.addHexField("Hex_3", b1);
+      gd.addHexField("Hex_4", b2);
+      gd.showDialog();
+      Assertions.assertEquals(l1, gd.getNextHexLong());
+      Assertions.assertEquals(l2, gd.getNextHexLong());
+      Assertions.assertArrayEquals(b1, gd.getNextHexBytes());
+      Assertions.assertArrayEquals(b2, gd.getNextHexBytes());
     });
   }
 }

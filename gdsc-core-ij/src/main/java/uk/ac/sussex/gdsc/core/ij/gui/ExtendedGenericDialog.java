@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import ij.IJ;
+import ij.Prefs;
 import ij.gui.ColorChooser;
 import ij.gui.GenericDialog;
 import ij.plugin.Colors;
@@ -42,6 +43,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -64,6 +66,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
+import uk.ac.sussex.gdsc.core.utils.Hex;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
@@ -611,6 +614,73 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
+   * Adds a hex field to the dialog.
+   *
+   * <p>This is added to the dialog as a String field. The value is displayed using hex encoding of
+   * the bytes. The input field only allows hex characters to be entered.
+   *
+   * @param label the label
+   * @param defaultValue the default value
+   */
+  public void addHexField(String label, byte[] defaultValue) {
+    addHexField(label, new String(Hex.encode(defaultValue)));
+  }
+
+  /**
+   * Adds a hex field to the dialog.
+   *
+   * <p>This is added to the dialog as a String field. The value is displayed using hex encoding of
+   * the long bytes. The input field only allows hex characters to be entered.
+   *
+   * @param label the label
+   * @param defaultValue the default value
+   * @see Long#toHexString(long)
+   */
+  public void addHexField(String label, long defaultValue) {
+    addHexField(label, Long.toHexString(defaultValue));
+  }
+
+  /**
+   * Adds a hex field to the dialog.
+   *
+   * <p>This is added to the dialog as a String field. The input field only allows hex characters to
+   * be entered.
+   *
+   * @param label the label
+   * @param value the default value
+   * @see Long#toHexString(long)
+   */
+  private void addHexField(String label, String value) {
+    final TextField tf = addAndGetStringField(label, value, MathUtils.clip(10, 50, value.length()));
+    final GridBagConstraints c = grid.getConstraints(tf);
+    remove(tf);
+
+    // Add a label to the field to notify input type
+    final Label hexLabel = new Label("hex");
+    final Font font = new Font(Font.MONOSPACED, Font.PLAIN, (int) (9 * Prefs.getGuiScale()));
+    hexLabel.setFont(font);
+
+    if (ImageJUtils.isShowGenericDialog()) {
+      tf.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+          final char ch = e.getKeyChar();
+          if (!Hex.isHex(ch) && !(ch == KeyEvent.VK_DELETE || ch == KeyEvent.VK_BACK_SPACE)) {
+            e.consume();
+          }
+        }
+      });
+    }
+
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(tf);
+    newPanel.add(hexLabel);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
+  }
+
+  /**
    * Returns the color of the next color field.
    *
    * <p>This method will decode the next String value. It will return null if the value cannot be
@@ -621,6 +691,67 @@ public class ExtendedGenericDialog extends GenericDialog {
    */
   public Color getNextColor() {
     return Colors.decode(getNextString(), null);
+  }
+
+  /**
+   * Returns the next hex field interpreted as a hex encoded bytes.
+   *
+   * <p>This method will decode the next String value. It will return an empty array if the value
+   * cannot be parsed to bytes.
+   *
+   * <p>If the sequence is an odd length then the final hex character is assumed to be '0'. Note
+   * that this behaviour is in contrast to {@link #getNextHexLong()} which effectively pads the
+   * chars with leading zeros if it is shorter than 64-bits. The difference is due to this method
+   * interpreting the chars as a series of encoded bytes; an odd length is leniently allowed by zero
+   * padding the end. The {@link #getNextHexLong()} interprets the chars as an unsigned big endian
+   * number.
+   *
+   * @return the next hex bytes (or empty)
+   * @see #getNextString()
+   */
+  public byte[] getNextHexBytes() {
+    return Hex.decode(getNextString());
+  }
+
+  /**
+   * Returns the next hex field interpreted as a hex encoded long.
+   *
+   * <p>This method will decode the next String value. It will return 0 if the value cannot be
+   * parsed to a long.
+   *
+   * <p>The hex encoded bytes are assumed to be in big-endian order (the first character is the most
+   * significant). Only the last 16 characters of the value are used to prevent overflow and these
+   * are interpreted as an unsigned long. This method effectively truncates longer representations
+   * of an unsigned number to 64-bits.
+   *
+   * @return the next hex long (or 0)
+   * @see #getNextString()
+   */
+  public long getNextHexLong() {
+    return parseHexLong(getNextString());
+  }
+
+  /**
+   * Parses the String as a hex encoding of a long. Only the last 16 characters are used.
+   *
+   * <p>This method will return 0 if the value cannot be parsed to a long.
+   *
+   * @param value the value
+   * @return the long
+   */
+  static long parseHexLong(String value) {
+    final int len = value.length();
+    if (len != 0) {
+      if (len > 16) {
+        value = value.substring(len - 16);
+      }
+      try {
+        return Long.parseUnsignedLong(value, 16);
+      } catch (final NumberFormatException ignored) {
+        // fall-through
+      }
+    }
+    return 0;
   }
 
   /**
