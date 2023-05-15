@@ -367,7 +367,7 @@ public class CustomTiffEncoder {
     }
     writeEntry(out, FastTiffDecoder.STRIP_OFFSETS, 4, 1, imageOffset);
     writeEntry(out, FastTiffDecoder.SAMPLES_PER_PIXEL, 3, 1, samplesPerPixel);
-    writeEntry(out, FastTiffDecoder.ROWS_PER_STRIP, 3, 1, fi.height);
+    writeEntry(out, FastTiffDecoder.ROWS_PER_STRIP, 4, 1, fi.height);
     writeEntry(out, FastTiffDecoder.STRIP_BYTE_COUNT, 4, 1, imageSize);
     if (fi.unit != null && fi.pixelWidth != 0 && fi.pixelHeight != 0) {
       writeEntry(out, FastTiffDecoder.X_RESOLUTION, 5, 1, tagDataOffset);
