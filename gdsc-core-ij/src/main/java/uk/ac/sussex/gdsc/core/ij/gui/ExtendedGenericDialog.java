@@ -587,8 +587,8 @@ public class ExtendedGenericDialog extends GenericDialog {
       });
 
       button.addActionListener(event -> {
-        // Colors.decode uses a default of GRAY
-        final Color currentColor = Colors.decode(tf.getText());
+        // Reuse the original color as the default
+        final Color currentColor = Colors.decode(tf.getText(), color);
         final ColorChooser cc =
             new ColorChooser(ExtendedGenericDialog.this.getTitle() + ": " + label.replace('_', ' '),
                 currentColor, false);
