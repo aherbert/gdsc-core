@@ -555,8 +555,12 @@ public class ExtendedGenericDialog extends GenericDialog {
    * to "none" from the selection dialog. The text field supports the use of the backspace and
    * delete keys to reset the color.
    *
+   * <p>Any user selected changes to the color can be captured using the associated text field.
+   *
    * @param label the label
    * @param color the color
+   * @see #getLastTextField()
+   * @see TextField#addTextListener(java.awt.event.TextListener)
    */
   public void addColorField(String label, Color color) {
     final TextField tf = addAndGetStringField(label, Colors.colorToString(color));
