@@ -61,6 +61,7 @@ import java.util.Locale;
 import java.util.function.Function;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
@@ -289,7 +290,7 @@ public class MultiDialog extends Dialog {
     list.addMouseListener(mouseAdpater);
     list.addKeyListener(keyAdapter);
 
-    return list;
+    return new JScrollPane(list);
   }
 
   /**
