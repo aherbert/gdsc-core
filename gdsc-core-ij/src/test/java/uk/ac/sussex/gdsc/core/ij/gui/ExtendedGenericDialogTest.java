@@ -28,7 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.ij.gui;
 
+import ij.IJ;
+import ij.ImagePlus;
 import ij.Macro;
+import ij.gui.GenericDialog;
 import java.awt.Color;
 import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
@@ -38,6 +41,10 @@ import uk.ac.sussex.gdsc.test.junit5.DisabledIfHeadless;
 
 @SuppressWarnings({"javadoc"})
 class ExtendedGenericDialogTest {
+
+  enum TestEnum {
+    A, B, C, D
+  }
 
   @Test
   @DisabledIfHeadless
@@ -125,6 +132,52 @@ class ExtendedGenericDialogTest {
       Assertions.assertEquals(l2, gd.getNextHexLong());
       Assertions.assertArrayEquals(b1, gd.getNextHexBytes());
       Assertions.assertArrayEquals(b2, gd.getNextHexBytes());
+    });
+  }
+
+  /**
+   * Check {@link GenericDialog#addImageChoice(String, String)} is supported without any overrides.
+   */
+  @Test
+  @DisabledIfHeadless
+  void checkAddImageChoice() {
+    Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+      // Run without showing the dialog.
+      // This requires manipulation of the thread name and setting of macro options.
+      Thread.currentThread().setName("Run$_ test");
+      Macro.setOptions("something");
+
+      final ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
+      String name1 = "test1";
+      ImagePlus imp1 = IJ.createImage(name1, 3, 4, 1, 8);
+      imp1.show();
+      gd.addImageChoice("image1", name1);
+      gd.showDialog();
+      Assertions.assertEquals(imp1, gd.getNextImage());
+      imp1.close();
+    });
+  }
+
+  /**
+   * Check {@link GenericDialog#addEnumChoice(String, Enum)} is supported without any overrides.
+   */
+  @Test
+  @DisabledIfHeadless
+  void checkAddEnumChoice() {
+    Assertions.assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+      // Run without showing the dialog.
+      // This requires manipulation of the thread name and setting of macro options.
+      Thread.currentThread().setName("Run$_ test");
+      Macro.setOptions("something");
+
+      final ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
+      TestEnum ll1 = TestEnum.B;
+      TestEnum ll2 = TestEnum.C;
+      gd.addEnumChoice("enum1", ll1);
+      gd.addEnumChoice("enum2", new TestEnum[] {TestEnum.A, ll2}, ll2);
+      gd.showDialog();
+      Assertions.assertEquals(ll1, gd.getNextEnumChoice(TestEnum.class));
+      Assertions.assertEquals(ll2, gd.getNextEnumChoice(ll2.getDeclaringClass()));
     });
   }
 }

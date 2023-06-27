@@ -1202,6 +1202,24 @@ public class ExtendedGenericDialog extends GenericDialog {
     return tf;
   }
 
+  @Override
+  public void addFileField(String label, String defaultPath) {
+    // Replace ij.gui.GenericDialog method with this implementation
+    addFilenameField(label, defaultPath);
+  }
+
+  @Override
+  public void addFileField(String label, String defaultPath, int columns) {
+    // Replace ij.gui.GenericDialog method with this implementation
+    addFilenameField(label, defaultPath, columns);
+  }
+
+  @Override
+  public void addButton(String label, ActionListener listener) {
+    // Replace ij.gui.GenericDialog method with this implementation
+    addAndGetButton(label, listener);
+  }
+
   /**
    * Adds the directory field.
    *
