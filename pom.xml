@@ -120,10 +120,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <!-- Dependency versions -->
     <elki.version>0.7.5</elki.version>
 
-    <!-- Other maven plugin versions -->
-    <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-    <os-maven-plugin.version>1.6.0</os-maven-plugin.version>
-
   </properties>
 
   <dependencies>
