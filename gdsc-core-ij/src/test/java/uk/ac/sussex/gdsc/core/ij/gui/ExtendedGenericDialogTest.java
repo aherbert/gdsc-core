@@ -148,8 +148,8 @@ class ExtendedGenericDialogTest {
       Macro.setOptions("something");
 
       final ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
-      String name1 = "test1";
-      ImagePlus imp1 = IJ.createImage(name1, 3, 4, 1, 8);
+      final String name1 = "test1";
+      final ImagePlus imp1 = IJ.createImage(name1, 3, 4, 1, 8);
       imp1.show();
       gd.addImageChoice("image1", name1);
       gd.showDialog();
@@ -171,8 +171,8 @@ class ExtendedGenericDialogTest {
       Macro.setOptions("something");
 
       final ExtendedGenericDialog gd = new ExtendedGenericDialog("Test");
-      TestEnum ll1 = TestEnum.B;
-      TestEnum ll2 = TestEnum.C;
+      final TestEnum ll1 = TestEnum.B;
+      final TestEnum ll2 = TestEnum.C;
       gd.addEnumChoice("enum1", ll1);
       gd.addEnumChoice("enum2", new TestEnum[] {TestEnum.A, ll2}, ll2);
       gd.showDialog();
