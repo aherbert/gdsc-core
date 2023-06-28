@@ -1,14 +1,14 @@
 /*-
  * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
+ * Genome Damage and Stability Centre Core ImageJ Package
  *
- * Contains code used by:
+ * Contains core utilities for image analysis in ImageJ and is used by:
  *
  * GDSC ImageJ Plugins - Microscopy image analysis
  *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
- * Copyright (C) 2011 - 2022 Alex Herbert
+ * Copyright (C) 2011 - 2023 Alex Herbert
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as

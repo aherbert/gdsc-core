@@ -1,6 +1,6 @@
 /*
  * Copyright 2009 Rednaxela
- * Copyright 2019-2022 Alex Herbert
+ * Copyright 2019-2023 Alex Herbert
  *
  * This software is provided 'as-is', without any express or implied warranty. In no event will the
  * authors be held liable for any damages arising from the use of this software.

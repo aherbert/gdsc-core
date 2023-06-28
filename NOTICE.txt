@@ -1,5 +1,5 @@
 GDSC Core
-Copyright 2011-2022 Alex Herbert
+Copyright 2011-2023 Alex Herbert
 
 The uk.ac.sussex.gdsc.core.utils.rng.MarsagliaTsangGammaSampler class contains derivative
 work originating from the Apache Commons RNG project.
