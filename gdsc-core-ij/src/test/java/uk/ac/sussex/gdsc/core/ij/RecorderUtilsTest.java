@@ -33,6 +33,7 @@ import java.awt.GraphicsEnvironment;
 import java.util.Locale;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils.ImageJRecorderCommand;
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils.RecorderCommand;
@@ -147,13 +148,8 @@ class RecorderUtilsTest {
   /** The recorder instance. */
   static RecorderCommand recorder = null;
 
-  @AfterAll
-  public static void afterAll() {
-    // Allow GC to do its work
-    recorder = null;
-  }
-
-  private static synchronized void initialise() {
+  @BeforeAll
+  public static void beforeAll() {
     if (GraphicsEnvironment.isHeadless()) {
       // Exercise the default
       ImageJRecorderCommand.INSTANCE.setCommand(null);
@@ -172,12 +168,17 @@ class RecorderUtilsTest {
     }
   }
 
+  @AfterAll
+  public static void afterAll() {
+    // Allow GC to do its work
+    recorder = null;
+  }
+
   /**
    * No assertions. This just hits code coverage when the command name or options are null.
    */
   @Test
   void canResetRecorderWithNoCommand() {
-    initialise();
     recorder.saveCommand();
     recorder.setCommand(null);
     final String[] keys = {"1", "2"};
@@ -188,7 +189,6 @@ class RecorderUtilsTest {
 
   @Test
   void testWrapEmptyStrings() {
-    initialise();
     recorder.saveCommand();
     recorder.setCommand("test");
     recorder.recordOption("a", "1");
@@ -203,7 +203,6 @@ class RecorderUtilsTest {
 
   @Test
   void canResetRecorderWithPlainValues() {
-    initialise();
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         null);
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
@@ -220,7 +219,6 @@ class RecorderUtilsTest {
 
   @Test
   void canResetRecorderWithQuotedValues() {
-    initialise();
     canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"),
         toArray("3 3", "4 4"), null);
     canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"),
@@ -301,7 +299,6 @@ class RecorderUtilsTest {
 
   @Test
   void resetRecorderIgnoresInvalidKeys() {
-    initialise();
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         null);
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
