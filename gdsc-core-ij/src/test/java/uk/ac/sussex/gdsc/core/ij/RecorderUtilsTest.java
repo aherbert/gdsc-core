@@ -69,11 +69,6 @@ class RecorderUtilsTest {
     }
 
     @Override
-    public void saveCommand() {
-      commandName = commandOptions = null;
-    }
-
-    @Override
     public void recordOption(String key) {
       if (key == null) {
         return;
@@ -143,6 +138,11 @@ class RecorderUtilsTest {
       key = key.toLowerCase(Locale.US);
       return key;
     }
+
+    @Override
+    public void resetCommandOptions() {
+      commandOptions = null;
+    }
   }
 
   /** The recorder instance. */
@@ -151,13 +151,13 @@ class RecorderUtilsTest {
   @BeforeAll
   public static void beforeAll() {
     if (GraphicsEnvironment.isHeadless()) {
-      // Exercise the default
-      ImageJRecorderCommand.INSTANCE.setCommand(null);
-      ImageJRecorderCommand.INSTANCE.saveCommand();
+      // Exercise the default (for coverage)
       ImageJRecorderCommand.INSTANCE.getCommand();
       ImageJRecorderCommand.INSTANCE.getCommandOptions();
+      ImageJRecorderCommand.INSTANCE.setCommand("test");
       ImageJRecorderCommand.INSTANCE.recordOption("key");
       ImageJRecorderCommand.INSTANCE.recordOption("key", "value");
+      ImageJRecorderCommand.INSTANCE.resetCommandOptions();
       recorder = DummyRecorderCommand.INSTANCE;
       RecorderUtils.setRecorder(recorder);
     } else {
@@ -179,7 +179,6 @@ class RecorderUtilsTest {
    */
   @Test
   void canResetRecorderWithNoCommand() {
-    recorder.saveCommand();
     recorder.setCommand(null);
     final String[] keys = {"1", "2"};
     RecorderUtils.resetRecorder(keys);
@@ -189,7 +188,6 @@ class RecorderUtilsTest {
 
   @Test
   void testWrapEmptyStrings() {
-    recorder.saveCommand();
     recorder.setCommand("test");
     recorder.recordOption("a", "1");
     recorder.recordOption("b", "");
@@ -353,9 +351,6 @@ class RecorderUtilsTest {
   }
 
   private static void clearRecorder() {
-    // From IJ 1.54c the call to saveCommand creates a concurrency race condition.
-    // This has been disabled.
-    //recorder.saveCommand();
     recorder.setCommand("Test");
   }
 

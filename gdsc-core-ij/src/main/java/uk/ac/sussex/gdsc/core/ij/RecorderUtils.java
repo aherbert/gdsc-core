@@ -68,12 +68,6 @@ public final class RecorderUtils {
     void setCommand(String command);
 
     /**
-     * Writes the current command and options to the Recorder window, then resets the recorder
-     * command name and options.
-     */
-    void saveCommand();
-
-    /**
      * Record option.
      *
      * @param key the key
@@ -87,6 +81,11 @@ public final class RecorderUtils {
      * @param value the value
      */
     void recordOption(String key, String value);
+
+    /**
+     * Clear the command options.
+     */
+    void resetCommandOptions();
   }
 
   /**
@@ -116,11 +115,6 @@ public final class RecorderUtils {
     }
 
     @Override
-    public void saveCommand() {
-      Recorder.saveCommand();
-    }
-
-    @Override
     public void recordOption(String key) {
       Recorder.recordOption(key);
     }
@@ -128,6 +122,11 @@ public final class RecorderUtils {
     @Override
     public void recordOption(String key, String value) {
       Recorder.recordOption(key, value);
+    }
+
+    @Override
+    public void resetCommandOptions() {
+      Recorder.resetCommandOptions();
     }
   }
 
@@ -213,10 +212,8 @@ public final class RecorderUtils {
     }
 
     // Reset
-    recorder.setCommand(null);
-    recorder.saveCommand();
+    recorder.resetCommandOptions();
     // Re-record all the remaining pairs
-    recorder.setCommand(commandName);
     for (int i = 0; i < pairs.size(); i++) {
       final String[] pair = pairs.unsafeGet(i);
       final String key = pair[0];
