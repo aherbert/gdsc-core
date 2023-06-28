@@ -353,7 +353,9 @@ class RecorderUtilsTest {
   }
 
   private static void clearRecorder() {
-    recorder.saveCommand();
+    // From IJ 1.54c the call to saveCommand creates a concurrency race condition.
+    // This has been disabled.
+    //recorder.saveCommand();
     recorder.setCommand("Test");
   }
 
