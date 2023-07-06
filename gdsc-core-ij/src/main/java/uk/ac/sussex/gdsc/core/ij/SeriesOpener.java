@@ -133,9 +133,7 @@ public class SeriesOpener {
     }
     list = Arrays.copyOf(list, count);
 
-    // Now exclude non-image files as per the ImageJ FolderOpener
-    final FolderOpener fo = new FolderOpener();
-    list = fo.trimFileList(list);
+    list = trimFileList(list);
     if (list == null) {
       return;
     }
@@ -143,6 +141,37 @@ public class SeriesOpener {
     Arrays.sort(list, AlphaNumericComparator.NULL_IS_MORE_INSTANCE);
     imageList = list;
   }
+
+  /**
+   * Exclude non-image files as per the ImageJ FolderOpener. This method has been adapated from
+   * {@link FolderOpener#trimFileList(String[])} to exclude extra files not currently filtered,
+   * namely .json files.
+   *
+   * @param rawlist the rawlist
+   * @return the list (or null)
+   */
+  @VisibleForTesting
+  static String[] trimFileList(String[] rawlist) {
+    if (rawlist == null) {
+      return null;
+    }
+    int count = 0;
+    for (int i = 0; i < rawlist.length; i++) {
+      final String name = rawlist[i];
+      // Here we can add additional files to those filtered by ImageJ FolderOpener.
+      // Currently this is only JSON files.
+      if (name.startsWith(".") || name.equals("Thumbs.db") || FolderOpener.excludedFileType(name)
+          || name.endsWith(".json")) {
+        continue;
+      }
+      rawlist[count++] = rawlist[i];
+    }
+    if (count == 0) {
+      return null;
+    }
+    return count == rawlist.length ? rawlist : Arrays.copyOf(rawlist, count);
+  }
+
 
   /**
    * Returns the number of images in the series. Note that the number is based on a list of
@@ -250,12 +279,12 @@ public class SeriesOpener {
       filter = null;
     }
     if (filter != null) {
-      int size = list.length;
+      final int size = list.length;
       if (isRegex) {
         Pattern pattern;
         try {
           pattern = Pattern.compile(filter);
-        } catch (PatternSyntaxException ex) {
+        } catch (final PatternSyntaxException ex) {
           errorMessageAction.accept(ex.getMessage());
           return;
         }

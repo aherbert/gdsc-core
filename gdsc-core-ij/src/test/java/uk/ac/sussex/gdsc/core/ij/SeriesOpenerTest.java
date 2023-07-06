@@ -38,9 +38,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.ObjIntConsumer;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import uk.ac.sussex.gdsc.core.utils.LocalList;
 
 @SuppressWarnings({"javadoc"})
@@ -162,16 +166,36 @@ class SeriesOpenerTest {
   }
 
   @Test
-  void testSeriesOpenerWithTextFiles() throws IOException {
+  void testSeriesOpenerWithIgnoredFiles() throws IOException {
     final Path tmpDir = Files.createTempDirectory("SeriesOpenerTest");
     final String path = tmpDir.toString();
     Files.createFile(Paths.get(path, "file1.txt"));
     Files.createFile(Paths.get(path, "file2.txt"));
+    // MicroManager metadata files
+    Files.createFile(Paths.get(path, "DisplaySettings.json"));
     final SeriesOpener series = new SeriesOpener(path);
     Assertions.assertEquals(0, series.getNumberOfImages());
     Assertions.assertEquals(path, series.getPath());
     Assertions.assertArrayEquals(new String[0], series.getImageList());
     FileUtils.deleteDirectory(tmpDir.toFile());
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void testTrimFileList(String[] in, String[] expected) {
+    Assertions.assertArrayEquals(expected, SeriesOpener.trimFileList(in));
+  }
+
+  static Stream<Arguments> testTrimFileList() {
+    return Stream.of(
+    // @formatter:off
+      Arguments.of(null, null),
+      Arguments.of(new String[0], null),
+      Arguments.of(new String[] {"1.tif"}, new String[] {"1.tif"}),
+      Arguments.of(new String[] {".", "..", "Thumbs.db", "1.tif", "2.txt", "3.json"},
+                   new String[] {"1.tif"})
+    // @formatter:on
+    );
   }
 
   @Test
