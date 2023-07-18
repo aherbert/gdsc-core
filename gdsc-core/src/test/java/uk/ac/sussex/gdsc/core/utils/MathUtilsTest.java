@@ -440,6 +440,11 @@ class MathUtilsTest {
     Assertions.assertEquals("1.123", MathUtils.rounded(1.1234567));
     Assertions.assertEquals("1.1235", MathUtils.rounded(1.1234567, 5));
     Assertions.assertEquals("1.12346", MathUtils.rounded(1.1234567, 6));
+
+    Assertions.assertEquals("1.1E100", MathUtils.rounded(1.1234567e100, 2));
+    Assertions.assertEquals("1.12E100", MathUtils.rounded(1.1234567e100, 3));
+    Assertions.assertEquals("0.1", MathUtils.rounded(0.1, 1));
+    Assertions.assertEquals("0.1", MathUtils.rounded(0.1, 5));
   }
 
   @Test

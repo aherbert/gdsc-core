@@ -898,14 +898,22 @@ public final class MathUtils {
   /**
    * Round the double to the specified significant digits. Non-finite values are unchanged.
    *
+   * <p>This method is intended to round the decimal String representation of the input
+   * {@code double}. To perform rounding of the exact double value use
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
+   * a BigDecimal for rounding.
+   *
    * @param value The double
-   * @param significantDigits The number of significan digits
+   * @param significantDigits The number of significant digits
    * @return A string containing the rounded double
    */
   public static String rounded(double value, int significantDigits) {
     if (!Double.isFinite(value)) {
       return Double.toString(value);
     }
+    // Do not use the BigDecimal.toString. It leaves trailing zeros when the
+    // value is not exactly representable as a double. Since this is formatting
+    // doubles it makes more sense to convert back to the closest representable double.
     return Double.toString(roundToBigDecimal(value, significantDigits).doubleValue());
   }
 
@@ -914,6 +922,7 @@ public final class MathUtils {
    *
    * @param value The double
    * @return A string containing the rounded double
+   * @see #rounded(double, int)
    */
   public static String rounded(double value) {
     return rounded(value, 4);
@@ -921,6 +930,11 @@ public final class MathUtils {
 
   /**
    * Round the double to the specified significant digits. Non-finite values are unchanged.
+   *
+   * <p>This method is intended to round the decimal String representation of the input
+   * {@code double}. To perform rounding of the exact double value use
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
+   * a BigDecimal for rounding.
    *
    * @param value The double
    * @param significantDigits The number of significant digits
@@ -938,6 +952,7 @@ public final class MathUtils {
    *
    * @param value The double
    * @return The rounded double
+   * @see #round(double, int)
    */
   public static double round(double value) {
     return round(value, 4);
@@ -960,6 +975,11 @@ public final class MathUtils {
   /**
    * Round the double to the specified significant digits. Non-finite values are unsupported.
    *
+   * <p>This method is intended to round the decimal String representation of the input
+   * {@code double}. To perform rounding of the exact double value use
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
+   * a BigDecimal for rounding.
+   *
    * @param value The double
    * @param significantDigits The number of significant digits
    * @return The rounded value
@@ -971,6 +991,11 @@ public final class MathUtils {
 
   /**
    * Round the double to the specified decimal places.
+   *
+   * <p>This method is intended to round the decimal String representation of the input
+   * {@code double}. To perform rounding of the exact double value use
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
+   * a BigDecimal for rounding.
    *
    * @param value The double
    * @param decimalPlaces the decimal places (can be negative)
@@ -990,9 +1015,15 @@ public final class MathUtils {
   /**
    * Round the double to the specified decimal places.
    *
+   * <p>This method is intended to round the decimal String representation of the input
+   * {@code double}. To perform rounding of the exact double value use
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
+   * a BigDecimal for rounding.
+   *
    * @param value The double
    * @param decimalPlaces the decimal places
    * @return The rounded value
+   * @throws NumberFormatException If the value is non-finite
    */
   public static BigDecimal roundUsingDecimalPlacesToBigDecimal(double value, int decimalPlaces) {
     final BigDecimal bd = BigDecimal.valueOf(value);
