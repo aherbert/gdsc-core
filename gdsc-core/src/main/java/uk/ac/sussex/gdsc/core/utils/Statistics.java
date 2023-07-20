@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.distribution.TDistribution;
+import org.apache.commons.statistics.distribution.TDistribution;
 
 /**
  * Simple class to calculate the mean and standard deviation of data.
@@ -472,10 +472,11 @@ public class Statistics {
       throw new IllegalArgumentException("Confidence level must be in the range 0-1");
     }
     final double se = getStandardError();
-    final double alpha = 1 - (1 - confidenceLevel) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
+    final double alpha = (1 - confidenceLevel) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
     final int degreesOfFreedom = size - 1;
-    final TDistribution t = new TDistribution(degreesOfFreedom);
-    return t.inverseCumulativeProbability(alpha) * se;
+    final TDistribution t = TDistribution.of(degreesOfFreedom);
+    // Add to zero to workaround alpha=0 returning -0.0
+    return 0.0 + t.inverseSurvivalProbability(alpha) * se;
   }
 
   /**

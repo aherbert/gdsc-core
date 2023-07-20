@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import org.apache.commons.math3.distribution.BinomialDistribution;
+import org.apache.commons.statistics.distribution.BinomialDistribution;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +38,7 @@ class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   void testInverseCumulativeProbabiity() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
-    final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
+    final BinomialDistribution bd = BinomialDistribution.of(trials, probabilityOfSuccess);
     final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
         new BinomialDiscreteInverseCumulativeProbabilityFunction(trials, probabilityOfSuccess);
     for (int i = 0; i <= 10; i++) {
@@ -52,7 +52,7 @@ class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   void testSetTrials() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
-    final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
+    final BinomialDistribution bd = BinomialDistribution.of(trials, probabilityOfSuccess);
     final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
         new BinomialDiscreteInverseCumulativeProbabilityFunction(trials - 1, probabilityOfSuccess);
 
@@ -69,7 +69,7 @@ class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   void testSetProbabilityOfSuccess() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
-    final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
+    final BinomialDistribution bd = BinomialDistribution.of(trials, probabilityOfSuccess);
     final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
         new BinomialDiscreteInverseCumulativeProbabilityFunction(trials,
             probabilityOfSuccess + 0.1);
@@ -87,7 +87,7 @@ class BinomialDiscreteInverseCumulativeProbabilityFunctionTest {
   void testUpdateDistribution() {
     final int trials = 13;
     final double probabilityOfSuccess = 0.02;
-    final BinomialDistribution bd = new BinomialDistribution(trials, probabilityOfSuccess);
+    final BinomialDistribution bd = BinomialDistribution.of(trials, probabilityOfSuccess);
     final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
         new BinomialDiscreteInverseCumulativeProbabilityFunction(trials - 1,
             probabilityOfSuccess + 0.1);

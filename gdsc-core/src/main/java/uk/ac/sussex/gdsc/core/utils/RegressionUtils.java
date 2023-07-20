@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.distribution.FDistribution;
+import org.apache.commons.statistics.distribution.FDistribution;
 
 /**
  * Contains utilities for working with regression data.
@@ -120,10 +120,9 @@ public final class RegressionUtils {
     if (f == Double.POSITIVE_INFINITY) {
       return 0;
     }
-    // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
-    final FDistribution distribution = new FDistribution(null,
-        numberOfParameters2 - numberOfParameters1, numberOfPoints - numberOfParameters2);
-    return 1.0 - distribution.cumulativeProbability(f);
+    final FDistribution distribution = FDistribution.of(numberOfParameters2 - numberOfParameters1,
+        numberOfPoints - numberOfParameters2);
+    return distribution.survivalProbability(f);
   }
 
   /**

@@ -28,10 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.exception.NotPositiveException;
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.rng.sampling.distribution.DiscreteInverseCumulativeProbabilityFunction;
+import org.apache.commons.statistics.distribution.BinomialDistribution;
 
 /**
  * Provides the inverse cumulative probability of the Binomial distribution.
@@ -90,7 +90,7 @@ public class BinomialDiscreteInverseCumulativeProbabilityFunction
   }
 
   private void update(int trials, double probabilityOfSuccess) {
-    bd = new BinomialDistribution(null, trials, probabilityOfSuccess);
+    bd = BinomialDistribution.of(trials, probabilityOfSuccess);
   }
 
   @Override
