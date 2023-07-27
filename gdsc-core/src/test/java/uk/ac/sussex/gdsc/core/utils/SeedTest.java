@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +45,7 @@ import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 @SuppressWarnings({"javadoc"})
 class SeedTest {
   @Test
-  void nullArgumentThrows() {
+  void testNullArgumentThrows() {
     Assertions.assertThrows(NullPointerException.class, () -> Seed.from((byte[]) null));
     Assertions.assertThrows(NullPointerException.class, () -> Seed.from((String) null));
   }
@@ -92,6 +93,35 @@ class SeedTest {
     final byte[] b3 = {1, 2, 3, 4, 5, 6, 7, 8};
     final byte[] b4 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     Assertions.assertNotEquals(Seed.from(b3).toLong(), Seed.from(b4).toLong());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"abcg", "helloworld", "0123456789 abcdef"})
+  void testInvalidHexThrows(String s) {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> Seed.from(s));
+  }
+
+  @Test
+  void testEmptyHex() {
+    final Seed seed = Seed.from("");
+    Assertions.assertEquals(0, seed.toLong());
+    Assertions.assertArrayEquals(new byte[0], seed.toBytes());
+    Assertions.assertEquals("", seed.toString());
+    Assertions.assertEquals(Arrays.hashCode(new byte[0]), seed.hashCode());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"abc", "4567", "0123456789abcdef", "0a7BC81f"})
+  void testHex(String s) {
+    // Case insensitive
+    final Seed seed = Seed.from(s);
+    final Seed seed1 = Seed.from(s.toLowerCase(Locale.ROOT));
+    final Seed seed2 = Seed.from(s.toUpperCase(Locale.ROOT));
+    Assertions.assertArrayEquals(seed.toBytes(), seed1.toBytes());
+    Assertions.assertArrayEquals(seed.toBytes(), seed2.toBytes());
+    // The seed zero pads an odd length input
+    final String expected = (s.length() & 1) == 0 ? s : s + "0";
+    Assertions.assertEquals(expected.toLowerCase(Locale.ROOT), seed.toString());
   }
 
   @SeededTest

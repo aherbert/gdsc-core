@@ -36,7 +36,6 @@ import java.util.Objects;
  * Provides a seed of bits. Methods are provided to convert between data representations.
  */
 public final class Seed {
-
   /** The bytes. */
   private final byte[] bytes;
   /** The hash code. */
@@ -64,11 +63,22 @@ public final class Seed {
   /**
    * Create a seed from the hex-encoded characters. No reference to the input is stored.
    *
-   * @param cs the characters
+   * <p>If the sequence is an odd length then the final hex character is assumed to be '0'.
+   *
+   * @param chars the hex characters
    * @return the seed
+   * @throws IllegalArgumentException If the sequence does not contain valid hex characters
    */
-  public static Seed from(CharSequence cs) {
-    return new Seed(Hex.decode(Objects.requireNonNull(cs, "The characters must not be null")));
+  public static Seed from(CharSequence chars) {
+    int length = Objects.requireNonNull(chars, "The characters must not be null").length();
+    // Avoid IAE when length is zero
+    if (length == 0) {
+      return new Seed(new byte[0]);
+    }
+    // Here any error decoding will throw an exception
+    return new Seed(Hex.decode(chars, () -> {
+      throw new IllegalArgumentException("Invalid hex sequence");
+    }));
   }
 
   /**
