@@ -53,6 +53,8 @@ public final class Distributions {
     private final double logRate;
 
     /**
+     * Create an instance.
+     *
      * @param rate Rate of this distribution.
      */
     private RateExponentialDistribution(double rate) {
@@ -181,7 +183,7 @@ public final class Distributions {
    *
    * <p>The probability density function of X is:
    *
-   * <p> f(x; lambda) = lambda e^{-x * lambda}
+   * <p>f(x; lambda) = lambda e^{-x * lambda}
    *
    * <p>This implementation uses the rate parameter {@code lambda} which is the inverse scale of the
    * distribution. A common alternative parameterization uses the scale parameter {@code mu} which

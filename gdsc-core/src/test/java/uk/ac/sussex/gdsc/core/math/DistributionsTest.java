@@ -49,16 +49,16 @@ class DistributionsTest {
   @ParameterizedTest
   @ValueSource(doubles = {0.5, 1, 4})
   void canComputeExponentialDistribution(double mean) {
-    double rate = 1 / mean;
-    ExponentialDistribution ed = ExponentialDistribution.of(mean);
-    ContinuousDistribution d = Distributions.exponential(rate);
-    DoubleDoubleBiPredicate test = Predicates.doublesAreUlpClose(5);
+    final double rate = 1 / mean;
+    final ExponentialDistribution ed = ExponentialDistribution.of(mean);
+    final ContinuousDistribution d = Distributions.exponential(rate);
+    final DoubleDoubleBiPredicate test = Predicates.doublesAreUlpClose(5);
     Assertions.assertEquals(ed.getSupportLowerBound(), d.getSupportLowerBound(), "lower bound");
     Assertions.assertEquals(ed.getSupportUpperBound(), d.getSupportUpperBound(), "upper bound");
     TestAssertions.assertTest(ed.getMean(), d.getMean(), test, "mean");
     TestAssertions.assertTest(ed.getVariance(), d.getVariance(), test, "variance");
 
-    double[] x = SimpleArrayUtils.newArray(10, mean / 5, mean / 2);
+    final double[] x = SimpleArrayUtils.newArray(10, mean / 5, mean / 2);
     for (int i = 0; i < x.length; i++) {
       TestAssertions.assertTest(ed.density(x[i]), d.density(x[i]), test, "density");
       TestAssertions.assertTest(ed.logDensity(x[i]), d.logDensity(x[i]), test, "logDensity");
@@ -72,7 +72,7 @@ class DistributionsTest {
           "survivalProbability");
     }
 
-    double[] p = SimpleArrayUtils.newArray(9, 0, 1 / 8.0);
+    final double[] p = SimpleArrayUtils.newArray(9, 0, 1 / 8.0);
     for (int i = 0; i < p.length; i++) {
       TestAssertions.assertTest(ed.inverseCumulativeProbability(p[i]),
           d.inverseCumulativeProbability(p[i]), test, "inverseCumulativeProbability");
@@ -82,8 +82,8 @@ class DistributionsTest {
 
     // Requires rate to be exactly invertible
     if (mean == 1 / rate) {
-      Sampler s1 = ed.createSampler(RngFactory.createWithFixedSeed());
-      Sampler s2 = d.createSampler(RngFactory.createWithFixedSeed());
+      final Sampler s1 = ed.createSampler(RngFactory.createWithFixedSeed());
+      final Sampler s2 = d.createSampler(RngFactory.createWithFixedSeed());
       for (int i = 0; i < 10; i++) {
         Assertions.assertEquals(s1.sample(), s2.sample());
       }
@@ -92,9 +92,9 @@ class DistributionsTest {
 
   @Test
   void canComputeExponentialDistributionEdgeCases() {
-    ExponentialDistribution ed = ExponentialDistribution.of(1);
-    ContinuousDistribution d = Distributions.exponential(1);
-    for (double x : new double[] {-1, 0}) {
+    final ExponentialDistribution ed = ExponentialDistribution.of(1);
+    final ContinuousDistribution d = Distributions.exponential(1);
+    for (final double x : new double[] {-1, 0}) {
       Assertions.assertEquals(ed.density(x), d.density(x), "density");
       // Allow -0.0 == 0.0
       Assertions.assertEquals(ed.logDensity(x), d.logDensity(x), 0.0, "logDensity");
@@ -117,11 +117,12 @@ class DistributionsTest {
 
   @Test
   void canComputeExponentialDistributionSamplesWithInfiniteMean() {
-    double rate = Double.MIN_NORMAL / 4;
-    ContinuousDistribution d = Distributions.exponential(rate);
+    final double rate = Double.MIN_NORMAL / 4;
+    final ContinuousDistribution d = Distributions.exponential(rate);
     Assertions.assertEquals(Double.POSITIVE_INFINITY, d.getMean(), "mean");
-    Sampler s1 = ExponentialDistribution.of(1).createSampler(RngFactory.createWithFixedSeed());
-    Sampler s2 = d.createSampler(RngFactory.createWithFixedSeed());
+    final Sampler s1 =
+        ExponentialDistribution.of(1).createSampler(RngFactory.createWithFixedSeed());
+    final Sampler s2 = d.createSampler(RngFactory.createWithFixedSeed());
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(s1.sample() / rate, s2.sample());
     }
