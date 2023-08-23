@@ -301,6 +301,14 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * <p>Note: This will silently ignore a negative capacity.
    *
+   * <h1>Warning</h1>
+   *
+   * <p>This method may not immediately allocate any storage if the list has been constructed
+   * with the default capacity. In that case storage will be allocated when it is required in
+   * order to {@link #add(Object) add} elements. This lazy allocation behaviour may create an
+   * exception if elements are added using {@link #push(Object) push} as that method does not
+   * expand the underlying storage.
+   *
    * @param minCapacity the minimum required capacity
    * @see java.util.ArrayList#ensureCapacity(int)
    */
@@ -461,6 +469,11 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * <p>This method will throw an exception when {@link #add(Object)} would increase the capacity.
    * Use {@link #add(Object)} in-place of {@link #push(Object)} for an expandable LIFO stack.
+   *
+   * <p>Storage may not have been allocated if the list has been constructed
+   * with the default capacity. In that case this method will throw an exception. Any use of
+   * the {@code push} method should be restricted to lists created with an explicit initial
+   * capacity.
    *
    * @param element the element
    * @throws IndexOutOfBoundsException If the current size equals the capacity
