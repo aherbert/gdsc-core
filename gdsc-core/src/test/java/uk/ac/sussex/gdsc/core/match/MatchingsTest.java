@@ -274,6 +274,16 @@ class MatchingsTest {
   }
 
   @Test
+  void testNearestNeighbourWithOneVertexA() {
+    assertMatchingFunctionWithOneVertexA(NearestNeighbourMatchingFunction.instance());
+  }
+
+  @Test
+  void testNearestNeighbourWithOneVertexB() {
+    assertMatchingFunctionWithOneVertexB(NearestNeighbourMatchingFunction.instance());
+  }
+
+  @Test
   void testNearestNeighbourWithMaxCardinality() {
     assertMatchingFunctionWithMaxCardinality(NearestNeighbourMatchingFunction.instance());
   }
@@ -303,6 +313,16 @@ class MatchingsTest {
   @Test
   void testMinimumDistanceWithNoEdges() {
     assertMatchingFunctionWithNoEdges(MinimumDistanceMatchingFunction.instance());
+  }
+
+  @Test
+  void testMinimumDistanceWithOneVertexA() {
+    assertMatchingFunctionWithOneVertexA(MinimumDistanceMatchingFunction.instance());
+  }
+
+  @Test
+  void testMinimumDistanceWithOneVertexB() {
+    assertMatchingFunctionWithOneVertexB(MinimumDistanceMatchingFunction.instance());
   }
 
   @Test
@@ -482,15 +502,56 @@ class MatchingsTest {
   }
 
   private static void
+      assertMatchingFunctionWithOneVertexA(MatchingFunction<Integer, Integer> function) {
+    final double[][] connections = new double[1][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(6, Double.MAX_VALUE);
+    }
+
+    final int[][] expected = new int[0][0];
+    assertMatchingFunction(function, connections, 1, expected);
+
+    connections[0][3] = 0.125;
+    connections[0][4] = 0;
+    connections[0][5] = 0.25;
+    final int[][] expected2 = new int[][] {{0, 4}};
+    assertMatchingFunction(function, connections, 1, expected2);
+  }
+
+  private static void
+      assertMatchingFunctionWithOneVertexB(MatchingFunction<Integer, Integer> function) {
+    final double[][] connections = new double[6][];
+    for (int i = 0; i < connections.length; i++) {
+      connections[i] = SimpleArrayUtils.newDoubleArray(1, Double.MAX_VALUE);
+    }
+
+    final int[][] expected = new int[0][0];
+    assertMatchingFunction(function, connections, 1, expected);
+
+    connections[3][0] = 0.125;
+    connections[4][0] = 0;
+    connections[5][0] = 0.25;
+    final int[][] expected2 = new int[][] {{4, 0}};
+    assertMatchingFunction(function, connections, 1, expected2);
+  }
+
+  private static void
       assertMatchingFunctionWithMaxCardinality(MatchingFunction<Integer, Integer> function) {
     final double[][] connections = new double[6][];
     for (int i = 0; i < connections.length; i++) {
       connections[i] = SimpleArrayUtils.newDoubleArray(2, Double.MAX_VALUE);
     }
+
+    int[][] expected = new int[0][0];
+    assertMatchingFunction(function, connections, 1, expected);
+
+    connections[4][1] = 0.75;
+    expected = new int[][] {{4, 1}};
+    assertMatchingFunction(function, connections, 1, expected);
+
     connections[1][0] = 0;
     connections[4][1] = 0.75;
-
-    final int[][] expected = new int[][] {{1, 0}, {4, 1}};
+    expected = new int[][] {{1, 0}, {4, 1}};
     assertMatchingFunction(function, connections, 1, expected);
   }
 

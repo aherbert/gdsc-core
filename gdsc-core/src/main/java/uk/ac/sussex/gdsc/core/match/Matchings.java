@@ -336,6 +336,22 @@ public final class Matchings {
     final List<ImmutableAssignment> neighbours =
         findNeighbours(verticesA, verticesB, edges, threshold, sizeA, sizeB);
 
+    if (neighbours.isEmpty()) {
+      consume(verticesA, unmatchedA);
+      consume(verticesB, unmatchedB);
+      return 0;
+    }
+    if (neighbours.size() == 1) {
+      int a = neighbours.get(0).getTargetId();
+      int b = neighbours.get(0).getPredictedId();
+      if (matched != null) {
+        matched.accept(verticesA.get(a), verticesB.get(b));
+      }
+      consumeUnmatched(verticesA, unmatchedA, a);
+      consumeUnmatched(verticesB, unmatchedB, b);
+      return 1;
+    }
+
     AssignmentComparator.sort(neighbours);
 
     final boolean[] matchedA = new boolean[sizeA];
@@ -421,6 +437,25 @@ public final class Matchings {
     if (consumer != null) {
       for (int i = 0; i < matched.length; i++) {
         if (!matched[i]) {
+          consumer.accept(list.get(i));
+        }
+      }
+    }
+  }
+
+  /**
+   * Pass items from the list that are not the matched item to the consumer (null-safe).
+   *
+   * @param <T> the generic type
+   * @param list the list
+   * @param consumer the consumer (can be null)
+   * @param matched the matched item
+   */
+  private static <T> void consumeUnmatched(List<T> list, Consumer<T> consumer, int matched) {
+    if (consumer != null) {
+      final int length = list.size();
+      for (int i = 0; i < length; i++) {
+        if (i != matched) {
           consumer.accept(list.get(i));
         }
       }
