@@ -407,7 +407,7 @@ public class Statistics {
     if (stdDev > 0) {
       stdDev = Math.sqrt(stdDev / (size - 1));
     } else {
-      stdDev = 0.0;
+      stdDev = Double.isFinite(stdDev) ? 0.0 : Double.NaN;
     }
     return stdDev;
   }
@@ -428,7 +428,7 @@ public class Statistics {
     if (variance > 0) {
       variance = variance / (size - 1);
     } else {
-      variance = 0.0;
+      variance = Double.isFinite(variance) ? 0.0 : Double.NaN;
     }
     return variance;
   }

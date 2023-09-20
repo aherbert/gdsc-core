@@ -383,4 +383,13 @@ class StatisticsTest {
     Assertions.assertTrue(intervals[1] > intervals[0]);
     Assertions.assertTrue(intervals[2] > intervals[1]);
   }
+
+  @Test
+  void testStdDevVarianceWithInfiniteValues() {
+    final Statistics stats = new Statistics();
+    stats.add(Double.POSITIVE_INFINITY);
+    Assertions.assertEquals(Double.NaN, stats.getStandardError());
+    Assertions.assertEquals(Double.NaN, stats.getStandardDeviation());
+    Assertions.assertEquals(Double.NaN, stats.getVariance());
+  }
 }
