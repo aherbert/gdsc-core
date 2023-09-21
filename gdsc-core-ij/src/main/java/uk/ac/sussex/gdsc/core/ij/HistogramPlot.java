@@ -763,8 +763,9 @@ public class HistogramPlot {
           bins = getBinsSqrtRule(data.size());
           break;
       }
-      // In case of error (N=0 or Infinity in the data range)
-      if (bins == Integer.MAX_VALUE) {
+      // In case of error (N=0 or Infinity/NaN in the data range)
+      // Check for bins=0 and bins=MAX_VALUE using overflow trick
+      if (bins + 1 <= 1) {
         bins = getBinsSqrtRule(data.size());
       }
     }
