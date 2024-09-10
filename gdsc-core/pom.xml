@@ -92,6 +92,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-statistics-distribution</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-statistics-descriptive</artifactId>
+    </dependency>
     <!-- Prevent logging from QuickHull3D -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -101,6 +105,11 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>com.koloboke</groupId>
       <artifactId>koloboke-impl-jdk8</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-statistics-inference</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -31,10 +31,11 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.SplittableRandom;
-import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.core.source64.SplitMix64;
 import org.apache.commons.rng.core.util.NumberFactory;
+import org.apache.commons.statistics.inference.ChiSquareTest;
+import org.apache.commons.statistics.inference.SignificanceResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -113,9 +114,8 @@ class SplitMixTest {
     }
     final double[] expected = new double[bins];
     Arrays.fill(expected, (double) samples / bins);
-    final ChiSquareTest test = new ChiSquareTest();
-    final double pvalue = test.chiSquareTest(expected, observed);
-    Assertions.assertFalse(pvalue < 0.01, "P-value = " + pvalue);
+    final SignificanceResult r = ChiSquareTest.withDefaults().test(expected, observed);
+    Assertions.assertFalse(r.reject(0.01), "P-value = " + r.getPValue());
   }
 
   @SeededTest

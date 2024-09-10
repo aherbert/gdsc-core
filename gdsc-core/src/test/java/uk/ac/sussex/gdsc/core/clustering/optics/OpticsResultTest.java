@@ -36,9 +36,9 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.shape.UnitBallSampler;
+import org.apache.commons.statistics.descriptive.Quantile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -536,10 +536,9 @@ class OpticsResultTest {
     Assertions.assertArrayEquals(clusters, result.getClusters());
 
     // Find some limits that will effect clustering
-    final Percentile p = new Percentile();
-    p.setData(reachability);
-    final double lower = p.evaluate(35);
-    final double upper = p.evaluate(65);
+    final double[] q = Quantile.withDefaults().evaluate(reachability, 0.35, 0.65);
+    final double lower = q[0];
+    final double upper = q[1];
     result.setLowerLimit(lower);
     result.setUpperLimit(upper);
 

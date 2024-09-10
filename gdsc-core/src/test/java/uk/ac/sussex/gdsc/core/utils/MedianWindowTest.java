@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.statistics.descriptive.Median;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
@@ -345,8 +345,7 @@ class MedianWindowTest {
     for (int i = start, j = 0; i < end; i++, j++) {
       cache[j] = data[i];
     }
-    final Percentile p = new Percentile();
-    return p.evaluate(cache, 50);
+    return Median.withDefaults().evaluate(cache);
   }
 
   static double[] createRandomDataDouble(UniformRandomProvider random, int size) {

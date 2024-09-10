@@ -29,7 +29,7 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.statistics.descriptive.StandardDeviation;
 
 /**
  * Contains methods to find the noise in the provided image data.
@@ -217,11 +217,11 @@ public class NoiseEstimator {
   private class AllEstimator implements Estimator {
     @Override
     public double getNoise() {
-      final SummaryStatistics stats = new SummaryStatistics();
+      final StandardDeviation stats = StandardDeviation.create();
       for (int i = maxx * maxy; i-- > 0;) {
-        stats.addValue(data[i]);
+        stats.accept(data[i]);
       }
-      return stats.getStandardDeviation();
+      return stats.getAsDouble();
     }
   }
 
@@ -254,13 +254,13 @@ public class NoiseEstimator {
       final int xs = Math.max(x - range, 0);
       final int xe = Math.min(x + range, maxx - 1);
 
-      final SummaryStatistics stats = new SummaryStatistics();
+      final StandardDeviation stats = StandardDeviation.create();
       for (int y2 = ys; y2 <= ye; y2++) {
         for (int x2 = xs, i = ys * maxx + xs; x2 <= xe; x2++, i++) {
-          stats.addValue(data[i]);
+          stats.accept(data[i]);
         }
       }
-      return stats.getStandardDeviation();
+      return stats.getAsDouble();
     }
   }
 

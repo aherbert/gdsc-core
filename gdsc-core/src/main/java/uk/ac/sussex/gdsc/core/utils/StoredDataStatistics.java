@@ -234,7 +234,9 @@ public class StoredDataStatistics extends Statistics implements DoubleData {
    *
    * @return object used to compute descriptive statistics. The object is cached
    * @see org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+   * @deprecated statistics should be computed from the {@link #values()}
    */
+  @Deprecated
   public DescriptiveStatistics getStatistics() {
     if (stats == null) {
       stats = new DescriptiveStatistics(values());

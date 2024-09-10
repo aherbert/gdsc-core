@@ -28,9 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import java.util.EnumSet;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
+import org.apache.commons.statistics.descriptive.DoubleStatistics;
+import org.apache.commons.statistics.descriptive.Statistic;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -39,19 +41,23 @@ import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
 @SuppressWarnings({"javadoc"})
 class ExtendedStatisticsTest {
+  private static final EnumSet<Statistic> STATS =
+      EnumSet.of(Statistic.MIN, Statistic.MAX, Statistic.MEAN, Statistic.STANDARD_DEVIATION,
+          Statistic.SUM_OF_SQUARES, Statistic.VARIANCE, Statistic.SUM);
+
   @Test
   void testEmptyValues() {
     final ExtendedStatistics observed = new ExtendedStatistics();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleStatistics expected = DoubleStatistics.of(STATS);
     check(expected, observed);
   }
 
   @Test
   void testSingleValues() {
     final ExtendedStatistics observed = new ExtendedStatistics();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleStatistics expected = DoubleStatistics.of(STATS);
     observed.add(Math.PI);
-    expected.addValue(Math.PI);
+    expected.accept(Math.PI);
     check(expected, observed);
   }
 
@@ -62,8 +68,8 @@ class ExtendedStatisticsTest {
     observed.add(data, 1, 1);
     Assertions.assertEquals(0, observed.getN());
     observed.add(data, 2, 3);
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    expected.addValue(data[2]);
+    final DoubleStatistics expected = DoubleStatistics.of(STATS);
+    expected.accept(data[2]);
     check(expected, observed);
   }
 
@@ -74,8 +80,8 @@ class ExtendedStatisticsTest {
     observed.add(data, 1, 1);
     Assertions.assertEquals(0, observed.getN());
     observed.add(data, 2, 3);
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    expected.addValue(data[2]);
+    final DoubleStatistics expected = DoubleStatistics.of(STATS);
+    expected.accept(data[2]);
     check(expected, observed);
   }
 
@@ -86,8 +92,8 @@ class ExtendedStatisticsTest {
     observed.add(data, 1, 1);
     Assertions.assertEquals(0, observed.getN());
     observed.add(data, 2, 3);
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    expected.addValue(data[2]);
+    final DoubleStatistics expected = DoubleStatistics.of(STATS);
+    expected.accept(data[2]);
     check(expected, observed);
   }
 
@@ -95,7 +101,7 @@ class ExtendedStatisticsTest {
   void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngFactory.create(seed.get());
     final ExtendedStatistics observed = new ExtendedStatistics();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleStatistics expected = DoubleStatistics.of(STATS);
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, 123));
     observed.add(0, 123);
     for (int i = 0; i < 5; i++) {
@@ -103,7 +109,7 @@ class ExtendedStatisticsTest {
       final double value = r.nextDouble();
       observed.add(n, value);
       for (int j = 0; j < n; j++) {
-        expected.addValue(value);
+        expected.accept(value);
       }
     }
     check(expected, observed);
@@ -112,25 +118,25 @@ class ExtendedStatisticsTest {
   @SeededTest
   void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
-    DescriptiveStatistics expected;
+    DoubleStatistics expected;
     ExtendedStatistics observed;
     final ExtendedStatistics observed2 = new ExtendedStatistics();
     for (int i = 0; i < 10; i++) {
-      expected = new DescriptiveStatistics();
+      expected = DoubleStatistics.of(STATS);
       observed = new ExtendedStatistics();
       for (int j = 0; j < 100; j++) {
         final double d = rng.nextDouble();
-        expected.addValue(d);
+        expected.accept(d);
         observed.add(d);
         check(expected, observed);
       }
     }
 
-    expected = new DescriptiveStatistics();
+    expected = DoubleStatistics.of(STATS);
     final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
-      expected.addValue(v);
+      expected.accept(v);
     }
     observed = ExtendedStatistics.create(idata);
     check(expected, observed);
@@ -139,11 +145,11 @@ class ExtendedStatisticsTest {
     observed2.add(idata, idata.length / 2, idata.length);
     check(expected, observed2);
 
-    expected = new DescriptiveStatistics();
+    expected = DoubleStatistics.of(STATS);
     final double[] ddata = new double[idata.length];
     for (int i = 0; i < idata.length; i++) {
       ddata[i] = idata[i];
-      expected.addValue(ddata[i]);
+      expected.accept(ddata[i]);
     }
     observed = ExtendedStatistics.create(ddata);
     check(expected, observed);
@@ -152,11 +158,11 @@ class ExtendedStatisticsTest {
     observed2.add(ddata, ddata.length / 2, ddata.length);
     check(expected, observed2);
 
-    expected = new DescriptiveStatistics();
+    expected = DoubleStatistics.of(STATS);
     final float[] fdata = new float[idata.length];
     for (int i = 0; i < idata.length; i++) {
       fdata[i] = idata[i];
-      expected.addValue(fdata[i]);
+      expected.accept(fdata[i]);
     }
     observed = ExtendedStatistics.create(fdata);
     check(expected, observed);
@@ -166,17 +172,26 @@ class ExtendedStatisticsTest {
     check(expected, observed2);
   }
 
-  private static void check(DescriptiveStatistics expected, ExtendedStatistics observed) {
-    Assertions.assertEquals(expected.getN(), observed.getN(), "N");
-    Assertions.assertEquals(expected.getMean(), observed.getMean(), 1e-10, "Mean");
-    Assertions.assertEquals(expected.getVariance(), observed.getVariance(), 1e-10, "Variance");
-    Assertions.assertEquals(expected.getStandardDeviation(), observed.getStandardDeviation(), 1e-10,
-        "SD");
-    Assertions.assertEquals(expected.getMin(), observed.getMin(), "Min");
-    Assertions.assertEquals(expected.getMax(), observed.getMax(), "Max");
-    Assertions.assertEquals(expected.getSum(), observed.getSum(), 1e-10, "Sum");
-    Assertions.assertEquals(expected.getSumsq(), observed.getSumOfSquares(), 1e-10, "SumOfSquare");
-    Assertions.assertEquals(expected.getStandardDeviation() / Math.sqrt(expected.getN()),
+  private static void check(DoubleStatistics expected, ExtendedStatistics observed) {
+    Assertions.assertEquals(expected.getCount(), observed.getN(), "N");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.MEAN), observed.getMean(), 1e-10,
+        "Mean");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.VARIANCE), observed.getVariance(), 1e-10,
+        "Variance");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.STANDARD_DEVIATION),
+        observed.getStandardDeviation(), 1e-10, "SD");
+    if (expected.getCount() == 0) {
+      Assertions.assertEquals(Double.NaN, observed.getMin(), "Min");
+      Assertions.assertEquals(Double.NaN, observed.getMax(), "Max");
+    } else {
+      Assertions.assertEquals(expected.getAsDouble(Statistic.MIN), observed.getMin(), "Min");
+      Assertions.assertEquals(expected.getAsDouble(Statistic.MAX), observed.getMax(), "Max");
+    }
+    Assertions.assertEquals(expected.getAsDouble(Statistic.SUM), observed.getSum(), 1e-10, "Sum");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.SUM_OF_SQUARES),
+        observed.getSumOfSquares(), 1e-10, "SumOfSquare");
+    Assertions.assertEquals(
+        expected.getAsDouble(Statistic.STANDARD_DEVIATION) / Math.sqrt(expected.getCount()),
         observed.getStandardError(), 1e-10, "StandardError");
   }
 

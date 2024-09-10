@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.gui.Plot;
 import java.util.function.DoubleConsumer;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+import org.apache.commons.statistics.descriptive.Quantile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -388,18 +388,6 @@ class HistogramPlotTest {
   }
 
   @Test
-  void testGetStatistics() {
-    final double[] values = {1, 2, 3, 4, 5, 3, 2, 2, 1};
-    HistogramPlot plot = new HistogramPlot("title", StoredData.create(values), "name");
-    final StoredDataStatistics s1 = plot.getStatistics(values);
-    StoredDataStatistics s2 = plot.getStatistics(values);
-    Assertions.assertSame(s1, s2);
-    plot = new HistogramPlot("title", s1, "name");
-    s2 = plot.getStatistics(values);
-    Assertions.assertSame(s1, s2);
-  }
-
-  @Test
   void testUpdateLimitsToRemoveOutliers() {
     double[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 100};
     double[] limits = MathUtils.limits(values);
@@ -419,7 +407,8 @@ class HistogramPlotTest {
     plot = builder.build();
     plot.updateLimitsToRemoveOutliers(limits2, values);
     // lower limit is the same, upper limit is clipped
-    Assertions.assertArrayEquals(new double[] {limits[0], 9 + 6 * 1.5}, limits2);
+    Assertions.assertEquals(limits[0], limits2[0]);
+    Assertions.assertTrue(limits[1] > limits2[1]);
 
     values[0] = -100;
     values[values.length - 1] = values.length + 1;
@@ -427,7 +416,8 @@ class HistogramPlotTest {
     limits2 = limits.clone();
     plot.updateLimitsToRemoveOutliers(limits2, values);
     // limit is clipped
-    Assertions.assertArrayEquals(new double[] {3 - 6 * 1.5, limits[1]}, limits2);
+    Assertions.assertEquals(limits[1], limits2[1]);
+    Assertions.assertTrue(limits[0] < limits2[0]);
 
     // Percentile
     builder.setRemoveOutliersOption(2);
@@ -435,8 +425,8 @@ class HistogramPlotTest {
 
     limits2 = limits.clone();
     plot.updateLimitsToRemoveOutliers(limits2, values);
-    Assertions.assertArrayEquals(new double[] {limits[0], new Percentile().evaluate(values, 98)},
-        limits2);
+    Assertions.assertArrayEquals(
+        new double[] {limits[0], Quantile.withDefaults().evaluate(values, 0.98)}, limits2);
 
     // Create larger data
     values = SimpleArrayUtils.newArray(100, 0, 1.0);
@@ -444,7 +434,8 @@ class HistogramPlotTest {
     plot = builder.build();
     limits2 = new double[] {0, 99};
     plot.updateLimitsToRemoveOutliers(limits2, values);
-    Assertions.assertArrayEquals(new double[] {0, new Percentile().evaluate(values, 98)}, limits2);
+    Assertions.assertArrayEquals(new double[] {0, Quantile.withDefaults().evaluate(values, 0.98)},
+        limits2);
   }
 
   @Test

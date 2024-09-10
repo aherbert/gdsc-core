@@ -29,7 +29,7 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import java.util.logging.Logger;
-import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
+import org.apache.commons.numbers.core.Sum;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
@@ -725,16 +725,14 @@ class ArrayMomentTest {
   private void canComputeMoment(String title, double[] data, ArrayMoment r2) {
     final Statistics m1 = new Statistics();
     m1.add(data);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(data);
+    final double m2 = secondMoment(data);
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new double[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -744,16 +742,14 @@ class ArrayMomentTest {
   private void canComputeMoment(String title, float[] data, ArrayMoment r2) {
     final Statistics m1 = new Statistics();
     m1.add(data);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(toDouble(data));
+    final double m2 = secondMoment(toDouble(data));
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new float[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -763,16 +759,14 @@ class ArrayMomentTest {
   private void canComputeMoment(String title, int[] data, ArrayMoment r2) {
     final Statistics m1 = new Statistics();
     m1.add(data);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(toDouble(data));
+    final double m2 = secondMoment(toDouble(data));
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new int[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -783,16 +777,14 @@ class ArrayMomentTest {
     final double[] data2 = toDouble(data);
     final Statistics m1 = new Statistics();
     m1.add(data2);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(data2);
+    final double m2 = secondMoment(data2);
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new short[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -803,16 +795,14 @@ class ArrayMomentTest {
     final double[] data2 = toDouble(data);
     final Statistics m1 = new Statistics();
     m1.add(data2);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(data2);
+    final double m2 = secondMoment(toDouble(data));
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.add(new byte[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -823,16 +813,14 @@ class ArrayMomentTest {
     final double[] data2 = toDoubleUnsigned(data);
     final Statistics m1 = new Statistics();
     m1.add(data2);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(data2);
+    final double m2 = secondMoment(data2);
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.addUnsigned(new short[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -843,16 +831,14 @@ class ArrayMomentTest {
     final double[] data2 = toDoubleUnsigned(data);
     final Statistics m1 = new Statistics();
     m1.add(data2);
-    final SecondMoment m2 = new SecondMoment();
-    m2.incrementAll(data2);
+    final double m2 = secondMoment(data2);
     final long n = r2.getN();
     for (int i = 0; i < data.length; i++) {
       r2.addUnsigned(new byte[] {data[i]});
     }
     Assertions.assertEquals(n + data.length, r2.getN());
     TestAssertions.assertTest(m1.getMean(), r2.getMean()[0], equality, () -> title + " Mean");
-    TestAssertions.assertTest(m2.getResult(), r2.getSumOfSquares()[0], equality,
-        () -> title + " 2nd Moment");
+    TestAssertions.assertTest(m2, r2.getSumOfSquares()[0], equality, () -> title + " 2nd Moment");
     TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], equality,
         () -> title + " Variance");
     TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], equality,
@@ -996,15 +982,16 @@ class ArrayMomentTest {
     final double[] ov = r2.getVariance();
     final double[] osd = r2.getStandardDeviation();
 
+    final double[] s = new double[data.length];
     for (int n = data[0].length; n-- > 0;) {
       final Statistics m1 = new Statistics();
-      final SecondMoment m2 = new SecondMoment();
       for (int i = 0; i < data.length; i++) {
         m1.add(data[i][n]);
-        m2.increment(data[i][n]);
+        s[i] = data[i][n];
       }
+      final double m2 = secondMoment(s);
       TestAssertions.assertTest(m1.getMean(), om1[n], equality, () -> title + " Mean");
-      TestAssertions.assertTest(m2.getResult(), om2[n], equality, () -> title + " 2nd Moment");
+      TestAssertions.assertTest(m2, om2[n], equality, () -> title + " 2nd Moment");
       TestAssertions.assertTest(m1.getVariance(), ov[n], equality, () -> title + " Variance");
       TestAssertions.assertTest(m1.getStandardDeviation(), osd[n], equality, () -> title + " SD");
     }
@@ -1021,15 +1008,16 @@ class ArrayMomentTest {
     final double[] ov = r2.getVariance();
     final double[] osd = r2.getStandardDeviation();
 
+    final double[] s = new double[data.length];
     for (int n = data[0].length; n-- > 0;) {
       final Statistics m1 = new Statistics();
-      final SecondMoment m2 = new SecondMoment();
       for (int i = 0; i < data.length; i++) {
         m1.add(data[i][n]);
-        m2.increment(data[i][n]);
+        s[i] = data[i][n];
       }
+      final double m2 = secondMoment(s);
       TestAssertions.assertTest(m1.getMean(), om1[n], equality, () -> title + " Mean");
-      TestAssertions.assertTest(m2.getResult(), om2[n], equality, () -> title + " 2nd Moment");
+      TestAssertions.assertTest(m2, om2[n], equality, () -> title + " 2nd Moment");
       TestAssertions.assertTest(m1.getVariance(), ov[n], equality, () -> title + " Variance");
       TestAssertions.assertTest(m1.getStandardDeviation(), osd[n], equality, () -> title + " SD");
     }
@@ -1042,25 +1030,34 @@ class ArrayMomentTest {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
 
     final SimpleArrayMoment m1 = new SimpleArrayMoment();
-    final SecondMoment m2 = new SecondMoment();
     final RollingArrayMoment r2 = new RollingArrayMoment();
 
     // Test if the standard Statistics object is good enough for
-    // computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
-    final SharedStateContinuousSampler g =
-        SamplerUtils.createGaussianSampler(rng, 100.345, Math.PI);
-    for (int i = 600000; i-- > 0;) {
-      final double d = g.sample();
+    // computing the mean and variance of sCMOS data from 60,000 frames. It seems it
+    // is.
+    final double[] s =
+        SamplerUtils.createGaussianSampler(rng, 100.345, Math.PI).samples(60000).toArray();
+    for (final double d : s) {
       final double[] data = new double[] {d};
       m1.add(data);
-      m2.increment(d);
       r2.add(data);
     }
+    final double m2 = secondMoment(s);
     logger.log(TestLevel.TEST_INFO,
         FormatSupplier.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getMean()[0]),
             Double.toString(r2.getMean()[0]), Double.toString(m1.getStandardDeviation()[0]),
             Double.toString(r2.getStandardDeviation()[0])));
     TestAssertions.assertTest(m1.getMean()[0], r2.getMean()[0], equality, "Mean");
-    Assertions.assertEquals(m2.getResult(), r2.getSumOfSquares()[0], "2nd Moment");
+    Assertions.assertEquals(m2, r2.getSumOfSquares()[0], "2nd Moment");
+  }
+
+  private static double secondMoment(double[] data) {
+    final double m = org.apache.commons.statistics.descriptive.Mean.of(data).getAsDouble();
+    final Sum s = Sum.create();
+    for (final double d : data) {
+      final double dx = d - m;
+      s.add(dx * dx);
+    }
+    return s.getAsDouble();
   }
 }

@@ -81,16 +81,16 @@ class MeanTest {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int i = 0; i < 3; i++) {
       final Mean m = new Mean();
-      final org.apache.commons.math3.stat.descriptive.moment.Mean m1 =
-          new org.apache.commons.math3.stat.descriptive.moment.Mean();
-      Assertions.assertEquals(m1.getResult(), m.getMean());
-      Assertions.assertEquals(m1.getN(), m.getN());
-      for (int j = 0; j < 10; j++) {
+      final org.apache.commons.statistics.descriptive.Mean m1 =
+          org.apache.commons.statistics.descriptive.Mean.create();
+      Assertions.assertEquals(m1.getAsDouble(), m.getMean());
+      Assertions.assertEquals(0, m.getN());
+      for (int j = 1; j <= 10; j++) {
         final double value = rng.nextDouble();
         m.add(value);
-        m1.increment(value);
-        Assertions.assertEquals(m1.getResult(), m.getMean());
-        Assertions.assertEquals(m1.getN(), m.getN());
+        m1.accept(value);
+        Assertions.assertEquals(m1.getAsDouble(), m.getMean());
+        Assertions.assertEquals(j, m.getN());
       }
     }
   }

@@ -32,14 +32,14 @@ import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.statistics.descriptive.Quantile;
+import org.apache.commons.statistics.descriptive.StandardDeviation;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
@@ -72,8 +72,6 @@ public class HistogramPlot {
   /** The method to select the histogram bins. Used if the input number of bins is zero. */
   private BinMethod binMethod = BinMethod.SCOTT;
 
-  /** The stats derived from the data. */
-  private StoredDataStatistics stats;
   /** The lower range of the interquartile range. */
   private double lower;
   /** The upper range of the interquartile range. */
@@ -367,11 +365,9 @@ public class HistogramPlot {
         return (int) Math.ceil((limits[1] - limits[0]) / width);
 
       case FD:
-        final DescriptiveStatistics descriptiveStats =
-            (data instanceof StoredDataStatistics) ? ((StoredDataStatistics) data).getStatistics()
-                : new DescriptiveStatistics(data.values());
-        final double lower = descriptiveStats.getPercentile(25);
-        final double upper = descriptiveStats.getPercentile(75);
+        final double[] q = Quantile.withDefaults().evaluate(data.values(), 0.25, 0.75);
+        final double lower = q[0];
+        final double upper = q[1];
         width = getBinWidthFreedmanDiaconisRule(upper, lower, data.size());
         limits = MathUtils.limits(data.values());
         return (int) Math.ceil((limits[1] - limits[0]) / width);
@@ -741,17 +737,17 @@ public class HistogramPlot {
       // Auto
       switch (binMethod) {
         case SCOTT:
-          getStatistics(values);
-          bins = (int) Math.ceil((limits[1] - limits[0])
-              / getBinWidthScottsRule(stats.getStandardDeviation(), stats.size()));
+          final double sd = StandardDeviation.of(values).getAsDouble();
+          bins =
+              (int) Math.ceil((limits[1] - limits[0]) / getBinWidthScottsRule(sd, values.length));
           break;
 
         case FD:
-          getStatistics(values);
-          lower = stats.getStatistics().getPercentile(25);
-          upper = stats.getStatistics().getPercentile(75);
+          final double[] q = Quantile.withDefaults().evaluate(values, 0.25, 0.75);
+          lower = q[0];
+          upper = q[1];
           bins = (int) Math.ceil((limits[1] - limits[0])
-              / getBinWidthFreedmanDiaconisRule(upper, lower, stats.size()));
+              / getBinWidthFreedmanDiaconisRule(upper, lower, values.length));
           break;
 
         case STURGES:
@@ -792,23 +788,6 @@ public class HistogramPlot {
   }
 
   /**
-   * Gets the statistics.
-   *
-   * @param values the values
-   * @return the statistics
-   */
-  @VisibleForTesting
-  StoredDataStatistics getStatistics(double[] values) {
-    StoredDataStatistics localStats = stats;
-    if (localStats == null) {
-      localStats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-          : StoredDataStatistics.create(values);
-      stats = localStats;
-    }
-    return localStats;
-  }
-
-  /**
    * Update limits to remove outliers.
    *
    * @param limits the limits
@@ -826,7 +805,7 @@ public class HistogramPlot {
 
       case 2:
         // Remove top 2%
-        limits[1] = getStatistics(values).getStatistics().getPercentile(98);
+        limits[1] = Quantile.withDefaults().evaluate(values, 0.98);
         break;
 
       default:
@@ -841,9 +820,9 @@ public class HistogramPlot {
    */
   private void computeInterQuartileRange(double[] values) {
     if (Double.isNaN(upper)) {
-      final DescriptiveStatistics descriptiveStatistics = getStatistics(values).getStatistics();
-      lower = descriptiveStatistics.getPercentile(25);
-      upper = descriptiveStatistics.getPercentile(75);
+      final double[] q = Quantile.withDefaults().evaluate(values, 0.25, 0.75);
+      lower = q[0];
+      upper = q[1];
     }
   }
 

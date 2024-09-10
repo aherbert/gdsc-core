@@ -30,10 +30,11 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
-import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
+import org.apache.commons.statistics.inference.ChiSquareTest;
+import org.apache.commons.statistics.inference.SignificanceResult;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -188,13 +189,10 @@ class RadixStringSamplerTest {
     // }
 
     // Statistical test
-    final ChiSquareTest chi = new ChiSquareTest();
-    final double[] expected = new double[h.length];
-    Arrays.fill(expected, 1.0 / radix);
-    final double p = chi.chiSquareTest(expected, h);
-    final boolean reject = p < 0.001;
+    final SignificanceResult r = ChiSquareTest.withDefaults().test(h);
+    final boolean reject = r.reject(0.001);
     logger.log(TestLogging.getResultRecord(!reject,
-        () -> String.format("Radix %d, chiSq p = %s  (reject=%b)", radix, p, reject)));
+        () -> String.format("Radix %d, chiSq p = %s  (reject=%b)", radix, r.getPValue(), reject)));
     // This will sometimes fail due to randomness so do not assert
     // Assertions.assertFalse(reject);
   }

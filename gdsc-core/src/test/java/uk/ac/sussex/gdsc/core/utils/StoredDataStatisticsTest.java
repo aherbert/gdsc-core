@@ -30,9 +30,13 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Arrays;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import java.util.EnumSet;
+import java.util.function.DoubleConsumer;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
+import org.apache.commons.statistics.descriptive.DoubleStatistics;
+import org.apache.commons.statistics.descriptive.Median;
+import org.apache.commons.statistics.descriptive.Statistic;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -44,7 +48,7 @@ class StoredDataStatisticsTest {
   @Test
   void testEmptyValues() {
     final StoredDataStatistics observed = new StoredDataStatistics();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final StoredDoubleStatistics expected = new StoredDoubleStatistics();
     check(expected, observed);
     final StoredDataStatistics observed2 = new StoredDataStatistics(10);
     check(expected, observed2);
@@ -53,10 +57,10 @@ class StoredDataStatisticsTest {
   @Test
   void testSingleValues() {
     final StoredDataStatistics observed = new StoredDataStatistics();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    final DescriptiveStatistics stats1 = observed.getStatistics();
+    final StoredDoubleStatistics expected = new StoredDoubleStatistics();
+    final Object stats1 = observed.getStatistics();
     observed.add(Math.PI);
-    expected.addValue(Math.PI);
+    expected.accept(Math.PI);
     check(expected, observed);
     Assertions.assertNotSame(stats1, observed.getStatistics());
   }
@@ -68,8 +72,8 @@ class StoredDataStatisticsTest {
     observed.add(data, 1, 1);
     Assertions.assertEquals(0, observed.getN());
     observed.add(data, 2, 3);
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    expected.addValue(data[2]);
+    final StoredDoubleStatistics expected = new StoredDoubleStatistics();
+    expected.accept(data[2]);
     check(expected, observed);
   }
 
@@ -80,8 +84,8 @@ class StoredDataStatisticsTest {
     observed.add(data, 1, 1);
     Assertions.assertEquals(0, observed.getN());
     observed.add(data, 2, 3);
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    expected.addValue(data[2]);
+    final StoredDoubleStatistics expected = new StoredDoubleStatistics();
+    expected.accept(data[2]);
     check(expected, observed);
   }
 
@@ -92,8 +96,8 @@ class StoredDataStatisticsTest {
     observed.add(data, 1, 1);
     Assertions.assertEquals(0, observed.getN());
     observed.add(data, 2, 3);
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
-    expected.addValue(data[2]);
+    final StoredDoubleStatistics expected = new StoredDoubleStatistics();
+    expected.accept(data[2]);
     check(expected, observed);
   }
 
@@ -101,7 +105,7 @@ class StoredDataStatisticsTest {
   void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngFactory.create(seed.get());
     final StoredDataStatistics observed = new StoredDataStatistics();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final StoredDoubleStatistics expected = new StoredDoubleStatistics();
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, 123));
     observed.add(0, 123);
     for (int i = 0; i < 5; i++) {
@@ -109,7 +113,7 @@ class StoredDataStatisticsTest {
       final double value = r.nextDouble();
       observed.add(n, value);
       for (int j = 0; j < n; j++) {
-        expected.addValue(value);
+        expected.accept(value);
       }
     }
     check(expected, observed);
@@ -118,26 +122,26 @@ class StoredDataStatisticsTest {
   @SeededTest
   void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
-    DescriptiveStatistics expected;
+    StoredDoubleStatistics expected;
     StoredDataStatistics observed;
     final StoredDataStatistics observed2 = new StoredDataStatistics();
     for (int i = 0; i < 10; i++) {
-      expected = new DescriptiveStatistics();
+      expected = new StoredDoubleStatistics();
       observed = new StoredDataStatistics();
       for (int j = 0; j < 100; j++) {
         // Use negative data to test for old bug in median
         final double d = -rng.nextDouble();
-        expected.addValue(d);
+        expected.accept(d);
         observed.add(d);
         check(expected, observed);
       }
     }
 
-    expected = new DescriptiveStatistics();
+    expected = new StoredDoubleStatistics();
     final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
-      expected.addValue(v);
+      expected.accept(v);
     }
     observed = StoredDataStatistics.create(idata);
     check(expected, observed);
@@ -146,11 +150,11 @@ class StoredDataStatisticsTest {
     observed2.add(idata, idata.length / 2, idata.length);
     check(expected, observed2);
 
-    expected = new DescriptiveStatistics();
+    expected = new StoredDoubleStatistics();
     final double[] ddata = new double[idata.length];
     for (int i = 0; i < idata.length; i++) {
       ddata[i] = idata[i];
-      expected.addValue(ddata[i]);
+      expected.accept(ddata[i]);
     }
     observed = StoredDataStatistics.create(ddata);
     check(expected, observed);
@@ -159,11 +163,11 @@ class StoredDataStatisticsTest {
     observed2.add(ddata, ddata.length / 2, ddata.length);
     check(expected, observed2);
 
-    expected = new DescriptiveStatistics();
+    expected = new StoredDoubleStatistics();
     final float[] fdata = new float[idata.length];
     for (int i = 0; i < idata.length; i++) {
       fdata[i] = idata[i];
-      expected.addValue(fdata[i]);
+      expected.accept(fdata[i]);
     }
     observed = StoredDataStatistics.create(fdata);
     check(expected, observed);
@@ -173,18 +177,23 @@ class StoredDataStatisticsTest {
     check(expected, observed2);
   }
 
-  private static void check(DescriptiveStatistics expected, StoredDataStatistics observed) {
-    Assertions.assertEquals(expected.getN(), observed.getN(), "N");
-    Assertions.assertEquals(expected.getN(), observed.size(), "size");
-    Assertions.assertEquals(expected.getMean(), observed.getMean(), 1e-10, "Mean");
-    Assertions.assertEquals(expected.getVariance(), observed.getVariance(), 1e-10, "Variance");
-    Assertions.assertEquals(expected.getStandardDeviation(), observed.getStandardDeviation(), 1e-10,
-        "SD");
-    Assertions.assertEquals(expected.getSum(), observed.getSum(), 1e-10, "Sum");
-    Assertions.assertEquals(expected.getSumsq(), observed.getSumOfSquares(), 1e-10, "SumOfSquare");
-    Assertions.assertEquals(expected.getStandardDeviation() / Math.sqrt(expected.getN()),
+  private static void check(StoredDoubleStatistics data, StoredDataStatistics observed) {
+    final DoubleStatistics expected = data.getStats();
+    Assertions.assertEquals(expected.getCount(), observed.getN(), "N");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.MEAN), observed.getMean(), 1e-10,
+        "Mean");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.VARIANCE), observed.getVariance(), 1e-10,
+        "Variance");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.STANDARD_DEVIATION),
+        observed.getStandardDeviation(), 1e-10, "SD");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.SUM), observed.getSum(), 1e-10, "Sum");
+    Assertions.assertEquals(expected.getAsDouble(Statistic.SUM_OF_SQUARES),
+        observed.getSumOfSquares(), 1e-10, "SumOfSquare");
+    Assertions.assertEquals(
+        expected.getAsDouble(Statistic.STANDARD_DEVIATION) / Math.sqrt(expected.getCount()),
         observed.getStandardError(), 1e-10, "StandardError");
-    final double[] d1 = expected.getValues();
+
+    final double[] d1 = data.getValues();
     final double[] d2 = observed.values();
     final float[] f2 = observed.getFloatValues();
     Assertions.assertEquals(d2.length, f2.length);
@@ -198,7 +207,8 @@ class StoredDataStatisticsTest {
     Arrays.sort(d1);
     Arrays.sort(d2);
     Assertions.assertArrayEquals(d1, d2);
-    Assertions.assertEquals(expected.getPercentile(50), observed.getMedian(), 1e-10, "Median");
+    Assertions.assertEquals(Median.withDefaults().evaluate(d1), observed.getMedian(), 1e-10,
+        "Median");
     Assertions.assertSame(observed.getStatistics(), observed.getStatistics());
   }
 
@@ -238,5 +248,28 @@ class StoredDataStatisticsTest {
     stats.add(1f);
     stats = StoredDataStatistics.create(new int[] {1, 2, 3});
     stats.add(1);
+  }
+
+  private static class StoredDoubleStatistics implements DoubleConsumer {
+    private static final EnumSet<Statistic> STATS =
+        EnumSet.of(Statistic.MIN, Statistic.MAX, Statistic.MEAN, Statistic.STANDARD_DEVIATION,
+            Statistic.SUM_OF_SQUARES, Statistic.VARIANCE, Statistic.SUM);
+
+    private final DoubleStatistics stats = DoubleStatistics.of(STATS);
+    private final DoubleArrayList data = new DoubleArrayList();
+
+    @Override
+    public void accept(double value) {
+      stats.accept(value);
+      data.add(value);
+    }
+
+    DoubleStatistics getStats() {
+      return stats;
+    }
+
+    double[] getValues() {
+      return data.toDoubleArray();
+    }
   }
 }

@@ -29,6 +29,9 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.statistics.descriptive.DoubleStatistics;
+import org.apache.commons.statistics.descriptive.Statistic;
+import org.apache.commons.statistics.descriptive.StatisticsConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -91,26 +94,23 @@ class SumOfSquaredDeviationsTest {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
     for (int i = 0; i < 3; i++) {
       final SumOfSquaredDeviations m = new SumOfSquaredDeviations();
-      final org.apache.commons.math3.stat.descriptive.moment.Mean m1 =
-          new org.apache.commons.math3.stat.descriptive.moment.Mean();
-      final org.apache.commons.math3.stat.descriptive.moment.SecondMoment m2 =
-          new org.apache.commons.math3.stat.descriptive.moment.SecondMoment();
-      final org.apache.commons.math3.stat.descriptive.moment.Variance v =
-          new org.apache.commons.math3.stat.descriptive.moment.Variance();
-      Assertions.assertEquals(m1.getResult(), m.getMean());
-      Assertions.assertEquals(m2.getResult(), m.getSumOfSquaredDeviations());
+      final DoubleStatistics s = DoubleStatistics.of(Statistic.MEAN, Statistic.VARIANCE);
+      final DoubleStatistics s2 = DoubleStatistics.builder(Statistic.VARIANCE)
+          .setConfiguration(StatisticsConfiguration.withDefaults().withBiased(true)).build();
+      Assertions.assertEquals(s.getAsDouble(Statistic.MEAN), m.getMean());
+      Assertions.assertEquals(Double.NaN, m.getSumOfSquaredDeviations());
       assertVariance(Double.NaN, m);
-      Assertions.assertEquals(m1.getN(), m.getN());
-      for (int j = 0; j < 10; j++) {
+      Assertions.assertEquals(0, m.getN());
+      for (int j = 1; j <= 10; j++) {
         final double value = rng.nextDouble();
         m.add(value);
-        m1.increment(value);
-        m2.increment(value);
-        v.increment(value);
-        Assertions.assertEquals(m1.getResult(), m.getMean());
-        Assertions.assertEquals(m2.getResult(), m.getSumOfSquaredDeviations(), 1e-10);
-        assertVariance(v.getResult(), m);
-        Assertions.assertEquals(m1.getN(), m.getN());
+        s.accept(value);
+        s2.accept(value);
+        Assertions.assertEquals(s.getAsDouble(Statistic.MEAN), m.getMean());
+        Assertions.assertEquals(s2.getAsDouble(Statistic.VARIANCE) * j,
+            m.getSumOfSquaredDeviations(), 1e-10);
+        assertVariance(s.getAsDouble(Statistic.VARIANCE), m);
+        Assertions.assertEquals(j, m.getN());
       }
     }
   }

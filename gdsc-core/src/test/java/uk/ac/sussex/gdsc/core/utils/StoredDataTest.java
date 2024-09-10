@@ -36,7 +36,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +50,7 @@ class StoredDataTest {
   @Test
   void testEmptyValues() {
     final StoredData observed = new StoredData();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleArrayList expected = new DoubleArrayList();
     check(expected, observed);
     final StoredData observed2 = new StoredData(10);
     check(expected, observed2);
@@ -60,16 +59,16 @@ class StoredDataTest {
   @Test
   void testSingleValues() {
     final StoredData observed = new StoredData();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleArrayList expected = new DoubleArrayList();
     observed.add(Math.PI);
-    expected.addValue(Math.PI);
+    expected.add(Math.PI);
     check(expected, observed);
   }
 
   @Test
   void canAddNullArray() {
     final StoredData observed = new StoredData();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleArrayList expected = new DoubleArrayList();
     observed.add((double[]) null);
     observed.add((float[]) null);
     observed.add((int[]) null);
@@ -80,7 +79,7 @@ class StoredDataTest {
   void canAddMultipleValues(RandomSeed seed) {
     final UniformRandomProvider r = RngFactory.create(seed.get());
     final StoredData observed = new StoredData();
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleArrayList expected = new DoubleArrayList();
     Assertions.assertThrows(IllegalArgumentException.class, () -> observed.add(-1, 123));
     observed.add(0, 123);
     for (int i = 0; i < 5; i++) {
@@ -88,7 +87,7 @@ class StoredDataTest {
       final double value = r.nextDouble();
       observed.add(n, value);
       for (int j = 0; j < n; j++) {
-        expected.addValue(value);
+        expected.add(value);
       }
     }
     check(expected, observed);
@@ -97,51 +96,51 @@ class StoredDataTest {
   @SeededTest
   void canAdd(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
-    DescriptiveStatistics expected;
+    DoubleArrayList expected;
     StoredData observed;
     for (int i = 0; i < 10; i++) {
-      expected = new DescriptiveStatistics();
+      expected = new DoubleArrayList();
       observed = new StoredData();
       for (int j = 0; j < 100; j++) {
         // Use negative data to test for old bug in median
         final double d = -rng.nextDouble();
-        expected.addValue(d);
+        expected.add(d);
         observed.add(d);
         check(expected, observed);
       }
     }
 
-    expected = new DescriptiveStatistics();
+    expected = new DoubleArrayList();
     final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
-      expected.addValue(v);
+      expected.add(v);
     }
     observed = StoredData.create(idata);
     check(expected, observed);
 
-    expected = new DescriptiveStatistics();
+    expected = new DoubleArrayList();
     final double[] ddata = new double[idata.length];
     for (int i = 0; i < idata.length; i++) {
       ddata[i] = idata[i];
-      expected.addValue(ddata[i]);
+      expected.add(ddata[i]);
     }
     observed = StoredData.create(ddata);
     check(expected, observed);
 
-    expected = new DescriptiveStatistics();
+    expected = new DoubleArrayList();
     final float[] fdata = new float[idata.length];
     for (int i = 0; i < idata.length; i++) {
       fdata[i] = idata[i];
-      expected.addValue(fdata[i]);
+      expected.add(fdata[i]);
     }
     observed = StoredData.create(fdata);
     check(expected, observed);
   }
 
-  private static void check(DescriptiveStatistics expected, StoredData observed) {
-    Assertions.assertEquals(expected.getN(), observed.size(), "size");
-    final double[] d1 = expected.getValues();
+  private static void check(DoubleArrayList expected, StoredData observed) {
+    Assertions.assertEquals(expected.size(), observed.size(), "size");
+    final double[] d1 = expected.toDoubleArray();
     final double[] d2 = observed.values();
     final float[] f2 = observed.getFloatValues();
     Assertions.assertEquals(d2.length, f2.length);
@@ -235,10 +234,10 @@ class StoredDataTest {
     ConcurrencyUtils.waitForCompletion(futures);
 
     // All the arrays are the same so add multiple
-    final DescriptiveStatistics expected = new DescriptiveStatistics();
+    final DoubleArrayList expected = new DoubleArrayList();
     for (int i = 0; i < 9; i++) {
       for (final double value : data) {
-        expected.addValue(value);
+        expected.add(value);
       }
     }
     check(expected, observed);

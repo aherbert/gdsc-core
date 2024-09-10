@@ -95,6 +95,11 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <artifactId>gdsc-core</artifactId>
       <version>2.2-SNAPSHOT</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-statistics-descriptive</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

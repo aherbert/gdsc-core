@@ -32,8 +32,9 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.special.Erf;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.numbers.core.Sum;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.statistics.descriptive.Mean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -385,14 +386,22 @@ class MathUtilsTest {
     final UniformRandomProvider r = RngFactory.create(seed.get());
     final double[] values = new double[7];
     for (int i = 1; i <= 10; i++) {
-      final SummaryStatistics stats = new SummaryStatistics();
       for (int j = 0; j < values.length; j++) {
         values[j] = r.nextDouble() * i;
-        stats.addValue(values[j]);
       }
-      final double expected = stats.getSecondMoment();
+      final double expected = secondMoment(values);
       Assertions.assertEquals(expected, MathUtils.getTotalSumOfSquares(values), expected * 1e-8);
     }
+  }
+
+  private static double secondMoment(double[] data) {
+    final double m = Mean.of(data).getAsDouble();
+    final Sum s = Sum.create();
+    for (final double d : data) {
+      final double dx = d - m;
+      s.add(dx * dx);
+    }
+    return s.getAsDouble();
   }
 
   @Test
