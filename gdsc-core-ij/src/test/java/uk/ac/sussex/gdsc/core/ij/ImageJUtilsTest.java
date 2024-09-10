@@ -266,11 +266,14 @@ class ImageJUtilsTest {
 
   @Test
   void testShowStatus() throws InterruptedException {
+    // Wait until status has expired. This should be 150ms
+    final int interval = 200;
+    Thread.sleep(interval);
     Assertions.assertTrue(ImageJUtils.showStatus("first"));
     Assertions.assertFalse(ImageJUtils.showStatus("second"));
     Assertions.assertFalse(ImageJUtils.showStatus(() -> "third"));
     // Wait until status has expired. This should be 150ms
-    Thread.sleep(200);
+    Thread.sleep(interval);
     Assertions.assertTrue(ImageJUtils.showStatus(() -> "fourth"));
   }
 
