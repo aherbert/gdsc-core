@@ -221,7 +221,7 @@ public final class MemoryUtils {
     // Overflow-conscious code treats the min and new capacity as unsigned.
 
     // Increase by 50%
-    int newCapacity = oldCapacity + oldCapacity / 2;
+    int newCapacity = oldCapacity + (oldCapacity >>> 1);
 
     // Check if large enough for the min capacity.
     // Equivalent to Integer.compareUnsigned(newCapacity, minCapacity) < 0.

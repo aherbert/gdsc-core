@@ -111,10 +111,7 @@ public class StoredDataStatistics extends Statistics implements DoubleData {
     final int oldCapacity = values.length;
     // Overflow safe
     if (minCapacity - oldCapacity > 0) {
-      int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity - minCapacity < 0) {
-        newCapacity = minCapacity;
-      }
+      int newCapacity = MemoryUtils.createNewCapacity(minCapacity, oldCapacity);
       final double[] newValues = new double[newCapacity];
       System.arraycopy(values, 0, newValues, 0, size);
       values = newValues;
