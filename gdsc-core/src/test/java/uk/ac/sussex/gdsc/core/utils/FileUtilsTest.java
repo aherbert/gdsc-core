@@ -167,7 +167,21 @@ class FileUtilsTest {
   @Test
   void canCreateParentWrapsSecurityException() throws IOException {
     // Check there is no security manager
-    Assumptions.assumeTrue(System.getSecurityManager() == null, "Require no security manager");
+    // Note: The SecurityManager is deprecated for removal from JDK 17
+    String version = System.getProperty("java.specification.version");
+    // Do not care about low version 1.8. From JDK 9 this should lead with the major version.
+    int i = version.indexOf('.');
+    if (i >= 0) {
+      version = version.substring(0, i);
+    }
+    try {
+      Assumptions.assumeTrue(Integer.parseInt(version) < 17 && System.getSecurityManager() == null,
+          "Require no security manager and pre-JDK 17");
+    } catch (NumberFormatException e) {
+      Logger.getAnonymousLogger()
+          .warning(() -> "Unknown version: " + System.getProperty("java.specification.version"));
+      return;
+    }
 
     Path tmpDir = null;
     try {
