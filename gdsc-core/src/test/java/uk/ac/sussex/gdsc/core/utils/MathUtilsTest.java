@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.function.DoubleUnaryOperator;
-import org.apache.commons.math3.special.Erf;
 import org.apache.commons.numbers.core.Sum;
+import org.apache.commons.numbers.gamma.Erf;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.statistics.descriptive.Mean;
 import org.junit.jupiter.api.Assertions;
@@ -848,7 +848,7 @@ class MathUtilsTest {
     for (int i = 0; i < 10; i++) {
       final double x = r.nextDouble();
       for (int j = 1; j <= 5; j++) {
-        Assertions.assertEquals(Erf.erf(x * j), MathUtils.erf(x * j), 1e-6);
+        Assertions.assertEquals(Erf.value(x * j), MathUtils.erf(x * j), 1e-6);
       }
     }
   }
