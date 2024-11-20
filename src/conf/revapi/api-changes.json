@@ -38,5 +38,42 @@
         "justification": "This class is a spurious commit and contains no functionality."
       } ]
     }
+  } ],
+  "2.2" : [ {
+    "extension" : "revapi.differences",
+    "id" : "intentional-api-changes",
+    "configuration" : {
+      "differences" : [ {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface org.apache.commons.lang3.function.FailableBiConsumer<T, U, E extends java.lang.Throwable>",
+        "justification" : "This new method from a dependency that is not used by the GDSC code."
+      }, {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface org.apache.commons.lang3.function.FailableBiFunction<T, U, R, E extends java.lang.Throwable>",
+        "justification" : "This new method from a dependency that is not used by the GDSC code."
+      }, {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface org.apache.commons.lang3.function.FailableFunction<T, R, E extends java.lang.Throwable>",
+        "justification" : "This new method from a dependency that is not used by the GDSC code."
+      },         {
+        "code": "java.annotation.removed",
+        "old": "interface com.google.common.hash.PrimitiveSink",
+        "new": "interface com.google.common.hash.PrimitiveSink",
+        "annotation": "@com.google.errorprone.annotations.CanIgnoreReturnValue",
+        "justification" : "This annotation is not used by the GDSC code."
+      },
+      {
+        "code": "java.method.numberOfParametersChanged",
+        "old": "method java.awt.image.IndexColorModel ij.process.ImageProcessor::getThresholdColorModel()",
+        "new": "method java.awt.image.IndexColorModel ij.process.ImageProcessor::getThresholdColorModel(byte[], byte[], byte[])",
+        "justification": "Latest ImageJ changes are allowed; code should be updated to be compatible."
+      },
+      {
+        "code": "java.method.nowStatic",
+        "old": "method java.awt.image.IndexColorModel ij.process.ImageProcessor::getThresholdColorModel()",
+        "new": "method java.awt.image.IndexColorModel ij.process.ImageProcessor::getThresholdColorModel(byte[], byte[], byte[])",
+        "justification": "Latest ImageJ changes are allowed; code should be updated to be compatible."
+      } ]
+    }
   } ]
 }

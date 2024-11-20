@@ -245,18 +245,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     </pluginManagement>
     <plugins>
       <plugin>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
          <detectLinks>true</detectLinks>
@@ -297,6 +285,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
               <roots>
                 <!-- Path(s) to configuration in the JSON config file -->
                 <root>2.1</root>
+                <root>2.2</root>
               </roots>
             </configurationFile>
           </analysisConfigurationFiles>
