@@ -34,7 +34,7 @@ import org.apache.commons.rng.UniformRandomProvider;
  * Applies to generators of random number sequences that follow a uniform distribution and can be
  * split to create a new independent instance.
  *
- * <h2>Overlap Computations</h2>
+ * <p><strong>Overlap Computations</strong>
  *
  * <p>The probability of overlap among different streams of generators can be computed using an
  * approximation. The following is extracted from L&#39;Ecuyer, et al. (2017).

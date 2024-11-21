@@ -457,7 +457,7 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of pseudorandom {@code int} values from the generator
    * and/or one split from it.
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #ints(SplittableUniformRandomProvider, long) ints(rng, Long.MAX_VALUE)}.
@@ -502,7 +502,7 @@ public final class RngStreams {
    * int} values from the generator and/or one split from it; each value conforms to the given
    * origin (inclusive) and bound (exclusive).
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #ints(SplittableUniformRandomProvider, long, int, int) ints(rng, Long.MAX_VALUE,
@@ -546,7 +546,7 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of {@code int} values from the generator and/or one
    * split from it.
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to {@link #ints(SplittableIntSupplier, long)
    * ints(generator, Long.MAX_VALUE)}.
@@ -580,7 +580,7 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of pseudorandom {@code
    * long} values from the generator and/or one split from it.
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #longs(SplittableUniformRandomProvider, long) longs(rng, Long.MAX_VALUE)}.
@@ -625,7 +625,7 @@ public final class RngStreams {
    * long} values from the generator and/or one split from it; each value conforms to the given
    * origin (inclusive) and bound (exclusive).
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #longs(SplittableUniformRandomProvider, long, long, long) longs(rng, Long.MAX_VALUE,
@@ -669,7 +669,7 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of {@code long} values from the generator and/or one
    * split from it.
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to {@link #longs(SplittableLongSupplier, long)
    * longs(generator, Long.MAX_VALUE)}.
@@ -705,7 +705,7 @@ public final class RngStreams {
    * double} values from the generator and/or one split from it; each value is between zero
    * (inclusive) and one (exclusive).
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #doubles(SplittableUniformRandomProvider, long) doubles(rng, Long.MAX_VALUE)}.
@@ -751,7 +751,7 @@ public final class RngStreams {
    * double} values from the generator and/or one split from it; each value conforms to the given
    * origin (inclusive) and bound (exclusive).
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #doubles(SplittableUniformRandomProvider, long, double, double) doubles(rng,
@@ -796,7 +796,7 @@ public final class RngStreams {
    * Returns an effectively unlimited stream of {@code double} values from the generator and/or one
    * split from it.
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>This method is implemented to be equivalent to
    * {@link #doubles(SplittableDoubleSupplier, long) doubles(generator, Long.MAX_VALUE)}.

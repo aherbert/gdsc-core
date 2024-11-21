@@ -34,7 +34,7 @@ import java.util.function.IntSupplier;
  * Applies to suppliers of {@code int} numbers that can be split to create a new independent
  * instance.
  *
- * <h2>Overlap Computations</h2>
+ * <p><strong>Overlap Computations</strong>
  *
  * <p>The probability of overlap among different streams of suppliers can be computed using an
  * approximation. The following is extracted from L&#39;Ecuyer, et al. (2017).

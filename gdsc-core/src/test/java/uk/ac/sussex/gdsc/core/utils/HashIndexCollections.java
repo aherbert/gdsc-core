@@ -66,7 +66,7 @@ import com.koloboke.collect.set.hash.HashIntSets;
  *     HashIntIntMaps.getDefaultFactory().withKeysDomain(0, Integer.MAX_VALUE).newUpdatableMap();
  * </pre>
  *
- * <h2>Note</h2>
+ * <p><strong>Note</strong>
  *
  * <p>The keys domain is a performance hint. It is not expected that the returned maps will prevent
  * insertion of negative valued keys. The class is tested to ensure that the default factory

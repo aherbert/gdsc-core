@@ -69,7 +69,7 @@ class HashIndexCollectionsTest {
   /**
    * Keys not in the key domain.
    *
-   * <h2>Note</h2>
+   * <p><strong>Note</strong>
    *
    * <p>Koloboke v1.0.0 used the keys domain as a performance hint for table initialisation.
    * Out-of-domain keys should still be allowed. Filtering the key domain is expensive. The tests
