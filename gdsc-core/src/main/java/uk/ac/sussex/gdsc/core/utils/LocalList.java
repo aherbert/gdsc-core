@@ -74,7 +74,7 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
  * {@link Cloneable}. The {@link #copy()} and {@link #copyOfRange(int, int)} methods are used to
  * obtain a storage optimised shallow copy of the list.
  *
- * <h1>Warnings</h1>
+ * <p><strong>Warnings</strong>
  *
  * <p>There are methods in this class to supplement the {@link List} API. Some do not have the usual
  * guarded access to the positions in the list based on the current list size. It is possible to
@@ -301,7 +301,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    *
    * <p>Note: This will silently ignore a negative capacity.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>This method may not immediately allocate any storage if the list has been constructed
    * with the default capacity. In that case storage will be allocated when it is required in
@@ -416,7 +416,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   /**
    * Get the element at the specified index without checking the current list size.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>This method directly reads from the underlying storage and allows access to indices outside
    * the list size but within the current capacity. It is possible to obtain stale data from the
@@ -436,7 +436,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   /**
    * Set the element at the specified index without checking the current list size.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>This method directly writes to the underlying storage and allows access to indices outside
    * the list size but within the current capacity. It is possible to create stale references in the
@@ -465,7 +465,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <p>In combination with {@link #pop()} this method creates a last-in-first-out (LIFO) stack data
    * structure of the current capacity.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>This method will throw an exception when {@link #add(Object)} would increase the capacity.
    * Use {@link #add(Object)} in-place of {@link #push(Object)} for an expandable LIFO stack.
@@ -1139,7 +1139,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <p>The {@code Spliterator} reports {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
    * {@link Spliterator#ORDERED} and {@link Spliterator#IMMUTABLE}.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>The {@link LocalList} explicitly ignores concurrency modification checks. The spliterator is
    * thus a snapshot of the current list data and it is assumed that modifications to the list will
@@ -1156,7 +1156,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <p>The iterator does not support the {@link Iterator#remove()} operation. Use the
    * {@link #listIterator()} to allow modification of the list via an iterator.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>The {@link LocalList} explicitly ignores concurrency modification checks. The iterator is
    * thus a snapshot of the current list data and it is assumed that modifications to the list will
@@ -1173,7 +1173,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <p>The list iterator supports modification of the list. Use the {@link #iterator()} or
    * {@link #forEach(Consumer)} for more efficient traversal of the list.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>The {@link LocalList} explicitly ignores concurrency modification checks. The list iterator
    * can be used to modify the list but must be the sole entity modifying the list. Operation in the
@@ -1190,7 +1190,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * <p>The list iterator supports modification of the list. Use the {@link #iterator()} or
    * {@link #forEach(Consumer)} for more efficient traversal of the list.
    *
-   * <h1>Warning</h1>
+   * <p><strong>Warning</strong>
    *
    * <p>The {@link LocalList} explicitly ignores concurrency modification checks. The list iterator
    * can be used to modify the list but must be the sole entity modifying the list. Operation in the
@@ -1207,7 +1207,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
   /**
    * {@inheritDoc}
    *
-   * <h1>Implementation note</h1>
+   * <p><strong>Implementation note</strong>
    *
    * <p>The {@link List} returned by this method does not support detection of concurrent
    * modification. The sub-list, and any sub-list thereafter, fully supports the {@link List} API
