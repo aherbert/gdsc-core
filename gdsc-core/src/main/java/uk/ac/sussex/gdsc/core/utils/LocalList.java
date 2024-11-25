@@ -1233,8 +1233,7 @@ public final class LocalList<E> implements List<E>, RandomAccess {
    * Reverse the list contents.
    */
   public void reverse() {
-    final int mid = size >> 1;
-    for (int left = 0, right = size - 1; left < mid; left++, right--) {
+    for (int left = 0, right = size - 1; left < right; left++, right--) {
       // swap the values at the left and right indices
       final Object temp = data[left];
       data[left] = data[right];
