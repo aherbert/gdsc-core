@@ -51,7 +51,6 @@ class HopcroftKarpMatchingTest {
       Assertions.assertThrows(IllegalArgumentException.class,
           () -> HopcroftKarpMatching.checkValidIndex(value, "test"));
     }
-
   }
 
   @Test
@@ -72,7 +71,6 @@ class HopcroftKarpMatchingTest {
       }
       size = newSize;
     }
-
   }
 
   @Test
