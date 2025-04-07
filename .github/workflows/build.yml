@@ -22,13 +22,25 @@ jobs:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: 'maven'
-    - name: Purge maven snapshots
-      run: mvn -B --no-transfer-progress dependency:purge-local-repository -DmanualInclude="uk.ac.sussex.gdsc:gdsc-ij-parent"
+        # these values cause the plugin to set up the Maven settings.xml file
+        server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
+        server-username: SONATYPE_USERNAME # env variable for username in deploy
+        server-password: SONATYPE_PASSWORD # env variable for token in deploy
+    - name: Get version
+      run: echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
     - name: Build
-      run: .github/build.sh
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      run: mvn -V -B --no-transfer-progress -P jacoco checkstyle:check spotbugs:check verify
+    - name: Deploy SNAPSHOT
+      # must run directly after 'Build'
+      if: matrix.java == 8 && github.repository == 'aherbert/gdsc-core' && github.ref_name == 'master' && contains(env.PROJECT_VERSION, 'SNAPSHOT')
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      run: >
+        mvn -V -B --no-transfer-progress -Psnapshot-release deploy -Dgpg.skip -DskipTests
     - name: Build coverage
       run: mvn -B --no-transfer-progress -P jacoco jacoco:report
     - name: Upload coverage to Codecov
