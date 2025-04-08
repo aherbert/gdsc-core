@@ -120,6 +120,9 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <!-- Dependency versions -->
     <elki.version>0.7.5</elki.version>
 
+    <!-- Downgrade spotbugs version for Java 8 compatibility -->
+    <spotbugs-maven-plugin.version>4.7.3.5</spotbugs-maven-plugin.version>
+
   </properties>
 
   <dependencies>
