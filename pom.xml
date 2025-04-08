@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>gdsc-core-parent</artifactId>
-  <version>2.2-SNAPSHOT</version>
+  <version>2.2</version>
   <packaging>pom</packaging>
 
   <name>GDSC Core library for image analysis</name>
