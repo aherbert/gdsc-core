@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.numbers.core.Sum;
 import org.apache.commons.numbers.gamma.Erf;
@@ -301,21 +302,93 @@ class MathUtilsTest {
 
   @Test
   void testCumulativeHistogram() {
-    Assertions.assertArrayEquals(new double[2][0], MathUtils.cumulativeHistogram(null, false));
+    assertCumulativeHistogram(new double[2][0], null, false);
+    assertCumulativeHistogram(new double[2][0], new double[0], false);
+    assertCumulativeHistogram(new double[2][0], new double[] {Double.NaN}, false);
+    assertCumulativeHistogram(new double[][] {{1, 3, 4, 6}, {1, 2, 3, 4}},
+        new double[] {1, 3, 4, 6}, false);
+    assertCumulativeHistogram(new double[][] {{1, 2, 3, 4, 5, 6}, {1, 3, 4, 7, 8, 10}},
+        new double[] {1, 2, 2, 3, 4, 4, 4, 5, 6, 6}, false);
+    assertCumulativeHistogram(new double[][] {{1, 2, 3, 4, 5, 6}, {1, 3, 4, 7, 8, 10}},
+        new double[] {1, 2, 2, 3, Double.NaN, 4, 4, 4, 5, 6, 6, Double.NaN}, false);
+    assertCumulativeHistogram(new double[][] {{1, 2, 3, 4, 5, 6}, {0.1, 0.3, 0.4, 0.7, 0.8, 1.0}},
+        new double[] {1, 2, Double.NaN, 2, 3, 4, 4, 4, 5, 6, 6}, true);
+  }
+
+  private static void assertCumulativeHistogram(double[][] expected, double[] values,
+      boolean normalise) {
+    Assertions.assertArrayEquals(expected, MathUtils.cumulativeHistogram(values, normalise));
+    Assertions.assertArrayEquals(expected, MathUtils.cumulativeHistogram(values, null, normalise));
+    if (values != null) {
+      final double[] weights = new double[values.length];
+      Arrays.fill(weights, 1);
+      Assertions.assertArrayEquals(expected,
+          MathUtils.cumulativeHistogram(values, weights, normalise));
+    }
+  }
+
+  @Test
+  void testWeightedCumulativeHistogramThrows() {
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> MathUtils.cumulativeHistogram(new double[2], new double[3], false),
+        "length mismatch");
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> MathUtils.cumulativeHistogram(new double[2], new double[1], false),
+        "length mismatch");
+    final double[] values = {1, 2};
+    final double[] weights = {1, 0};
+    for (double x : new double[] {0, -1, Double.NEGATIVE_INFINITY, Double.NaN,
+        Double.POSITIVE_INFINITY}) {
+      final double[] w = weights.clone();
+      w[0] = x;
+      Assertions.assertThrows(IllegalArgumentException.class,
+          () -> MathUtils.cumulativeHistogram(values, w, false), "bad weights");
+    }
+    // Special case where NaN is used to make the weights sum above zero
+    values[0] = Double.NaN;
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> MathUtils.cumulativeHistogram(values, weights, false), "bad weights");
+  }
+
+  @Test
+  void testWeightedCumulativeHistogram() {
+    assertWeightedCumulativeHistogram(new double[2][0], new double[0], new double[0], false);
+    assertWeightedCumulativeHistogram(new double[2][0], new double[] {Double.NaN}, new double[] {1},
+        false);
+    // This is the only situation where the weights array
+    // dimension does not match the values array. In this
+    // case the null values take precedent.
     Assertions.assertArrayEquals(new double[2][0],
-        MathUtils.cumulativeHistogram(new double[0], false));
-    Assertions.assertArrayEquals(new double[2][0],
-        MathUtils.cumulativeHistogram(new double[] {Double.NaN}, false));
-    Assertions.assertArrayEquals(new double[][] {{1, 3, 4, 6}, {1, 2, 3, 4}},
-        MathUtils.cumulativeHistogram(new double[] {1, 3, 4, 6}, false));
-    Assertions.assertArrayEquals(new double[][] {{1, 2, 3, 4, 5, 6}, {1, 3, 4, 7, 8, 10}},
-        MathUtils.cumulativeHistogram(new double[] {1, 2, 2, 3, 4, 4, 4, 5, 6, 6}, false));
-    Assertions.assertArrayEquals(new double[][] {{1, 2, 3, 4, 5, 6}, {1, 3, 4, 7, 8, 10}},
-        MathUtils.cumulativeHistogram(
-            new double[] {1, 2, 2, 3, Double.NaN, 4, 4, 4, 5, 6, 6, Double.NaN}, false));
-    Assertions.assertArrayEquals(
-        new double[][] {{1, 2, 3, 4, 5, 6}, {0.1, 0.3, 0.4, 0.7, 0.8, 1.0}}, MathUtils
-            .cumulativeHistogram(new double[] {1, 2, Double.NaN, 2, 3, 4, 4, 4, 5, 6, 6}, true));
+        MathUtils.cumulativeHistogram(null, new double[0], false));
+    assertWeightedCumulativeHistogram(new double[][] {{1, 3, 4, 6}, {0.5, 0.75, 1, 2}},
+        new double[] {1, 3, 4, 6}, new double[] {0.5, 0.25, 0.25, 1}, false);
+    assertWeightedCumulativeHistogram(new double[][] {{1, 3, 4, 6}, {0.25, 0.375, 0.5, 1}},
+        new double[] {1, 3, 4, 6}, new double[] {0.5, 0.25, 0.25, 1}, true);
+    assertWeightedCumulativeHistogram(
+        new double[][] {{1, 2, 3, 4, 5, 6}, {0.5, 1.5, 2.5, 5, 5.5, 7}},
+        new double[] {1, 2, 2, 3, 4, 4, 4, 5, 6, 6},
+        new double[] {0.5, 0.5, 0.5, 1, 1, 1, 0.5, 0.5, 0.5, 1}, false);
+    assertWeightedCumulativeHistogram(
+        new double[][] {{1, 2, 3, 4, 5, 6}, {0.5 / 7, 1.5 / 7, 2.5 / 7, 5.0 / 7, 5.5 / 7, 1}},
+        new double[] {1, 2, 2, 3, 4, 4, 4, 5, 6, 6},
+        new double[] {0.5, 0.5, 0.5, 1, 1, 1, 0.5, 0.5, 0.5, 1}, true);
+  }
+
+  private static void assertWeightedCumulativeHistogram(double[][] expected, double[] values,
+      double[] weights, boolean normalise) {
+    Assertions.assertArrayEquals(expected,
+        MathUtils.cumulativeHistogram(values, weights, normalise));
+    // Do not shuffle, just reverse to test the shuffle
+    for (int i = -1, j = values.length; ++i < --j;) {
+      double x = values[i];
+      values[i] = values[j];
+      values[j] = x;
+      x = weights[i];
+      weights[i] = weights[j];
+      weights[j] = x;
+    }
+    Assertions.assertArrayEquals(expected,
+        MathUtils.cumulativeHistogram(values, weights, normalise));
   }
 
   @Test

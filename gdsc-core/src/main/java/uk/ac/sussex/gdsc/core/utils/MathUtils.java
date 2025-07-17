@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Contains Math utilities.
@@ -613,6 +614,8 @@ public final class MathUtils {
    * Calculate a cumulative histogram of the input values. The data is sorted and the first value in
    * the returned values array will be the lowest value. NaN are ignored.
    *
+   * <p>If the values are {@code null} this returns two zero length arrays.
+   *
    * @param values the values
    * @param normalise Normalise so the total is 1
    * @return Histogram values and cumulative total
@@ -666,6 +669,103 @@ public final class MathUtils {
     if (normalise) {
       for (int i = 0; i < sum.length; i++) {
         sum[i] /= count;
+      }
+    }
+
+    return new double[][] {data, sum};
+  }
+
+  /**
+   * Calculate a weighted cumulative histogram of the input values. The data is sorted and the first
+   * value in the returned values array will be the lowest value. NaN are ignored.
+   * 
+   * <p>If the weights are {@code null} this returns the result of
+   * {@link #cumulativeHistogram(double[], boolean)}.
+   *
+   * @param values the values
+   * @param weights the weights
+   * @param normalise Normalise so the total is 1
+   * @return Histogram values and cumulative total
+   * @throws IllegalArgumentException if the non-null values and weights are different lengths; if
+   *         any weight is below zero; or if the sum of weights is not finite and strictly positive.
+   */
+  public static double[][] cumulativeHistogram(double[] values, double[] weights,
+      boolean normalise) {
+    if (weights == null) {
+      return cumulativeHistogram(values, normalise);
+    }
+    if (values == null || values.length == 0) {
+      return new double[2][0];
+    }
+    if (values.length != weights.length) {
+      throw new IllegalArgumentException(String
+          .format("values and weights length mismatch: %d != %d", values.length, weights.length));
+    }
+    // Sort by value
+    double total = 0;
+    double[][] weightedValues = new double[values.length][2];
+    for (int i = 0; i < values.length; i++) {
+      if (weights[i] < 0) {
+        throw new IllegalArgumentException("invalid weight: " + weights[i]);
+      }
+      weightedValues[i][0] = values[i];
+      weightedValues[i][1] = weights[i];
+      total += weights[i];
+    }
+    if (!Double.isFinite(total)) {
+      throw new IllegalArgumentException("invalid total weight: " + total);
+    }
+
+    Arrays.sort(weightedValues, Comparator.comparingDouble(k -> k[0]));
+
+    // Arrays.sort() put the NaN values higher than all others.
+    // If this is the first value then stop.
+    if (Double.isNaN(weightedValues[0][0])) {
+      return new double[2][0];
+    }
+
+    double[] data = new double[values.length];
+    double[] sum = new double[values.length];
+    double lastValue = weightedValues[0][0];
+    int position = 0;
+    total = 0;
+    for (int i = 0; i < data.length; i++) {
+      final double value = weightedValues[i][0];
+      // Arrays.sort() put the NaN values higher than all others so this should occur at the end
+      if (Double.isNaN(value)) {
+        break;
+      }
+      final double weight = weightedValues[i][1];
+
+      // When a new value is reached, store the cumulative total for the previous value
+      if (lastValue != value) {
+        data[position] = lastValue;
+        sum[position] = total;
+        lastValue = value;
+        position++;
+      }
+      total += weight;
+    }
+
+    if (total <= 0) {
+      throw new IllegalArgumentException("invalid total weight: " + total);
+    }
+
+    // Record the final value
+    data[position] = lastValue;
+    sum[position] = total;
+    position++;
+
+    // Truncate if necessary
+    if (position < data.length) {
+      data = Arrays.copyOf(data, position);
+      sum = Arrays.copyOf(sum, position);
+    }
+
+    // Normalise. Total is always positive as zero length arrays, or all NaN are fast exit.
+    if (normalise) {
+      for (int i = 0; i < sum.length; i++) {
+        sum[i] /= total;
       }
     }
 
@@ -900,8 +1000,8 @@ public final class MathUtils {
    *
    * <p>This method is intended to round the decimal String representation of the input
    * {@code double}. To perform rounding of the exact double value use
-   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
-   * a BigDecimal for rounding.
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct a BigDecimal
+   * for rounding.
    *
    * @param value The double
    * @param significantDigits The number of significant digits
@@ -933,8 +1033,8 @@ public final class MathUtils {
    *
    * <p>This method is intended to round the decimal String representation of the input
    * {@code double}. To perform rounding of the exact double value use
-   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
-   * a BigDecimal for rounding.
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct a BigDecimal
+   * for rounding.
    *
    * @param value The double
    * @param significantDigits The number of significant digits
@@ -977,8 +1077,8 @@ public final class MathUtils {
    *
    * <p>This method is intended to round the decimal String representation of the input
    * {@code double}. To perform rounding of the exact double value use
-   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
-   * a BigDecimal for rounding.
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct a BigDecimal
+   * for rounding.
    *
    * @param value The double
    * @param significantDigits The number of significant digits
@@ -994,8 +1094,8 @@ public final class MathUtils {
    *
    * <p>This method is intended to round the decimal String representation of the input
    * {@code double}. To perform rounding of the exact double value use
-   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
-   * a BigDecimal for rounding.
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct a BigDecimal
+   * for rounding.
    *
    * @param value The double
    * @param decimalPlaces the decimal places (can be negative)
@@ -1017,8 +1117,8 @@ public final class MathUtils {
    *
    * <p>This method is intended to round the decimal String representation of the input
    * {@code double}. To perform rounding of the exact double value use
-   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct
-   * a BigDecimal for rounding.
+   * {@link java.math.BigDecimal#BigDecimal(double) new BigDecimal(value)} to construct a BigDecimal
+   * for rounding.
    *
    * @param value The double
    * @param decimalPlaces the decimal places
