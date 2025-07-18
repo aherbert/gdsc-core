@@ -23,15 +23,12 @@ jobs:
         java-version: ${{ matrix.java }}
         cache: 'maven'
         # these values cause the plugin to set up the Maven settings.xml file
-        server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
-        server-username: SONATYPE_USERNAME # env variable for username in deploy
-        server-password: SONATYPE_PASSWORD # env variable for token in deploy
+        server-id: central
+        server-username: SONATYPE_USERNAME
+        server-password: SONATYPE_PASSWORD
     - name: Get version
       run: echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
     - name: Build
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
       run: mvn -V -B --no-transfer-progress -P jacoco checkstyle:check spotbugs:check verify
     - name: Deploy SNAPSHOT
       # must run directly after 'Build'
