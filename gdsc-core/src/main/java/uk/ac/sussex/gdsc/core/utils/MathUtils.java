@@ -678,7 +678,7 @@ public final class MathUtils {
   /**
    * Calculate a weighted cumulative histogram of the input values. The data is sorted and the first
    * value in the returned values array will be the lowest value. NaN are ignored.
-   * 
+   *
    * <p>If the weights are {@code null} this returns the result of
    * {@link #cumulativeHistogram(double[], boolean)}.
    *
