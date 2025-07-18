@@ -281,6 +281,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
                 <!-- Path(s) to configuration in the JSON config file -->
                 <root>2.1</root>
                 <root>2.2</root>
+                <root>2.3</root>
               </roots>
             </configurationFile>
           </analysisConfigurationFiles>
