@@ -85,5 +85,43 @@
         }
       }
     }
+  }, {
+    "extension" : "revapi.differences",
+    "id" : "intentional-api-changes",
+    "configuration": {
+      "differences" : [ {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface it.unimi.dsi.fastutil.ints.IntIntBiConsumer",
+        "justification" : "This interface adds functionality to a dependency."
+      }, {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface it.unimi.dsi.fastutil.ints.IntObjectBiConsumer<V>",
+        "justification" : "This interface adds functionality to a dependency."
+      }, {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface it.unimi.dsi.fastutil.longs.LongIntBiConsumer",
+        "justification" : "This interface adds functionality to a dependency."
+      }, {
+        "code": "java.class.externalClassExposedInAPI",
+        "new": "interface it.unimi.dsi.fastutil.objects.ObjectIntBiConsumer<K>",
+        "justification" : "This interface adds functionality to a dependency."
+      }, {
+        "code": "java.method.varargOverloadsOnlyDifferInVarargParameter",
+        "new": "method it.unimi.dsi.fastutil.ints.Int2IntMap it.unimi.dsi.fastutil.ints.Int2IntMap::ofEntries(it.unimi.dsi.fastutil.ints.Int2IntMap.Entry[])",
+        "justification" : "This method adds functionality to a dependency."
+      }, {
+        "code": "java.method.varargOverloadsOnlyDifferInVarargParameter",
+        "new": "method <V> it.unimi.dsi.fastutil.ints.Int2ObjectMap<V> it.unimi.dsi.fastutil.ints.Int2ObjectMap<V>::ofEntries(it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry<V>[])",
+        "justification" : "This method adds functionality to a dependency."
+      }, {
+        "code": "java.method.varargOverloadsOnlyDifferInVarargParameter",
+        "new": "method it.unimi.dsi.fastutil.longs.Long2IntMap it.unimi.dsi.fastutil.longs.Long2IntMap::ofEntries(it.unimi.dsi.fastutil.longs.Long2IntMap.Entry[])",
+        "justification" : "This method adds functionality to a dependency."
+      }, {
+        "code": "java.method.varargOverloadsOnlyDifferInVarargParameter",
+        "new": "method <K> it.unimi.dsi.fastutil.objects.Object2IntMap<K> it.unimi.dsi.fastutil.objects.Object2IntMap<K>::ofEntries(it.unimi.dsi.fastutil.objects.Object2IntMap.Entry<K>[])",
+        "justification" : "This method adds functionality to a dependency."
+      } ]
+    }
   } ]
 }
