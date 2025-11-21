@@ -28,10 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.function.IntUnaryOperator;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.function.IntIntConsumer;
 
@@ -215,7 +215,7 @@ public class Resequencer {
    */
   private static class DynamicIntMap implements IntMap {
     /** The set of observed values. */
-    final CustomInt2IntOpenHashMap observed;
+    final Int2IntOpenHashMap observed;
 
     /**
      * Instantiates a new dynamic int set.
@@ -223,7 +223,7 @@ public class Resequencer {
      * @param size the size
      */
     DynamicIntMap(int size) {
-      observed = new CustomInt2IntOpenHashMap(size);
+      observed = new Int2IntOpenHashMap(size);
       observed.defaultReturnValue(NO_ENTRY);
     }
 
@@ -245,7 +245,7 @@ public class Resequencer {
 
     @Override
     public void forEach(IntIntConsumer action) {
-      observed.forEach(action);
+      observed.forEach(action::accept);
     }
   }
 
