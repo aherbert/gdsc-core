@@ -28,30 +28,34 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.function.ObjIntConsumer;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomInt2ObjectOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomLong2IntOpenHashMap;
 import uk.ac.sussex.gdsc.core.utils.OpenHashMaps.CustomObject2IntOpenHashMap;
+import uk.ac.sussex.gdsc.core.utils.function.IntIntConsumer;
+import uk.ac.sussex.gdsc.core.utils.function.IntObjConsumer;
+import uk.ac.sussex.gdsc.core.utils.function.LongIntConsumer;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import uk.ac.sussex.gdsc.test.utils.RandomSeed;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({"javadoc", "deprecation"})
 class OpenHashMapsTest {
   @SeededTest
   void testLong2IntForEach(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomLong2IntOpenHashMap m = new CustomLong2IntOpenHashMap();
-    m.forEach((long k, int v) -> {
+    m.forEach((LongIntConsumer) (long k, int v) -> {
       Assertions.fail();
     });
     for (int i = 0; i < 5; i++) {
       m.put(rng.nextLong(), rng.nextInt());
     }
     final CustomLong2IntOpenHashMap m2 = new CustomLong2IntOpenHashMap(16);
-    m.forEach((long k, int v) -> m2.put(k, v));
+    m.forEach((LongIntConsumer) (long k, int v) -> m2.put(k, v));
     Assertions.assertEquals(m2, m);
   }
 
@@ -59,14 +63,14 @@ class OpenHashMapsTest {
   void testInt2IntForEach(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomInt2IntOpenHashMap m = new CustomInt2IntOpenHashMap();
-    m.forEach((int k, int v) -> {
+    m.forEach((IntIntConsumer) (int k, int v) -> {
       Assertions.fail();
     });
     for (int i = 0; i < 5; i++) {
       m.put(rng.nextInt(), rng.nextInt());
     }
     final CustomInt2IntOpenHashMap m2 = new CustomInt2IntOpenHashMap(16);
-    m.forEach((int k, int v) -> m2.put(k, v));
+    m.forEach((IntIntConsumer) (int k, int v) -> m2.put(k, v));
     Assertions.assertEquals(m2, m);
   }
 
@@ -74,14 +78,14 @@ class OpenHashMapsTest {
   void testObject2IntForEach(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomObject2IntOpenHashMap<Double> m = new CustomObject2IntOpenHashMap<>();
-    m.forEach((Double k, int v) -> {
+    m.forEach((ObjIntConsumer<Double>) (Double k, int v) -> {
       Assertions.fail();
     });
     for (int i = 0; i < 5; i++) {
       m.put(Double.valueOf(rng.nextDouble()), rng.nextInt());
     }
     final CustomObject2IntOpenHashMap<Double> m2 = new CustomObject2IntOpenHashMap<>(16);
-    m.forEach((Double k, int v) -> m2.put(k, v));
+    m.forEach((ObjIntConsumer<Double>) (Double k, int v) -> m2.put(k, v));
     Assertions.assertEquals(m2, m);
   }
 
@@ -89,14 +93,14 @@ class OpenHashMapsTest {
   void testInt2ObjectForEach(RandomSeed seed) {
     final UniformRandomProvider rng = RngFactory.create(seed.get());
     final CustomInt2ObjectOpenHashMap<Double> m = new CustomInt2ObjectOpenHashMap<>();
-    m.forEach((int k, Double v) -> {
+    m.forEach((IntObjConsumer<Double>) (int k, Double v) -> {
       Assertions.fail();
     });
     for (int i = 0; i < 5; i++) {
       m.put(rng.nextInt(), Double.valueOf(rng.nextDouble()));
     }
     final CustomInt2ObjectOpenHashMap<Double> m2 = new CustomInt2ObjectOpenHashMap<>(16);
-    m.forEach((int k, Double v) -> m2.put(k, v));
+    m.forEach((IntObjConsumer<Double>) (int k, Double v) -> m2.put(k, v));
     Assertions.assertEquals(m2, m);
   }
 }

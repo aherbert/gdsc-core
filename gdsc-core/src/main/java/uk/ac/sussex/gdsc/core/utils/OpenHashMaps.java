@@ -42,11 +42,17 @@ import uk.ac.sussex.gdsc.core.utils.function.LongIntConsumer;
  * href="https://github.com/vigna/fastutil">fastutil collections library</a>.
  *
  * <p>The extensions provide zero-allocation forEach iteration of the entries in the map.
+ *
+ * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
  */
+@Deprecated
 public final class OpenHashMaps {
   /**
    * Customisation of Long2IntOpenHashMap.
+   * 
+   * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
    */
+  @Deprecated
   public static class CustomLong2IntOpenHashMap extends Long2IntOpenHashMap {
     private static final long serialVersionUID = 1L;
 
@@ -72,20 +78,17 @@ public final class OpenHashMaps {
      * @param action the action
      */
     public void forEach(LongIntConsumer action) {
-      if (containsNullKey) {
-        action.accept(key[n], value[n]);
-      }
-      for (int pos = n; pos-- != 0;) {
-        if (key[pos] != 0) {
-          action.accept(key[pos], value[pos]);
-        }
-      }
+      // Delegate
+      super.forEach(action::accept);
     }
   }
 
   /**
    * Customisation of Int2IntOpenHashMap.
+   * 
+   * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
    */
+  @Deprecated
   public static class CustomInt2IntOpenHashMap extends Int2IntOpenHashMap {
     private static final long serialVersionUID = 1L;
 
@@ -111,14 +114,8 @@ public final class OpenHashMaps {
      * @param action the action
      */
     public void forEach(IntIntConsumer action) {
-      if (containsNullKey) {
-        action.accept(key[n], value[n]);
-      }
-      for (int pos = n; pos-- != 0;) {
-        if (key[pos] != 0) {
-          action.accept(key[pos], value[pos]);
-        }
-      }
+      // Delegate
+      super.forEach(action::accept);
     }
   }
 
@@ -126,7 +123,9 @@ public final class OpenHashMaps {
    * Customisation of Int2ObjectOpenHashMap.
    *
    * @param <T> the element type
+   * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
    */
+  @Deprecated
   public static class CustomInt2ObjectOpenHashMap<T> extends Int2ObjectOpenHashMap<T> {
     private static final long serialVersionUID = 1L;
 
@@ -152,14 +151,8 @@ public final class OpenHashMaps {
      * @param action the action
      */
     public void forEach(IntObjConsumer<T> action) {
-      if (containsNullKey) {
-        action.accept(key[n], value[n]);
-      }
-      for (int pos = n; pos-- != 0;) {
-        if (key[pos] != 0) {
-          action.accept(key[pos], value[pos]);
-        }
-      }
+      // Delegate
+      super.forEach(action::accept);
     }
   }
 
@@ -167,7 +160,9 @@ public final class OpenHashMaps {
    * Customisation of Object2IntOpenHashMap.
    *
    * @param <T> the element type
+   * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
    */
+  @Deprecated
   public static class CustomObject2IntOpenHashMap<T> extends Object2IntOpenHashMap<T> {
     private static final long serialVersionUID = 1L;
 
@@ -193,14 +188,8 @@ public final class OpenHashMaps {
      * @param action the action
      */
     public void forEach(ObjIntConsumer<T> action) {
-      if (containsNullKey) {
-        action.accept(key[n], value[n]);
-      }
-      for (int pos = n; pos-- != 0;) {
-        if (key[pos] != null) {
-          action.accept(key[pos], value[pos]);
-        }
-      }
+      // Delegate
+      super.forEach(action::accept);
     }
   }
 
