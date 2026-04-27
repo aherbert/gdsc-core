@@ -121,6 +121,11 @@
         "code": "java.method.varargOverloadsOnlyDifferInVarargParameter",
         "new": "method <K> it.unimi.dsi.fastutil.objects.Object2IntMap<K> it.unimi.dsi.fastutil.objects.Object2IntMap<K>::ofEntries(it.unimi.dsi.fastutil.objects.Object2IntMap.Entry<K>[])",
         "justification" : "This method adds functionality to a dependency."
+      },
+      {
+        "code": "java.field.removed",
+        "old": "field ij.process.ImageProcessor.fillValueSet",
+        "justification": "Latest ImageJ changes are allowed; code should be updated to be compatible."
       } ]
     }
   } ]
