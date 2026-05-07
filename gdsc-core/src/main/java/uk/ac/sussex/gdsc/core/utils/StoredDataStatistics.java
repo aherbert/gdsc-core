@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.function.DoubleConsumer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.statistics.descriptive.Median;
 
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.
@@ -245,18 +246,12 @@ public class StoredDataStatistics extends Statistics implements DoubleData {
   }
 
   /**
-   * Gets the median.
+   * Gets the median. This value is not cached. Computation may partially sort the stored values.
    *
    * @return The median
    */
   public double getMedian() {
-    if (size == 0) {
-      return Double.NaN;
-    }
-    if (size == 1) {
-      return values[0];
-    }
-    return getStatistics().getPercentile(50);
+    return Median.withDefaults().evaluateRange(values, 0, size);
   }
 
   @Override
