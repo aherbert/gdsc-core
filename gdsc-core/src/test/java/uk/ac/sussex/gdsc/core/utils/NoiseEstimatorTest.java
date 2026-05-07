@@ -75,7 +75,7 @@ class NoiseEstimatorTest {
     Assertions.assertEquals(4, ne.getRange());
     for (final boolean value : new boolean[] {true, false}) {
       ne.setPreserveResiduals(value);
-      Assertions.assertEquals(value, ne.isPreserveResiduals());
+      Assertions.assertEquals(true, ne.isPreserveResiduals(), "Always preserve residuals");
     }
   }
 
@@ -92,16 +92,10 @@ class NoiseEstimatorTest {
       data[i] = (float) sampler.sample();
     }
     final NoiseEstimator ie1 = NoiseEstimator.wrap(data, width, height);
-    final NoiseEstimator ie2 = NoiseEstimator.wrap(data, width, height);
     ie1.setRange(10);
-    ie1.setPreserveResiduals(false);
-    ie2.setRange(10);
-    ie2.setPreserveResiduals(true);
     for (final Method m : Method.values()) {
-      final double actual1 = ie1.getNoise(m);
-      Assertions.assertEquals(standardDeviation, actual1, 1e-1 * standardDeviation, m::toString);
-      Assertions.assertEquals(actual1, ie2.getNoise(m), m::toString);
-      Assertions.assertEquals(actual1, ie2.getNoise(m), m::toString);
+      final double actual = ie1.getNoise(m);
+      Assertions.assertEquals(standardDeviation, actual, 1e-1 * standardDeviation, m::toString);
     }
   }
 

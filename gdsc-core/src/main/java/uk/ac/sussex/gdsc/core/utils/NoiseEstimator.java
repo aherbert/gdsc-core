@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.util.Arrays;
+import org.apache.commons.statistics.descriptive.Median;
 import org.apache.commons.statistics.descriptive.StandardDeviation;
 
 /**
@@ -111,12 +111,6 @@ public class NoiseEstimator {
   final int maxy;
 
   private int range = 6;
-  /**
-   * Set this to true if multiple calls will be made to {@link #getNoise(Method)} using methods that
-   * modify the residuals (LeastMedian or LeastTrimmed). If false these methods destroy the
-   * residuals which then have to be recomputed.
-   */
-  private boolean preserveResiduals;
 
   /**
    * Instantiates a new noise estimator.
@@ -276,31 +270,20 @@ public class NoiseEstimator {
 
     @Override
     public double getNoise() {
-      float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
-      final int n = buf.length;
+      final float[] res = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
+      final int n = res.length;
       if (n <= 1) {
         // No standard deviation
         return 0;
       }
-      if (isPreserveResiduals()) {
-        buf = Arrays.copyOf(buf, buf.length);
-      }
-      final int medianIndex = n / 2;
-      Arrays.sort(buf);
-      final float median = buf[medianIndex];
+      final double[] buf = SimpleArrayUtils.toDouble(res);
+      // Partial sort
+      final double median = Median.withDefaults().evaluate(buf);
       for (int j = 0; j < n; j++) {
         buf[j] = Math.abs(buf[j] - median);
       }
-      Arrays.sort(buf);
-      final double sig = 1.4828 * buf[medianIndex];
-      if (!isPreserveResiduals()) {
-        // Residuals have been destroyed
-        if (quick) {
-          quickResiduals = null;
-        } else {
-          residuals = null;
-        }
-      }
+      // Partial sort
+      final double sig = 1.4828 * Median.withDefaults().evaluate(buf);
       return Math.abs(sig);
     }
   }
@@ -320,33 +303,25 @@ public class NoiseEstimator {
 
     @Override
     public double getNoise() {
-      float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
-      final int n = buf.length;
+      final float[] res = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
+      final int n = res.length;
       if (n <= 1) {
         // No standard deviation
         return 0;
       }
-      if (isPreserveResiduals()) {
-        buf = Arrays.copyOf(buf, buf.length);
-      }
+      final double[] buf = new double[n];
       for (int k = 0; k < n; k++) {
-        buf[k] = buf[k] * buf[k];
+        final double d = (double) res[k];
+        buf[k] = d * d;
       }
-      Arrays.sort(buf);
+      // Partial sort
+      Median.withDefaults().evaluate(buf);
       double sum = 0;
       final int medianIndex = n / 2;
       for (int j = 0; j < medianIndex; j++) {
         sum += buf[j];
       }
       final double sig = 2.6477 * Math.sqrt(sum / medianIndex);
-      if (!isPreserveResiduals()) {
-        // Residuals have been destroyed
-        if (quick) {
-          quickResiduals = null;
-        } else {
-          residuals = null;
-        }
-      }
       return Math.abs(sig);
     }
   }
@@ -498,25 +473,24 @@ public class NoiseEstimator {
   }
 
   /**
-   * Checks if preserving residuals. This allows multiple calls to the {@link #getNoise(Method)}
-   * using methods that modify the residuals (LeastMedian or LeastTrimmed).
+   * Checks residuals are preserved.
    *
-   * @return true, if is preserve residuals
+   * @return true
+   * @deprecated All methods preserve the residuals
    */
+  @Deprecated
   public boolean isPreserveResiduals() {
-    return preserveResiduals;
+    return true;
   }
 
   /**
    * Sets the preserve residuals option.
    *
-   * <p>Set this to true if multiple calls will be made to {@link #getNoise(Method)} using methods
-   * that modify the residuals (LeastMedian or LeastTrimmed). If false these methods destroy the
-   * residuals which then have to be recomputed.
-   *
    * @param preserveResiduals the new preserve residuals
+   * @deprecated All methods preserve the residuals
    */
+  @Deprecated
   public void setPreserveResiduals(boolean preserveResiduals) {
-    this.preserveResiduals = preserveResiduals;
+    // Noop
   }
 }
