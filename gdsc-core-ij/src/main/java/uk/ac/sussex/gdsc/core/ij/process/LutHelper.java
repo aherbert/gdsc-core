@@ -101,6 +101,9 @@ public final class LutHelper {
     /** The red blue LUT. */
     RED_BLUE("Red-Blue"),
 
+    /** The red yellow green LUT. */
+    RED_MAGENTA_BLUE("Red-Magenta-Blue"),
+
     /** The intense LUT. */
     INTENSE("Intense") {
       @Override
@@ -312,6 +315,9 @@ public final class LutHelper {
         break;
       case RED_BLUE:
         numberOfColours = setColours(reds, greens, blues, Color.red, Color.blue);
+        break;
+      case RED_MAGENTA_BLUE:
+        numberOfColours = setColours(reds, greens, blues, Color.red, Color.magenta, Color.blue);
         break;
       case RED_CYAN:
         numberOfColours = setColours(reds, greens, blues, Color.red, Color.cyan);
