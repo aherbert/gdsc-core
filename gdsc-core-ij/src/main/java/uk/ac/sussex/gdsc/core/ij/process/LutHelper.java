@@ -139,7 +139,7 @@ public final class LutHelper {
     /** The grays LUT. */
     GRAYS("Grays"),
 
-    /** The red yellow green LUT. */
+    /** The red magenta blue LUT. */
     RED_MAGENTA_BLUE("Red-Magenta-Blue");
 
     private final String nameString;
