@@ -101,9 +101,6 @@ public final class LutHelper {
     /** The red blue LUT. */
     RED_BLUE("Red-Blue"),
 
-    /** The red yellow green LUT. */
-    RED_MAGENTA_BLUE("Red-Magenta-Blue"),
-
     /** The intense LUT. */
     INTENSE("Intense") {
       @Override
@@ -140,7 +137,10 @@ public final class LutHelper {
     RED_CYAN("Red-Cyan"),
 
     /** The grays LUT. */
-    GRAYS("Grays");
+    GRAYS("Grays"),
+
+    /** The red yellow green LUT. */
+    RED_MAGENTA_BLUE("Red-Magenta-Blue");
 
     private final String nameString;
 
