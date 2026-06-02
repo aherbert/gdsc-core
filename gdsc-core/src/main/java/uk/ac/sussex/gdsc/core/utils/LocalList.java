@@ -81,7 +81,7 @@ import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
  * access indices beyond the current size of the list that are within the array capacity without
  * raising an exception; these methods can access or create stale data beyond the managed elements
  * of the list. Usage of these methods in intended to be performed in an equivalent manner to
- * manipulating an array {@code E[]} up to a known size:+
+ * manipulating an array {@code E[]} up to a known size:
  *
  * <pre>
  * {@code LocalList<String> list = ...
