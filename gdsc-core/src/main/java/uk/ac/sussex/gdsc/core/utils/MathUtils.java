@@ -801,7 +801,7 @@ public final class MathUtils {
   }
 
   /**
-   * Get the Akaike Information Criterion (AICc).
+   * Get the Akaike Information Criterion (AIC).
    *
    * <pre>
    * AIC = 2k - 2 ln(L)
@@ -863,6 +863,34 @@ public final class MathUtils {
   }
 
   /**
+   * Get the difference in the Akaike Information Criterion (AIC). This ignores the constant C in
+   * the derivation of the AIC using the log-likelihhod derived from the residual sum of squares
+   * (RSS). Since only differences are meaningful, the constant C can be ignored.
+   *
+   * <pre>
+   * AIC = 2k - 2 ln(L) = 2k + n ln(rss/n) - 2C
+   *
+   * delta AIC = 2k + n ln(rss/n)
+   * </pre>
+   *
+   * <p>This assumes that the residuals are distributed according to independent identical normal
+   * distributions (with zero mean).
+   *
+   * @param sumOfSquaredResiduals the sum of squared residuals from the weighted least squares fit
+   * @param numberOfPoints The number of data points (n)
+   * @param numberOfParameters The number of fitted parameters (k)
+   * @return The difference in the Akaike Information Criterion
+   * @see <a
+   *      href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">Wikipedia:
+   *      AIC comparison with least squares</a>
+   */
+  public static double getDeltaAkaikeInformationCriterion(double sumOfSquaredResiduals,
+      int numberOfPoints, int numberOfParameters) {
+    return 2.0 * numberOfParameters
+        + numberOfPoints * Math.log(sumOfSquaredResiduals / numberOfPoints);
+  }
+
+  /**
    * Get the Bayesian Information Criterion (BIC).
    *
    * <pre>
@@ -882,6 +910,34 @@ public final class MathUtils {
     // parameters
     // http://en.wikipedia.org/wiki/Bayesian_information_criterion
     return numberOfParameters * Math.log(numberOfPoints) - 2.0 * logLikelihood;
+  }
+
+  /**
+   * Get the difference in the Bayesian Information Criterion (BIC). This ignores the constant C in
+   * the derivation of the BIC using the log-likelihhod derived from the residual sum of squares
+   * (RSS). Since only differences are meaningful, the constant C can be ignored.
+   *
+   * <pre>
+   * BIC = ln(n) k - 2 ln(L) = ln(n) k + n ln(rss/n) - 2C
+   *
+   * delta BIC = ln(n) k + n ln(rss/n)
+   * </pre>
+   *
+   * <p>This assumes that the residuals are distributed according to independent identical normal
+   * distributions (with zero mean).
+   *
+   * @param sumOfSquaredResiduals the sum of squared residuals from the weighted least squares fit
+   * @param numberOfPoints The number of data points (n)
+   * @param numberOfParameters The number of fitted parameters (k)
+   * @return The difference in the Bayesian Information Criterion
+   * @see <a
+   *      href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">Wikipedia:
+   *      AIC comparison with least squares</a>
+   */
+  public static double getDeltaBayesianInformationCriterion(double sumOfSquaredResiduals,
+      int numberOfPoints, int numberOfParameters) {
+    return Math.log(numberOfPoints) * numberOfParameters
+        + numberOfPoints * Math.log(sumOfSquaredResiduals / numberOfPoints);
   }
 
   /**

@@ -428,12 +428,38 @@ class MathUtilsTest {
   }
 
   @Test
+  void canComputeDeltaAic() {
+    for (final int n : new int[] {13, 42}) {
+      for (final int k : new int[] {3, 6}) {
+        for (final double rss : new double[] {456.78, 98.123}) {
+          final double expected = k * 2 + n * Math.log(rss / n);
+          Assertions.assertEquals(expected,
+              MathUtils.getDeltaAkaikeInformationCriterion(rss, n, k));
+        }
+      }
+    }
+  }
+
+  @Test
   void canComputeBic() {
     for (final int n : new int[] {13, 42}) {
       for (final int k : new int[] {3, 6}) {
         for (final double ll : new double[] {-456.78, 98.123}) {
           final double expected = k * Math.log(n) - 2 * ll;
           Assertions.assertEquals(expected, MathUtils.getBayesianInformationCriterion(ll, n, k));
+        }
+      }
+    }
+  }
+
+  @Test
+  void canComputeDeltaBic() {
+    for (final int n : new int[] {13, 42}) {
+      for (final int k : new int[] {3, 6}) {
+        for (final double rss : new double[] {456.78, 98.123}) {
+          final double expected = k * Math.log(n) + n * Math.log(rss / n);
+          Assertions.assertEquals(expected,
+              MathUtils.getDeltaBayesianInformationCriterion(rss, n, k));
         }
       }
     }
