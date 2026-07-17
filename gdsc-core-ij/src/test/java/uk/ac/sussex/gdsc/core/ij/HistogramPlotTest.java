@@ -106,8 +106,6 @@ class HistogramPlotTest {
   void testShowWithNoValues() {
     final String title = "Test";
     final String name = "Data";
-    Assertions
-        .assertNull(new HistogramPlot(title, StoredData.create(new double[] {1}), name).show());
     Assertions.assertNull(new HistogramPlot(title,
         StoredData.create(new double[] {1, Double.POSITIVE_INFINITY}), name).show());
     Assertions.assertNull(new HistogramPlot(title, new DoubleData() {
@@ -124,6 +122,9 @@ class HistogramPlotTest {
       @Override
       public void forEach(DoubleConsumer action) {}
     }, name).show());
+    // Can show a single value
+    Assertions
+        .assertNotNull(new HistogramPlot(title, StoredData.create(new double[] {1}), name).show());
   }
 
   @Test
@@ -340,7 +341,8 @@ class HistogramPlotTest {
   void testCanPlot() {
     Assertions.assertFalse(HistogramPlot.canPlot(null));
     Assertions.assertFalse(HistogramPlot.canPlot(new double[0]));
-    Assertions.assertFalse(HistogramPlot.canPlot(new double[1]));
+    // Can plot a single value
+    Assertions.assertTrue(HistogramPlot.canPlot(new double[1]));
     Assertions.assertFalse(HistogramPlot.canPlot(new double[] {Double.NaN, 0}));
     Assertions.assertFalse(HistogramPlot.canPlot(new double[] {Double.POSITIVE_INFINITY, 0}));
     Assertions.assertTrue(HistogramPlot.canPlot(new double[] {1, 2}));
@@ -581,21 +583,13 @@ class HistogramPlotTest {
   }
 
   @ParameterizedTest
-  @CsvSource(value = {
-      "123, 123",
-      "a^b, a^b",
-      "a^^b, a^^b",
+  @CsvSource(value = {"123, 123", "a^b, a^b", "a^^b, a^^b",
       // superscript is replaced by a single '^'
-      "a^^b^^, a^b",
-      "a^^b^^c, a^bc",
+      "a^^b^^, a^b", "a^^b^^c, a^bc",
       // subscript has no replacement character
-      "a!b, a!b",
-      "a!!b, a!!b",
-      "a!!b!!, ab",
-      "a!!b!!c, abc",
+      "a!b, a!b", "a!!b, a!!b", "a!!b!!, ab", "a!!b!!c, abc",
       // both
-      "a^^b^^!!c!!, a^bc",
-  })
+      "a^^b^^!!c!!, a^bc",})
   void testStripFormatting(String in, String out) {
     Assertions.assertEquals(out, HistogramPlot.stripFormatting(in));
   }

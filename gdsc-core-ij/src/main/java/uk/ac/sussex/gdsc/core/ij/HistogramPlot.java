@@ -720,7 +720,7 @@ public class HistogramPlot {
    */
   @VisibleForTesting
   static boolean canPlot(double[] values) {
-    return (values != null && values.length >= 2 && SimpleArrayUtils.isFinite(values));
+    return (values != null && values.length >= 1 && SimpleArrayUtils.isFinite(values));
   }
 
   /**
