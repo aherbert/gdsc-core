@@ -43,6 +43,7 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.StoredData;
 import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
+import uk.ac.sussex.gdsc.test.junit5.DisabledIfHeadless;
 
 @SuppressWarnings({"javadoc"})
 class HistogramPlotTest {
@@ -122,6 +123,13 @@ class HistogramPlotTest {
       @Override
       public void forEach(DoubleConsumer action) {}
     }, name).show());
+  }
+
+  @Test
+  @DisabledIfHeadless
+  void testShowWithOneValues() {
+    final String title = "Test";
+    final String name = "Data";
     // Can show a single value
     Assertions
         .assertNotNull(new HistogramPlot(title, StoredData.create(new double[] {1}), name).show());
