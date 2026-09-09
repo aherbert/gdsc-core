@@ -175,7 +175,6 @@ class DoubleNdTree implements DoubleKdTree {
    * Adds the point if not already present at the leaf node.
    *
    * @param location the location
-   * @param value the value
    * @param filter the filter to test if the point is already present at the leaf node
    * @return true if added
    */
