@@ -124,7 +124,7 @@ public interface ObjFloatKdTree<T> {
       ObjDoubleConsumer<? super T> results);
 
   /**
-   * Calculates the nearest point to {@code location} and puts the item and the distance it in the
+   * Calculates the nearest point to {@code location} and puts the item and the distance in the
    * result. It is assumed that the caller can recreate the item location from the item. The minimum
    * distance is returned.
    *
@@ -149,7 +149,7 @@ public interface ObjFloatKdTree<T> {
 
   /**
    * Calculates the nearest point to {@code location} that passes the provided filter and puts the
-   * item and the distance it in the result. It is assumed that the caller can recreate the item
+   * item and the distance in the result. It is assumed that the caller can recreate the item
    * location from the item. The minimum distance is returned.
    *
    * <p>Special cases:

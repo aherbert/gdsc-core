@@ -205,7 +205,7 @@ class FloatNdTree implements FloatKdTree {
       cursor.splitDimension = cursor.findWidestAxis();
 
       // Don't split node if it has no width in any axis.
-      // Float the bucket size instead.
+      // Double the bucket size instead.
       if (cursor.minLimit[cursor.splitDimension] == cursor.maxLimit[cursor.splitDimension]) {
         final int newLength = cursor.locations.length * 2;
         cursor.locations = Arrays.copyOf(cursor.locations, newLength);
