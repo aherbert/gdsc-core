@@ -35,8 +35,7 @@ import java.util.function.Supplier;
  */
 enum SplitStrategy {
   /**
-   * Split using the middle of the dimension. Uses a simple strategy of the mean of the minimum and
-   * maximum.
+   * Split using the middle of the dimension. Uses the mean of the minimum and maximum.
    *
    * <p>The split value will be finite and will not be equal to the max limit. This allows using
    * {@code value > splitValue} to partition the data.

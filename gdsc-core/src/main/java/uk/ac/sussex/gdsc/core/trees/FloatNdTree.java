@@ -68,6 +68,8 @@ class FloatNdTree implements FloatKdTree {
   private int maximumDepth;
   /** The dimension weight function. */
   private final IntToDoubleFunction dimensionWeight;
+  /** The dimension split strategy. {@code null} in children as the parent determines the split. */
+  private final SplitStrategy splitStrategy;
 
   // Leaf only
 
@@ -94,9 +96,10 @@ class FloatNdTree implements FloatKdTree {
    * @param dimensions the dimensions
    * @param dimensionWeight the dimension weight
    */
-  FloatNdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
+  FloatNdTree(int dimensions, IntToDoubleFunction dimensionWeight, SplitStrategy splitStrategy) {
     this.dimensions = dimensions;
     this.dimensionWeight = dimensionWeight;
+    this.splitStrategy = splitStrategy;
 
     // Init as leaf
     this.locations = new float[BUCKET_SIZE][];
@@ -115,6 +118,7 @@ class FloatNdTree implements FloatKdTree {
   private FloatNdTree(FloatNdTree parent, float[][] locations, int locationCount) {
     this.dimensions = parent.dimensions;
     this.dimensionWeight = parent.dimensionWeight;
+    this.splitStrategy = null;
 
     // Init as leaf
     this.locations = locations;
@@ -211,7 +215,7 @@ class FloatNdTree implements FloatKdTree {
         final int newLength = cursor.locations.length * 2;
         cursor.locations = Arrays.copyOf(cursor.locations, newLength);
       } else {
-        final double splitValue = cursor.splitValue = cursor.computeSplitValue();
+        final double splitValue = cursor.splitValue = cursor.computeSplitValue(splitStrategy);
 
         final int size = cursor.locationCount;
         final int dim = cursor.splitDimension;
@@ -288,8 +292,8 @@ class FloatNdTree implements FloatKdTree {
    *
    * @return the split value
    */
-  private double computeSplitValue() {
-    return SplitStrategy.MIDDLE.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
+  private double computeSplitValue(SplitStrategy splitStrategy) {
+    return splitStrategy.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
         this::getSplitValues);
   }
 

@@ -69,6 +69,8 @@ class IntFloatNdTree implements IntFloatKdTree {
   private int maximumDepth;
   /** The dimension weight function. */
   private final IntToDoubleFunction dimensionWeight;
+  /** The dimension split strategy. {@code null} in children as the parent determines the split. */
+  private final SplitStrategy splitStrategy;
 
   // Leaf only
 
@@ -97,9 +99,10 @@ class IntFloatNdTree implements IntFloatKdTree {
    * @param dimensions the dimensions
    * @param dimensionWeight the dimension weight
    */
-  IntFloatNdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
+  IntFloatNdTree(int dimensions, IntToDoubleFunction dimensionWeight, SplitStrategy splitStrategy) {
     this.dimensions = dimensions;
     this.dimensionWeight = dimensionWeight;
+    this.splitStrategy = splitStrategy;
 
     // Init as leaf
     this.locations = new float[BUCKET_SIZE][];
@@ -121,6 +124,7 @@ class IntFloatNdTree implements IntFloatKdTree {
       int locationCount) {
     this.dimensions = parent.dimensions;
     this.dimensionWeight = parent.dimensionWeight;
+    this.splitStrategy = null;
 
     // Init as leaf
     this.locations = locations;
@@ -222,7 +226,7 @@ class IntFloatNdTree implements IntFloatKdTree {
         cursor.locations = Arrays.copyOf(cursor.locations, newLength);
         cursor.data = Arrays.copyOf(cursor.data, newLength);
       } else {
-        final double splitValue = cursor.splitValue = cursor.computeSplitValue();
+        final double splitValue = cursor.splitValue = cursor.computeSplitValue(splitStrategy);
 
         final int size = cursor.locationCount;
         final int dim = cursor.splitDimension;
@@ -307,8 +311,8 @@ class IntFloatNdTree implements IntFloatKdTree {
    *
    * @return the split value
    */
-  private double computeSplitValue() {
-    return SplitStrategy.MIDDLE.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
+  private double computeSplitValue(SplitStrategy splitStrategy) {
+    return splitStrategy.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
         this::getSplitValues);
   }
 

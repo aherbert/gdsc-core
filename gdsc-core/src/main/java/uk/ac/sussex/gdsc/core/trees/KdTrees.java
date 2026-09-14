@@ -62,7 +62,7 @@ public final class KdTrees {
    */
   public static <T> ObjDoubleKdTree<T> newObjDoubleKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new ObjDoubleNdTree<>(dimensions, dimensionWeight);
+    return new ObjDoubleNdTree<>(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
   }
 
   /**
@@ -87,7 +87,7 @@ public final class KdTrees {
    */
   public static IntDoubleKdTree newIntDoubleKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new IntDoubleNdTree(dimensions, dimensionWeight);
+    return new IntDoubleNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
   }
 
   /**
@@ -111,7 +111,7 @@ public final class KdTrees {
    * @return the KD-tree
    */
   public static DoubleKdTree newDoubleKdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
-    return new DoubleNdTree(dimensions, dimensionWeight);
+    return new DoubleNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
   }
 
   /**
@@ -138,7 +138,7 @@ public final class KdTrees {
    */
   public static <T> ObjFloatKdTree<T> newObjFloatKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new ObjFloatNdTree<>(dimensions, dimensionWeight);
+    return new ObjFloatNdTree<>(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
   }
 
   /**
@@ -163,7 +163,7 @@ public final class KdTrees {
    */
   public static IntFloatKdTree newIntFloatKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new IntFloatNdTree(dimensions, dimensionWeight);
+    return new IntFloatNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
   }
 
   /**
@@ -187,6 +187,6 @@ public final class KdTrees {
    * @return the KD-tree
    */
   public static FloatKdTree newFloatKdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
-    return new FloatNdTree(dimensions, dimensionWeight);
+    return new FloatNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
   }
 }

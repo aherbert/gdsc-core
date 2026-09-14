@@ -68,6 +68,8 @@ class DoubleNdTree implements DoubleKdTree {
   private int maximumDepth;
   /** The dimension weight function. */
   private final IntToDoubleFunction dimensionWeight;
+  /** The dimension split strategy. {@code null} in children as the parent determines the split. */
+  private final SplitStrategy splitStrategy;
 
   // Leaf only
 
@@ -94,9 +96,10 @@ class DoubleNdTree implements DoubleKdTree {
    * @param dimensions the dimensions
    * @param dimensionWeight the dimension weight
    */
-  DoubleNdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
+  DoubleNdTree(int dimensions, IntToDoubleFunction dimensionWeight, SplitStrategy splitStrategy) {
     this.dimensions = dimensions;
     this.dimensionWeight = dimensionWeight;
+    this.splitStrategy = splitStrategy;
 
     // Init as leaf
     this.locations = new double[BUCKET_SIZE][];
@@ -115,6 +118,7 @@ class DoubleNdTree implements DoubleKdTree {
   private DoubleNdTree(DoubleNdTree parent, double[][] locations, int locationCount) {
     this.dimensions = parent.dimensions;
     this.dimensionWeight = parent.dimensionWeight;
+    this.splitStrategy = null;
 
     // Init as leaf
     this.locations = locations;
@@ -212,7 +216,7 @@ class DoubleNdTree implements DoubleKdTree {
         final int newLength = cursor.locations.length * 2;
         cursor.locations = Arrays.copyOf(cursor.locations, newLength);
       } else {
-        final double splitValue = cursor.splitValue = cursor.computeSplitValue();
+        final double splitValue = cursor.splitValue = cursor.computeSplitValue(splitStrategy);
 
         final int size = cursor.locationCount;
         final int dim = cursor.splitDimension;
@@ -289,8 +293,8 @@ class DoubleNdTree implements DoubleKdTree {
    *
    * @return the split value
    */
-  private double computeSplitValue() {
-    return SplitStrategy.MIDDLE.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
+  private double computeSplitValue(SplitStrategy splitStrategy) {
+    return splitStrategy.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
         this::getSplitValues);
   }
 
