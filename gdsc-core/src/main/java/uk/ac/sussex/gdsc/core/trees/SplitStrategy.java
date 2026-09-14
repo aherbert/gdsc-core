@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 /**
  * Utility class for splitting KD-trees.
  */
-enum SplitStrategies {
+enum SplitStrategy {
   /**
    * Split using the middle of the dimension. Uses a simple strategy of the mean of the minimum and
    * maximum.
@@ -66,7 +66,7 @@ enum SplitStrategies {
   };
 
   /** No public construction. */
-  SplitStrategies() {}
+  SplitStrategy() {}
 
   /**
    * Compute the split value.

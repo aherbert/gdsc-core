@@ -310,7 +310,7 @@ final class ObjFloatNdTree<T> implements ObjFloatKdTree<T> {
    * @return the split value
    */
   private double computeSplitValue() {
-    return SplitStrategies.MIDDLE.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
+    return SplitStrategy.MIDDLE.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
         this::getSplitValues);
   }
 
