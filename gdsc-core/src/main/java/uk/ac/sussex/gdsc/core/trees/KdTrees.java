@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import java.util.Objects;
 import java.util.function.IntToDoubleFunction;
 
 /**
@@ -35,8 +36,126 @@ import java.util.function.IntToDoubleFunction;
  */
 public final class KdTrees {
 
+  /**
+   * A builder for a KD-tree.
+   */
+  public static final class Builder {
+    /** The dimensions. */
+    private int dimensions;
+    /** The dimension weight. */
+    private IntToDoubleFunction dimensionWeight = DimensionWeightFunctions.ONE;
+    /** The split strategy. */
+    private SplitStrategy splitStrategy = SplitStrategy.MIDDLE;
+
+    /**
+     * Create an instance.
+     *
+     * @param dimensions the dimensions
+     * @throws IllegalAccessException if {@code dimension < 1}
+     */
+    Builder(int dimensions) {
+      if (dimensions < 1) {
+        throw new IllegalArgumentException("Dimensions must be strictly positive: " + dimensions);
+      }
+      this.dimensions = dimensions;
+    }
+
+    /**
+     * Sets the dimension weight.
+     *
+     * @param dimensionWeight the dimension weight
+     * @return the builder
+     * @throws NullPointerException if the weight is {@code null}
+     */
+    public Builder setDimensionWeight(IntToDoubleFunction dimensionWeight) {
+      this.dimensionWeight = Objects.requireNonNull(dimensionWeight);
+      return this;
+    }
+
+    /**
+     * Sets the split stratgey.
+     *
+     * @param splitStrategy the split strategy
+     * @return the builder
+     * @throws NullPointerException if the strategy is {@code null}
+     */
+    Builder setSplitStratgey(SplitStrategy splitStrategy) {
+      this.splitStrategy = Objects.requireNonNull(splitStrategy);
+      return this;
+    }
+
+    /**
+     * Builds a KD-tree that stores an item with each {@code double}-valued location.
+     *
+     * @param <T> the type of object
+     * @return the tree
+     */
+    public <T> ObjDoubleKdTree<T> buildObjDouble() {
+      return new ObjDoubleNdTree<>(dimensions, dimensionWeight, splitStrategy);
+    }
+
+    /**
+     * Builds a KD-tree that stores an {@code int} with each {@code double}-valued location.
+     *
+     * @return the tree
+     */
+    public IntDoubleKdTree buildIntDouble() {
+      return new IntDoubleNdTree(dimensions, dimensionWeight, splitStrategy);
+    }
+
+    /**
+     * Builds a KD-tree using a {@code double}-valued location.
+     *
+     * @return the tree
+     */
+    public DoubleKdTree buildDouble() {
+      return new DoubleNdTree(dimensions, dimensionWeight, splitStrategy);
+    }
+
+    /**
+     * Builds a KD-tree that stores an item with each {@code float}-valued location.
+     *
+     * @param <T> the type of object
+     * @return the tree
+     */
+    public <T> ObjFloatKdTree<T> buildObjFloat() {
+      return new ObjFloatNdTree<>(dimensions, dimensionWeight, splitStrategy);
+    }
+
+    /**
+     * Builds a KD-tree that stores an {@code int} with each {@code float}-valued location.
+     *
+     * @return the tree
+     */
+    public IntFloatKdTree buildIntFloat() {
+      return new IntFloatNdTree(dimensions, dimensionWeight, splitStrategy);
+    }
+
+    /**
+     * Builds a KD-tree using a {@code float}-valued location.
+     *
+     * @return the tree
+     */
+    public FloatKdTree buildFloat() {
+      return new FloatNdTree(dimensions, dimensionWeight, splitStrategy);
+    }
+  }
+
   /** No public construction. */
   private KdTrees() {}
+
+  /**
+   * Builder.
+   *
+   * @param dimensions the dimensions
+   * @return the builder
+   */
+  public static Builder builder(int dimensions) {
+    return new Builder(dimensions);
+  }
+
+  // Note: The following methods are retained for backwards compatibility.
+  // The Builder should be used to create trees with customised functionality.
 
   /**
    * Creates a KD-tree.
@@ -62,7 +181,7 @@ public final class KdTrees {
    */
   public static <T> ObjDoubleKdTree<T> newObjDoubleKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new ObjDoubleNdTree<>(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
+    return builder(dimensions).setDimensionWeight(dimensionWeight).buildObjDouble();
   }
 
   /**
@@ -87,7 +206,7 @@ public final class KdTrees {
    */
   public static IntDoubleKdTree newIntDoubleKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new IntDoubleNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
+    return builder(dimensions).setDimensionWeight(dimensionWeight).buildIntDouble();
   }
 
   /**
@@ -111,7 +230,7 @@ public final class KdTrees {
    * @return the KD-tree
    */
   public static DoubleKdTree newDoubleKdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
-    return new DoubleNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
+    return builder(dimensions).setDimensionWeight(dimensionWeight).buildDouble();
   }
 
   /**
@@ -138,7 +257,7 @@ public final class KdTrees {
    */
   public static <T> ObjFloatKdTree<T> newObjFloatKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new ObjFloatNdTree<>(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
+    return builder(dimensions).setDimensionWeight(dimensionWeight).buildObjFloat();
   }
 
   /**
@@ -163,7 +282,7 @@ public final class KdTrees {
    */
   public static IntFloatKdTree newIntFloatKdTree(int dimensions,
       IntToDoubleFunction dimensionWeight) {
-    return new IntFloatNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
+    return builder(dimensions).setDimensionWeight(dimensionWeight).buildIntFloat();
   }
 
   /**
@@ -187,6 +306,6 @@ public final class KdTrees {
    * @return the KD-tree
    */
   public static FloatKdTree newFloatKdTree(int dimensions, IntToDoubleFunction dimensionWeight) {
-    return new FloatNdTree(dimensions, dimensionWeight, SplitStrategy.MIDDLE);
+    return builder(dimensions).setDimensionWeight(dimensionWeight).buildFloat();
   }
 }
