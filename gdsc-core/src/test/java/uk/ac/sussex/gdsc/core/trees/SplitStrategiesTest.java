@@ -34,21 +34,21 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"javadoc"})
 class SplitStrategiesTest {
   @Test
-  void testComputeSplitValue() {
-    Assertions.assertEquals(3.5, SplitStrategies.computeSplitValue(2, 5));
-    Assertions.assertEquals(0.5, SplitStrategies.computeSplitValue(Double.MIN_VALUE, 1));
+  void testMIDDLE() {
+    Assertions.assertEquals(3.5, SplitStrategies.MIDDLE.splitValue(2, 5, null));
+    Assertions.assertEquals(0.5, SplitStrategies.MIDDLE.splitValue(Double.MIN_VALUE, 1, null));
 
     // Do not split on infinity
     Assertions.assertEquals(Double.MAX_VALUE,
-        SplitStrategies.computeSplitValue(Double.MAX_VALUE / 2, Double.POSITIVE_INFINITY));
+        SplitStrategies.MIDDLE.splitValue(Double.MAX_VALUE / 2, Double.POSITIVE_INFINITY, null));
     Assertions.assertEquals(-Double.MAX_VALUE,
-        SplitStrategies.computeSplitValue(Double.NEGATIVE_INFINITY, -Double.MAX_VALUE / 2));
+        SplitStrategies.MIDDLE.splitValue(Double.NEGATIVE_INFINITY, -Double.MAX_VALUE / 2, null));
 
     // Do not split on NaN
-    Assertions.assertEquals(0, SplitStrategies.computeSplitValue(Double.NaN, 1));
+    Assertions.assertEquals(0, SplitStrategies.MIDDLE.splitValue(Double.NaN, 1, null));
 
     // Do not split on max value in the event of rounding errors
     Assertions.assertEquals(Math.nextDown(2.0),
-        SplitStrategies.computeSplitValue(Math.nextDown(2.0), 2.0));
+        SplitStrategies.MIDDLE.splitValue(Math.nextDown(2.0), 2.0, null));
   }
 }

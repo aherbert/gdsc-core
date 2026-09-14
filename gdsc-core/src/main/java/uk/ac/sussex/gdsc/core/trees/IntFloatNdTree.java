@@ -1,5 +1,6 @@
 /*
  * Copyright 2009 Rednaxela
+ *
  * Copyright 2019-2023 Alex Herbert
  *
  * This software is provided 'as-is', without any express or implied warranty. In no event will the
@@ -221,8 +222,7 @@ class IntFloatNdTree implements IntFloatKdTree {
         cursor.locations = Arrays.copyOf(cursor.locations, newLength);
         cursor.data = Arrays.copyOf(cursor.data, newLength);
       } else {
-        final double splitValue = cursor.splitValue = SplitStrategies.computeSplitValue(
-            cursor.minLimit[cursor.splitDimension], cursor.maxLimit[cursor.splitDimension]);
+        final double splitValue = cursor.splitValue = cursor.computeSplitValue();
 
         final int size = cursor.locationCount;
         final int dim = cursor.splitDimension;
@@ -263,7 +263,7 @@ class IntFloatNdTree implements IntFloatKdTree {
         // [-inf, inf] = 0 => left is non-zero
         if (left == size) {
           // Note:
-          // This make happen continuously if the locations are all <= zero in the
+          // This may happen continuously if the locations are all <= zero in the
           // dimension chosen for the split, for example if a single location was NaN
           // in all dimensions the widest axis is always 0 and the split value is 0.
           final int newLength = cursor.locations.length * 2;
@@ -300,6 +300,31 @@ class IntFloatNdTree implements IntFloatKdTree {
     cursor.locationCount++;
     cursor.extendBounds(location);
     return true;
+  }
+
+  /**
+   * Compute the split value.
+   *
+   * @return the split value
+   */
+  private double computeSplitValue() {
+    return SplitStrategies.MIDDLE.splitValue(minLimit[splitDimension], maxLimit[splitDimension],
+        this::getSplitValues);
+  }
+
+  /**
+   * Gets the values along the split dimension.
+   *
+   * @return the values
+   */
+  private double[] getSplitValues() {
+    final int n = locationCount;
+    final int d = splitDimension;
+    final double[] x = new double[n];
+    for (int i = 0; i < n; i++) {
+      x[i] = locations[i][d];
+    }
+    return x;
   }
 
   /**

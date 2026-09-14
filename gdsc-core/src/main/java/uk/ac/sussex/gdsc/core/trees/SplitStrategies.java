@@ -28,48 +28,53 @@
 
 package uk.ac.sussex.gdsc.core.trees;
 
+import java.util.function.Supplier;
+
 /**
  * Utility class for splitting KD-trees.
  */
-final class SplitStrategies {
-
-  // This may be modified in the future to an enum implementing an interface.
-  // The interface should have arguments for the min, max and some means to obtain the
-  // values (e.g. a Supplier<Spliterator.OfDouble>).
-  // Currently this class is used by all KdTrees to do the same split.
-
-  /** No public construction. */
-  private SplitStrategies() {}
-
+enum SplitStrategies {
   /**
-   * Compute the split value given the range of the dimension. Uses a simple strategy of the mean of
-   * the minimum and maximum.
+   * Split using the middle of the dimension. Uses a simple strategy of the mean of the minimum and
+   * maximum.
    *
    * <p>The split value will be finite and will not be equal to the max limit. This allows using
    * {@code value > splitValue} to partition the data.
+   */
+  MIDDLE {
+    @Override
+    double splitValue(double min, double max, Supplier<double[]> values) {
+      // Weighted mean to avoid overflow in (min + max) * 0.5
+      double splitValue = min * 0.5 + max * 0.5;
+
+      // Never split on infinity or NaN
+      if (splitValue == Double.POSITIVE_INFINITY) {
+        splitValue = Double.MAX_VALUE;
+      } else if (splitValue == Double.NEGATIVE_INFINITY) {
+        splitValue = -Double.MAX_VALUE;
+      } else if (Double.isNaN(splitValue)) {
+        splitValue = 0;
+      }
+
+      // Don't let the split value be the same as the upper value as
+      // can happen due to rounding errors!
+      if (splitValue == max) {
+        splitValue = min;
+      }
+      return splitValue;
+    }
+  };
+
+  /** No public construction. */
+  SplitStrategies() {}
+
+  /**
+   * Compute the split value.
    *
-   * @param minLimit the minimum limit
-   * @param maxLimit the maximum limit
+   * @param min minimum of the dimension
+   * @param max maximum of the dimension
+   * @param values supplier of the values
    * @return the split value
    */
-  static double computeSplitValue(double minLimit, double maxLimit) {
-    // Weighted mean to avoid overflow in (min + max) * 0.5
-    double splitValue = minLimit * 0.5 + maxLimit * 0.5;
-
-    // Never split on infinity or NaN
-    if (splitValue == Double.POSITIVE_INFINITY) {
-      splitValue = Double.MAX_VALUE;
-    } else if (splitValue == Double.NEGATIVE_INFINITY) {
-      splitValue = -Double.MAX_VALUE;
-    } else if (Double.isNaN(splitValue)) {
-      splitValue = 0;
-    }
-
-    // Don't let the split value be the same as the upper value as
-    // can happen due to rounding errors!
-    if (splitValue == maxLimit) {
-      splitValue = minLimit;
-    }
-    return splitValue;
-  }
+  abstract double splitValue(double min, double max, Supplier<double[]> values);
 }
