@@ -49,7 +49,7 @@ import uk.ac.sussex.gdsc.core.utils.function.LongIntConsumer;
 public final class OpenHashMaps {
   /**
    * Customisation of Long2IntOpenHashMap.
-   * 
+   *
    * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
    */
   @Deprecated
@@ -85,7 +85,7 @@ public final class OpenHashMaps {
 
   /**
    * Customisation of Int2IntOpenHashMap.
-   * 
+   *
    * @deprecated Functionality is now available in the fastutil OpenHashMap implementations.
    */
   @Deprecated
