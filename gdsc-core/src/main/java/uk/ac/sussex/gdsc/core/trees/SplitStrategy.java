@@ -29,43 +29,75 @@
 package uk.ac.sussex.gdsc.core.trees;
 
 import java.util.function.Supplier;
+import org.apache.commons.statistics.descriptive.Mean;
+import org.apache.commons.statistics.descriptive.Median;
 
 /**
  * Utility class for splitting KD-trees.
+ *
+ * <p>Implementations ensure the split value will be finite and will not be equal to the max limit.
+ * This allows using {@code value > splitValue} to partition the data.
  */
 enum SplitStrategy {
   /**
    * Split using the middle of the dimension. Uses the mean of the minimum and maximum.
-   *
-   * <p>The split value will be finite and will not be equal to the max limit. This allows using
-   * {@code value > splitValue} to partition the data.
    */
   MIDDLE {
     @Override
-    double splitValue(double min, double max, Supplier<double[]> values) {
+    double value(double min, double max, Supplier<double[]> values) {
       // Weighted mean to avoid overflow in (min + max) * 0.5
-      double splitValue = min * 0.5 + max * 0.5;
-
-      // Never split on infinity or NaN
-      if (splitValue == Double.POSITIVE_INFINITY) {
-        splitValue = Double.MAX_VALUE;
-      } else if (splitValue == Double.NEGATIVE_INFINITY) {
-        splitValue = -Double.MAX_VALUE;
-      } else if (Double.isNaN(splitValue)) {
-        splitValue = 0;
-      }
-
-      // Don't let the split value be the same as the upper value as
-      // can happen due to rounding errors!
-      if (splitValue == max) {
-        splitValue = min;
-      }
-      return splitValue;
+      return min * 0.5 + max * 0.5;
+    }
+  },
+  /**
+   * Split using the mean of the dimension.
+   */
+  MEAN {
+    @Override
+    double value(double min, double max, Supplier<double[]> values) {
+      return Mean.of(values.get()).getAsDouble();
+    }
+  },
+  /**
+   * Split using the median of the dimension.
+   */
+  MEDIAN {
+    @Override
+    double value(double min, double max, Supplier<double[]> values) {
+      return Median.withDefaults().evaluate(values.get());
     }
   };
 
   /** No public construction. */
   SplitStrategy() {}
+
+  /**
+   * Compute the split value. Ensure the value is finite and not equal to the max limit.
+   *
+   * @param min minimum of the dimension
+   * @param max maximum of the dimension
+   * @param values supplier of the values
+   * @return the split value
+   */
+  double splitValue(double min, double max, Supplier<double[]> values) {
+    double splitValue = value(min, max, values);
+
+    // Never split on infinity or NaN
+    if (splitValue == Double.POSITIVE_INFINITY) {
+      splitValue = Double.MAX_VALUE;
+    } else if (splitValue == Double.NEGATIVE_INFINITY) {
+      splitValue = -Double.MAX_VALUE;
+    } else if (Double.isNaN(splitValue)) {
+      splitValue = 0;
+    }
+
+    // Don't let the split value be the same as the upper value as
+    // can happen due to rounding errors!
+    if (splitValue == max) {
+      splitValue = min;
+    }
+    return splitValue;
+  }
 
   /**
    * Compute the split value.
@@ -75,5 +107,5 @@ enum SplitStrategy {
    * @param values supplier of the values
    * @return the split value
    */
-  abstract double splitValue(double min, double max, Supplier<double[]> values);
+  abstract double value(double min, double max, Supplier<double[]> values);
 }

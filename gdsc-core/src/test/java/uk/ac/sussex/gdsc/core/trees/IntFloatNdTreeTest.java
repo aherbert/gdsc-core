@@ -143,7 +143,8 @@ class IntFloatNdTreeTest {
     final int n = data.length;
 
     // Create the KDtree
-    final IntFloatKdTree tree = KdTrees.newIntFloatKdTree(2);
+    final IntFloatKdTree tree =
+        KdTrees.builder(2).setSplitStratgey(SplitStrategy.MEDIAN).buildIntFloat();
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final float[] location : data) {
@@ -354,7 +355,8 @@ class IntFloatNdTreeTest {
     final FloatDistanceFunction distanceFunction = FloatDistanceFunctions.SQUARED_EUCLIDEAN_2D;
 
     // Create the KDtree
-    final IntFloatKdTree tree = KdTrees.newIntFloatKdTree(2);
+    final IntFloatKdTree tree =
+        KdTrees.builder(2).setSplitStratgey(SplitStrategy.MEAN).buildIntFloat();
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final float[] location : data) {

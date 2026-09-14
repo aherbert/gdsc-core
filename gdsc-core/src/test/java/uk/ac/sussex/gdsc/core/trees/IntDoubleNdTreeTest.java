@@ -143,7 +143,8 @@ class IntDoubleNdTreeTest {
     final int n = data.length;
 
     // Create the KDtree
-    final IntDoubleKdTree tree = KdTrees.newIntDoubleKdTree(2);
+    final IntDoubleKdTree tree =
+        KdTrees.builder(2).setSplitStratgey(SplitStrategy.MEDIAN).buildIntDouble();
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final double[] location : data) {
@@ -351,7 +352,8 @@ class IntDoubleNdTreeTest {
     final DoubleDistanceFunction distanceFunction = DoubleDistanceFunctions.SQUARED_EUCLIDEAN_2D;
 
     // Create the KDtree
-    final IntDoubleKdTree tree = KdTrees.newIntDoubleKdTree(2);
+    final IntDoubleKdTree tree =
+        KdTrees.builder(2).setSplitStratgey(SplitStrategy.MEAN).buildIntDouble();
     Assertions.assertEquals(2, tree.dimensions());
     int item = 0;
     for (final double[] location : data) {
