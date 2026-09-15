@@ -51,7 +51,7 @@ public final class KdTrees {
      * Create an instance.
      *
      * @param dimensions the dimensions
-     * @throws IllegalAccessException if {@code dimension < 1}
+     * @throws IllegalArgumentException if {@code dimension < 1}
      */
     Builder(int dimensions) {
       if (dimensions < 1) {
@@ -74,6 +74,9 @@ public final class KdTrees {
 
     /**
      * Sets the split stratgey.
+     * 
+     * <p>This is not public. Changes to the split strategy do not significantly alter construction
+     * time or nearest-neighbour search performance.
      *
      * @param splitStrategy the split strategy
      * @return the builder
