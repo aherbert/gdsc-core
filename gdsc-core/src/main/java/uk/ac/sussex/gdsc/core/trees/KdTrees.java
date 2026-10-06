@@ -8,7 +8,7 @@
  *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
- * Copyright (C) 2011 - 2025 Alex Herbert
+ * Copyright (C) 2011 - 2026 Alex Herbert
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -74,7 +74,7 @@ public final class KdTrees {
 
     /**
      * Sets the split stratgey.
-     * 
+     *
      * <p>This is not public. Changes to the split strategy do not significantly alter construction
      * time or nearest-neighbour search performance.
      *
