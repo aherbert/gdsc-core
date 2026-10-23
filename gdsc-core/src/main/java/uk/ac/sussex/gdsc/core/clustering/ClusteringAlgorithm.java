@@ -90,8 +90,8 @@ public enum ClusteringAlgorithm {
   },
   /**
    * Hierarchical centroid-linkage clustering by joining the closest pair of clusters iteratively.
-   * Clusters are compared using time and distance thresholds with priority on the closest time gap
-   * (within the distance threshold).
+   * Clusters are compared using time and distance thresholds with priority on the closest distance
+   * gap (within the time threshold).
    */
   CENTROID_LINKAGE_DISTANCE_PRIORITY {
     @Override
@@ -101,8 +101,8 @@ public enum ClusteringAlgorithm {
   },
   /**
    * Hierarchical centroid-linkage clustering by joining the closest pair of clusters iteratively.
-   * Clusters are compared using time and distance thresholds with priority on the closest distance
-   * gap (within the time threshold).
+   * Clusters are compared using time and distance thresholds with priority on the closest time gap
+   * (within the distance threshold).
    */
   CENTROID_LINKAGE_TIME_PRIORITY {
     @Override
