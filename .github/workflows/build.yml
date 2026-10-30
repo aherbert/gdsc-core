@@ -37,7 +37,7 @@ jobs:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
       run: >
-        mvn -V -B --no-transfer-progress -Psnapshot-release deploy -Dgpg.skip -DskipTests
+        mvn -V -B --no-transfer-progress -Psnapshot-release deploy -Dgpg.skip -DskipTests -Dmaven.repository.credentialScope=id
     - name: Build coverage
       run: mvn -B --no-transfer-progress -P jacoco jacoco:report
     - name: Upload coverage to Codecov
