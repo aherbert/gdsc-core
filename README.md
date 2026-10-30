@@ -19,18 +19,18 @@ Maven Installation
 This package is used by other GDSC packages. It is only necessary to perform an
 install if you are building the other packages from the source code.
 
-The code depends on the gdsc-core and gdsc-ij-parent artifacts so you will have
-to install this to your local Maven repository before building:
+The code depends on the gdsc-test and gdsc-ij-parent artifacts so you will have
+to install these to your local Maven repository before building:
 
 1. Clone the required repositories
 
-        git clone https://github.com/aherbert/gdsc-core.git
+        git clone https://github.com/aherbert/gdsc-test.git
         git clone https://github.com/aherbert/gdsc-ij-parent.git
         git clone https://github.com/aherbert/gdsc-core.git
 
 2. Build the code and install using Maven
 
-        cd gdsc-core
+        cd gdsc-test
         mvn install
         cd ../gdsc-ij-parent
         mvn install
