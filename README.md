@@ -43,6 +43,18 @@ to install these to your local Maven repository before building:
 	code.
 
 
+Change Log
+----------
+
+See the [change log](CHANGELOG.md) for the changes in each release.
+
+The description of a GitHub release is created from the version section of the
+change log:
+
+        src/conf/release-notes.sh 2.4 > notes.md
+        gh release create v2.4 --title "GDSC Core 2.4" --notes-file notes.md
+
+
 Legal
 -----
 
