@@ -647,6 +647,13 @@ public class AlignImagesFft {
   /**
    * Creates the half max bounds.
    *
+   * <p>The translation is restricted so that at least half of the smaller image width/height is
+   * within the larger image (half-max translation). The bounds include the translation in the range
+   * {@code [-max/2, max/2]} where {@code max} is the maximum width/height of the two images.
+   *
+   * <p>The bounds are a half-open interval {@code [x, x + width)} in each dimension as used by the
+   * {@link Rectangle} class.
+   *
    * @param width1 the width 1
    * @param height1 the height 1
    * @param width2 the width 2
@@ -660,11 +667,14 @@ public class AlignImagesFft {
     int maxy = Math.max(height1, height2);
     maxx /= 2;
     maxy /= 2;
-    return new Rectangle(-maxx, -maxy, 2 * maxx, 2 * maxy);
+    return createBounds(-maxx, maxx, -maxy, maxy);
   }
 
   /**
-   * Creates the bounds.
+   * Creates the bounds. The bounds include the min and max shift.
+   *
+   * <p>The bounds are a half-open interval {@code [x, x + width)} in each dimension as used by the
+   * {@link Rectangle} class. The width and height are {@code max - min + 1}.
    *
    * @param minXShift the min X shift
    * @param maxXShift the max X shift
@@ -673,8 +683,8 @@ public class AlignImagesFft {
    * @return the rectangle
    */
   public static Rectangle createBounds(int minXShift, int maxXShift, int minYShift, int maxYShift) {
-    final int w = maxXShift - minXShift;
-    final int h = maxYShift - minYShift;
+    final int w = maxXShift - minXShift + 1;
+    final int h = maxYShift - minYShift + 1;
     return new Rectangle(minXShift, minYShift, w, h);
   }
 

@@ -38,11 +38,14 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.EnumSet;
+import java.util.SplittableRandom;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.ac.sussex.gdsc.core.ij.AlignImagesFft.SubPixelMethod;
 import uk.ac.sussex.gdsc.core.ij.process.Fht;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
@@ -92,19 +95,46 @@ class AlignImagesFftTest {
 
   @Test
   void testCreateHalfMaxBounds() {
-    Assertions.assertEquals(new Rectangle(-5, -8, 10, 16),
+    // Symmetric bounds including the max translation: [-5, 5] x [-8, 8]
+    Assertions.assertEquals(new Rectangle(-5, -8, 11, 17),
         AlignImagesFft.createHalfMaxBounds(10, 16, 4, 6));
-    Assertions.assertEquals(new Rectangle(-5, -8, 10, 16),
+    Assertions.assertEquals(new Rectangle(-5, -8, 11, 17),
         AlignImagesFft.createHalfMaxBounds(11, 17, 4, 6));
-    Assertions.assertEquals(new Rectangle(-5, -8, 10, 16),
+    Assertions.assertEquals(new Rectangle(-5, -8, 11, 17),
         AlignImagesFft.createHalfMaxBounds(4, 6, 10, 16));
-    Assertions.assertEquals(new Rectangle(-5, -8, 10, 16),
+    Assertions.assertEquals(new Rectangle(-5, -8, 11, 17),
         AlignImagesFft.createHalfMaxBounds(4, 6, 11, 17));
   }
 
   @Test
   void testCreateBounds() {
-    Assertions.assertEquals(new Rectangle(-1, -3, 3, 7), AlignImagesFft.createBounds(-1, 2, -3, 4));
+    // Bounds include the min and max: [-1, 2] x [-3, 4]
+    Assertions.assertEquals(new Rectangle(-1, -3, 4, 8), AlignImagesFft.createBounds(-1, 2, -3, 4));
+    // A single translation
+    Assertions.assertEquals(new Rectangle(3, -4, 1, 1), AlignImagesFft.createBounds(3, 3, -4, -4));
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {-3, 3})
+  void testAlignAtTranslationLimit(int shift) {
+    // Smooth random image
+    final SplittableRandom rng = new SplittableRandom(12345);
+    final FloatProcessor ref = new FloatProcessor(64, 64);
+    for (int i = 0; i < ref.getPixelCount(); i++) {
+      ref.setf(i, (float) rng.nextDouble());
+    }
+    ref.blurGaussian(2);
+    final ImageProcessor target = ref.duplicate();
+    target.translate(shift, 0);
+
+    // The translation to align the target is the negative of the shift and is at the
+    // limit of the range
+    final Rectangle bounds = AlignImagesFft.createBounds(-3, 3, -3, 3);
+    final AlignImagesFft align = new AlignImagesFft();
+    align.align(new ImagePlus("ref", ref), new ImagePlus("target", target), WindowMethod.NONE,
+        bounds, SubPixelMethod.NONE, ImageProcessor.NONE, true, null, null, null, false);
+    Assertions.assertEquals(-shift, align.getLastXOffset());
+    Assertions.assertEquals(0, align.getLastYOffset());
   }
 
   @Test

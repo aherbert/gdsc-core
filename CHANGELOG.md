@@ -14,7 +14,12 @@ Minor release of GDSC Core.
 
 ### Fix
 
-- No changes yet.
+- `AlignImagesFft.createBounds` includes the maximum X and Y shift in the bounds.
+  Previously the maximum shift was excluded from the alignment search, and a range
+  with equal minimum and maximum shift did not search any translation.
+- `AlignImagesFft.createHalfMaxBounds` creates symmetric bounds that include the
+  maximum positive translation. Previously the positive translation range was one
+  pixel shorter than the negative range. This bounds the default alignment search.
 
 ## Earlier Versions
 
