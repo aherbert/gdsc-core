@@ -10,7 +10,7 @@ Minor release of GDSC Core.
 
 ### Update
 
-- No changes yet.
+- Update to GDSC IJ parent 5.0.
 
 ### Fix
 
